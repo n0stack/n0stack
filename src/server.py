@@ -6,14 +6,25 @@ from flask_restful import reqparse, abort, Api, Resource
 app = Flask(__name__)
 api = Api(app)
 
-class Test(Resource):
-    def get(self, name):
-        print(name)
 
-        return "ok", 200
+class VMInfo(Resource):
+    """
+    Get vm informations.
+    """
+    def get(self):
+        agents = [
+            {hostname: 'localhost', port: 5000},
+        ]
+
+        res = []
+        for agent in agents:
+            res.append(requests.get(
+                'http://'+agent.hostname+str(agent.port)).json())
+        
+        return res.json()
 
 
-api.add_resource(Test, '/<name>')
+api.add_resource(VMInfo, '/vminfo')
 
 
 if __name__ == "__main__":
