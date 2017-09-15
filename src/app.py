@@ -13,13 +13,13 @@ class VMInfo(Resource):
     """
     def get(self):
         agents = [
-            {hostname: 'localhost', port: 5000},
+            {hostname: '10.8.0.6', port: 5000},
         ]
 
         res = []
         for agent in agents:
-            res.append(requests.get(
-                'http://'+agent.hostname+str(agent.port)).json())
+            uri = agent.hostname + str(agent.port) + "/vm"
+            res.append(requests.get('http://'+uri).json())
         
         return res.json()
 
