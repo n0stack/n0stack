@@ -16,12 +16,13 @@ class VMInfo(Resource):
             {"hostname": '10.8.0.6', "port": 5000},
         ]
 
-        res = []
+        res = {}
         for agent in agents:
             uri = agent["hostname"] + ':' + str(agent["port"]) + "/vm"
-            res.append(requests.get("http://"+uri).json())
-        
-        return res[0]
+            response = requests.get("http://"+uri).json()
+            res.update({agent["hostname"]: response})
+                        
+        return res
 
 
 api.add_resource(VMInfo, "/vminfo")
