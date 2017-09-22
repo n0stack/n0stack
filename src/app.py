@@ -8,10 +8,10 @@ import resource.vm as VMres
 app = Flask(__name__)
 api = Api(app)
 
-api.add_resource(VMres.VMInfo, "/vminfo")
+api.add_resource(VMres.VM, "/vminfo")
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=25252)
+    app.run(debug=True, host='0.0.0.0', port=8080)
     
     
