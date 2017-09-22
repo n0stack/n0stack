@@ -8,7 +8,8 @@ import resource.vm as VMres
 app = Flask(__name__)
 api = Api(app)
 
-api.add_resource(VMres.VM, "/vminfo")
+api.add_resource(VMres.VM, '/vm')
+api.add_resource(VMres.VMname, '/vm/<string:name>')
 
 
 if __name__ == "__main__":
