@@ -88,14 +88,9 @@ class VMname(Resource):
             json.dumps(args['params']),
             headers={'Content-Type': 'application/json'})
 
-        if response.status == 422:
+        if response.status_code == 422:
             return response.json(), 422
-        elif response.status == 201:
+        elif response.status_code == 201:
             return response.json(), 201
 
         return {"message": "critical error"}, 400
-
-            
-
-
-            
