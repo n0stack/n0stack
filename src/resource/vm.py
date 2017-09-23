@@ -82,7 +82,7 @@ class VMname(Resource):
             args['host'] = '10.8.0.6'
 
         # send the get request
-        uri = args['host'] + ':5000' + "/vm/" + name
+        uri = args['host'] + ":5000" + "/vm/" + name
         response = requests.post(
             "http://" + uri,
             json.dumps(args['params']),
@@ -94,3 +94,14 @@ class VMname(Resource):
             return response.json(), 201
 
         return {"message": "critical error"}, 400
+
+
+    def delete(self, name):
+        # 存在するホストを探すコードを多分書く
+        host = '10.8.0.6'
+        uri = host + ":5000/vm/" + name
+        response = requests.delete("http://" + uri)
+        if response.status_code == 200:
+            return {"message": "success"}, 200
+        return {"message": "failed"}, 400
+            
