@@ -5,7 +5,12 @@
 - pull request駆動
 - ユニットテストはとりあえず作らない
 - annotationは全てにつける
-- docstringをsphinx形式で書く
+
+## About documents
+
+### docstring
+
+- docstringを[Google形式](http://google.github.io/styleguide/pyguide.html#Comments)で書く
   - private methodについてはdocstringを書かなくても良い
 
 ## CI
