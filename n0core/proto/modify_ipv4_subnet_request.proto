@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+message ModifyIPv4SubnetRequest {
+  string id = 1;
+  string cidr = 2;
+  bool enable_dhcp = 3;
+  string allocation_pool = 4;
+  repeated string nameservers = 5;
+  string gateway_ip = 6;
+}
