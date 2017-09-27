@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+// Enum
+import "network_type.proto";
+import "vm_power_state.proto";
+
+// Partial Message
+import "vlan_network_setting.proto";
+
+// Request
+import "attach_network_interface_request.proto";
+import "clone_vm_request.proto";
+import "create_ipv4_subnet_request.proto";
+import "create_network_request.proto";
+import "create_vm_request.proto";
+import "create_vm_snapshot_request.proto";
+import "create_volume_request.proto";
+import "delete_ipv4_subnet_request.proto";
+import "delete_network_request.proto";
+import "delete_vm_request.proto";
+import "delete_vm_snapshot_request.proto";
+import "delete_volume_request.proto";
+import "detach_network_interface_request.proto";
+import "migrate_vm_request.proto";
+import "modify_ipv4_subnet_request.proto";
+import "modify_network_interface_request.proto";
+import "modify_network_request.proto";
+import "modify_vm_request.proto";
+import "vm_power_state_request.proto";
+
+
+// Notification
+

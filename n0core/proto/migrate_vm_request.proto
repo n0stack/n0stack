@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+message MigrateVMRequest {
+  string name = 1;
+  string host = 2;
+  string src_path = 3;
+  string dst_path = 4;
+}

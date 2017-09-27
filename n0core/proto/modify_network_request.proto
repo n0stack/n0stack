@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+import "network_type.proto";
+import "vlan_network_setting.proto";
+
+message ModifyNetworkRequest {
+  string id = 1;
+  NetworkType type = 2;
+
+  oneof type_specific_setting {
+    VlanNetworkSetting vlan_network_setting = 3;
+  }
+}

@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+import "vm_power_state.proto";
+
+message VMPowerStateRequest {
+  string host = 1;
+  string name = 2;
+  VMPowerState status = 3;
+}
