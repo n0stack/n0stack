@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+import public "attach_network_interface_request.proto";
+import public "clone_vm_request.proto";
+import public "create_ipv4_subnet_request.proto";
+import public "create_network_request.proto";
+import public "create_vm_request.proto";
+import public "create_vm_snapshot_request.proto";
+import public "create_volume_request.proto";
+import public "delete_ipv4_subnet_request.proto";
+import public "delete_network_request.proto";
+import public "delete_vm_request.proto";
+import public "delete_vm_snapshot_request.proto";
+import public "delete_volume_request.proto";
+import public "detach_network_interface_request.proto";
+import public "migrate_vm_request.proto";
+import public "update_ipv4_subnet_request.proto";
+import public "update_network_interface_request.proto";
+import public "update_network_request.proto";
+import public "update_vm_power_state_request.proto";
+import public "update_vm_request.proto";
+
+import public "network_type.proto";
+import public "vm_power_state.proto";
+import public "vlan_network_setting.proto";
+
+message Request {
+  string type = 1;
+
+  oneof message {
+    CreateVMRequest create_vm_request = 2;
+    UpdateVMRequest update_vm_request = 3;
+    DeleteVMRequest delete_vm_request = 4;
+
+    CreateVMSnapshotRequest create_vm_snapshot_request = 5;
+    DeleteVMSnapshotRequest delete_vm_snapshot_request = 6;
+
+    CloneVMRequest clone_vm_request = 7;
+
+    MigrateVMRequest migrate_vm_request = 8;
+
+    UpdateVMPowerStateRequest update_vm_power_state_request = 9;
+
+    CreateVolumeRequest create_volume_request = 10;
+    DeleteVolumeRequest delete_volume_request = 11;
+
+    CreateNetworkRequest create_network_request = 12;
+    UpdateNetworkRequest update_network_request = 13;
+    DeleteNetworkRequest delete_network_request = 14;
+
+    AttachNetworkInterfaceRequest attach_network_interface_request = 15;
+    UpdateNetworkInterfaceRequest update_network_interface_request = 16;
+    DetachNetworkInterfaceRequest detach_network_interface_request = 17;
+
+    CreateIPv4SubnetRequest create_ipv4_subnet_request = 18;
+    UpdateIPv4SubnetRequest update_ipv4_subnet_request = 19;
+    DeleteIPv4SubnetRequest delete_ipv4_subnet_request = 20;
+  }
+}
