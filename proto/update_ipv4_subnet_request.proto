@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-message ModifyIPv4SubnetRequest {
+message UpdateIPv4SubnetRequest {
   string id = 1;
   string cidr = 2;
   bool enable_dhcp = 3;

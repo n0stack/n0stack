@@ -8,14 +8,14 @@ n0stack Protobuf Schemas
 
 # How to use
 
-- Compiled file (for python) is located under `python` directory
+- Compiled file (for python) is located under `../n0core/proto` directory
 - `import` each file and use:
 
 # Defining new `.proto` file
 
-1. Create `.proto` file
+1. Create `.proto` file (for example: `new_file.proto`)
 1. Add `import "...";` to `all.proto`
-1. Compile `protoc -I. --python_out=python new_file.proto all.proto` (Considering `pwd` is in this directory)
+1. Compile `protoc -I. --python_out=../n0core/proto new_file.proto all.proto` (Considering working in this directory)
 
 # Example usage in Python
 
