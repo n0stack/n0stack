@@ -13,54 +13,22 @@ class DHCP(object):
     """
     ip = IPRoute()
 
-    @classmethod
-    def _get_veth_names(cls, subnet_id):
-        # type: (str) -> Tuple[str, str]
+    def __init__(self, subnet_id):
+        # type: (str) -> None
         """
-        Get names of veths linked to DHCP server on specified subnet.
+        Set names in order to create or delete resources.
 
         Args:
             subnet_id: Subnet ID.
-
-        Returns:
-            Name of one of the veth pair.
-            Name of the other.
         """
-        return 'tap-dhcp-' + subnet_id, 'eth-dhcp-' + subnet_id
+        self.netns_name = 'dhcp-' + subnet_id
+        self.tap_name = 'tap-dhcp-' + subnet_id
+        self.peer_name = 'eth-dhcp-' + subnet_id
+        self.pid_dirname = os.path.join('/var/run/', self.netns_name)
+        self.pid_filename = os.path.join(self.pid_dirname, 'dnsmasq.pid')
 
-    @classmethod
-    def _get_netns_name(cls, subnet_id):
-        # type: (str) -> str
-        """
-        Gets netns name by subnet.
-
-        Args:
-            subnet_id: Uuid of subnet.
-
-        Returns:
-            netns name.
-        """
-        return 'dhcp-' + subnet_id
-
-    @classmethod
-    def _get_pid_filename(cls, netns_name):
-        # type: (str) -> Tuple[str, str]
-        """
-        Get dnsmasq pid filename by netns.
-
-        Args:
-            netns_name: netns name.
-
-        Returns:
-            Path to directory of pid file.
-            Path to dnsmasq pid file.
-        """
-        dirname = os.path.join('/var/run/', netns_name)
-        return dirname, os.path.join(dirname, 'dnsmasq.pid')
-
-    @classmethod
-    def _start_dnsmasq_process(cls, netns_name, interface_name, pool):
-        # type: (str, str, Tuple[str, str]) -> None
+    def _start_dnsmasq_process(self, pool):
+        # type: (Tuple[str, str]) -> None
         """
         Start dnsmasq process on netns.
 
@@ -68,28 +36,24 @@ class DHCP(object):
         2. Start dnsmasq process.
 
         Args:
-            netns_name: netns name.
-            interface_name: Name of interface used by dnsmasq.
             pool: DHCP allocation pool. Allocate pool[0]-pool[1].
         """
-        dirname, pid_filename = cls._get_pid_filename(netns_name)
-        if not os.path.exists(dirname):
-            os.mkdir(dirname)
+        if not os.path.exists(self.pid_dirname):
+            os.mkdir(self.pid_dirname)
 
-        interface = '--interface=' + interface_name
+        interface = '--interface=' + self.peer_name
         dhcp_range = '--dhcp-range=' + pool[0] + ',' + pool[1] + ',' + '12h'
-        pid_file = '--pid-file=' + pid_filename
+        pid_file = '--pid-file=' + self.pid_filename
         cmd = ['/usr/sbin/dnsmasq',
                '--no-resolv',
                '--no-hosts',
                interface,
                dhcp_range,
                pid_file]
-        NSPopen(netns_name, cmd)
+        NSPopen(self.netns_name, cmd)
 
-    @classmethod
-    def create_dhcp_server(cls, subnet_id, interface_addr, bridge_name, pool):
-        # type: (str, IPv4Interface, str, Tuple[str, str]) -> None
+    def create_dhcp_server(self, interface_addr, bridge_name, pool):
+        # (IPv4Interface, str, Tuple[str, str]) -> None
         """
         Create DHCP server on specified subnet.
 
@@ -109,36 +73,35 @@ class DHCP(object):
         7. Start dnsmasq process.
 
         Args:
-            subnet_id: Subnet id.
             interface_addr: IP address of DHCP server.
             bridge_name: Name of bridge linked to DHCP server.
             pool: DHCP allocation pool. Allocate pool[0]-pool[1].
         """
-        netns_name = cls._get_netns_name(subnet_id)
-        netns = NetNS(netns_name, flags=os.O_CREAT)
+        netns = NetNS(self.netns_name, flags=os.O_CREAT)
 
-        tap_name, peer_name = cls._get_veth_names(subnet_id)
-        cls.ip.link('add', ifname=tap_name, peer=peer_name, kind='veth')
+        tap_name = self.tap_name
+        peer_name = self.peer_name
+        DHCP.ip.link('add', ifname=tap_name, peer=peer_name, kind='veth')
 
-        tap = cls.ip.link_lookup(ifname=tap_name)[0]
-        bri = cls.ip.link_lookup(ifname=bridge_name)[0]
-        cls.ip.link('set', index=tap, master=bri)
+        tap = DHCP.ip.link_lookup(ifname=tap_name)[0]
+        bri = DHCP.ip.link_lookup(ifname=bridge_name)[0]
+        DHCP.ip.link('set', index=tap, master=bri)
 
-        peer = cls.ip.link_lookup(ifname=peer_name)[0]
-        cls.ip.link('set', index=peer, net_ns_fd=netns_name)
+        peer = DHCP.ip.link_lookup(ifname=peer_name)[0]
+        DHCP.ip.link('set', index=peer, net_ns_fd=self.netns_name)
+
         address = str(interface_addr.ip)
         prefixlen = int(interface_addr.network.prefixlen)
         netns.addr('add', index=peer, address=address, prefixlen=prefixlen)
 
-        cls.ip.link('set', index=tap, state='up')
+        DHCP.ip.link('set', index=tap, state='up')
         netns.link('set', index=peer, state='up')
         netns.close()
 
-        cls._start_dnsmasq_process(netns_name, peer_name, pool)
+        self._start_dnsmasq_process(pool)
 
-    @classmethod
-    def delete_dhcp_server(cls, subnet_id):
-        # type : (str) -> None
+    def delete_dhcp_server(self):
+        # type : () -> None
         """
         Delete DHCP server on specified subnet.
 
@@ -147,23 +110,16 @@ class DHCP(object):
            in command: `ip link del $tap_name`
         2. Delete related netns.
            in command: `ip netns del $netns_name`
-
-        Args:
-            subnet_id: Subnet id.
         """
-        netns_name = cls._get_netns_name(subnet_id)
-
-        dirname, pid_filename = cls._get_pid_filename(netns_name)
-        with open(pid_filename, 'r') as f:
+        with open(self.pid_filename, 'r') as f:
             pid = int(f.read())
         os.kill(pid, 9)
-        os.remove(pid_filename)
-        os.rmdir(dirname)
+        os.remove(self.pid_filename)
+        os.rmdir(self.pid_dirname)
 
-        tap_name, _ = cls._get_veth_names(subnet_id)
-        tap = cls.ip.link_lookup(ifname=tap_name)[0]
-        cls.ip.link('del', index=tap)
+        tap = DHCP.ip.link_lookup(ifname=self.tap_name)[0]
+        DHCP.ip.link('del', index=tap)
 
-        netns = NetNS(netns_name)
+        netns = NetNS(self.netns_name)
         netns.close()
         netns.remove()
