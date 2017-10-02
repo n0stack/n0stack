@@ -1,6 +1,7 @@
-from ipaddress import IPv4Interface # noqa
+from ipaddress import IPv4Interface # NOQA
 import os
-from typing import Tuple # noqa
+from typing import Tuple # NOQA
+from warnings import warn
 
 from pyroute2 import IPRoute
 from pyroute2 import NetNS
@@ -21,13 +22,33 @@ class DHCP(object):
         Args:
             subnet_id: Subnet ID.
         """
-        self.netns_name = 'dhcp-' + subnet_id
-        self.tap_name = 'tap-dhcp-' + subnet_id
-        self.peer_name = 'eth-dhcp-' + subnet_id
+        self.netns_name = 'dhcp-{}'.format(subnet_id)
+        self.tap_name = 'tap-dhcp-{}'.format(subnet_id)
+        self.peer_name = 'eth-dhcp-{}'.format(subnet_id)
         self.pid_dirname = os.path.join('/var/run/', self.netns_name)
         self.pid_filename = os.path.join(self.pid_dirname, 'dnsmasq.pid')
 
-    def _start_dnsmasq_process(self, pool):
+    def get_dnsmasq_pid(self):
+        # type: () -> int
+        """
+        Get pid of running dnsmasq process on netns.
+
+        Returns:
+            pid.
+            If pid file or process does not exist, return None.
+        """
+        if not os.path.exists(self.pid_filename):
+            return None
+        with open(self.pid_filename, 'r') as f:
+            pid = int(f.read())
+        try:
+            os.kill(pid, 0)
+        except OSError:
+            return None
+        else:
+            return pid
+
+    def start_dnsmasq_process(self, pool):
         # type: (Tuple[str, str]) -> None
         """
         Start dnsmasq process on netns.
@@ -37,13 +58,20 @@ class DHCP(object):
 
         Args:
             pool: DHCP allocation pool. Allocate pool[0]-pool[1].
+
+        Raises:
+            Exception: If dnsmasq process is already running, raise Exception.
         """
+
+        if self.get_dnsmasq_pid() is not None:
+            raise Exception("dnsmasq process in {} is already running".format(self.netns_name)) # NOQA
+
         if not os.path.exists(self.pid_dirname):
             os.mkdir(self.pid_dirname)
 
-        interface = '--interface=' + self.peer_name
-        dhcp_range = '--dhcp-range=' + pool[0] + ',' + pool[1] + ',' + '12h'
-        pid_file = '--pid-file=' + self.pid_filename
+        interface = '--interface={}'.format(self.peer_name)
+        dhcp_range = '--dhcp-range={},{},12h'.format(pool[0], pool[1])
+        pid_file = '--pid-file={}'.format(self.pid_filename)
         cmd = ['/usr/sbin/dnsmasq',
                '--no-resolv',
                '--no-hosts',
@@ -76,7 +104,16 @@ class DHCP(object):
             interface_addr: IP address of DHCP server.
             bridge_name: Name of bridge linked to DHCP server.
             pool: DHCP allocation pool. Allocate pool[0]-pool[1].
+
+        Raises:
+            Exception: If spcified bridge does not exist, raise Exception.
         """
+        bri = DHCP.ip.link_lookup(ifname=bridge_name)
+        if bri:
+            bri = bri[0]
+        else:
+            raise Exception("Specified bridge {} does not exist".format(bridge_name)) # NOQA
+
         netns = NetNS(self.netns_name, flags=os.O_CREAT)
 
         tap_name = self.tap_name
@@ -84,7 +121,6 @@ class DHCP(object):
         DHCP.ip.link('add', ifname=tap_name, peer=peer_name, kind='veth')
 
         tap = DHCP.ip.link_lookup(ifname=tap_name)[0]
-        bri = DHCP.ip.link_lookup(ifname=bridge_name)[0]
         DHCP.ip.link('set', index=tap, master=bri)
 
         peer = DHCP.ip.link_lookup(ifname=peer_name)[0]
@@ -98,7 +134,7 @@ class DHCP(object):
         netns.link('set', index=peer, state='up')
         netns.close()
 
-        self._start_dnsmasq_process(pool)
+        self.start_dnsmasq_process(pool)
 
     def delete_dhcp_server(self):
         # type : () -> None
@@ -110,15 +146,30 @@ class DHCP(object):
            in command: `ip link del $tap_name`
         2. Delete related netns.
            in command: `ip netns del $netns_name`
-        """
-        with open(self.pid_filename, 'r') as f:
-            pid = int(f.read())
-        os.kill(pid, 9)
-        os.remove(self.pid_filename)
-        os.rmdir(self.pid_dirname)
 
-        tap = DHCP.ip.link_lookup(ifname=self.tap_name)[0]
-        DHCP.ip.link('del', index=tap)
+        Even if some resources don't exist, go on to delete existing resources.
+        """
+        pid = self.get_dnsmasq_pid()
+        if pid is not None:
+            os.kill(pid, 9)
+        else:
+            warn("dnsmasq process is not running in {}".format(self.netns_name)) # NOQA
+
+        if os.path.exists(self.pid_filename):
+            os.remove(self.pid_filename)
+        else:
+            warn("dnsmasq pid file {} does not exist".format(self.pid_filename)) # NOQA
+
+        if os.path.exists(self.pid_dirname):
+            os.rmdir(self.pid_dirname)
+        else:
+            warn("dnsmasq pid directory {} does not exist".format(self.pid_dirname)) # NOQA
+
+        tap = DHCP.ip.link_lookup(ifname=self.tap_name)
+        if tap:
+            DHCP.ip.link('del', index=tap[0])
+        else:
+            warn("veth {} does not exist".format(self.tap_name))
 
         netns = NetNS(self.netns_name)
         netns.close()
