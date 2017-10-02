@@ -140,7 +140,7 @@ class Dnsmasq(object):
         Raises:
             Exception: If spcified bridge does not exist, raise Exception.
         """
-        bri = Dnsmasq.ip.link_lookup(ifname=bridge_name)
+        bri = self.ip.link_lookup(ifname=bridge_name)
         if bri:
             bri = bri[0]
         else:
@@ -150,19 +150,19 @@ class Dnsmasq(object):
 
         tap_name = self.tap_name
         peer_name = self.peer_name
-        Dnsmasq.ip.link('add', ifname=tap_name, peer=peer_name, kind='veth')
+        self.ip.link('add', ifname=tap_name, peer=peer_name, kind='veth')
 
-        tap = Dnsmasq.ip.link_lookup(ifname=tap_name)[0]
-        Dnsmasq.ip.link('set', index=tap, master=bri)
+        tap = self.ip.link_lookup(ifname=tap_name)[0]
+        self.ip.link('set', index=tap, master=bri)
 
-        peer = Dnsmasq.ip.link_lookup(ifname=peer_name)[0]
-        Dnsmasq.ip.link('set', index=peer, net_ns_fd=self.netns_name)
+        peer = self.ip.link_lookup(ifname=peer_name)[0]
+        self.ip.link('set', index=peer, net_ns_fd=self.netns_name)
 
         address = str(interface_addr.ip)
         prefixlen = int(interface_addr.network.prefixlen)
         netns.addr('add', index=peer, address=address, prefixlen=prefixlen)
 
-        Dnsmasq.ip.link('set', index=tap, state='up')
+        self.ip.link('set', index=tap, state='up')
         netns.link('set', index=peer, state='up')
         netns.close()
 
@@ -189,9 +189,9 @@ class Dnsmasq(object):
         else:
             warn("dnsmasq directory {} does not exist".format(self.dirname)) # NOQA
 
-        tap = Dnsmasq.ip.link_lookup(ifname=self.tap_name)
+        tap = self.ip.link_lookup(ifname=self.tap_name)
         if tap:
-            Dnsmasq.ip.link('del', index=tap[0])
+            self.ip.link('del', index=tap[0])
         else:
             warn("veth {} does not exist".format(self.tap_name))
 
