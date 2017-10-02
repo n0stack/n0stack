@@ -169,7 +169,7 @@ class Dnsmasq(object):
         self.start_process(pool)
 
     def delete_dhcp_server(self):
-        # type : () -> None
+        # type: () -> None
         """
         Delete Dnsmasq server on specified subnet.
 
@@ -198,3 +198,27 @@ class Dnsmasq(object):
         netns = NetNS(self.netns_name)
         netns.close()
         netns.remove()
+
+    def add_host_entry(self, hw_addr, ip_addr):
+        # type: (str, str) -> None
+        """
+        Add MAC:IP mapping in order to assign IP address statically.
+
+        1. Write mapping to dhcp-hostsfile.
+        2. Send SIGHUP to dnsmasq process.
+
+        Args:
+            hw_address: MAC address of interface.
+            ip_address: IP address of interface.
+
+        Raise:
+            Exception: If dnsmasq process is not running, raise Exeception.
+        """
+        pid = self.get_pid()
+        if pid is None:
+            raise Exception("dnsmasq process is not running in {}".format(self.netns_name)) # NOQA
+
+        with open(self.dhcp_hostsfilename, 'a') as f:
+            f.write('{},{}\n'.format(hw_addr, ip_addr))
+
+        os.kill(pid, 1)
