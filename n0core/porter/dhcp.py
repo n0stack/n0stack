@@ -9,9 +9,9 @@ from pyroute2 import NetNS
 from pyroute2 import NSPopen
 
 
-class DHCP(object):
+class Dnsmasq(object):
     """
-    Manage namespaces, veth pairs and dnsmasq processes.
+    Manage namespace, veth pair, directory and dnsmasq process.
     """
     ip = IPRoute()
 
@@ -61,7 +61,7 @@ class DHCP(object):
         2. Start dnsmasq process.
 
         Args:
-            pool: DHCP allocation pool. Allocate pool[0]-pool[1].
+            pool: Dnsmasq allocation pool. Allocate pool[0]-pool[1].
 
         Raises:
             Exception: If dnsmasq process is already running, raise Exception.
@@ -94,7 +94,7 @@ class DHCP(object):
     def create_dhcp_server(self, interface_addr, bridge_name, pool):
         # (IPv4Interface, str, Tuple[str, str]) -> None
         """
-        Create DHCP server on specified subnet.
+        Create Dnsmasq server on specified subnet.
 
         1. Create netns if not exists.
            in command: `ip netns add $netns_name`
@@ -112,14 +112,14 @@ class DHCP(object):
         7. Start dnsmasq process.
 
         Args:
-            interface_addr: IP address of DHCP server.
-            bridge_name: Name of bridge linked to DHCP server.
-            pool: DHCP allocation pool. Allocate pool[0]-pool[1].
+            interface_addr: IP address of Dnsmasq server.
+            bridge_name: Name of bridge linked to Dnsmasq server.
+            pool: Dnsmasq allocation pool. Allocate pool[0]-pool[1].
 
         Raises:
             Exception: If spcified bridge does not exist, raise Exception.
         """
-        bri = DHCP.ip.link_lookup(ifname=bridge_name)
+        bri = Dnsmasq.ip.link_lookup(ifname=bridge_name)
         if bri:
             bri = bri[0]
         else:
@@ -129,19 +129,19 @@ class DHCP(object):
 
         tap_name = self.tap_name
         peer_name = self.peer_name
-        DHCP.ip.link('add', ifname=tap_name, peer=peer_name, kind='veth')
+        Dnsmasq.ip.link('add', ifname=tap_name, peer=peer_name, kind='veth')
 
-        tap = DHCP.ip.link_lookup(ifname=tap_name)[0]
-        DHCP.ip.link('set', index=tap, master=bri)
+        tap = Dnsmasq.ip.link_lookup(ifname=tap_name)[0]
+        Dnsmasq.ip.link('set', index=tap, master=bri)
 
-        peer = DHCP.ip.link_lookup(ifname=peer_name)[0]
-        DHCP.ip.link('set', index=peer, net_ns_fd=self.netns_name)
+        peer = Dnsmasq.ip.link_lookup(ifname=peer_name)[0]
+        Dnsmasq.ip.link('set', index=peer, net_ns_fd=self.netns_name)
 
         address = str(interface_addr.ip)
         prefixlen = int(interface_addr.network.prefixlen)
         netns.addr('add', index=peer, address=address, prefixlen=prefixlen)
 
-        DHCP.ip.link('set', index=tap, state='up')
+        Dnsmasq.ip.link('set', index=tap, state='up')
         netns.link('set', index=peer, state='up')
         netns.close()
 
@@ -150,7 +150,7 @@ class DHCP(object):
     def delete_dhcp_server(self):
         # type : () -> None
         """
-        Delete DHCP server on specified subnet.
+        Delete Dnsmasq server on specified subnet.
 
         1. Kill dnsmasq process.
         2. Delete veth pairs.
@@ -171,9 +171,9 @@ class DHCP(object):
         else:
             warn("dnsmasq directory {} does not exist".format(self.dirname)) # NOQA
 
-        tap = DHCP.ip.link_lookup(ifname=self.tap_name)
+        tap = Dnsmasq.ip.link_lookup(ifname=self.tap_name)
         if tap:
-            DHCP.ip.link('del', index=tap[0])
+            Dnsmasq.ip.link('del', index=tap[0])
         else:
             warn("veth {} does not exist".format(self.tap_name))
 
