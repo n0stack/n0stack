@@ -1,5 +1,10 @@
 syntax = "proto3";
 
 message CreateVMRequest {
-
+  string id = 1;
+  string host = 2;
+  string arch = 3;
+  uint32 vcpus = 4;
+  uint32 memory_mb = 5;
+  string vnc_password = 6;
 }

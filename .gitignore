@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# protobuf compiled file
+*_pb2.py
+
 # C extensions
 *.so
 
