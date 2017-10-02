@@ -57,12 +57,18 @@ class Dnsmasq(object):
         """
         Start dnsmasq process on netns.
 
+        1. Create directory to save dnsmasq files.
+        2. Set args and start process.
+
         Args:
             pool: Dnsmasq allocation pool. Allocate pool[0]-pool[1].
 
         Raises:
             Exception: If dnsmasq process is already running, raise Exception.
         """
+        if not os.path.exists(self.dirname):
+            os.makedirs(self.dirname)
+
         if self.get_pid() is not None:
             raise Exception("dnsmasq process in {} is already running".format(self.netns_name)) # NOQA
 
@@ -124,8 +130,7 @@ class Dnsmasq(object):
                         ip addr add $address/$prefixlen dev $peer`
         6. Set up veths.
            in command: `ip link set $name up`
-        7. Create directory to save dnsmasq files.
-        8. Start dnsmasq process.
+        7. Start dnsmasq process.
 
         Args:
             interface_addr: IP address of Dnsmasq server.
@@ -160,9 +165,6 @@ class Dnsmasq(object):
         Dnsmasq.ip.link('set', index=tap, state='up')
         netns.link('set', index=peer, state='up')
         netns.close()
-
-        if not os.path.exists(self.dirname):
-            os.makedirs(self.dirname)
 
         self.start_process(pool)
 
