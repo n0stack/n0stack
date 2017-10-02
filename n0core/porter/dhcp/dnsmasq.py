@@ -182,7 +182,7 @@ class Dnsmasq(object):
 
         Even if some resources don't exist, go on to delete existing resources.
         """
-        self.stop_process();
+        self.stop_process()
 
         if os.path.exists(self.dirname):
             rmtree(self.dirname)
