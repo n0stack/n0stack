@@ -63,9 +63,6 @@ class Dnsmasq(object):
 
         Args:
             pool: Dnsmasq allocation pool. Allocate pool[0]-pool[1].
-
-        Raises:
-            Exception: If dnsmasq process is already running, raise Exception.
         """
         if not os.path.exists(self.dirname):
             os.makedirs(self.dirname)
@@ -139,7 +136,8 @@ class Dnsmasq(object):
             pool: Dnsmasq allocation pool. Allocate pool[0]-pool[1].
 
         Raises:
-            Exception: If spcified bridge does not exist, raise Exception.
+            Exception: If specified bridge does not exist, raise Exception.
+            Exception: If one of the veth pair exists and the other not, raise Exception. # NOQA
         """
         bri = self.ip.link_lookup(ifname=bridge_name)
         if bri:
