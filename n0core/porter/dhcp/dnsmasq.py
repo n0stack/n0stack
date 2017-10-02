@@ -5,6 +5,7 @@ from typing import Tuple # NOQA
 from warnings import warn
 
 from pyroute2 import IPRoute
+from pyroute2 import NetlinkError
 from pyroute2 import NetNS
 from pyroute2 import NSPopen
 
@@ -70,7 +71,8 @@ class Dnsmasq(object):
             os.makedirs(self.dirname)
 
         if self.get_pid() is not None:
-            raise Exception("dnsmasq process in {} is already running".format(self.netns_name)) # NOQA
+            warn("dnsmasq process in {} is already running".format(self.netns_name)) # NOQA
+            return
 
         pid_file = '--pid-file={}'.format(self.pid_filename)
         dhcp_hostsfile = '--dhcp-hostsfile={}'.format(self.dhcp_hostsfilename)
@@ -121,13 +123,12 @@ class Dnsmasq(object):
            in command: `ip netns add $netns_name`
         2. Create veth pair.
            in command: `ip link add $tap_name type veth peer name $peer_name`
-        3. Link one of the veth pair to bridge.
-           in command: `ip link set dev $tap_name master $bridge_name`
-        4. Move the other veth to netns.
+        3. Move one of the veth pair to netns.
            in command: `ip link set $peer_name netns $netns_name`
-        5. Add ip address to the veth.
-           in command: `ip netns exec $netns_name \
-                        ip addr add $address/$prefixlen dev $peer`
+        4. Add ip address to the veth.
+           in command: `ip netns exec $netns_name  ip addr add $address/$prefixlen dev $peer` # NOQA
+        5. Link the other to bridge.
+           in command: `ip link set dev $tap_name master $bridge_name`
         6. Set up veths.
            in command: `ip link set $name up`
         7. Start dnsmasq process.
@@ -150,17 +151,35 @@ class Dnsmasq(object):
 
         tap_name = self.tap_name
         peer_name = self.peer_name
-        self.ip.link('add', ifname=tap_name, peer=peer_name, kind='veth')
-
-        tap = self.ip.link_lookup(ifname=tap_name)[0]
-        self.ip.link('set', index=tap, master=bri)
-
-        peer = self.ip.link_lookup(ifname=peer_name)[0]
-        self.ip.link('set', index=peer, net_ns_fd=self.netns_name)
+        peer = None
+        try:
+            self.ip.link('add', ifname=tap_name, peer=peer_name, kind='veth')
+        except NetlinkError as e:
+            if e.code == 17:
+                warn("veth {} existing, ignore and continue".format(tap_name))
+                peer = netns.link_lookup(ifname=peer_name)
+                if peer:
+                    peer = peer[0]
+                else:
+                    raise Exception("One of the veth pair {} exists, but the other {} does not exists".format(tap_name, peer_name)) # NOQA
+            else:
+                raise e
+        else:
+            peer = self.ip.link_lookup(ifname=peer_name)[0]
+            self.ip.link('set', index=peer, net_ns_fd=self.netns_name)
 
         address = str(interface_addr.ip)
         prefixlen = int(interface_addr.network.prefixlen)
-        netns.addr('add', index=peer, address=address, prefixlen=prefixlen)
+        try:
+            netns.addr('add', index=peer, address=address, prefixlen=prefixlen)
+        except NetlinkError as e:
+            if e.code == 17:
+                warn("IP address is already assinged to {}, ignore and continue".format(peer_name)) # NOQA
+            else:
+                raise e
+
+        tap = self.ip.link_lookup(ifname=tap_name)[0]
+        self.ip.link('set', index=tap, master=bri)
 
         self.ip.link('set', index=tap, state='up')
         netns.link('set', index=peer, state='up')
