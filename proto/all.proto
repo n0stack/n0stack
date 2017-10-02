@@ -1,7 +1,0 @@
-syntax = "proto3";
-
-// Request
-import "request.proto";
-
-// Notification
-

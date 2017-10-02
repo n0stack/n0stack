@@ -1,9 +1,8 @@
 syntax = "proto3";
 
-import "vm_power_state.proto";
+import "enums/vm_power_state.proto";
 
 message UpdateVMPowerStateRequest {
-  string host = 1;
-  string name = 2;
-  VMPowerState status = 3;
+  string id = 1;
+  VMPowerState status = 2;
 }

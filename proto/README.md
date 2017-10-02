@@ -4,18 +4,20 @@ n0stack Protobuf Schemas
 # Policy
 
 - Each `.proto` file must define one message / enum
-- `all.proto` imports all `.proto` file without itself
+- `N0stackMessage` defined in `n0stack_message.proto` is a superclass of all message types.
 
 # How to use
 
-- Compiled file (for python) is located under `../n0core/proto` directory
+- Compile `*.proto` file to Python classes, use `protoc` compiler
+  - Use local compiler: `protoc -I. --python_out=../n0core/proto new_file.proto all.proto` 
+  - Or `protoc` in Docker: `docker run -it --rm -v $PWD:/src:rw -v $PWD/../n0core/proto:/dst nanoservice/protobuf --python_out=/dst **/*.proto`
+  - (Considering working in this directory)
 - `import` each file and use:
 
 # Defining new `.proto` file
 
 1. Create `.proto` file (for example: `new_file.proto`)
-1. Add `import "...";` to `all.proto`
-1. Compile `protoc -I. --python_out=../n0core/proto new_file.proto all.proto` (Considering working in this directory)
+1. Make it message under sub-message of `N0stackMessage`
 
 # Example usage in Python
 
