@@ -1,5 +1,6 @@
 from ipaddress import IPv4Interface # NOQA
 import os
+from shutil import rmtree
 from typing import Tuple # NOQA
 from warnings import warn
 
@@ -25,8 +26,11 @@ class DHCP(object):
         self.netns_name = 'dhcp-{}'.format(subnet_id)
         self.tap_name = 'tap-dhcp-{}'.format(subnet_id)
         self.peer_name = 'eth-dhcp-{}'.format(subnet_id)
-        self.pid_dirname = os.path.join('/var/run/', self.netns_name)
-        self.pid_filename = os.path.join(self.pid_dirname, 'dnsmasq.pid')
+        self.dirname = os.path.join('/var/lib/n0stack/', self.netns_name)
+        self.pid_filename = os.path.join(self.dirname, 'pid')
+        self.dhcp_hostsfilename = os.path.join(self.dirname, 'hosts')
+        self.dhcp_leasefilename = os.path.join(self.dirname, 'lease')
+        self.dhcp_optsfilename = os.path.join(self.dirname, 'opts')
 
     def get_dnsmasq_pid(self):
         # type: () -> int
@@ -66,18 +70,25 @@ class DHCP(object):
         if self.get_dnsmasq_pid() is not None:
             raise Exception("dnsmasq process in {} is already running".format(self.netns_name)) # NOQA
 
-        if not os.path.exists(self.pid_dirname):
-            os.mkdir(self.pid_dirname)
+        if not os.path.exists(self.dirname):
+            os.makedirs(self.dirname)
 
+        pid_file = '--pid-file={}'.format(self.pid_filename)
+        dhcp_hostsfile = '--dhcp-hostsfile={}'.format(self.dhcp_hostsfilename)
+        dhcp_optsfile = '--dhcp-optsfile={}'.format(self.dhcp_optsfilename)
+        dhcp_leasefile = '--dhcp-leasefile={}'.format(self.dhcp_leasefilename)
         interface = '--interface={}'.format(self.peer_name)
         dhcp_range = '--dhcp-range={},{},12h'.format(pool[0], pool[1])
-        pid_file = '--pid-file={}'.format(self.pid_filename)
         cmd = ['/usr/sbin/dnsmasq',
                '--no-resolv',
                '--no-hosts',
+               '--except-interface=lo',
+               pid_file,
+               dhcp_hostsfile,
+               dhcp_optsfile,
+               dhcp_leasefile,
                interface,
-               dhcp_range,
-               pid_file]
+               dhcp_range]
         NSPopen(self.netns_name, cmd)
 
     def create_dhcp_server(self, interface_addr, bridge_name, pool):
@@ -155,15 +166,10 @@ class DHCP(object):
         else:
             warn("dnsmasq process is not running in {}".format(self.netns_name)) # NOQA
 
-        if os.path.exists(self.pid_filename):
-            os.remove(self.pid_filename)
+        if os.path.exists(self.dirname):
+            rmtree(self.dirname)
         else:
-            warn("dnsmasq pid file {} does not exist".format(self.pid_filename)) # NOQA
-
-        if os.path.exists(self.pid_dirname):
-            os.rmdir(self.pid_dirname)
-        else:
-            warn("dnsmasq pid directory {} does not exist".format(self.pid_dirname)) # NOQA
+            warn("dnsmasq directory {} does not exist".format(self.dirname)) # NOQA
 
         tap = DHCP.ip.link_lookup(ifname=self.tap_name)
         if tap:
