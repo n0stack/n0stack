@@ -4,6 +4,10 @@ from shutil import rmtree
 from typing import Any, List, Optional, Tuple  # NOQA
 from warnings import warn
 
+from netns import NetNS as nsscope
+
+from iptc import Chain, Match, Policy, Rule, Table, Target
+
 from pyroute2 import IPRoute
 from pyroute2 import NetlinkError
 from pyroute2 import NetNS
@@ -114,6 +118,52 @@ class Dnsmasq(object):
         self.stop_process()
         self.start_process(pool)
 
+    def init_iptables(self):
+        # type: () -> None
+        """
+        Insert rules for dhcp server to iptabls in netns.
+
+        1. Set policy of each chain DROP.
+           in command: `iptables -P DROP $chain`
+        2. Allow ICMP in/out.
+           in command: `iptables -I $chain -p icmp -j ACCEPT`
+        3. Allow DHCP out.
+           in command: `iptables -I $chain -p udp --sport 67 --dport 68 -j ACCEPT`  # NOQA
+
+        If rule already exists, skip insertation.
+        """
+        with nsscope(nsname=self.netns_name):
+            table = Table(Table.FILTER)  # type: Table
+
+            for chain in table.chains:
+                chain.flush()
+                chain.set_policy(Policy('DROP'))
+
+            ping_rule = Rule()  # type: Rule
+            ping_rule.protocol = 'icmp'
+            ping_rule.target = Target(ping_rule, 'ACCEPT')
+
+            input_chain = Chain(table, 'INPUT')  # type: Chain
+
+            if all([ping_rule != rule for rule in input_chain.rules]):
+                input_chain.insert_rule(ping_rule)
+
+            output_chain = Chain(table, 'OUTPUT')  # type: Chain
+
+            if all([ping_rule != rule for rule in output_chain.rules]):
+                output_chain.insert_rule(ping_rule)
+
+            dhcp_rule = Rule()  # type: Rule
+            dhcp_rule.protocol = 'udp'
+            match = Match(dhcp_rule, 'udp')  # type: Match
+            match.sport = '67'
+            match.dport = '68'
+            dhcp_rule.add_match(match)
+            dhcp_rule.target = Target(dhcp_rule, 'ACCEPT')
+
+            if all([dhcp_rule != rule for rule in output_chain.rules]):
+                output_chain.insert_rule(dhcp_rule)
+
     def create_dhcp_server(self, interface_addr, bridge_name, pool):
         # type: (IPv4Interface, str, Tuple[str, str]) -> None
         """
@@ -150,7 +200,9 @@ class Dnsmasq(object):
         else:
             raise Exception("Specified bridge {} does not exist".format(bridge_name))  # NOQA
 
-        netns = NetNS(self.netns_name, flags=os.O_CREAT)  # type: NetNS
+        ns = NetNS(self.netns_name, flags=os.O_CREAT)  # type: NetNS
+
+        self.init_iptables()
 
         tap_name = self.tap_name  # type: str
         peer_name = self.peer_name  # type: str
@@ -161,7 +213,7 @@ class Dnsmasq(object):
         except NetlinkError as e:
             if e.code == 17:
                 warn("veth {} existing, ignore and continue".format(tap_name))
-                peer_list = netns.link_lookup(ifname=peer_name)  # type: List[Any] # NOQA
+                peer_list = ns.link_lookup(ifname=peer_name)  # type: List[Any] # NOQA
 
                 if peer_list:
                     peer = peer_list[0]
@@ -177,7 +229,7 @@ class Dnsmasq(object):
         prefixlen = int(interface_addr.network.prefixlen)  # type: int
 
         try:
-            netns.addr('add', index=peer, address=address, prefixlen=prefixlen)
+            ns.addr('add', index=peer, address=address, prefixlen=prefixlen)
         except NetlinkError as e:
             if e.code == 17:
                 warn("IP address is already assinged to {}, ignore and continue".format(peer_name))  # NOQA
@@ -188,8 +240,8 @@ class Dnsmasq(object):
         self.ip.link('set', index=tap, master=bri)
 
         self.ip.link('set', index=tap, state='up')
-        netns.link('set', index=peer, state='up')
-        netns.close()
+        ns.link('set', index=peer, state='up')
+        ns.close()
 
         self.start_process(pool)
 
@@ -221,9 +273,59 @@ class Dnsmasq(object):
         else:
             warn("veth {} does not exist".format(self.tap_name))
 
-        netns = NetNS(self.netns_name)  # type: NetNS
-        netns.close()
-        netns.remove()
+        ns = NetNS(self.netns_name)  # type: NetNS
+        ns.close()
+        ns.remove()
+
+    def _get_dhcp_allow_rule(self, hw_addr):
+        # type: (str) -> Rule
+        rule = Rule()  # type: Rule
+        rule.protocol = 'udp'
+        rule.target = Target(rule, 'ACCEPT')
+
+        proto_match = Match(rule, 'udp')  # type: Match
+        proto_match.sport = '68'
+        proto_match.dport = '67'
+        rule.add_match(proto_match)
+
+        mac_match = Match(rule, 'mac')  # type: Match
+        mac_match.mac_source = hw_addr
+        rule.add_match(mac_match)
+
+        return rule
+
+    def add_allowed_host(self, hw_addr):
+        # type: (str) -> None
+        """
+        Allow DHCP input from specified host.
+        in command: `iptables -I INPUT -p udp --sport 68 --dport 67 -m --mac-source $hw_address`  # NOQA
+        If rule already exits, skip insertation.
+
+        Args:
+            hw_addr: MAC address of host.
+        """
+        with nsscope(nsname=self.netns_name):
+            chain = Chain(Table(Table.FILTER), 'INPUT')
+            dhcp_rule = self._get_dhcp_allow_rule(hw_addr)  # type: Rule
+
+            if all([dhcp_rule != rule for rule in chain.rules]):
+                chain.insert_rule(dhcp_rule)
+
+    def delete_allowed_host(self, hw_addr):
+        # type: (str) -> None
+        """
+        Delete rule allowing DHCP input from specified host.
+
+        Args:
+            hw_addr: MAC address of host.
+        """
+        with nsscope(nsname=self.netns_name):
+            chain = Chain(Table(Table.FILTER), 'INPUT')
+            dhcp_rule = self._get_dhcp_allow_rule(hw_addr)  # type: Rule
+
+            for rule in chain.rules:
+                if rule == dhcp_rule:
+                    chain.delete_rule(rule)
 
     def add_host_entry(self, hw_addr, ip_addr):
         # type: (str, str) -> None
