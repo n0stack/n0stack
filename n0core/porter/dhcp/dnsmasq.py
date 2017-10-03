@@ -31,11 +31,11 @@ class Dnsmasq(object):
         self.netns_name = 'dhcp-{}'.format(subnet_id)  # type: str
         self.tap_name = 'tap-dhcp-{}'.format(subnet_id)  # type: str
         self.peer_name = 'eth-dhcp-{}'.format(subnet_id)  # type: str
-        self.dirname = os.path.join('/var/lib/n0stack/', self.netns_name)  # type: str # NOQA
+        self.dirname = os.path.join('/var/lib/n0stack/', self.netns_name)  # type: str
         self.pid_filename = os.path.join(self.dirname, 'pid')  # type: str
-        self.dhcp_hostsfilename = os.path.join(self.dirname, 'hosts')  # type: str # NOQA
-        self.dhcp_leasefilename = os.path.join(self.dirname, 'lease')  # type: str # NOQA
-        self.dhcp_optsfilename = os.path.join(self.dirname, 'opts')  # type: str # NOQA
+        self.dhcp_hostsfilename = os.path.join(self.dirname, 'hosts')  # type: str
+        self.dhcp_leasefilename = os.path.join(self.dirname, 'lease')  # type: str
+        self.dhcp_optsfilename = os.path.join(self.dirname, 'opts')  # type: str
 
     def get_pid(self):
         # type: () -> int
@@ -69,23 +69,32 @@ class Dnsmasq(object):
 
         Args:
             pool: Dnsmasq allocation pool. Allocate pool[0]-pool[1].
+
+        Raises:
+            Exception: If interface to bind does not exist, raise Exception.
         """
         if not os.path.exists(self.dirname):
             os.makedirs(self.dirname)
 
         if self.get_pid() is not None:
-            warn("dnsmasq process in {} is already running".format(self.netns_name))  # NOQA
+            warn("dnsmasq process in {} is already running".format(self.netns_name))
             return
 
+        ns = NetNS(self.netns_name)  # type: NetNS
+
+        if not ns.link_lookup(ifname=self.peer_name):
+            raise Exception("Interface {} does not exit".format(self.peer_name))
+
         pid_file = '--pid-file={}'.format(self.pid_filename)  # type: str
-        dhcp_hostsfile = '--dhcp-hostsfile={}'.format(self.dhcp_hostsfilename)  # type: str # NOQA
-        dhcp_optsfile = '--dhcp-optsfile={}'.format(self.dhcp_optsfilename)  # type: str # NOQA
-        dhcp_leasefile = '--dhcp-leasefile={}'.format(self.dhcp_leasefilename)  # type: str # NOQA
+        dhcp_hostsfile = '--dhcp-hostsfile={}'.format(self.dhcp_hostsfilename)  # type: str
+        dhcp_optsfile = '--dhcp-optsfile={}'.format(self.dhcp_optsfilename)  # type: str
+        dhcp_leasefile = '--dhcp-leasefile={}'.format(self.dhcp_leasefilename)  # type: str
         interface = '--interface={}'.format(self.peer_name)  # type: str
-        dhcp_range = '--dhcp-range={},{},12h'.format(pool[0], pool[1])  # type: str # NOQA
+        dhcp_range = '--dhcp-range={},{},12h'.format(pool[0], pool[1])  # type: str
         cmd = ['/usr/sbin/dnsmasq',
                '--no-resolv',
                '--no-hosts',
+               '--bind-interfaces',
                '--except-interface=lo',
                pid_file,
                dhcp_hostsfile,
@@ -105,7 +114,7 @@ class Dnsmasq(object):
         if pid is not None:
             os.kill(pid, 9)
         else:
-            warn("dnsmasq process is not running in {}".format(self.netns_name))  # NOQA
+            warn("dnsmasq process is not running in {}".format(self.netns_name))
 
     def respawn_process(self, pool):
         # type: (Tuple[str, str]) -> None
@@ -128,7 +137,7 @@ class Dnsmasq(object):
         2. Allow ICMP in/out.
            in command: `iptables -I $chain -p icmp -j ACCEPT`
         3. Allow DHCP out.
-           in command: `iptables -I $chain -p udp --sport 67 --dport 68 -j ACCEPT`  # NOQA
+           in command: `iptables -I $chain -p udp --sport 67 --dport 68 -j ACCEPT`
 
         If rule already exists, skip insertation.
         """
@@ -176,7 +185,7 @@ class Dnsmasq(object):
         3. Move one of the veth pair to netns.
            in command: `ip link set $peer_name netns $netns_name`
         4. Add ip address to the veth.
-           in command: `ip netns exec $netns_name  ip addr add $address/$prefixlen dev $peer`  # NOQA
+           in command: `ip netns exec $netns_name  ip addr add $address/$prefixlen dev $peer`
         5. Link the other to bridge.
            in command: `ip link set dev $tap_name master $bridge_name`
         6. Set up veths.
@@ -190,7 +199,7 @@ class Dnsmasq(object):
 
         Raises:
             Exception: If specified bridge does not exist, raise Exception.
-            Exception: If one of the veth pair exists and the other not, raise Exception.  # NOQA
+            Exception: If one of the veth pair exists and the other not, raise Exception.
         """
         bri_list = self.ip.link_lookup(ifname=bridge_name)  # type: List[Any]
         bri = None  # type: int
@@ -198,7 +207,7 @@ class Dnsmasq(object):
         if bri_list:
             bri = bri_list[0]
         else:
-            raise Exception("Specified bridge {} does not exist".format(bridge_name))  # NOQA
+            raise Exception("Specified bridge {} does not exist".format(bridge_name))
 
         ns = NetNS(self.netns_name, flags=os.O_CREAT)  # type: NetNS
 
@@ -213,7 +222,7 @@ class Dnsmasq(object):
         except NetlinkError as e:
             if e.code == 17:
                 warn("veth {} existing, ignore and continue".format(tap_name))
-                peer_list = ns.link_lookup(ifname=peer_name)  # type: List[Any] # NOQA
+                peer_list = ns.link_lookup(ifname=peer_name)  # type: List[Any]
 
                 if peer_list:
                     peer = peer_list[0]
@@ -232,7 +241,7 @@ class Dnsmasq(object):
             ns.addr('add', index=peer, address=address, prefixlen=prefixlen)
         except NetlinkError as e:
             if e.code == 17:
-                warn("IP address is already assinged to {}, ignore and continue".format(peer_name))  # NOQA
+                warn("IP address is already assinged to {}, ignore and continue".format(peer_name))
             else:
                 raise e
 
@@ -264,7 +273,7 @@ class Dnsmasq(object):
         if os.path.exists(self.dirname):
             rmtree(self.dirname)
         else:
-            warn("dnsmasq directory {} does not exist".format(self.dirname))  # NOQA
+            warn("dnsmasq directory {} does not exist".format(self.dirname))
 
         tap_list = self.ip.link_lookup(ifname=self.tap_name)  # type: List[Any]
 
@@ -298,7 +307,7 @@ class Dnsmasq(object):
         # type: (str) -> None
         """
         Allow DHCP input from specified host.
-        in command: `iptables -I INPUT -p udp --sport 68 --dport 67 -m --mac-source $hw_address`  # NOQA
+        in command: `iptables -I INPUT -p udp --sport 68 --dport 67 -m --mac-source $hw_address`
         If rule already exits, skip insertation.
 
         Args:
@@ -345,7 +354,7 @@ class Dnsmasq(object):
         pid = self.get_pid()  # type: Optional[int]
 
         if pid is None:
-            raise Exception("dnsmasq process is not running in {}".format(self.netns_name))  # NOQA
+            raise Exception("dnsmasq process is not running in {}".format(self.netns_name))
 
         with open(self.dhcp_hostsfilename, 'a') as f:
             f.write('{},{}\n'.format(hw_addr, ip_addr))
