@@ -1,7 +1,7 @@
 from ipaddress import IPv4Interface  # NOQA
 import os
 from shutil import rmtree
-from typing import Any, List, Optional, Tuple  # NOQA
+from typing import Any, Dict, List, Optional, Tuple  # NOQA
 
 from netns import NetNS as nsscope
 
@@ -36,12 +36,38 @@ class Dnsmasq(object):
         self.netns_name = 'dhcp-{}'.format(subnet_id)  # type: str
         self.tap_name = 'tap-dhcp-{}'.format(subnet_id)  # type: str
         self.peer_name = 'eth-dhcp-{}'.format(subnet_id)  # type: str
+
         self.dirname = os.path.join('/var/lib/n0stack/', self.netns_name)  # type: str
         self.pid_filename = os.path.join(self.dirname, 'pid')  # type: str
         self.dhcp_hostsfilename = os.path.join(self.dirname, 'hosts')  # type: str
         self.dhcp_leasefilename = os.path.join(self.dirname, 'lease')  # type: str
         self.dhcp_optsfilename = os.path.join(self.dirname, 'opts')  # type: str
         self.log_path = os.path.join(log_dir, 'dnsmasq-{}.log'.format(self.netns_name))  # type: str # NOQA
+
+        self.__hw_to_ip = {}  # type: Dict
+        self.__ip_to_hw = {}  # type: Dict
+        self.__load_hostsfile()
+
+    def __load_hostsfile(self):
+        # type: () -> None
+        hostsfile = self.dhcp_hostsfilename  # type: str
+
+        if not os.path.exists(hostsfile):
+            return
+
+        with open(hostsfile, 'r') as f:
+            lines = f.readlines()
+
+        for line in lines:
+            pair = line.strip().split(',')  # type: List[str]
+
+            if len(pair) != 2:
+                continue
+
+            hw_addr = pair[0]  # type: str
+            ip_addr = pair[1]  # type: str
+            self.__hw_to_ip[hw_addr] = ip_addr
+            self.__ip_to_hw[ip_addr] = hw_addr
 
     def get_pid(self):
         # type: () -> int
@@ -349,10 +375,11 @@ class Dnsmasq(object):
     def add_host_entry(self, hw_addr, ip_addr):
         # type: (str, str) -> None
         """
-        Add MAC:IP mapping in order to assign IP address statically.
+        Add MAC:IP mapping entry in order to assign IP address statically.
 
-        1. Write mapping to dhcp-hostsfile.
-        2. Send SIGHUP to dnsmasq process.
+        1. Update entries.
+        2. Write entries to dhcp-hostsfile.
+        3. Send SIGHUP to dnsmasq process.
 
         Args:
             hw_address: MAC address of interface.
@@ -360,13 +387,61 @@ class Dnsmasq(object):
 
         Raise:
             Exception: If dnsmasq process is not running, raise Exeception.
+            Exception: If specified IP address is already in entries, raise Exception.
         """
         pid = self.get_pid()  # type: Optional[int]
 
         if pid is None:
             raise Exception("dnsmasq process is not running in {}".format(self.netns_name))
 
-        with open(self.dhcp_hostsfilename, 'a') as f:
-            f.write('{},{}\n'.format(hw_addr, ip_addr))
+        if ip_addr in self.__ip_to_hw:
+            raise Exception("Specified IP address {} is already used".format(ip_addr))
+
+        if hw_addr in self.__hw_to_ip:
+            logger.warn("Spacified MAC address {} being used, update entry".format(hw_addr))
+            self.__hw_to_ip[hw_addr] = ip_addr
+            self.__ip_to_hw[ip_addr] = hw_addr
+
+            with open(self.dhcp_hostsfilename, 'w') as f:
+                for k, v in self.__hw_to_ip.items():
+                    f.write('{},{}\n'.format(k, v))
+
+        else:
+            self.__hw_to_ip[hw_addr] = ip_addr
+            self.__ip_to_hw[ip_addr] = hw_addr
+
+            with open(self.dhcp_hostsfilename, 'a') as f:
+                f.write('{},{}\n'.format(hw_addr, ip_addr))
+
+        os.kill(pid, 1)
+
+    def delete_host_entry(self, hw_addr):
+        # type: (str) -> None
+        """
+        Delete MAC:IP mapping entry.
+        If specified MAC address is not in entry, do nothing.
+
+        Args:
+            hw_addr: MAC address of entry to delete.
+
+        Raises:
+            Exception: If dnsmasq process is not running, raise Exeception.
+        """
+        pid = self.get_pid()  # type: Optional[int]
+
+        if pid is None:
+            raise Exception("dnsmasq process is not running in {}".format(self.netns_name))
+
+        if hw_addr not in self.__hw_to_ip:
+            logger.warn("Specified MAC address {} does not exist in entries".format(hw_addr))
+            return
+
+        ip_addr = self.__hw_to_ip[hw_addr]  # type: str
+        del self.__ip_to_hw[ip_addr]
+        del self.__hw_to_ip[hw_addr]
+
+        with open(self.dhcp_hostsfilename, 'w') as f:
+            for k, v in self.__hw_to_ip.items():
+                f.write('{},{}\n'.format(k, v))
 
         os.kill(pid, 1)
