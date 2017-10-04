@@ -15,7 +15,7 @@ from pyroute2 import NSPopen
 from n0library.logger import Logger
 
 
-logger = Logger(name='dnsmasq', filepath='/var/log/n0stack/n0core/dnsmasq.log')  # Logger
+logger = Logger(name='dnsmasq', filepath='/var/log/n0stack/n0core/dnsmasq.log')  # type: Logger
 
 
 class Dnsmasq(object):
