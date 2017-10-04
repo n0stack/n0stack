@@ -24,13 +24,14 @@ class Dnsmasq(object):
     """
     ip = IPRoute()  # type: IPRoute
 
-    def __init__(self, subnet_id):
-        # type: (str) -> None
+    def __init__(self, subnet_id, log_dir):
+        # type: (str, str) -> None
         """
         Set names in order to create or delete resources.
 
         Args:
             subnet_id: Subnet ID.
+            log_dir: Directory path to save log file.
         """
         self.netns_name = 'dhcp-{}'.format(subnet_id)  # type: str
         self.tap_name = 'tap-dhcp-{}'.format(subnet_id)  # type: str
@@ -40,6 +41,7 @@ class Dnsmasq(object):
         self.dhcp_hostsfilename = os.path.join(self.dirname, 'hosts')  # type: str
         self.dhcp_leasefilename = os.path.join(self.dirname, 'lease')  # type: str
         self.dhcp_optsfilename = os.path.join(self.dirname, 'opts')  # type: str
+        self.log_path = os.path.join(log_dir, 'dnsmasq-{}.log'.format(self.netns_name))  # type: str # NOQA
 
     def get_pid(self):
         # type: () -> int
@@ -63,8 +65,8 @@ class Dnsmasq(object):
         else:
             return pid
 
-    def start_process(self, pool, log_dir):
-        # type: (Tuple[str, str], str) -> None
+    def start_process(self, pool):
+        # type: (Tuple[str, str]) -> None
         """
         Start dnsmasq process on netns.
 
@@ -73,7 +75,6 @@ class Dnsmasq(object):
 
         Args:
             pool: Dnsmasq allocation pool. Allocate pool[0]-pool[1].
-            log_dir: Directory path to save log file.
 
         Raises:
             Exception: If interface to bind does not exist, raise Exception.
@@ -98,8 +99,7 @@ class Dnsmasq(object):
         dhcp_leasefile = '--dhcp-leasefile={}'.format(self.dhcp_leasefilename)  # type: str
         interface = '--interface={}'.format(self.peer_name)  # type: str
         dhcp_range = '--dhcp-range={},{},12h'.format(pool[0], pool[1])  # type: str
-        logfile = os.path.join(log_dir, 'dnsmasq-{}.log'.format(self.netns_name))
-        log_facility = '--log-facility={}'.format(logfile)
+        log_facility = '--log-facility={}'.format(self.log_path)
         cmd = ['/usr/sbin/dnsmasq',
                '--no-resolv',
                '--no-hosts',
@@ -126,17 +126,16 @@ class Dnsmasq(object):
         else:
             logger.warn("dnsmasq process is not running in {}".format(self.netns_name))
 
-    def respawn_process(self, pool, log_dir):
-        # type: (Tuple[str, str], str) -> None
+    def respawn_process(self, pool):
+        # type: (Tuple[str, str]) -> None
         """
         Respawn dnsmasq process on netns.
 
         Args:
             pool: Dnsmasq allocation pool. Allocate pool[0]-pool[1].
-            log_dir: Directory path to save log file.
         """
         self.stop_process()
-        self.start_process(pool, log_dir)
+        self.start_process(pool)
 
     def init_iptables(self):
         # type: () -> None
@@ -184,8 +183,8 @@ class Dnsmasq(object):
             if all([dhcp_rule != rule for rule in output_chain.rules]):
                 output_chain.insert_rule(dhcp_rule)
 
-    def create_dhcp_server(self, interface_addr, bridge_name, pool, log_dir):
-        # type: (IPv4Interface, str, Tuple[str, str], str) -> None
+    def create_dhcp_server(self, interface_addr, bridge_name, pool):
+        # type: (IPv4Interface, str, Tuple[str, str]) -> None
         """
         Create Dnsmasq server on specified subnet.
 
@@ -207,7 +206,6 @@ class Dnsmasq(object):
             interface_addr: IP address of Dnsmasq server.
             bridge_name: Name of bridge linked to Dnsmasq server.
             pool: Dnsmasq allocation pool. Allocate pool[0]-pool[1].
-            log_dir: Directory path to save log file.
 
         Raises:
             Exception: If specified bridge does not exist, raise Exception.
@@ -264,7 +262,7 @@ class Dnsmasq(object):
         ns.link('set', index=peer, state='up')
         ns.close()
 
-        self.start_process(pool, log_dir)
+        self.start_process(pool)
 
     def delete_dhcp_server(self):
         # type: () -> None
