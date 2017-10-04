@@ -1,14 +1,18 @@
 language: python
 
 python:
-  - 3.5
-  - 3.6
+- 3.5
+- 3.6
 
 install:
-  - pip install flake8
-  - pip install mypy lxml
-  - pip install git+https://github.com/n0stack/n0library.git@develop
+- pip install flake8
+- pip install mypy lxml
+- pip install git+https://github.com/n0stack/n0library.git@develop
 
 script:
-  - flake8 .
-  - mypy -p n0core
+- flake8 .
+- mypy -p n0core
+
+notifications:
+  slack:
+    secure: Oy+FQmK8Qf1a+yZrQ/UPp0EQ2CjQUlCai4NZUpuzZP2EqGOzTJuwGnwRuIXsFcuhjas4titNGqAA5nU3GqadsfCuHhGF8i1mOAejqqhvbhxiEslr1h340ViM5tBztYRwAAbeuu7nZyTJOFC0sOYiSD9mY4SeGSeCw8kLOkGZxgRjE16gKDkD4CdEbGDhQcQWBiLQoOuJJX/iy5Fp/AhNPMPTEHN89DlptOWAsUMZUCwgkvAYRD9ckNyFx5TCt+AddWc/KHmjmF8RvV6ZUTbVu8eiXQWcYkGe6AeAdRpBXgWGP5Geh+YX3AaDgvei8OSh4B9kcm4VxTRasZ0EDnFuaFnB3sS8Vn0iFsyqxDAyMpglh4PaMQz8sLopB14IPJw19AildHE1j+moTTcnNgabYdwtoSNmzAZ3JDVlGqFAQ1neuY1aLYPoGiIu8Y96OMhTeQfRlqIoUvjxQdaIukltt+4+LSVc6fsnD0yX8YeJ5QPB6e1yKWk7TTIKgC8sD8yf1WDU/yhCUJsK0Drn751dPXViuQdSUS1/vICRAzNNfWmNZG2BNxoREa1tbd5bTPi7YUFJdsNl11y+YQKd589T2d4Nu+ZvuIxuehwGcbtwP+RegzCbOy33RSxRWBNJ5enc9zvCl4g4g99jsCpn5rtFsCOr7mIu6qaMR8u1zZcQmps=
