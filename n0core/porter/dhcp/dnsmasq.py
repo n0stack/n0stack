@@ -90,7 +90,7 @@ class Dnsmasq(object):
         ns = NetNS(self.netns_name)  # type: NetNS
 
         if not ns.link_lookup(ifname=self.peer_name):
-            raise Exception("Interface {} does not exit".format(self.peer_name))
+            raise Exception("Interface {} does not exist".format(self.peer_name))
 
         pid_file = '--pid-file={}'.format(self.pid_filename)  # type: str
         dhcp_hostsfile = '--dhcp-hostsfile={}'.format(self.dhcp_hostsfilename)  # type: str
@@ -320,7 +320,7 @@ class Dnsmasq(object):
         """
         Allow DHCP input from specified host.
         in command: `iptables -I INPUT -p udp --sport 68 --dport 67 -m --mac-source $hw_address`
-        If rule already exits, skip insertation.
+        If rule already exists, skip insertation.
 
         Args:
             hw_addr: MAC address of host.
