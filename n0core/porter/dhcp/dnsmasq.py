@@ -175,7 +175,7 @@ class Dnsmasq(object):
         3. Allow DHCP out.
            in command: `iptables -I $chain -p udp --sport 67 --dport 68 -j ACCEPT`
 
-        If rule already exists, skip insertation.
+        If rule already exists, skip insertion.
         """
         with nsscope(nsname=self.netns_name):
             table = Table(Table.FILTER)  # type: Table
@@ -344,7 +344,7 @@ class Dnsmasq(object):
         """
         Allow DHCP input from specified host.
         in command: `iptables -I INPUT -p udp --sport 68 --dport 67 -m --mac-source $hw_address`
-        If rule already exists, skip insertation.
+        If rule already exists, skip insertion.
 
         Args:
             hw_addr: MAC address of host.
