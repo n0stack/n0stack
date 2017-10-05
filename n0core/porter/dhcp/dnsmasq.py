@@ -42,10 +42,10 @@ class Dnsmasq(object):
         self.dhcp_hostsfilename = os.path.join(self.dirname, 'hosts')  # type: str
         self.dhcp_leasefilename = os.path.join(self.dirname, 'lease')  # type: str
         self.dhcp_optsfilename = os.path.join(self.dirname, 'opts')  # type: str
-        self.log_path = os.path.join(log_dir, 'dnsmasq-{}.log'.format(self.netns_name))  # type: str # NOQA
+        self.log_path = os.path.join(log_dir, 'dnsmasq-{}.log'.format(self.netns_name))  # type: str
 
-        self.__hw_to_ip = {}  # type: Dict
-        self.__ip_to_hw = {}  # type: Dict
+        self.__hw_to_ip = {}  # type: Dict[str, str]
+        self.__ip_to_hw = {}  # type: Dict[str, str]
         self.__load_hostsfile()
 
     def __load_hostsfile(self):
@@ -70,7 +70,7 @@ class Dnsmasq(object):
             self.__ip_to_hw[ip_addr] = hw_addr
 
     def get_pid(self):
-        # type: () -> int
+        # type: () -> Optional[int]
         """
         Get pid of running dnsmasq process on netns.
 
@@ -238,7 +238,7 @@ class Dnsmasq(object):
             Exception: If one of the veth pair exists and the other not, raise Exception.
         """
         bri_list = self.ip.link_lookup(ifname=bridge_name)  # type: List[Any]
-        bri = None  # type: int
+        bri = None  # type: Optional[int]
 
         if bri_list:
             bri = bri_list[0]
@@ -251,7 +251,7 @@ class Dnsmasq(object):
 
         tap_name = self.tap_name  # type: str
         peer_name = self.peer_name  # type: str
-        peer = None  # type: int
+        peer = None  # type: Optional[int]
 
         try:
             self.ip.link('add', ifname=tap_name, peer=peer_name, kind='veth')
@@ -277,7 +277,7 @@ class Dnsmasq(object):
             ns.addr('add', index=peer, address=address, prefixlen=prefixlen)
         except NetlinkError as e:
             if e.code == 17:
-                logger.warn("IP address is already assinged to {}, ignore and continue".format(peer_name))  # NOQA
+                logger.warn("IP address is already assinged to {}, ignore and continue".format(peer_name))
             else:
                 raise e
 
