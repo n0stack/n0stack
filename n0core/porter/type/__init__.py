@@ -1,4 +1,4 @@
-from typing import Tuple  # NOQA
+from typing import List, Optional, Tuple  # NOQA
 from pyroute2 import IPRoute
 
 
@@ -11,7 +11,7 @@ class PorterType(object):
 
     @classmethod
     def get_interface_index(cls, interface_name):
-        # type: (str) -> int
+        # type: (str) -> Optional[int]
         """Translate interface name to iproute2 index.
 
         Args:
@@ -21,7 +21,7 @@ class PorterType(object):
             iproute2 index.
             If the interface do not exists, return None.
         """
-        ret = cls.ip.link_lookup(ifname=interface_name)
+        ret = cls.ip.link_lookup(ifname=interface_name)  # type: List[int]
         if ret:
             return ret[0]
         else:
@@ -29,7 +29,7 @@ class PorterType(object):
 
     @classmethod
     def create_bridge(cls, bridge_name, interface_name):
-        # type: (str, str) -> Tuple[int, int]
+        # type: (str, str) -> Tuple[Optional[int], Optional[int]]
         """Create bridge mastering interface selected on args
 
         1. Create a bridge.
@@ -50,14 +50,21 @@ class PorterType(object):
             - Index of bridge interface.
             - Index of interface interface.
         """
-        ini = cls.get_interface_index(interface_name)  # type: int # NOQA
-        bri = cls.get_interface_index(bridge_name)  # type: int # NOQA
+        ini = cls.get_interface_index(interface_name)
+        if not ini:
+            raise Exception("Failed to get interface index of %s" % (interface_name)) # ERROR # NOQA
+
+        bri = cls.get_interface_index(bridge_name)
         if bri:
             print("Already exists %s(%d); keep to continue..." % (bridge_name, bri))  # ERROR # NOQA
         else:
             cls.ip.link('add', ifname=bridge_name, kind='bridge')
             bri = cls.get_interface_index(bridge_name)
-            print("Bridge %s(%d) is created, mastering %s(%d)" % (bridge_name, bri, interface_name, ini))  # NOQA
+            if bri:
+                print("Bridge %s(%d) is created, mastering %s(%d)" % (bridge_name, bri, interface_name, ini))  # NOQA
+            else:
+                # NOTE: This is FATAL situation.
+                raise Exception("Failed to get created interface's index of %s" % (bridge_name)) # ERROR # NOQA
         cls.ip.link("set", index=ini, master=bri)
         cls.ip.link('set', index=bri, state='up')
         cls.ip.link('set', index=ini, state='up')
