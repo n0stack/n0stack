@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "enums/vm_power_state.proto";
+import "n0core/lib/proto/enums/vm_power_state.proto";
 
 message UpdateVMPowerStateRequest {
   string id = 1;

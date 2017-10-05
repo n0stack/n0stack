@@ -1,7 +1,7 @@
 syntax = "proto3";
 
-import public "request.proto";
-import public "notification.proto";
+import public "n0core/lib/proto/request.proto";
+import public "n0core/lib/proto/notification.proto";
 
 message N0stackMessage {
   string request_id = 1;

@@ -10,7 +10,7 @@ n0stack Protobuf Schemas
 
 - Compile `*.proto` file to Python classes, use `protoc` compiler
   - Use local compiler: `protoc -I. --python_out=../n0core/proto new_file.proto all.proto` 
-  - Or `protoc` in Docker: `docker run -it --rm -v $PWD:/src:rw -v $PWD/../n0core/proto:/dst nanoservice/protobuf --python_out=/dst **/*.proto`
+  - Or `protoc` in Docker: `docker run -it --rm -v $PWD:/src:rw -v $PWD/../n0core/lib/proto:/dst nanoservice/protobuf --python_out=/dst **/*.proto`
   - (Considering working in this directory)
 - `import` each file and use:
 
@@ -21,17 +21,20 @@ n0stack Protobuf Schemas
 
 # Example usage in Python
 
-```
->>> import vm_power_state_request_pb2
->>> import vm_power_state_pb2
->>> a = vm_power_state_request_pb2.VMPowerStateRequest(host="host", name="name", status=vm_power_state_pb2.POWEROFF)
->>> a.SerializeToString()
-b'\n\x04host\x12\x04name\x18\x02'
->>> serialized = a.SerializeToString()
->>> deserialized = vm_power_state_request_pb2.VMPowerStateRequest()
->>> deserialized.ParseFromString(serialized)
->>> deserialized
-host: "host"
-name: "name"
-status: POWEROFF
+```python
+from n0core.lib.proto import UpdateVMPowerStateRequest, VMPowerState
+
+req = UpdateVMPowerStateRequest(id="some_vm",
+                                status=VMPowerState.Value('POWEROFF'))
+
+serialized = req.SerializeToString()
+# b'\n\x04name\x10\x02'
+
+deserialized = UpdateVMPowerStateRequest()
+
+deserialized.ParseFromString(serialized)
+
+deserialized
+# id: "name"
+# status: POWEROFF
 ```
