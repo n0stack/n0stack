@@ -63,7 +63,8 @@ class PorterType(object):
             if bri:
                 print("Bridge %s(%d) is created, mastering %s(%d)" % (bridge_name, bri, interface_name, ini))  # NOQA
             else:
-                raise Exception("Failed to get interface index of %s" % (bridge_name)) # ERROR # NOQA
+                # NOTE: This is FATAL situation.
+                raise Exception("Failed to get created interface's index of %s" % (bridge_name)) # ERROR # NOQA
         cls.ip.link("set", index=ini, master=bri)
         cls.ip.link('set', index=bri, state='up')
         cls.ip.link('set', index=ini, state='up')
