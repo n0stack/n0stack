@@ -1,4 +1,5 @@
 from n0core.porter.type import PorterType
+from typing import Optional  # NOQA
 
 
 class Flat(PorterType):
@@ -11,8 +12,8 @@ class Flat(PorterType):
     BRIDGE_NAME = "br-flat"
 
     def __init__(self,
-                 interface_name=None,   # type: str
-                 bridge_name=None       # type: str
+                 interface_name=None,   # type: Optional[str]
+                 bridge_name=None       # type: Optional[str]
                  ):
         # type: (...) -> None
         super().__init__()
@@ -20,7 +21,7 @@ class Flat(PorterType):
         if bridge_name:
             if interface_name:
                 print("Bridge is already exists, ignore external interface option")  # WARN # NOQA
-            self.bridge_index = self.get_interface_index(bridge_name)  # type: int # NOQA
+            self.bridge_index = self.get_interface_index(bridge_name)
         elif interface_name:
             self.bridge_index = self.create_bridge(self.BRIDGE_NAME, interface_name)[0]  # NOQA
         else:
