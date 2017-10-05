@@ -1,7 +1,7 @@
 syntax = "proto3";
 
-import "enums/network_type.proto";
-import "vlan_network_setting.proto";
+import "n0core/lib/proto/enums/network_type.proto";
+import "n0core/lib/proto/vlan_network_setting.proto";
 
 message CreateNetworkRequest {
   string id = 1;

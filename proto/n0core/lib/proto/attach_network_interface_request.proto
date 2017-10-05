@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "vlan_network_setting.proto";
+import "n0core/lib/proto/vlan_network_setting.proto";
 
 message AttachNetworkInterfaceRequest {
   string id = 1;
