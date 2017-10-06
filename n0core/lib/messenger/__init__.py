@@ -3,7 +3,7 @@ from uuid import uuid4
 
 import pulsar  # NOQA
 
-import n0core.lib.proto.n0stack_message_pb2 as message
+from n0core.lib.proto import N0stackMessage
 
 from typing import Any, Optional, Tuple  # NOQA
 
@@ -12,35 +12,35 @@ class Messenger(object):
     """
     Provides message queue sending function.
 
-    # Sample Usage:
-    import pulsar
-    import n0core.lib.proto.n0stack_message_pb2 as message
-    from n0core.lib.messenger import Messenger
+    Examples:
+        Common initialization:
+        >>> import pulsar
+        >>> from n0core.lib.proto import CreateVMRequest
+        >>> from n0core.lib.messenger import Messenger
 
-    client = pulsar.Client('pulsar://localhost:6650')
+        >>> client = pulsar.Client('pulsar://localhost:6650')
 
-    producer = client.create_producer(
-        'persistent://sample/standalone/ns1/my-topic')
+        >>> producer = client.create_producer(
+        >>>     'persistent://sample/standalone/ns1/my-topic')
 
-    # Producer
-    req = message.CreateVMRequest(id="hogefuga")
-    Messenger.send_new_message(producer, req)
+        Send new message:
+        >>> req = CreateVMRequest(id="hogefuga")
+        >>> Messenger.send_new_message(producer, req)
 
-    # Consumer (and sending new message having same request_id)
-    consumer = client.subscribe(
-        'persistent://sample/standalone/ns1/my-topic',
-        subscription_name=str(uuid4()))
+        Receive and sending new message having same request_id
+        >>> consumer = client.subscribe(
+        >>>     'persistent://sample/standalone/ns1/my-topic',
+        >>>     subscription_name=str(uuid4()))
 
-    while True:
-        inner_msg, messenger = Messenger.receive_message(consumer)
-        # ... some action
-        new_req = message.CreateVMRequest(id=str(uuid4()))
-        messenger.send_message(producer, new_req)
-
+        >>> while True:
+        >>>     inner_msg, messenger = Messenger.receive_message(consumer)
+        >>>     # ... some action
+        >>>     new_req = CreateVMRequest(id=str(uuid4()))
+        >>>     messenger.send_message(producer, new_req)
     """
 
     def __init__(self, received_message=None):
-        # type: (Optional[message.N0stackMessage]) -> None
+        # type: (Optional[N0stackMessage]) -> None
         """
         Init messenger instance to create new messege.
 
@@ -48,7 +48,6 @@ class Messenger(object):
             received_message: Previous received messege having same request_id
         """
         if received_message:
-            print("Received: %s" % received_message.request_id)
             self.request_id = received_message.request_id
         else:
             self.request_id = Messenger.__generate_id()
@@ -70,15 +69,40 @@ class Messenger(object):
         msg = consumer.receive()
 
         parsed_msg = cls.__parse_message(msg.data())
-        inner_msg = cls.__get_inner_message(parsed_msg)
+
+        instance = cls(received_message=parsed_msg)
+        instance.parsed_msg = parsed_msg
+        instance.inner_msg = cls.__get_inner_message(parsed_msg)
 
         consumer.acknowledge(msg)
 
-        return inner_msg, cls(received_message=parsed_msg)
+        return instance.inner_msg, instance
+
+    def receive_new_message(self, consumer):
+        # type: (pulsar.Consumer) -> Any
+        """
+        Receive message and set self.parsed_msg, self.inner_msg.
+
+        Args:
+            consumer: consumer that receive message
+
+        Returns:
+            A Protobuf object defined as
+            N0stackMessage.some_type.return_object_class
+        """
+        msg = consumer.receive()
+
+        self.parsed_msg = Messenger.__parse_message(msg.data())
+        self.inner_msg = Messenger.__get_inner_message(self.parsed_msg)
+        self.request_id = self.parsed_msg.request_id
+
+        consumer.acknowledge(msg)
+
+        return self.inner_msg
 
     @classmethod
     def __parse_message(cls, received):
-        # type: (str) -> message.N0stackMessage
+        # type: (str) -> N0stackMessage
         """
         Parse message received from message queue to Protobuf object.
 
@@ -88,7 +112,8 @@ class Messenger(object):
         Returns:
             Parsed message.
         """
-        msg = message.N0stackMessage()
+        msg = N0stackMessage()
+
         # NOTE: Base64 decoding will be removed
         msg.ParseFromString(b64decode(received))
 
@@ -96,7 +121,7 @@ class Messenger(object):
 
     @classmethod
     def __get_inner_message(cls, msg):
-        # type: (message.N0stackMessage) -> Any
+        # type: (N0stackMessage) -> Any
         """
         Get inner message from N0stackMessage Protobuf object.
 
@@ -126,7 +151,6 @@ class Messenger(object):
             type: Must be defined as N0stackMessage.(type)
         """
         request_id = cls.__generate_id()
-        print(request_id)
         msg = cls.__construct_message(obj, request_id=request_id, type=type)
         producer.send(msg)
 
@@ -168,7 +192,7 @@ class Messenger(object):
             (Currently, This encodes message with base64 due to restriction of
             pulsar-client, until supporting bytes receiver method)
         """
-        msg = message.N0stackMessage()
+        msg = N0stackMessage()
         msg.version = 1
         msg.request_id = request_id
 
