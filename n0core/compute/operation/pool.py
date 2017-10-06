@@ -29,7 +29,7 @@ class Create(BaseOpen):
             return False
         else:
             return True
-        
+
 
 class Delete(BaseOpen):
     def __init__(self):
