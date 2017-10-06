@@ -10,8 +10,8 @@ n0stack Protobuf Schemas
 
 - Compile `*.proto` file to Python classes, use `protoc` compiler
   - Use local compiler: `protoc -I. --python_out=../n0core/proto new_file.proto all.proto` 
-  - Or `protoc` in Docker: `docker run -it --rm -v $PWD:/src:rw -v $PWD/../n0core/lib/proto:/dst nanoservice/protobuf --python_out=/dst **/*.proto`
-  - (Considering working in this directory)
+  - Or `protoc` in Docker: `docker run -it --rm -v $PWD:/src:rw -v $PWD/..:/dst nanoservice/protobuf --python_out=/dst **/*.proto`
+  - (Considering working in this directory (n0core/proto) )
 - `import` each file and use:
 
 # Defining new `.proto` file
