@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+message DeleteVMSnapshotRequest {
+  string snapshot_id = 1;
+}
