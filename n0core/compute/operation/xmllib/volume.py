@@ -1,5 +1,5 @@
 # coding: UTF-8
-from xml.etree.ElementTree import Element, SubElement
+from xml.etree.ElementTree import Element
 import xml.etree.ElementTree as ET
 
 

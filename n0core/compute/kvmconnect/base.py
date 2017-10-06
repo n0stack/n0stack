@@ -1,9 +1,6 @@
 # coding:UTF-8
 import libvirt
-import os
-import re
 import sys
-from xml.dom import minidom
 
 
 class BaseReadOnly:
@@ -32,10 +29,9 @@ class BaseOpen:
             sys.exit(1)
 
     def volumeLookupByName(self, volname):
-        lv = self.connection
         allvols = [vol for pool in self.connection.listAllStoragePools()
-                for vol in pool.listAllVolumes()]
-        vols = list(filter(lambda x:volname+'.img' == x.name(), allvols))
+                   for vol in pool.listAllVolumes()]
+        vols = list(filter(lambda x: volname+'.img' == x.name(), allvols))
         if len(vols) == 0:
             return False
 
