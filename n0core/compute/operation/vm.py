@@ -7,11 +7,9 @@ import xml.etree.ElementTree as ET
 from kvmconnect.base import BaseOpen
 
 from operation.xmllib.vm import VmGen
-from operation.xmllib.pool import PoolGen
 from operation.xmllib.volume import VolumeGen
 
 from operation.volume import Create as VolCreate
-from operation.volume import Delete as VolDelete
 
 
 class Status(BaseOpen):
@@ -81,7 +79,7 @@ class Create(BaseOpen):
 
     parameters:
         name: VM (domain) name
-        cpu: 
+        cpu:
             arch: cpu architecture
             nvcpu: number of vcpus
         memory: memory size of VM
@@ -91,7 +89,6 @@ class Create(BaseOpen):
         cdrom: iso image path
         mac_addr: mac address
         vnc_password: vnc password
-
     """
     def __init__(self):
         super().__init__()
@@ -113,7 +110,7 @@ class Create(BaseOpen):
         vmgen(name, cpu, memory, vol.path(), cdrom, nic, vnc_password)
 
         dom = self.connection.createXML(vmgen.xml, 0)
-        
+
         if not dom:
             return False
         else:
@@ -130,7 +127,7 @@ class Delete(BaseOpen):
     def __call__(self, name):
         try:
             vdom = self.connection.lookupByName(name)
-            if vdom.isActive(): # vm is up
+            if vdom.isActive():  # vm is up
                 vdom.shutdown()
 
             # delete matched volume
@@ -142,7 +139,7 @@ class Delete(BaseOpen):
                 vdom.destroy()
             else:
                 vdom.undefine()
-                    
+
         except libvirt.libvirtError as e:
             print(e)
             return False
@@ -170,10 +167,10 @@ class Clone(BaseOpen):
         # clone volume from src to dst
         srcvol = self.volumeLookupByName(src)
         volgen = VolumeGen()
-        dst_cap = srcvol.info()[1] # get capacity
+        dst_cap = srcvol.info()[1]  # get capacity
         volgen(dst, str(dst_cap)+'B')
         pool = srcvol.storagePoolLookupByVolume()
-        status = pool.createXMLFrom(volgen.xml, srcvol) # do clone
+        status = pool.createXMLFrom(volgen.xml, srcvol)  # do clone
 
         if not status:
             return False
@@ -181,30 +178,30 @@ class Clone(BaseOpen):
         dstvol = self.volumeLookupByName(dst)
 
         # clone VM
-        ## copy XML from src
+        # copy XML from src
         root = ET.fromstring(srcdom.XMLDesc())
-        ## replace name
+        # replace name
         el_name = root.find('./name')
         el_name.text = dst
-        ## remove uuid
+        # remove uuid
         el_uuid = root.find('./uuid')
         root.remove(el_uuid)
-        ## replace disk
+        # replace disk
         el_disk = root.find("./devices/disk[@device='disk']/source")
         el_disk.set('file', dstvol.path())
-        ## remove mac addr
+        # remove mac addr
         el_interface = root.find("./devices/interface[@type='bridge']")
         el_mac = el_interface.find('./mac')
         el_interface.remove(el_mac)
-        ## remove serial and console
+        # remove serial and console
         el_devices = root.find('./devices')
         el_devices.remove(el_devices.find("./serial[@type='pty']"))
         el_devices.remove(el_devices.find("./console[@type='pty']"))
-        ## reset vnc port and vnc password
+        # reset vnc port and vnc password
         el_graphics = root.find("./devices/graphics")
         el_graphics.set('port', '-1')
         el_graphics.set('passwd', vncpass)
-        ## remove seclabel
+        # remove seclabel
         root.remove(root.find('./seclabel'))
 
         dst_xml = ET.tostring(root).decode()

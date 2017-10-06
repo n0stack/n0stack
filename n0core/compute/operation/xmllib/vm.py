@@ -1,10 +1,6 @@
 # coding: UTF-8
-from xml.etree.ElementTree import Element, SubElement
+from xml.etree.ElementTree import Element
 import xml.etree.ElementTree as ET
-import uuid
-import libvirt
-import uuid
-from kvmconnect.base import BaseOpen
 
 
 class VmGen:
@@ -25,7 +21,6 @@ class VmGen:
             (mac_addr): mac address
             model: nic mode (ex. virtio, e1000, ...)
         vnc_password: vnc_password
-            
     """
 
     def __init__(self):
@@ -46,11 +41,11 @@ class VmGen:
         el_vcpu.text = cpu['nvcpu']
         root.append(el_vcpu)
 
-		# <os>
-		# 	<type arch="${arch}">hvm</type>
-		# 	<boot dev="cdrom"/>
-		# 	<boot dev="hd"/>
-		# </os>
+        # <os>
+        # 	<type arch="${arch}">hvm</type>
+        # 	<boot dev="cdrom"/>
+        # 	<boot dev="hd"/>
+        # </os>
         el_os = Element('os')
         el_type = Element('type', attrib={'arch': cpu['arch']})
         el_type.text = "hvm"
@@ -171,8 +166,8 @@ class VmGen:
         el_input = Element('input', attrib={'type': 'mouse', 'bus': 'ps2'})
         el_devices.append(el_input)
         # <graphics type="vnc" port="-1" listen="0.0.0.0" passwd="${vnc_password}"/>
-        el_graphics = Element('graphics', attrib={'type': 'vnc', 'port': '-1', 
-                'listen': '0.0.0.0', 'passwd': vnc_password})
+        el_graphics = Element('graphics', attrib={'type': 'vnc', 'port': '-1',
+                                                  'listen': '0.0.0.0', 'passwd': vnc_password})
         el_devices.append(el_graphics)
         # <console type="pty"/>
         el_console = Element('console', attrib={'type': 'pty'})
