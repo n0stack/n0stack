@@ -2,6 +2,7 @@ import time
 import libvirt
 import enum
 import xml.etree.ElementTree as ET
+from typing import Any  # NOQA
 
 from n0core.compute.kvmconnect.base import BaseOpen
 from operation.xmllib.vm import VmGen
