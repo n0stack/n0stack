@@ -19,7 +19,7 @@ class BaseReadOnly:
 class BaseOpen:
     def __init__(self):
         # type: (...) -> None
-        self.QEMU_URL = "qemu:///system"  # type: str
+        self.QEMU_URL = "qemu:///system"
         self.connect_to_qemu()
 
     def connect_to_qemu(self):
@@ -39,4 +39,4 @@ class BaseOpen:
             return False
 
         assert len(vols) == 1, 'multiple volume found'
-        return vols[0]
+        return True
