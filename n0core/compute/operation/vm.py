@@ -2,9 +2,9 @@ import time
 import libvirt
 import enum
 import xml.etree.ElementTree as ET
-from typing import List, Dict, Union
+from typing import List, Dict, Any
 
-from kvmconnect.base import BaseOpen
+from n0core.compute.kvmconnect.base import BaseOpen
 from operation.xmllib.vm import VmGen
 from operation.xmllib.volume import VolumeGen
 from operation.volume import Create as VolCreate
@@ -17,11 +17,11 @@ class Status(BaseOpen):
     status = enum.Enum('status', 'poweroff running')
 
     def __init__(self):
-        # type: (...) -> None
+        # type: () -> None
         super().__init__()
 
     def info(self):
-        # type: (...) -> None        
+        # type: () -> None        
         """
         Return status of vm
         """
@@ -97,11 +97,19 @@ class Create(BaseOpen):
         vnc_password: vnc password
     """
     def __init__(self):
-        # type: (...) -> None
+        # type: () -> None
         super().__init__()
-
-    def __call__(self, name, cpu, memory, disk, cdrom, mac_addr, vnc_password):
-        # type: (str, str, str, Union[int, slice], str, str, str) -> bool
+    
+    def __call__(self,
+                 name,  # type: str
+                 cpu,  # type: str
+                 memory,  # type: str
+                 disk,  # type: Any
+                 cdrom,  # type: str
+                 mac_addr,  # type: str
+                 vnc_password  # type: str
+    ):
+        # type: (...) -> bool
         vmgen = VmGen()
 
         # create volume (disk)
@@ -130,16 +138,18 @@ class Delete(BaseOpen):
     Delete VM
     """
     def __init__(self):
+        # type: () -> None
         super().__init__()
 
     def __call__(self, name):
+        # type: (str) -> bool
         try:
             vdom = self.connection.lookupByName(name)
-            if vdom.isActive():  # vm is up
+            if vdom.isActive():
                 vdom.shutdown()
 
             # delete matched volume
-            vol = self.volumeLookupByName(name)
+            vol = self.connection.volumeLookupByName(name)
             vol.wipe(0)
             vol.delete(0)
 
@@ -164,49 +174,55 @@ class Clone(BaseOpen):
         dst: new vm name
     """
     def __init__(self):
+        # type: () -> None
         super().__init__()
 
-    def __call__(self, src, dst, vncpass):
+    def __call__(self,
+                 src,  # type: str
+                 dst,  # type: str
+                 vncpass  # type: str
+    ):
+        # type: (...) -> bool
         srcdom = self.connection.lookupByName(src)
         # if srcdom.isActive(): # if vm is up
         #     # TODO: save state or something
         #     return False
 
         # clone volume from src to dst
-        srcvol = self.volumeLookupByName(src)
+        srcvol = self.connection.volumeLookupByName(src)
         volgen = VolumeGen()
-        dst_cap = srcvol.info()[1]  # get capacity
+        dst_cap = srcvol.info()[1]
         volgen(dst, str(dst_cap)+'B')
         pool = srcvol.storagePoolLookupByVolume()
-        status = pool.createXMLFrom(volgen.xml, srcvol)  # do clone
+        status = pool.createXMLFrom(volgen.xml, srcvol)
 
         if not status:
             return False
 
-        dstvol = self.volumeLookupByName(dst)
+        dstvol = self.connection.volumeLookupByName(dst)
 
         # clone VM
         # copy XML from src
-        root = ET.fromstring(srcdom.XMLDesc())
+        root = ET.fromstring(srcdom.XMLDesc())  # type: Any
         # replace name
-        el_name = root.find('./name')
+        el_name = root.find('./name')  # type: Any
         el_name.text = dst
         # remove uuid
-        el_uuid = root.find('./uuid')
+        el_uuid = root.find('./uuid')  # type: Any
         root.remove(el_uuid)
         # replace disk
-        el_disk = root.find("./devices/disk[@device='disk']/source")
+        el_disk = root.find("./devices/disk[@device='disk']/source")  # type: Any
         el_disk.set('file', dstvol.path())
         # remove mac addr
-        el_interface = root.find("./devices/interface[@type='bridge']")
-        el_mac = el_interface.find('./mac')
+        el_interface = root.find("./devices/interface[@type='bridge']")  # type: Any
+        el_mac = el_interface.find('./mac')  # type: Any
         el_interface.remove(el_mac)
         # remove serial and console
-        el_devices = root.find('./devices')
+        el_devices = root.find('./devices')  # type: Any
         el_devices.remove(el_devices.find("./serial[@type='pty']"))
         el_devices.remove(el_devices.find("./console[@type='pty']"))
         # reset vnc port and vnc password
-        el_graphics = root.find("./devices/graphics")
+        el_graphics = root.find("./devices/graphics")  # type: Any
         el_graphics.set('port', '-1')
         el_graphics.set('passwd', vncpass)
         # remove seclabel
