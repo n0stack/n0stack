@@ -1,5 +1,5 @@
-from kvmconnect.base import BaseOpen
-from operation.xmllib.volume import VolumeGen
+from n0core.compute.kvmconnect.base import BaseOpen
+from n0core.compute.operation.xmllib.volume import VolumeGen
 
 
 class Create(BaseOpen):
