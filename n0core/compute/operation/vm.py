@@ -2,7 +2,6 @@ import time
 import libvirt
 import enum
 import xml.etree.ElementTree as ET
-from typing import List, Dict, Any
 
 from n0core.compute.kvmconnect.base import BaseOpen
 from operation.xmllib.vm import VmGen
@@ -21,7 +20,7 @@ class Status(BaseOpen):
         super().__init__()
 
     def info(self):
-        # type: () -> None        
+        # type: () -> None
         """
         Return status of vm
         """
@@ -99,7 +98,7 @@ class Create(BaseOpen):
     def __init__(self):
         # type: () -> None
         super().__init__()
-    
+
     def __call__(self,
                  name,  # type: str
                  cpu,  # type: str
@@ -108,7 +107,7 @@ class Create(BaseOpen):
                  cdrom,  # type: str
                  mac_addr,  # type: str
                  vnc_password  # type: str
-    ):
+                 ):
         # type: (...) -> bool
         vmgen = VmGen()
 
@@ -181,7 +180,7 @@ class Clone(BaseOpen):
                  src,  # type: str
                  dst,  # type: str
                  vncpass  # type: str
-    ):
+                 ):
         # type: (...) -> bool
         srcdom = self.connection.lookupByName(src)
         # if srcdom.isActive(): # if vm is up

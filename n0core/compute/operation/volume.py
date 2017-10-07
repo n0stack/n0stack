@@ -26,7 +26,7 @@ class Create(BaseOpen):
 
 class Delete(BaseOpen):
     def __init__(self):
-        #type: (...) -> None
+        # type: (...) -> None
         super().__init__()
 
     def __call__(self, pool_name, volume_name):
