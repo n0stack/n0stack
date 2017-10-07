@@ -1,14 +1,12 @@
-# coding: UTF-8
 import time
 import libvirt
 import enum
 import xml.etree.ElementTree as ET
+from typing import List, Dict, Union
 
 from kvmconnect.base import BaseOpen
-
 from operation.xmllib.vm import VmGen
 from operation.xmllib.volume import VolumeGen
-
 from operation.volume import Create as VolCreate
 
 
@@ -16,18 +14,21 @@ class Status(BaseOpen):
     """
     manage vm status
     """
-
     status = enum.Enum('status', 'poweroff running')
 
     def __init__(self):
+        # type: (...) -> None
         super().__init__()
 
     def info(self):
-        """Return status of vm
+        # type: (...) -> None        
+        """
+        Return status of vm
         """
         pass
 
     def start(self, name):
+        # type: (str) -> bool
         domain = self.connection.lookupByName(name)
         try:
             domain.create()
@@ -45,20 +46,25 @@ class Status(BaseOpen):
         return True
 
     def stop(self, name):
+        # type: (str) -> bool
         domain = self.connection.lookupByName(name)
         domain.shutdown()
 
         # fail if over 120 seconds
         s = time.time()
+
         while True:
+
             if domain.info()[0] != 1:
                 break
+
             if time.time() - s > 120:
                 return False
 
         return True
 
     def force_stop(self, name):
+        # type: (str) -> bool
         domain = self.connection.lookupByName(name)
         domain.destroy()
 
@@ -91,9 +97,11 @@ class Create(BaseOpen):
         vnc_password: vnc password
     """
     def __init__(self):
+        # type: (...) -> None
         super().__init__()
 
     def __call__(self, name, cpu, memory, disk, cdrom, mac_addr, vnc_password):
+        # type: (str, str, str, Union[int, slice], str, str, str) -> bool
         vmgen = VmGen()
 
         # create volume (disk)
