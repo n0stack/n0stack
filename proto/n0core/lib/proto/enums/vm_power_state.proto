@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+enum VMPowerState {
+  BOOT = 0;
+  REBOOT = 1;
+  POWEROFF = 2;
+  HALT = 3;
+}
