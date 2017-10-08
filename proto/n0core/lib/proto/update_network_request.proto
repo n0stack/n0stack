@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+import "n0core/lib/proto/vlan_network_setting.proto";
+
+message UpdateNetworkRequest {
+  string id = 1;
+
+  oneof type_specific_setting {
+    VlanNetworkSetting vlan_network_setting = 2;
+  }
+}

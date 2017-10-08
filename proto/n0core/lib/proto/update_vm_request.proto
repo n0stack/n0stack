@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+message UpdateVMRequest {
+  string id = 1;
+  string host = 2;
+  uint32 vcpus = 3;
+  uint32 memory_mb = 4;
+  string vnc_password = 5;
+}
