@@ -28,7 +28,7 @@ class Dnsmasq(object):
         >>> ip_address = ipaddress.IPv4Interface.ip_interface('192.168.1.1/24')
         >>> pool = ['192.168.1.2', '192.168.1.254']
         >>> bridge = 'br-subnet01'
-        >>> masq.create_dhcp_serve(ip_address, bridge, pool)
+        >>> masq.create_dhcp_server(ip_address, bridge, pool)
 
         Enable VM having the MAC address to communicate dnsmasq process with DHCP.
         >>> masq.add_allowed_host('9e:e8:1d:d0:2c:c9')
@@ -50,7 +50,7 @@ class Dnsmasq(object):
 
         Respawn dnsmasq process to change its DHCP allocation pool.
         >>> pool = ['192.168.1.2', '192.168.1.128']
-        >>> masq.respawn_proces(pool)
+        >>> masq.respawn_procces(pool)
 
         Delete DHCP server.
         >>> masq.delete_dhcp_server()
