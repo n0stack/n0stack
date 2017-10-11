@@ -24,13 +24,13 @@ class Dnsmasq(object):
 
     Example:
         Create DHCP server.
-        >>> masq = dnsmasq("subnet01")
-        >>> ip_address = ipaddress.IPv4Interface.ip_interface('192.168.1.1/24')
+        >>> masq = Dnsmasq("subnet01")
+        >>> ip_address = ipaddress.ip_interface('192.168.1.1/24')
         >>> pool = ['192.168.1.2', '192.168.1.254']
         >>> bridge = 'br-subnet01'
         >>> masq.create_dhcp_server(ip_address, bridge, pool)
 
-        Enable VM having the MAC address to communicate dnsmasq process with DHCP.
+        Enable VM having the MAC address to communicate with dnsmasq process by DHCP.
         >>> masq.add_allowed_host('9e:e8:1d:d0:2c:c9')
 
         Delete allowed host.
