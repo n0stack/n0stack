@@ -21,6 +21,39 @@ logger = Logger(name=__name__)  # type: Logger
 class Dnsmasq(object):
     """
     Manage namespace, veth pair, directory and dnsmasq process.
+
+    Example:
+        Create DHCP server.
+        >>> masq = Dnsmasq("subnet01")
+        >>> ip_address = ipaddress.ip_interface('192.168.1.1/24')
+        >>> pool = ['192.168.1.2', '192.168.1.254']
+        >>> bridge = 'br-subnet01'
+        >>> masq.create_dhcp_server(ip_address, bridge, pool)
+
+        Enable VM having the MAC address to communicate with dnsmasq process by DHCP.
+        >>> masq.add_allowed_host('9e:e8:1d:d0:2c:c9')
+
+        Delete allowed host.
+        >>> masq.delete_allowed_host('9e:e8:1d:d0:2c:c9')
+
+        Add static MAC-IP map entry. VM having the MAC address always receives specified IP address.
+        >>> masq.add_host_entry('9e:e8:1d:d0:2c:c9', '192.168.1.11')
+
+        Delete MAC-IP entry.
+        >>> masq.delete_host_entry('9e:e8:1d:d0:2c:c9')
+
+        Stop dnsmasq process.
+        >>> masq.stop_process()
+
+        Start dnsmasq process.
+        >>> masq.start_process(pool)
+
+        Respawn dnsmasq process to change its DHCP allocation pool.
+        >>> pool = ['192.168.1.2', '192.168.1.128']
+        >>> masq.respawn_process(pool)
+
+        Delete DHCP server.
+        >>> masq.delete_dhcp_server()
     """
     ip = IPRoute()  # type: IPRoute
 
