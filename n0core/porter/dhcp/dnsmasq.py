@@ -50,7 +50,7 @@ class Dnsmasq(object):
 
         Respawn dnsmasq process to change its DHCP allocation pool.
         >>> pool = ['192.168.1.2', '192.168.1.128']
-        >>> masq.respawn_procces(pool)
+        >>> masq.respawn_process(pool)
 
         Delete DHCP server.
         >>> masq.delete_dhcp_server()
