@@ -6,7 +6,7 @@ class ReceivedUnsupportedMessage(Exception):
     Args:
         message_type: Set message type defined on protobuf.
     """
-    
+
     def __init__(self, message_type):
         # type: (str) -> None
         self.message_type = message_type

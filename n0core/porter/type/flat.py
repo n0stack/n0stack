@@ -19,7 +19,7 @@ class Flat(PorterType):
     Args:
         interface_name: Set interface to create "br-flat" automatically.
         bridge_name: Set bridge_name like "br-flat".
-    
+
     Notes:
         - When setted interface_name and bridge_name,
           priority of bridge_name is higher than interface_name.
