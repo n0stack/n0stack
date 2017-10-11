@@ -1,7 +1,10 @@
-from typing import Tuple, List, Optional, cast  # NOQA
+from typing import Any, Callable, Tuple, List, Optional, cast  # NOQA
 from pyroute2 import IPRoute
 
 from n0library.logger import Logger
+
+import n0core.lib.proto
+from n0core.porter.exceptions import ReceivedUnsupportedMessage
 
 
 logger = Logger(__name__)
@@ -12,7 +15,30 @@ class PorterType(object):
     PorterType class is network type abstract class.
     For example, flat and vlan.
     """
+
     ip = IPRoute()
+
+    @staticmethod
+    def _default_proto_method(message):
+        # type: (Any) -> None
+        """Only raise a Exception meaning recieved unsupported message.
+
+        Exceptions:
+            ReceivedUnsupportedMessage: Received unsupported message on porter class.
+        """
+        raise ReceivedUnsupportedMessage(message.__class__.__name__)
+
+    def __getattr__(self, name):
+        # type: (str) -> Optional[Callable[[Any], None]]
+        """Catch undefined methods handling to messages.
+
+        Returns:
+            The return value of _default_proto_method, when getting not defined proto message.
+            None when the message undefined on protobuf.
+        """
+        if hasattr(n0core.lib.proto, name):
+            return self._default_proto_method
+        raise AttributeError
 
     @classmethod
     def get_interface_index(cls, interface_name):
@@ -24,7 +50,7 @@ class PorterType(object):
 
         Returns:
             iproute2 index.
-            When the interface do not exists, return None.
+            None when the interface do not exists.
         """
         ret = cls.ip.link_lookup(ifname=interface_name)  # type: List[int]
         if ret:
