@@ -4,9 +4,7 @@ import enum
 import xml.etree.ElementTree as ET
 from typing import Any  # NOQA
 
-from operation.xmllib.vm import VmGen
-from operation.xmllib.volume import VolumeGen
-from operation.volume import Create as VolCreate
+from xmllib import vm_generate
 
 
 class Status(QemuOpen):  # NOQA
