@@ -9,7 +9,7 @@ from operation.xmllib.volume import VolumeGen
 from operation.volume import Create as VolCreate
 
 
-class Status(QemuOpen):
+class Status(QemuOpen):  # NOQA
     """
     manage vm status
     """
@@ -18,13 +18,6 @@ class Status(QemuOpen):
     def __init__(self):
         # type: () -> None
         super().__init__()
-
-    def info(self):
-        # type: () -> None
-        """
-        Return status of vm
-        """
-        pass
 
     def start(self, name):
         # type: (str) -> bool
@@ -78,7 +71,7 @@ class Status(QemuOpen):
         return True
 
 
-class Create(QemuOpen):
+class Create(QemuOpen):  # NOQA
     """
     Create VM
 
@@ -132,7 +125,7 @@ class Create(QemuOpen):
             return True
 
 
-class Delete(QemuOpen):
+class Delete(QemuOpen):  # NOQA
     """
     Delete VM
     """
@@ -164,7 +157,7 @@ class Delete(QemuOpen):
         return True
 
 
-class Clone(QemuOpen):
+class Clone(QemuOpen):  # NOQA
     """
     Clone VM
 
