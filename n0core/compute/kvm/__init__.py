@@ -14,6 +14,7 @@ class QemuReadOnly:
             print(e)
             sys.exit(1)
 
+
 class QemuOpen:
     URI = "qemu:///system"
 
@@ -25,4 +26,3 @@ class QemuOpen:
         except libvirt.libvirtError as e:
             print(e)
             sys.exit(1)
-        
