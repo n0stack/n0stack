@@ -70,10 +70,10 @@ class VM(QemuOpen):  # NOQA
                memory,  # type: str
                disk_path,  # type: str
                cdrom,  # type: str
-               device,
+               device,  # type: Any
                mac_addr,  # type: str
                vnc_password,  # type: str
-               nic_type
+               nic_type  # type: Any
                ):
         # type: (...) -> bool
 
