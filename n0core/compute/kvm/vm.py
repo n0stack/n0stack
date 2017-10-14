@@ -1,11 +1,9 @@
 import time
 import libvirt
-import enum
-import xml.etree.ElementTree as ET
 from typing import Any  # NOQA
 
-from xmllib import xml_generate
-from base import QemuOpen
+from n0core.compute.kvm.xmllib import xml_generate
+from n0core.compute.kvm.base import QemuOpen
 
 class VM(QemuOpen):  # NOQA
     """
@@ -68,7 +66,7 @@ class VM(QemuOpen):  # NOQA
 
     def create(self,
                name,  # type: str
-               cpu,  # type: str
+               cpu,  # type: Any
                memory,  # type: str
                disk_path,  # type: str
                cdrom,  # type: str
@@ -78,7 +76,7 @@ class VM(QemuOpen):  # NOQA
                nic_type
                ):
         # type: (...) -> bool
-        
+
         # default values of nic
         nic = {'type': 'bridge', 'source': device, 'mac_addr': mac_addr, 'model': nic_type}
 
