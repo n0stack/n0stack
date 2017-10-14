@@ -1,20 +1,20 @@
 # coding: UTF-8
 from xml.etree.ElementTree import Element
 import xml.etree.ElementTree as ET
+from typing import Dict, Any  # NOQA
 
 
-def xml_generate(self,
-                 name,
-                 cpu,
-                 memory,
-                 disk,
-                 cdrom,
-                 nic,
-                 vnc_password
+def xml_generate(name,  # type: str
+                 cpu,  # type: Any
+                 memory,  # type: str
+                 disk,  # type: str
+                 cdrom,  # type: str
+                 nic,  # type: Dict[str, Any]
+                 vnc_password  # type: str
                  ):
-
+    # type: (...) -> str
     root = Element('domain', attrib={'type': 'kvm'})
-    
+
     el_name = Element('name')
     el_name.text = name
     root.append(el_name)
@@ -22,11 +22,11 @@ def xml_generate(self,
     el_memory = Element('memory')
     el_memory.text = memory
     root.append(el_memory)
-    
+
     el_vcpu = Element('vcpu')
     el_vcpu.text = cpu['nvcpu']
     root.append(el_vcpu)
-    
+
     # <os>
     # 	<type arch="${arch}">hvm</type>
     # 	<boot dev="cdrom"/>
@@ -41,7 +41,7 @@ def xml_generate(self,
     el_os.append(el_boot1)
     el_os.append(el_boot2)
     root.append(el_os)
-    
+
     # <features>
     # <acpi/>
     # <apic/>
@@ -52,7 +52,7 @@ def xml_generate(self,
     el_features.append(el_acpi)
     el_features.append(el_apic)
     root.append(el_features)
-    
+
     # <cpu mode="custom" match="exact">
     #   <model>IvyBridge</model>
     # </cpu>
@@ -60,7 +60,7 @@ def xml_generate(self,
     el_model = Element('model')
     el_cpu.append(el_model)
     root.append(el_cpu)
-    
+
     # <clock offset="utc">
     #   <timer name="rtc" tickpolicy="catchup"/>
     #   <timer name="pit" tickpolicy="delay"/>
@@ -74,7 +74,7 @@ def xml_generate(self,
     el_clock.append(el_timer2)
     el_clock.append(el_timer3)
     root.append(el_clock)
-    
+
     # <on_poweroff>destroy</on_poweroff>
     # <on_reboot>restart</on_reboot>
     # <on_crash>restart</on_crash>
@@ -87,7 +87,7 @@ def xml_generate(self,
     root.append(el_on1)
     root.append(el_on2)
     root.append(el_on3)
-    
+
     # <pm>
     #   <suspend-to-mem enabled="no"/>
     #   <suspend-to-disk enabled="no"/>
@@ -98,10 +98,10 @@ def xml_generate(self,
     el_pm.append(el_suspend1)
     el_pm.append(el_suspend2)
     root.append(el_pm)
-    
+
     # devices
     el_devices = Element('devices')
-    
+
     # <disk type="file" device="disk">
     #   <driver name="qemu" type="raw"/>
     #   <source file="${disk}"/>
@@ -115,7 +115,7 @@ def xml_generate(self,
     el_disk.append(el_source)
     el_disk.append(el_target)
     el_devices.append(el_disk)
-    
+
     # <disk type="file" device="cdrom">
     #   <driver name="qemu" type="raw"/>
     #   <source file="${cdrom}"/>
@@ -132,7 +132,7 @@ def xml_generate(self,
     el_disk.append(el_target)
     el_disk.append(el_readonly)
     el_devices.append(el_disk)
-    
+
     # <interface type="${type}">
     #   <source bridge="${source}"/>
     #   <mac address="${mac_addr}"/>
@@ -147,7 +147,7 @@ def xml_generate(self,
         el_interface.append(el_mac)
         el_interface.append(el_model)
         el_devices.append(el_interface)
-        
+
     # <input type="mouse" bus="ps2"/>
     el_input = Element('input', attrib={'type': 'mouse', 'bus': 'ps2'})
     el_devices.append(el_input)
@@ -158,9 +158,9 @@ def xml_generate(self,
     # <console type="pty"/>
     el_console = Element('console', attrib={'type': 'pty'})
     el_devices.append(el_console)
-    
+
     root.append(el_devices)
-    
-    xml = ET.tostring(root).decode('utf-8').replace('\n', '')
-    
+
+    xml = ET.tostring(root).decode('utf-8').replace('\n', '')  # type: str
+
     return xml
