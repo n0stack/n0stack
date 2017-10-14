@@ -4,13 +4,12 @@ import enum
 import xml.etree.ElementTree as ET
 from typing import Any  # NOQA
 
-from n0core.compute.kvmconnect.base import BaseOpen
 from operation.xmllib.vm import VmGen
 from operation.xmllib.volume import VolumeGen
 from operation.volume import Create as VolCreate
 
 
-class Status(BaseOpen):
+class Status(QemuOpen):
     """
     manage vm status
     """
@@ -29,7 +28,7 @@ class Status(BaseOpen):
 
     def start(self, name):
         # type: (str) -> bool
-        domain = self.connection.lookupByName(name)
+        domain = self.conn.lookupByName(name)
         try:
             domain.create()
         except:
@@ -47,7 +46,7 @@ class Status(BaseOpen):
 
     def stop(self, name):
         # type: (str) -> bool
-        domain = self.connection.lookupByName(name)
+        domain = self.conn.lookupByName(name)
         domain.shutdown()
 
         # fail if over 120 seconds
@@ -65,7 +64,7 @@ class Status(BaseOpen):
 
     def force_stop(self, name):
         # type: (str) -> bool
-        domain = self.connection.lookupByName(name)
+        domain = self.conn.lookupByName(name)
         domain.destroy()
 
         # fail if over 60 seconds
@@ -79,7 +78,7 @@ class Status(BaseOpen):
         return True
 
 
-class Create(BaseOpen):
+class Create(QemuOpen):
     """
     Create VM
 
@@ -120,12 +119,12 @@ class Create(BaseOpen):
         # default values of nic
         nic = {'type': 'bridge', 'source': 'virbr0', 'mac_addr': mac_addr, 'model': 'virtio'}
 
-        pool = self.connection.storagePoolLookupByName(disk['pool'])
+        pool = self.conn.storagePoolLookupByName(disk['pool'])
         vol = pool.storageVolLookupByName(name+'.img')
 
         vmgen(name, cpu, memory, vol.path(), cdrom, nic, vnc_password)
 
-        dom = self.connection.createXML(vmgen.xml, 0)
+        dom = self.conn.createXML(vmgen.xml, 0)
 
         if not dom:
             return False
@@ -133,7 +132,7 @@ class Create(BaseOpen):
             return True
 
 
-class Delete(BaseOpen):
+class Delete(QemuOpen):
     """
     Delete VM
     """
@@ -144,12 +143,12 @@ class Delete(BaseOpen):
     def __call__(self, name):
         # type: (str) -> bool
         try:
-            vdom = self.connection.lookupByName(name)
+            vdom = self.conn.lookupByName(name)
             if vdom.isActive():
                 vdom.shutdown()
 
             # delete matched volume
-            vol = self.connection.volumeLookupByName(name)
+            vol = self.conn.volumeLookupByName(name)
             vol.wipe(0)
             vol.delete(0)
 
@@ -165,7 +164,7 @@ class Delete(BaseOpen):
         return True
 
 
-class Clone(BaseOpen):
+class Clone(QemuOpen):
     """
     Clone VM
 
@@ -183,13 +182,13 @@ class Clone(BaseOpen):
                  vncpass  # type: str
                  ):
         # type: (...) -> bool
-        srcdom = self.connection.lookupByName(src)
+        srcdom = self.conn.lookupByName(src)
         # if srcdom.isActive(): # if vm is up
         #     # TODO: save state or something
         #     return False
 
         # clone volume from src to dst
-        srcvol = self.connection.volumeLookupByName(src)
+        srcvol = self.conn.volumeLookupByName(src)
         volgen = VolumeGen()
         dst_cap = srcvol.info()[1]
         volgen(dst, str(dst_cap)+'B')
@@ -199,7 +198,7 @@ class Clone(BaseOpen):
         if not status:
             return False
 
-        dstvol = self.connection.volumeLookupByName(dst)
+        dstvol = self.conn.volumeLookupByName(dst)
 
         # clone VM
         # copy XML from src
@@ -229,7 +228,7 @@ class Clone(BaseOpen):
         root.remove(root.find('./seclabel'))
 
         dst_xml = ET.tostring(root).decode()
-        dstdom = self.connection.createXML(dst_xml, 0)
+        dstdom = self.conn.createXML(dst_xml, 0)
 
         if not dstdom:
             return False
