@@ -3,7 +3,7 @@ sys.path.append('../../')
 import pulsar
 
 from n0core.lib.proto import UpdateVMPowerStateRequest, VMPowerState
-
+from n0core.lib.messenger import Messenger
 
 def main():
     client = pulsar.Client('pulsar://localhost:6650')
@@ -13,9 +13,7 @@ def main():
     req = UpdateVMPowerStateRequest(id="some_vm",
                                     status=VMPowerState.Value('POWEROFF'))
 
-    serialized = req.SerializeToString()
-
-    producer.send(serialized)
+    Messenger.send_new_message(producer, req)
     client.close()
 
 
