@@ -1,3 +1,5 @@
+import sqlalchemy as sa
+
 from ResorceCalculation import Execfunc
 
 
@@ -5,42 +7,34 @@ class Scheduler():
     """
     Scheduler main class
     """
-    DB_USER = None
-    DB_HOST = None
-    DB_PORT = None
-    DB_PASSWORD = None
+    # postgresql+psycopg2://user:password@host:port/dbname[?key=value&key=value...]
+    DB_URL = None
     PROMETHEUS_HOST = None
     PROMETHEUS_PORT = None
 
     def __init__(self,
                  *,
-                 db_user=None,  # type: Optional[str]
-                 db_host=None,  # type: Optional[str]
-                 db_port=None,  # type: Optional[str]
-                 db_password=None,  # type: Optional[str]
+                 db_url=None,  # type: Optional[str]
                  prometheus_host=None,  # type: Optional[str]
                  prometheus_port=None,  # type: Optional[str]
                  ):
-        self.DB_USER = db_user
-        self.DB_HOST = db_host
-        self.DB_PORT = db_port
-        self.DB_PASSWORD = db_password
+        self.DB_USER = db_url
         self.PROMETHEUS_HOST = prometheus_host
         self.PROMETHEUS_PORT = prometheus_port
 
     def MQReceived(self, msg):
         if msg.host is None:
             self.scheduleJob()
-        return self.send(proto, msg.host, msg.process)
+        return self.send(msg.host, msg.process)
 
     def ScheduleJob(self):
         re = Resorce()
-        re.DBResorce(self.DB_USER, self.DB_PASSWORD, self.DB_HOST, self.DB_PASSWORD)
+        re.DBResorce(self.DB_URL)
         re.PrometheusRresorce(self.PROMETHEUS_HOST, self.PROMETHEUS_PORT)
         return re.ResorceCalculation(Execfunc)
 
     def Send(proto, host, process):
-        pass
+        return
 
 
 class Resorce():
@@ -57,11 +51,16 @@ class Resorce():
     CREATE_VM_MEMORY = None
     CREATE_VM_DISK = None
 
-    def DBResorce(user, password, host):
-        pass
+    def DBResorce(db_url):
+        engine = sa.create_engine(db_url, echo=True)
+        Session = sa.orm.sessionmaker(bind=engine)
+        session = Session()
+        hosts = session.query('HOST').all()
+        return hosts
 
     def PrometheusRresorce():
         pass
 
     def ResorceCalculation(Execfunc):
+        # Resorce 計算アルゴリズムは、後で自由に変えてくれという気持ち
         return Execfunc()
