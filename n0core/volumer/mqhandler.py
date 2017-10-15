@@ -1,7 +1,11 @@
-import sys
-sys.path.append('../../') # NoQA
-from n0core.lib.messenger import Messenger
 import pulsar
+
+try:
+    from n0core.lib.messenger import Messenger
+except:
+    import sys
+    sys.path.append('../../') # NoQA
+    from n0core.lib.messenger import Messenger
 
 
 class MQHandler:

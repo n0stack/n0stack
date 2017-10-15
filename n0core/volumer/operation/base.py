@@ -1,12 +1,12 @@
-from .xmllib import build_pool
-
-from n0library.logger import Logger
-
-import libvirt
+from typing import Union  # NoQA
 import sys
 import os
 
-from typing import Union  # NoQA
+import libvirt
+
+from n0library.logger import Logger
+from .xmllib import build_pool
+
 
 
 POOL_NAME = 'n0stack'
