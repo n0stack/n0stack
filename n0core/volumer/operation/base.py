@@ -6,6 +6,8 @@ import libvirt
 import sys
 import os
 
+from typing import Union  # NoQA
+
 
 POOL_NAME = 'n0stack'
 POOL_PATH = '/var/lib'
@@ -46,6 +48,7 @@ class BaseOpen:
 
 
 def _init_pool(cls):
+    # type: (Union[BaseReadOnly, BaseOpen]) -> None
     path = POOL_PATH
     if not os.path.exists(path):
         # TODO: error log

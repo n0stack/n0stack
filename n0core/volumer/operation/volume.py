@@ -4,6 +4,7 @@ from .base import BaseOpen
 
 class Volume(BaseOpen):
     def __init__(self):
+        # type: () -> None
         super().__init__()
 
     def create(self, name, size):
@@ -17,7 +18,7 @@ class Volume(BaseOpen):
         return True
 
     def delete(self, name, wipe=True):
-        # type: (str) -> bool
+        # type: (str, bool) -> bool
         storage = self.pool.storageVolLookupByName(name)
 
         if storage is None:
