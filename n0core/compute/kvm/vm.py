@@ -5,6 +5,7 @@ from typing import Any  # NOQA
 from n0core.compute.kvm.xmllib import xml_generate
 from n0core.compute.kvm.base import QemuOpen
 
+
 class VM(QemuOpen):  # NOQA
     """
     manage vm status
