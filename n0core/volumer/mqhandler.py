@@ -8,7 +8,7 @@ class MQHandler:
     handlers = dict()
 
     def __init__(self, service_url, topic, **kwargs):
-        self.client =  pulsar.Client(service_url)
+        self.client = pulsar.Client(service_url)
         self.consumer = self.client.subscribe(topic, **kwargs)
 
     def handle(self, proto):
