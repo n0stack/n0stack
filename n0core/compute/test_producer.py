@@ -10,10 +10,7 @@ def main():
     producer = client.create_producer(
         'persistent://sample/standalone/compute/114514')
 
-    req = UpdateVMPowerStateRequest(id="some_vm",
-                                    status=VMPowerState.Value('POWEROFF'))
-
-    Messenger.send_new_message(producer, req)
+    producer.send('Hello1')
     client.close()
 
 
