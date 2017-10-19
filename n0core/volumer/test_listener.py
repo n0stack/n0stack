@@ -13,9 +13,9 @@ consumer = client.subscribe('persistent://sample/standalone/volumer/114514')
 def create_volume_request(message):
     print('CreateVolumeRequest')
     print(message.data)
-    consumer.ack(message)
+    # consumer.ack(message)
 
-@consumer.on('DeleteVolumeRequest')
+@consumer.on('DeleteVolumeRequest', auto_ack=False)
 def delete_volume_request(message):
     print('DeleteVolumeRequest')
     print(message.data)
