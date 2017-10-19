@@ -73,8 +73,8 @@ class N0MQ(pulsar.Client):
             topic, subscription_name = ts
             consumer = self.do_subscribe(topic, subscription_name, message_listener=handler)
             handler.consumer = consumer
-            while True:
-                pass
+        while True:
+            pass
 
 
 class N0MQHandler(pulsar.Consumer):
