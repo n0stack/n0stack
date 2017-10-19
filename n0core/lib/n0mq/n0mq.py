@@ -89,20 +89,22 @@ class N0MQHandler(pulsar.Consumer):
         protoname = message.data.DESCRIPTOR.name
         if protoname not in self.handlers:
             raise NotImplementedError('unhandled message: {}'.format(protoname))
-        func = self.handlers[protoname]
+        func, auto_ack = self.handlers[protoname]
         func(message)
+        if auto_ack:
+            self.ack(message)
 
-    def on(self, proto):
+    def on(self, proto, auto_ack=True):
         def wrapper(f):
-            self._add_handler(proto, f)
+            self._add_handler(proto, f, auto_ack=auto_ack)
             return f
         return wrapper
 
-    def _add_handler(self, proto, f):
+    def _add_handler(self, proto, f, auto_ack):
         if proto in self.handlers:
             raise ValueError('{} handler already exists on {}#{}'.format(
                     proto, self.topic, self.subscription_Name))
-        self.handlers[proto] = f
+        self.handlers[proto] = f, auto_ack
 
     def ack(self, message):
         return self.consumer.acknowledge(message)
