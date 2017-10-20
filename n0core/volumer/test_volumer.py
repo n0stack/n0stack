@@ -1,9 +1,6 @@
-import pulsar
-
 import sys
 sys.path.append('../../') # NoQA
 from n0core.lib.proto import CreateVolumeRequest, DeleteVolumeRequest
-from n0core.lib.messenger import Messenger
 from n0core.lib.n0mq import N0MQ
 
 

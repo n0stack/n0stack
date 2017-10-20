@@ -11,9 +11,10 @@ from n0core.lib.proto import N0stackMessage
 def generate_id():
     return str(uuid4())
 
+
 def parse_n0m(data):
     msg = N0stackMessage()
-    
+
     # TODO: Base64 solution should be replaced
     msg.ParseFromString(b64decode(data))
 
@@ -22,6 +23,7 @@ def parse_n0m(data):
     sub_msg_type = sub_msg.WhichOneof('message')
 
     return getattr(sub_msg, sub_msg_type)
+
 
 def build_n0m(request_id, obj, type):
     msg = N0stackMessage()
