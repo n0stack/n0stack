@@ -1,4 +1,4 @@
-from typing import Any, Optional, Tuple # NoQA
+from typing import Any, Optional, Tuple, Dict # noqa
 
 from base64 import b64encode, b64decode
 from uuid import uuid4
@@ -9,10 +9,21 @@ from n0core.lib.proto import N0stackMessage
 
 
 def generate_id():
+    # type: () -> str
     return str(uuid4())
 
 
 def parse_n0m(data):
+    # type: (bytes) -> Any
+    """
+    Parse N0stackMessage and extract submessage
+
+    Args:
+        data: N0stackMessage to be processed
+
+    Returns:
+        Extracted submessage
+    """
     msg = N0stackMessage()
 
     # TODO: Base64 solution should be replaced
@@ -26,6 +37,15 @@ def parse_n0m(data):
 
 
 def build_n0m(request_id, obj, type):
+    # type: (str, Any, str) -> bytes
+    """
+    Construct N0stackMessage from submessage
+
+    Args:
+        request_id: Request ID for N0stackMessage
+        obj: submessage payload
+        type: type of N0stackMessage, 'Request' or 'Notification'
+    """
     msg = N0stackMessage()
     msg.version = 1
     msg.request_id = request_id
@@ -37,14 +57,14 @@ def build_n0m(request_id, obj, type):
     return b64encode(msg.SerializeToString())
 
 
-class N0MQProducer(pulsar.Producer):
-    def _build_msg(self, content, *args, **kwargs):
+class N0MQProducer(pulsar.Producer): # type: ignore
+    def _build_msg(self, content, *args, **kwargs): # type: ignore
         content = build_n0m(generate_id(), content, 'Request')
         return super()._build_msg(content, *args, **kwargs)
 
 
-class N0MQConsumer(pulsar.Consumer):
-    def receive(self, *args, **kwargs):
+class N0MQConsumer(pulsar.Consumer): # type: ignore
+    def receive(self, *args, **kwargs): # type: ignore
         msg = super().receive(*args, **kwargs)
         return parse_n0m(msg)
 
@@ -54,10 +74,11 @@ pulsar.Producer = N0MQProducer
 pulsar.Consumer = N0MQConsumer
 
 
-class N0MQ(pulsar.Client):
-    handlers = dict()
+class N0MQ(pulsar.Client): # type: ignore
+    handlers = dict() # type: Dict
 
     def subscribe(self, topic, subscription_name=None):
+        # type: (str, Optional[str]) -> N0MQHandler
         if subscription_name is None:
             subscription_name = generate_id()
         if (topic, subscription_name) in self.handlers:
@@ -67,9 +88,11 @@ class N0MQ(pulsar.Client):
         return handler
 
     def do_subscribe(self, topic, subscription_name, *args, **kwargs):
+        # type: (str, str, *str, **str) -> pulsar.Consumer
         return super().subscribe(topic, subscription_name, *args, **kwargs)
 
     def listen(self):
+        # type: () -> None
         for ts in self.handlers:
             handler = self.handlers[ts]
             topic, subscription_name = ts
@@ -79,14 +102,16 @@ class N0MQ(pulsar.Client):
             pass
 
 
-class N0MQHandler(pulsar.Consumer):
-    handlers = dict()
+class N0MQHandler(pulsar.Consumer): # type: ignore
+    handlers = dict() # type: Dict
 
     def __init__(self, topic, subscription_name, *args, **kwargs):
+        # type: (str, str, *str, **str) -> None
         self.topic = topic
         self.subscription_name = subscription_name
 
     def __call__(self, consumer, message):
+        # type: (pulsar.Consumer, pulsar.Message) -> None
         message.data = parse_n0m(message.data())
         protoname = message.data.DESCRIPTOR.name
         if protoname not in self.handlers:
@@ -97,16 +122,20 @@ class N0MQHandler(pulsar.Consumer):
             self.ack(message)
 
     def on(self, proto, auto_ack=True):
+        # type: (str, bool) -> Any
         def wrapper(f):
+            # type: (Any) -> Any
             self._add_handler(proto, f, auto_ack=auto_ack)
             return f
         return wrapper
 
     def _add_handler(self, proto, f, auto_ack):
+        # type: (str, Any, bool) -> None
         if proto in self.handlers:
             raise ValueError('{} handler already exists on {}#{}'.format(
                     proto, self.topic, self.subscription_Name))
         self.handlers[proto] = f, auto_ack
 
     def ack(self, message):
+        # type: (pulsar.Message) -> Any
         return self.consumer.acknowledge(message)
