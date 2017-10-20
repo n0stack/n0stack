@@ -57,14 +57,14 @@ def build_n0m(request_id, obj, type):
     return b64encode(msg.SerializeToString())
 
 
-class N0MQProducer(pulsar.Producer): # type: ignore
-    def _build_msg(self, content, *args, **kwargs): # type: ignore
+class N0MQProducer(pulsar.Producer):  # type: ignore
+    def _build_msg(self, content, *args, **kwargs):  # type: ignore
         content = build_n0m(generate_id(), content, 'Request')
         return super()._build_msg(content, *args, **kwargs)
 
 
-class N0MQConsumer(pulsar.Consumer): # type: ignore
-    def receive(self, *args, **kwargs): # type: ignore
+class N0MQConsumer(pulsar.Consumer):  # type: ignore
+    def receive(self, *args, **kwargs):  # type: ignore
         msg = super().receive(*args, **kwargs)
         return parse_n0m(msg)
 
@@ -74,8 +74,8 @@ pulsar.Producer = N0MQProducer
 pulsar.Consumer = N0MQConsumer
 
 
-class N0MQ(pulsar.Client): # type: ignore
-    handlers = dict() # type: Dict
+class N0MQ(pulsar.Client):  # type: ignore
+    handlers = dict()  # type: Dict
 
     def subscribe(self, topic, subscription_name=None):
         # type: (str, Optional[str]) -> N0MQHandler
@@ -102,8 +102,8 @@ class N0MQ(pulsar.Client): # type: ignore
             pass
 
 
-class N0MQHandler(pulsar.Consumer): # type: ignore
-    handlers = dict() # type: Dict
+class N0MQHandler(pulsar.Consumer):  # type: ignore
+    handlers = dict()  # type: Dict
 
     def __init__(self, topic, subscription_name, *args, **kwargs):
         # type: (str, str, *str, **str) -> None
