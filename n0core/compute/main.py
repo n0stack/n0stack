@@ -13,7 +13,7 @@ consumer = client.subscribe('persistent://sample/standalone/compute/handle')
 @consumer.on('CreateVMRequest')
 def create_VM_request(message, auto_ack=False):
     print('create vm request')
-    print(message)
+    print(message.data)
     consumer.ack(message)
 
     
