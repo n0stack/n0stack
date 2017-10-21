@@ -26,12 +26,8 @@ def build_volume(name, size):
     el_name = Element('name')
     el_name.text = name + ".img"
 
-    unit = 'B'
-    if size[-1] in 'BKMG':
-        size = size[:-1]
-
-    el_capacity = Element('capacity', attrib={'unit': unit})
-    el_capacity.text = size
+    el_capacity = Element('capacity', attrib={'unit': 'M'})
+    el_capacity.text = str(size)
 
     el_volume.append(el_name)
     el_volume.append(el_capacity)

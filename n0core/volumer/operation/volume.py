@@ -19,7 +19,7 @@ class Volume(BaseOpen):
 
     def delete(self, name, wipe=True):
         # type: (str, bool) -> bool
-        storage = self.pool.storageVolLookupByName(name)
+        storage = self.pool.storageVolLookupByName(name+'.img')
 
         if storage is None:
             # TODO: error log

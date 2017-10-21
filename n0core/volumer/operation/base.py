@@ -9,7 +9,7 @@ from .xmllib import build_pool
 
 
 POOL_NAME = 'n0stack'
-POOL_PATH = '/var/lib'
+POOL_PATH = '/var/lib/{}'.format(POOL_NAME)
 QEMU_URL = 'qemu:///system'
 logger = Logger()
 
@@ -23,9 +23,11 @@ class BaseReadOnly:
             logger.error('unable to connect to libvirt')
             sys.exit(1)
 
-        pool = conn.storagePoolLookupByName(POOL_NAME)
-        if pool is None:
-            _init_pool(self)
+        try:
+            pool = conn.storagePoolLookupByName(POOL_NAME)
+        except libvirt.libvirtError:
+            _init_pool(conn)
+            pool = conn.storagePoolLookupByName(POOL_NAME)
         self.conn = conn
         self.pool = pool
 
@@ -39,14 +41,16 @@ class BaseOpen:
             logger.error('unable to connect to libvirt')
             sys.exit(1)
 
-        pool = conn.storagePoolLookupByName(POOL_NAME)
-        if pool is None:
-            _init_pool(self)
+        try:
+            pool = conn.storagePoolLookupByName(POOL_NAME)
+        except libvirt.libvirtError:
+            _init_pool(conn)
+            pool = conn.storagePoolLookupByName(POOL_NAME)
         self.conn = conn
         self.pool = pool
 
 
-def _init_pool(cls):
+def _init_pool(conn):
     # type: (Union[BaseReadOnly, BaseOpen]) -> None
     path = POOL_PATH
     if not os.path.exists(path):
@@ -55,7 +59,7 @@ def _init_pool(cls):
         sys.exit(1)
 
     xml = build_pool(POOL_NAME, path)
-    pool = cls.conn.storagePoolDefineXML(xml, 0)
+    pool = conn.storagePoolDefineXML(xml, 0)
     if pool is None:
         logger.critical('failed to define pool')
         sys.exit(1)
