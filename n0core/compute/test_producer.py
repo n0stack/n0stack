@@ -2,15 +2,22 @@ import sys
 sys.path.append('../../')
 import pulsar
 
-from n0core.lib.proto import UpdateVMPowerStateRequest, VMPowerState
-from n0core.lib.messenger import Messenger
+from n0core.lib.n0mq import N0MQ
+from n0core.lib.proto import CreateVMRequest
+
 
 def main():
     client = pulsar.Client('pulsar://localhost:6650')
-    producer = client.create_producer(
-        'persistent://sample/standalone/compute/114514')
+    producer = client.create_producer('persistent://sample/standalone/compute/handle')
 
-    producer.send('Hello1')
+    req = CreateVMRequest(id='1',
+                          host='test',
+                          arch='x86_64',
+                          vcpus=1,
+                          memory_mb=1024,
+                          vnc_password='test')
+
+    producer.send(req)
     client.close()
 
 
