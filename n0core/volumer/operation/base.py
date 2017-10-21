@@ -8,7 +8,6 @@ from n0library.logger import Logger
 from .xmllib import build_pool
 
 
-
 POOL_NAME = 'n0stack'
 POOL_PATH = '/var/lib'
 QEMU_URL = 'qemu:///system'
