@@ -15,8 +15,7 @@ def generate_id():
 
 def parse_n0m(data):
     # type: (bytes) -> Any
-    """
-    Parse N0stackMessage and extract submessage
+    """Parse N0stackMessage and extract submessage
 
     Args:
         data: N0stackMessage to be processed
@@ -38,8 +37,7 @@ def parse_n0m(data):
 
 def build_n0m(request_id, obj, type):
     # type: (str, Any, str) -> bytes
-    """
-    Construct N0stackMessage from submessage
+    """Construct N0stackMessage from submessage
 
     Args:
         request_id: Request ID for N0stackMessage
@@ -75,6 +73,33 @@ pulsar.Consumer = N0MQConsumer
 
 
 class N0MQ(pulsar.Client):  # type: ignore
+    """A class for handling N0stackMessage in the Pulsar MQ.
+
+    N0stackMessage includes submessage Request or Notification,
+    and N0MQ help us to extract submessage from N0stackMessage.
+
+    Example:
+        Initialization:
+        >>> from n0core.lib.n0mq import N0MQ
+        >>> from n0core.lib.proto import CreateVolumeRequest
+        >>> client = N0MQ('pulsar://localhost:6650')
+
+        Send new message with producer
+        >>> producer = client.create_producer('persistent://sample/standalone/ns1/my-topic')
+        >>> req = CreateVolumeRequest(id='1', host='test', size_mb=1)
+        >>> producer.send(req)
+
+        Set handler for receiving message with consumer
+        >>> consumer = client.subscribe('persistent://sample/standalone/ns1/my-topic')
+        >>> @consumer.on('CreateVolumeRequest')
+        >>> def on_create_volume_request(message, auto_ack=False):
+        >>>     print('CreateVolumeRequest')
+        >>>     print(message.data)  # CreateVolumeRequest object
+        >>>     consumer.ack(message)  # no need to ack if auto_ack is True (default)
+
+        >>> consumer.listen()  # register all handler to message_listener of pulsar.Client.subscribe
+    """
+
     handlers = dict()  # type: Dict
 
     def subscribe(self, topic, subscription_name=None):
