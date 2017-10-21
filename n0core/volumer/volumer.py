@@ -1,22 +1,28 @@
-from mqhandler import MQHandler
+try:
+    from n0core.lib.n0mq import N0MQ
+except:
+    import sys
+    sys.path.append('../../')
+    from n0core.lib.n0mq import N0MQ
 
 
-mqhandler = MQHandler('pulsar://localhost:6650',
-                      'persistent://sample/standalone/volumer/114514',
-                      subscription_name='volumer')
+client = N0MQ('pulsar://localhost:6650')
+consumer = client.subscribe('persistent://sample/standalone/volumer/test')
 
 
-@mqhandler.handle('CreateVolumeRequest')
-def create_volume_handler(inner_msg, messenger):
-    print('createvolume')
-    print(inner_msg)
+@consumer.on('CreateVolumeRequest')
+def on_create_volume_req(message):
+    print('CreateVolumeRequest')
+    req = message.data
+    print(req.id)
 
 
-@mqhandler.handle('DeleteVolumeRequest')
-def delete_volume_handler(inner_msg, messenger):
-    print('deletevolume')
-    print(inner_msg)
+@consumer.on('DeleteVolumeRequest')
+def on_delete_volume_req(message):
+    print('DeleteVolumeRequest')
+    req = message.data
+    print(req.id)
 
 
 if __name__ == '__main__':
-    mqhandler.listen()
+    client.listen()
