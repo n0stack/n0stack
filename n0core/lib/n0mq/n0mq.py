@@ -97,7 +97,7 @@ class N0MQ(pulsar.Client):  # type: ignore
         >>>     print(message.data)  # CreateVolumeRequest object
         >>>     consumer.ack(message)  # no need to ack if auto_ack is True (default)
 
-        >>> consumer.listen()  # register all handler to message_listener of pulsar.Client.subscribe
+        >>> client.listen()  # register all handler to message_listener of pulsar.Client.subscribe
     """
 
     handlers = dict()  # type: Dict
