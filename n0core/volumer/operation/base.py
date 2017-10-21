@@ -20,7 +20,7 @@ class BaseReadOnly:
         try:
             conn = libvirt.openReadOnly(QEMU_URL)
         except libvirt.libvirtError as e:
-            logger.error('unabled to connect to libvirt')
+            logger.error('unable to connect to libvirt')
             sys.exit(1)
 
         pool = conn.storagePoolLookupByName(POOL_NAME)
@@ -36,7 +36,7 @@ class BaseOpen:
         try:
             conn = libvirt.open(QEMU_URL)
         except libvirt.libvirtError as e:
-            logger.error('unabled to connect to libvirt')
+            logger.error('unable to connect to libvirt')
             sys.exit(1)
 
         pool = conn.storagePoolLookupByName(POOL_NAME)
