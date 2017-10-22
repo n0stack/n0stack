@@ -28,8 +28,8 @@ def main(req):
                               memory_mb=2048,
                               vnc_password='n0stack')
     elif req == 'UpdateVMPowerState':
-        req = UpdateVMPowerStateRequest(id='1',
-                                        status=VMPowerState.Value('POWEROFF'))
+        req = UpdateVMPowerStateRequest(id='vyos1',
+                                        status=VMPowerState.Value('BOOT'))
     else:
         print("wrong argument")
         return False
