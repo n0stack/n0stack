@@ -17,10 +17,7 @@ class VM(QemuOpen):  # NOQA
     def start(self, name):
         # type: (str) -> bool
         domain = self.conn.lookupByName(name)
-        try:
-            domain.create()
-        except:
-            return False
+        domain.create()
 
         # fail if over 120 seconds
         s = time.time()
@@ -39,12 +36,9 @@ class VM(QemuOpen):  # NOQA
 
         # fail if over 120 seconds
         s = time.time()
-
         while True:
-
             if domain.info()[0] != 1:
                 break
-
             if time.time() - s > 120:
                 return False
 
@@ -93,8 +87,7 @@ class VM(QemuOpen):  # NOQA
 
         if not dom:
             return False
-        else:
-            return True
+        return True
 
     def delete(self, name):
         # type: (str) -> bool
