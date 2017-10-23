@@ -1,3 +1,5 @@
+import pulsar  # NOQA
+
 try:
     from n0core.lib.n0mq import N0MQ
 except:
@@ -15,8 +17,10 @@ vm = VM()
 logger = Logger()
 
 
-@consumer.on('CreateVMRequest')
+@consumer.on('CreateVMRequest')  # type: ignore
 def create_VM_request(message, auto_ack=False):
+    # type: (pulsar.Message, bool) -> bool
+
     logger.info('Received CreateVMRequest')
 
     data = message.data
@@ -45,10 +49,13 @@ def create_VM_request(message, auto_ack=False):
         return False
 
     consumer.ack(message)
+    return True
 
 
-@consumer.on('DeleteVMRequest')
+@consumer.on('DeleteVMRequest')  # type: ignore
 def delete_VM_request(message, auto_ack=False):
+    # type: (pulsar.Message, bool) -> bool
+
     logger.info('Received DeleteVMRequest')
 
     data = message.data
@@ -62,16 +69,20 @@ def delete_VM_request(message, auto_ack=False):
     return True
 
 
-@consumer.on('UpdateVMRequest')
+@consumer.on('UpdateVMRequest')  # type: ignore
 def update_VM_request(message, auto_ack=False):
+    # type: (pulsar.Message, bool) -> bool
+
     # TODO
     logger.info('Received UpdateVMRequest')
     consumer.ack(message)
     return True
 
 
-@consumer.on('UpdateVMPowerStateRequest')
+@consumer.on('UpdateVMPowerStateRequest')  # type: ignore
 def update_VM_power_state_request(message, auto_ack=False):
+    # type: (pulsar.Message, bool) -> bool
+
     logger.info('Received UpdateVMPowerStateRequest')
 
     data = message.data
