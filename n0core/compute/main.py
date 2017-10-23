@@ -2,7 +2,7 @@ import pulsar  # NOQA
 
 try:
     from n0core.lib.n0mq import N0MQ
-except:
+except:  # NOQA
     import sys
     sys.path.append('../../')
     from n0core.lib.n0mq import N0MQ
