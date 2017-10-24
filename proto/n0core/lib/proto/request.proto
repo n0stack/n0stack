@@ -4,6 +4,7 @@ import public "n0core/lib/proto/attach_network_interface_request.proto";
 import public "n0core/lib/proto/attach_volume_request.proto";
 import public "n0core/lib/proto/create_ipv4_subnet_request.proto";
 import public "n0core/lib/proto/create_network_request.proto";
+import public "n0core/lib/proto/create_network_interface_request.proto";
 import public "n0core/lib/proto/create_vm_request.proto";
 import public "n0core/lib/proto/create_vm_snapshot_request.proto";
 import public "n0core/lib/proto/create_volume_request.proto";
@@ -43,12 +44,13 @@ message Request {
     UpdateNetworkRequest UpdateNetworkRequest = 20;
     DeleteNetworkRequest DeleteNetworkRequest = 21;
 
-    AttachNetworkInterfaceRequest AttachNetworkInterfaceRequest = 22;
+    CreateNetworkInterfaceRequest CreateNetworkInterfaceRequest = 22;
     UpdateNetworkInterfaceRequest UpdateNetworkInterfaceRequest = 23;
-    DetachNetworkInterfaceRequest DetachNetworkInterfaceRequest = 24;
+    AttachNetworkInterfaceRequest AttachNetworkInterfaceRequest = 24;
+    DetachNetworkInterfaceRequest DetachNetworkInterfaceRequest = 25;
 
-    CreateIPv4SubnetRequest CreateIPv4SubnetRequest = 25;
-    UpdateIPv4SubnetRequest UpdateIPv4SubnetRequest = 26;
-    DeleteIPv4SubnetRequest DeleteIPv4SubnetRequest = 27;
+    CreateIPv4SubnetRequest CreateIPv4SubnetRequest = 26;
+    UpdateIPv4SubnetRequest UpdateIPv4SubnetRequest = 27;
+    DeleteIPv4SubnetRequest DeleteIPv4SubnetRequest = 28;
   }
 }
