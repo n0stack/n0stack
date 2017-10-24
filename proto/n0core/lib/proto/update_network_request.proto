@@ -4,6 +4,7 @@ import "n0core/lib/proto/vlan_network_setting.proto";
 
 message UpdateNetworkRequest {
   string id = 1;
+  uint32 mtu = 3;
 
   oneof type_specific_setting {
     VlanNetworkSetting vlan_network_setting = 2;
