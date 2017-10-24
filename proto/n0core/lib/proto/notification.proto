@@ -1,9 +1,11 @@
 syntax = "proto3";
 
-import "n0core/lib/proto/enums/request_status.proto";
+import public "n0core/lib/proto/simple_notification.proto";
+
+import public "n0core/lib/proto/enums/request_status.proto";
 
 message Notification {
-  string type = 1;
-  RequestStatus RequestStatus = 2;
-  string reason = 3;
+  oneof message {
+    SimpleNotification SimpleNotification = 11;
+  }
 }
