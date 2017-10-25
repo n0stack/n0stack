@@ -1,12 +1,12 @@
 import sqlalchemy as sa
 
-from ResorceCalculation import Execfunc
+# from ResorceCalculation import Execfunc
 
 
 def CheckHost(msg):
     if msg.host is None:
         print("host")
-    return send(msg.host, msg.process)
+    return send(msg)
 
 
 class Scheduler():
