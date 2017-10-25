@@ -1,4 +1,4 @@
-from initialize import client, logger  # NOQA
+from initialize import *  # NOQA
 from agent import compute, volumer, porter, networker  # NOQA
 
 

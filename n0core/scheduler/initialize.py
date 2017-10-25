@@ -39,12 +39,36 @@ parser.add_argument("--prometheus-url",
                     default=None,
                     dest="prometheus_url",
                     help="Prometheus URL")
+parser.add_argument("--compute-producer-url",
+                    type=str,
+                    default="persistent://sample/standalone/compute/",
+                    dest="compute_producer",
+                    help="Compute Producer URL")
+parser.add_argument("--volumer-producer-url",
+                    type=str,
+                    default="persistent://sample/standalone/volumer/",
+                    dest="volumer_producer",
+                    help="Volumer Producer URL")
+parser.add_argument("--porter-producer-url",
+                    type=str,
+                    default="persistent://sample/standalone/porter/",
+                    dest="porter_producer",
+                    help="Porter Producer URL")
+parser.add_argument("--networker-producer-url",
+                    type=str,
+                    default="persistent://sample/standalone/networker/",
+                    dest="networker_producer",
+                    help="Networker Producer URL")
 args = parser.parse_args()
 
 pulsar_url = args.pulsar_url
 scheduler_topic = args.scheduler_topic
 db_url = urlparse(args.db_url)
 prometheus_url = urlparse(args.prometheus_url)
+compute_producer = args.compute_producer
+volumer_producer = args.volumer_producer
+porter_producer = args.porter_producer
+networker_producer = args.networker_producer
 
 
 class MQScheduler(N0MQ):
