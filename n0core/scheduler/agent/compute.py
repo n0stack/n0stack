@@ -1,4 +1,4 @@
-from scheduler import consumer, logger, send  # NOQA
+from initialize import consumer, logger, send
 try:
     from n0core.lib import proto
 except:  # NOQA

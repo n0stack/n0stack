@@ -14,5 +14,5 @@ except:  # NOQA
 
 client = N0MQ('pulsar://127.0.0.1:6650')
 req = proto.CreateVMRequest(id='1', host='test')
-producer = client.create_producer('persistent://main/sd/scheduler/handle')
+producer = client.create_producer('persistent://main/sd/scheduler/handler')
 producer.send(req)

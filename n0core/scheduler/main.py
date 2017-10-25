@@ -1,5 +1,4 @@
-import pulsar  # NOQA
-from scheduler import Scheduler, client, logger  # NOQA
+from initialize import client, logger  # NOQA
 from agent import compute, volumer, porter, networker  # NOQA
 
 
