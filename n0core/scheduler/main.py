@@ -1,16 +1,6 @@
 import pulsar  # NOQA
 from urllib.parse import urlparse
-
 from n0library.arguments.common import CommonArguments
-from n0library.logger import Logger
-
-try:
-    from n0core.lib.n0mq import N0MQ
-except:  # NOQA
-    import sys
-    sys.path.append('../../')
-    from n0core.lib.n0mq import N0MQ
-
 from scheduler import Scheduler
 
 
@@ -51,17 +41,9 @@ scheduler = Scheduler(
     prometheus_port=str(prometheus_url.port),
 )
 
-client = N0MQ(pulsar_url)
-consumer = client.subscribe(scheduler_topic)
-logger = Logger(stdout=True, level='info')
 
-from agent import compute  # NOQA
-from agent import volumer, porter, networker  # NOQA
-
-
-def send(url, req):
-    producer = client.create_producer(url)
-    producer.send(req)
+from agent import compute, volumer, porter, networker  # NOQA
+from client import client, logger  # NOQA
 
 
 if __name__ == '__main__':

@@ -1,4 +1,4 @@
-from main import consumer, send, logger, scheduler  # NOQA
+from client import consumer, logger, send  # NOQA
 try:
     from n0core.lib import proto
 except:  # NOQA
@@ -16,7 +16,6 @@ def create_VM_request(message, auto_ack=False):
     logger.info('Received CreateVMRequest')
     hostid = message.data.host
     print(hostid)
-    print('ehehe')
     req = proto.CreateVMRequest(id='1', host='test')
     send(compute_producer + hostid, req)
 
