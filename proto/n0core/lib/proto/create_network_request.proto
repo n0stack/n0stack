@@ -6,6 +6,7 @@ import "n0core/lib/proto/vlan_network_setting.proto";
 message CreateNetworkRequest {
   string id = 1;
   NetworkType type = 2;
+  uint32 mtu = 4;
 
   oneof type_specific_setting {
     VlanNetworkSetting vlan_network_setting = 3;
