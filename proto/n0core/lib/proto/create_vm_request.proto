@@ -7,4 +7,5 @@ message CreateVMRequest {
   uint32 vcpus = 4;
   uint32 memory_mb = 5;
   string vnc_password = 6;
+  string volume_id = 7;
 }
