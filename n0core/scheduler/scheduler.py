@@ -52,7 +52,7 @@ class Resorce():
             self.DB_MEMORY.append(h.memory)
             self.DB_DISKFREE.append(h.diskfree)
 
-    def PrometheusRresorce(self):
+    def PrometheusResorce(self):
         return
 
     def ResorceCalculation(self, Execfunc):
