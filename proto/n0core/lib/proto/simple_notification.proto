@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+import "n0core/lib/proto/enums/request_status.proto";
+
+message SimpleNotification {
+  string type = 1;
+  RequestStatus RequestStatus = 2;
+  string additional_information = 3;
+}
