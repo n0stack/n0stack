@@ -1,10 +1,10 @@
-from initialize import consumer, logger, send, compute_producer
 try:
     from n0core.lib import proto
 except:  # NOQA
     import sys
     sys.path.append('../../')
     from n0core.lib import proto
+from initialize import consumer, logger, send, compute_producer
 
 
 @consumer.on('CreateVMRequest')  # type: ignore

@@ -1,3 +1,4 @@
+from typing import Any, Optional, Tuple, Dict  # NOQA
 import time
 from _pulsar import ConsumerType
 from urllib.parse import urlparse
@@ -17,7 +18,7 @@ from scheduler import Scheduler
 
 parser = CommonArguments(
     description="",
-)
+)  # type: CommonArguments
 
 parser.add_argument("--pulsar-url",
                     type=str,
@@ -61,14 +62,14 @@ parser.add_argument("--networker-producer-url",
                     help="Networker Producer URL")
 args = parser.parse_args()
 
-pulsar_url = args.pulsar_url
-scheduler_topic = args.scheduler_topic
-db_url = urlparse(args.db_url)
-prometheus_url = urlparse(args.prometheus_url)
-compute_producer = args.compute_producer
-volumer_producer = args.volumer_producer
-porter_producer = args.porter_producer
-networker_producer = args.networker_producer
+pulsar_url = args.pulsar_url  # type: str
+scheduler_topic = args.scheduler_topic  # type: str
+db_url = urlparse(args.db_url)  # type: str
+prometheus_url = urlparse(args.prometheus_url)  # type: str
+compute_producer = args.compute_producer  # type: str
+volumer_producer = args.volumer_producer  # type: str
+porter_producer = args.porter_producer  # type: str
+networker_producer = args.networker_producer  # type: str
 
 
 class MQScheduler(N0MQ):
@@ -102,5 +103,5 @@ def send(url, req):
 
 def CheckHost(msg):
     if msg.host is None:
-        print("host")
+        print("scheduling")
     return send(msg)

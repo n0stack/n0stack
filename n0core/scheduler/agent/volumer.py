@@ -1,15 +1,15 @@
 import pulsar  # NOQA
-from initialize import consumer, logger, send, volumer_producer  # NOQA
 try:
     from n0core.lib import proto
 except:  # NOQA
     import sys
     sys.path.append('../../')
     from n0core.lib import proto  # NOQA
+from initialize import consumer, logger, send, volumer_producer  # NOQA
 
 
 @consumer.on('CreateVolumeRequest')
-def create_volume_req(message):
+def create_volume_req(message, auto_ack=False):
     # type: (pulsar.Message, bool) -> bool
     logger.info('CreateVolumeRequest')
     data = message.data
@@ -21,7 +21,7 @@ def create_volume_req(message):
 
 
 @consumer.on('DeleteVolumeRequest')
-def delete_volume_req(message):
+def delete_volume_req(message, auto_ack=False):
     # type: (pulsar.Message, bool) -> bool
     logger.info('DeleteVolumeRequest')
     data = message.data

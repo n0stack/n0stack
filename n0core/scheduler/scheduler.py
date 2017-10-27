@@ -1,4 +1,7 @@
+from typing import Any, Optional, Tuple, Dict  # NOQA
 import sqlalchemy as sa
+
+import Execfunc
 
 
 class Scheduler():
@@ -17,11 +20,13 @@ class Scheduler():
                  prometheus_host=None,  # type: Optional[str]
                  prometheus_port=None,  # type: Optional[str]
                  ):
+        # type: () -> None
         self.DB_USER = db_url
         self.PROMETHEUS_HOST = prometheus_host
         self.PROMETHEUS_PORT = prometheus_port
 
     def ScheduleJob(self):
+        # type: () -> str
         re = Resorce()
         re.DBResorce(self.DB_URL)
         re.PrometheusRresorce(self.PROMETHEUS_HOST, self.PROMETHEUS_PORT)
