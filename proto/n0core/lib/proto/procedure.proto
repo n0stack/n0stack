@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+import public "n0core/lib/proto/attach_network_interface_request.proto";
+import public "n0core/lib/proto/attach_volume_request.proto";
+import public "n0core/lib/proto/create_ipv4_subnet_request.proto";
+import public "n0core/lib/proto/create_network_request.proto";
+import public "n0core/lib/proto/create_network_interface_request.proto";
+import public "n0core/lib/proto/create_vm_request.proto";
+import public "n0core/lib/proto/create_vm_snapshot_request.proto";
+import public "n0core/lib/proto/create_volume_request.proto";
+import public "n0core/lib/proto/delete_ipv4_subnet_request.proto";
+import public "n0core/lib/proto/delete_network_request.proto";
+import public "n0core/lib/proto/delete_vm_request.proto";
+import public "n0core/lib/proto/delete_vm_snapshot_request.proto";
+import public "n0core/lib/proto/delete_volume_request.proto";
+import public "n0core/lib/proto/detach_network_interface_request.proto";
+import public "n0core/lib/proto/detach_volume_request.proto";
+import public "n0core/lib/proto/update_ipv4_subnet_request.proto";
+import public "n0core/lib/proto/update_network_interface_request.proto";
+import public "n0core/lib/proto/update_network_request.proto";
+import public "n0core/lib/proto/update_vm_power_state_request.proto";
+import public "n0core/lib/proto/update_vm_request.proto";
+
+import public "n0core/lib/proto/enums/network_type.proto";
+import public "n0core/lib/proto/enums/vm_power_state.proto";
+import "n0core/lib/proto/vlan_network_setting.proto";
+
+message Procedure {
+  repeated Procedure RequiredProcedures = 1;
+
+  oneof message {
+    CreateVMRequest CreateVMRequest = 11;
+    UpdateVMRequest UpdateVMRequest = 12;
+    DeleteVMRequest DeleteVMRequest = 13;
+  }
+
+  UpdateVMPowerStateRequest UpdateVMPowerStateRequest = 14;
+
+  oneof VMRequest {
+    CreateVolumeRequest CreateVolumeRequest = 15;
+    DeleteVolumeRequest DeleteVolumeRequest = 16;
+    AttachVolumeRequest AttachVolumeRequest = 17;
+    DetachVolumeRequest DetachVolumeRequest = 18;
+  }
+
+  oneof NetworkRequest {
+    CreateNetworkRequest CreateNetworkRequest = 19;
+    UpdateNetworkRequest UpdateNetworkRequest = 20;
+    DeleteNetworkRequest DeleteNetworkRequest = 21;
+  }
+
+  oneof NetworkInterfaceRequest {
+    CreateNetworkInterfaceRequest CreateNetworkInterfaceRequest = 22;
+    UpdateNetworkInterfaceRequest UpdateNetworkInterfaceRequest = 23;
+    AttachNetworkInterfaceRequest AttachNetworkInterfaceRequest = 24;
+    DetachNetworkInterfaceRequest DetachNetworkInterfaceRequest = 25;
+  }
+
+  oneof IPv4SubnetRequest {
+    CreateIPv4SubnetRequest CreateIPv4SubnetRequest = 26;
+    UpdateIPv4SubnetRequest UpdateIPv4SubnetRequest = 27;
+    DeleteIPv4SubnetRequest DeleteIPv4SubnetRequest = 28;
+  }
+}
