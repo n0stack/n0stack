@@ -28,7 +28,7 @@ import "n0core/lib/proto/vlan_network_setting.proto";
 message Procedure {
   repeated Procedure RequiredProcedures = 1;
 
-  oneof message {
+  oneof VMRequest {
     CreateVMRequest CreateVMRequest = 11;
     UpdateVMRequest UpdateVMRequest = 12;
     DeleteVMRequest DeleteVMRequest = 13;
@@ -36,7 +36,7 @@ message Procedure {
 
   UpdateVMPowerStateRequest UpdateVMPowerStateRequest = 14;
 
-  oneof VMRequest {
+  oneof VolumeRequest {
     CreateVolumeRequest CreateVolumeRequest = 15;
     DeleteVolumeRequest DeleteVolumeRequest = 16;
     AttachVolumeRequest AttachVolumeRequest = 17;
