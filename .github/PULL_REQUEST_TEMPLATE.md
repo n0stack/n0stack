@@ -1,5 +1,5 @@
-## What changed
+## What / 変更点
 
-## Why this change was made
+## Why / 変更した理由
 
-## How implemented (Optional)
+## How (Optional) / 概要
