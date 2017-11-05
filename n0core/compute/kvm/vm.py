@@ -106,3 +106,15 @@ class VM(QemuOpen):  # NOQA
             return False
 
         return True
+
+    def update(self, name, memory):
+        # type: (str, int) -> bool
+        try:
+            dom = self.conn.lookupByName(name)
+            dom.setMemory(memory)
+
+        except libvirt.libvirtError as e:
+            print(e)
+            return False
+
+        return True

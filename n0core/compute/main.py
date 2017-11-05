@@ -73,8 +73,16 @@ def delete_VM_request(message, auto_ack=False):
 def update_VM_request(message, auto_ack=False):
     # type: (pulsar.Message, bool) -> bool
 
-    # TODO
     logger.info('Received UpdateVMRequest')
+
+    data = message.data
+    vm_name = data.id
+    new_memory = data.memory_mb
+
+    if not vm.update(vm_name, new_memory):
+        logger.error('Failed to update vm: {}'.format(vm_name))
+        return False
+
     consumer.ack(message)
     return True
 
