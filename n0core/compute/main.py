@@ -77,9 +77,10 @@ def update_VM_request(message, auto_ack=False):
 
     data = message.data
     vm_name = data.id
+    new_vcpus = data.vcpus
     new_memory = data.memory_mb
 
-    if not vm.update(vm_name, new_memory):
+    if not vm.update(vm_name, new_vcpus, new_memory):
         logger.error('Failed to update vm: {}'.format(vm_name))
         return False
 
