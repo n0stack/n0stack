@@ -124,5 +124,21 @@ def update_VM_power_state_request(message, auto_ack=False):
     return True
 
 
+@consumer.on('AttachVolumeRequest')  # type: ignore
+def attach_volume_request(message, auto_ack=False):
+    # type: (pulsar.Message, bool) -> bool
+
+    logger.info('Recieved AttachVolumeRequest')
+
+    data = message.data
+    vm_name = data.vm_id
+    volume_id = data.volume_id
+
+    # TODO: add attach volume func
+
+    consumer.ack(message)
+    return True
+    
+
 if __name__ == '__main__':
     client.listen()
