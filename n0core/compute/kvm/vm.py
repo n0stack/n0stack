@@ -119,3 +119,7 @@ class VM(QemuOpen):  # NOQA
             return False
 
         return True
+
+    def attach_volume(self, name, volume_id):
+        # type: (str, str) -> bool
+        return True

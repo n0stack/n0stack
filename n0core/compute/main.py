@@ -134,11 +134,13 @@ def attach_volume_request(message, auto_ack=False):
     vm_name = data.vm_id
     volume_id = data.volume_id
 
-    # TODO: add attach volume func
+    if not vm.attach_volume(vm_name, volume_id):
+        logger.error('Failed to attach volume: {}'.format(vm_name))
+        return False
 
     consumer.ack(message)
     return True
-    
+
 
 if __name__ == '__main__':
     client.listen()
