@@ -179,7 +179,7 @@ spec:
   var_network:
     type: resource/network/vlan
     id: 8451da31-5e3a-4c46-aa3a-2a557382a6cd
-    state: created
+    state: applied
     name: vlan_network
     subnets:
       - cidr: 192.168.0.0/24
@@ -485,7 +485,7 @@ spec:
   var_network:
     type: resource/network/vlan
     id: 8451da31-5e3a-4c46-aa3a-2a557382a6cd
-    state: created
+    state: applied
     name: vlan_network
     subnets:
       - cidr: 192.168.0.0/24

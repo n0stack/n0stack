@@ -6,9 +6,9 @@ Objects can explained with relations and graph with other objects.
 
 ## Directed graph
 
-オブジェクトを構成するために必要な関係を有向グラフで示す。
+オブジェクトを構成するために必要な関係を有向グラフで示す。依存している理由を `r` キーで示す。
 
-Directed graph explain relatioinships necessary to construct objects.
+Directed graph explain relatioinships necessary to construct objects. `r` key explain why the object depends on.
 
 ### 懸念点
 

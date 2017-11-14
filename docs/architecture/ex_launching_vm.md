@@ -96,7 +96,7 @@ spec:
   var_network:
     type: resource/network/vlan
     id: 8451da31-5e3a-4c46-aa3a-2a557382a6cd
-    state: created
+    state: applied
     name: vlan_network
     subnets:
       - cidr: 192.168.0.0/24
@@ -158,7 +158,7 @@ spec:
           r: n0stack.jp/n0core/port/network
   - type: resource/network/vlan
     id: 8451da31-5e3a-4c46-aa3a-2a557382a6cd
-    state: created
+    state: applied
     name: vlan_network
     subnets:
       - cidr: 192.168.0.0/24
@@ -207,7 +207,7 @@ object:
           - object:
               type: resource/network/vlan
               id: 8451da31-5e3a-4c46-aa3a-2a557382a6cd
-              state: created
+              state: applied
               name: vlan_network
               subnets:
                 - cidr: 192.168.0.0/24
@@ -299,7 +299,7 @@ object:
     - object:
         type: resource/network/vlan
         id: 8451da31-5e3a-4c46-aa3a-2a557382a6cd
-        state: created
+        state: applied
         name: vlan_network
         subnets:
           - cidr: 192.168.0.0/24
@@ -337,7 +337,7 @@ spec_id: 100
 object:
   type: resource/network/vlan
   id: 8451da31-5e3a-4c46-aa3a-2a557382a6cd
-  state: created
+  state: applied
   name: vlan_network
   bridge: br-vlan-0f97b5a3-bff2-4f13-9361-9f9b4fab3d65
   subnets:
@@ -396,7 +396,7 @@ level: SUCCESS
 object:
   type: resource/network/vlan
   id: 8451da31-5e3a-4c46-aa3a-2a557382a6cd
-  state: created
+  state: applied
   name: vlan_network
   bridge: br-vlan-0f97b5a3-bff2-4f13-9361-9f9b4fab3d65
   subnets:
@@ -438,7 +438,7 @@ object:
     - object:
         type: resource/network/vlan
         id: 8451da31-5e3a-4c46-aa3a-2a557382a6cd
-        state: created
+        state: applied
         name: vlan_network
         bridge: br-vlan-0f97b5a3-bff2-4f13-9361-9f9b4fab3d65
         subnets:
@@ -498,7 +498,7 @@ object:
           - object:
               type: resource/network/vlan
               id: 8451da31-5e3a-4c46-aa3a-2a557382a6cd
-              state: created
+              state: applied
               name: vlan_network
               bridge: br-vlan-0f97b5a3-bff2-4f13-9361-9f9b4fab3d65
               subnets:
