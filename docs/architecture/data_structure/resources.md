@@ -30,7 +30,7 @@ relations:
             id: 0f97b5a3-bff2-4f13-9361-9f9b4fab3d65
             type: resource/network/vlan
             name: hogehoge
-            state: created
+            state: applied
             bridge: br-vlan-0f97b5a3-bff2-4f13-9361-9f9b4fab3d65
             subnets:
               - cidr: 192.168.0.0/24
@@ -60,6 +60,14 @@ relations:
     direction: ->
 ```
 
+### state
+
+- started
+- stopped
+- restarted
+- halted
+- destroyed
+
 ## Volume
 
 ```yaml
@@ -83,7 +91,7 @@ url: file:///data/hoge
 id: 0f97b5a3-bff2-4f13-9361-9f9b4fab3d65
 type: resource/network/vlan
 name: hogehoge
-state: created
+state: applied
 bridge: br-flat
 subnets:
   - cidr: 192.168.0.0/24
@@ -98,8 +106,8 @@ parameters:
 
 ### state
 
-- claimed
-- destroyed
+- applied
+- halted
 
 ## Port
 
@@ -117,7 +125,7 @@ relations:
       id: 0f97b5a3-bff2-4f13-9361-9f9b4fab3d65
       type: resource/network/vlan
       name: hogehoge
-      state: created
+      state: applied
       bridge: br-vlan-0f97b5a3-bff2-4f13-9361-9f9b4fab3d65
       subnets:
         - cidr: 192.168.0.0/24
