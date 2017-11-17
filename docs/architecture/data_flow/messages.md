@@ -72,13 +72,14 @@ depended_by:
 spec_id:
 object:
 msg: hogehoge
-level: SUCCESS
+event: APPLIED
+succeeded: true
 ```
 
-##### level
+##### event
 
-- SUCCESS
-- FAILURE
+- SCHEDULED
+- APPLIED
 
 ## Versioning layer
 
