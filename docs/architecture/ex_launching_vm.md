@@ -9,8 +9,8 @@ See details in [here](data_flow/client2api.md).
 ```yaml
 version: 0
 annotations:
-  n0stack.io/scheduling/same_host: true
-  n0stack.io/scheduling/host_id: 85cf3a3a-18e4-4fe2-b406-9e79079cae07
+  n0stack/scheduling/same_host: true
+  n0stack/scheduling/host_id: 85cf3a3a-18e4-4fe2-b406-9e79079cae07
 spec:
   web:
     type: resource/vm/kvm
@@ -27,16 +27,16 @@ spec:
             - object:
                 variable: var_network
               property:
-                r: n0stack.jp/n0core/port/network
+                r: n0stack/n0core/port/network
         property:
-          r: n0stack.jp/n0core/vm/attachments
+          r: n0stack/n0core/vm/attachments
       - object:
           type: resource/volume/file
           name: new_volume
           size: 10gb
         property:
-          r: n0stack.jp/n0core/vm/attachments
-          n0stack.jp/n0core/vm/boot_prority: 1
+          r: n0stack/n0core/vm/attachments
+          n0stack/n0core/vm/boot_prority: 1
   var_network:
     type: resource/network/vlan
     name: vlan_network
@@ -58,8 +58,8 @@ id: 100
 created_at: 1990/1/1 00:00
 version: 0
 annotations:
-  n0stack.io/scheduling/same_host: true
-  n0stack.io/scheduling/host_id: 85cf3a3a-18e4-4fe2-b406-9e79079cae07
+  n0stack/scheduling/same_host: true
+  n0stack/scheduling/host_id: 85cf3a3a-18e4-4fe2-b406-9e79079cae07
 spec:
   web:
     type: resource/vm/kvm
@@ -81,9 +81,9 @@ spec:
             - object:
                 variable: var_network
               property:
-                r: n0stack.jp/n0core/port/network
+                r: n0stack/n0core/port/network
         property:
-          r: n0stack.jp/n0core/vm/attachments
+          r: n0stack/n0core/vm/attachments
       - object:
           type: resource/volume/file
           id: d99163ed-0093-40a0-a61b-365a1aece509
@@ -91,8 +91,8 @@ spec:
           name: new_volume
           size: 10gb
         property:
-          r: n0stack.jp/n0core/vm/attachments
-          n0stack.jp/n0core/vm/boot_prority: 1
+          r: n0stack/n0core/vm/attachments
+          n0stack/n0core/vm/boot_prority: 1
   var_network:
     type: resource/network/vlan
     id: 8451da31-5e3a-4c46-aa3a-2a557382a6cd
@@ -120,8 +120,8 @@ See details in [here](data_flow/api2scheduler.md).
 ```yaml
 id: 100
 annotations:
-  n0stack.io/scheduling/same_host: true
-  n0stack.io/scheduling/host_id: 85cf3a3a-18e4-4fe2-b406-9e79079cae07
+  n0stack/scheduling/same_host: true
+  n0stack/scheduling/host_id: 85cf3a3a-18e4-4fe2-b406-9e79079cae07
 spec:
   - type: resource/vm/kvm
     id: 56410722-d507-472a-a800-c89211b7c261
@@ -135,12 +135,12 @@ spec:
       - object:
           id: a1f6a79b-7ad0-499e-b912-44eb73ea0f81
         property:
-          r: n0stack.jp/n0core/vm/attachments
+          r: n0stack/n0core/vm/attachments
       - object:
           id: d99163ed-0093-40a0-a61b-365a1aece509
         property:
-          r: n0stack.jp/n0core/vm/attachments
-          n0stack.jp/n0core/vm/boot_prority: 1
+          r: n0stack/n0core/vm/attachments
+          n0stack/n0core/vm/boot_prority: 1
   - type: resource/volume/file
     id: d99163ed-0093-40a0-a61b-365a1aece509
     status: claimed
@@ -155,7 +155,7 @@ spec:
       - object:
           id: 8451da31-5e3a-4c46-aa3a-2a557382a6cd
         property:
-          r: n0stack.jp/n0core/port/network
+          r: n0stack/n0core/port/network
   - type: resource/network/vlan
     id: 8451da31-5e3a-4c46-aa3a-2a557382a6cd
     state: applied
@@ -220,23 +220,23 @@ object:
                 id: 100
               relations:
                 - property:
-                    r: n0stack.jp/n0core/resource/scheduled
+                    r: n0stack/n0core/resource/scheduled
                   object:
                     type: agent/porter/vlan
                     id: a0c819fa-9dc2-4666-b7fd-d235a2551119
                     state: alived
                     host_id: 8bce7696-f641-411c-a0ce-6ed066d912a3
             property:
-              r: n0stack.jp/n0core/port/network
+              r: n0stack/n0core/port/network
           - property:
-              r: n0stack.jp/n0core/resource/scheduled
+              r: n0stack/n0core/resource/scheduled
             object:
               type: agent/porter/vlan
               id: a0c819fa-9dc2-4666-b7fd-d235a2551119
               state: alived
               host_id: 8bce7696-f641-411c-a0ce-6ed066d912a3
       property:
-        r: n0stack.jp/n0core/vm/attachments
+        r: n0stack/n0core/vm/attachments
     - object:
         type: resource/volume/file
         id: d99163ed-0093-40a0-a61b-365a1aece509
@@ -245,17 +245,17 @@ object:
         size: 10gb
         relations:
           - property:
-              r: n0stack.jp/n0core/resource/scheduled
+              r: n0stack/n0core/resource/scheduled
             object:
               type: agent/volumer/file
               id: 264b01b8-aeb5-478a-ad11-715fbc86d2f6
               state: alived
               host_id: 8bce7696-f641-411c-a0ce-6ed066d912a3
       property:
-        r: n0stack.jp/n0core/vm/attachments
-        n0stack.jp/n0core/vm/boot_prority: 1
+        r: n0stack/n0core/vm/attachments
+        n0stack/n0core/vm/boot_prority: 1
     - property:
-        r: n0stack.jp/n0core/resource/scheduled
+        r: n0stack/n0core/resource/scheduled
       object:
         type: agent/compute/kvm
         id: 2463f81d-20d8-4395-a3c4-84a271a5b3a7
@@ -275,7 +275,7 @@ object:
   size: 10gb
   relations:
     - property:
-        r: n0stack.jp/n0core/resource/scheduled
+        r: n0stack/n0core/resource/scheduled
       object:
         type: agent/volumer/file
         id: 264b01b8-aeb5-478a-ad11-715fbc86d2f6
@@ -312,16 +312,16 @@ object:
           id: 100
         relations:
           - property:
-              r: n0stack.jp/n0core/resource/scheduled
+              r: n0stack/n0core/resource/scheduled
             object:
               type: agent/porter/vlan
               id: a0c819fa-9dc2-4666-b7fd-d235a2551119
               state: alived
               host_id: 8bce7696-f641-411c-a0ce-6ed066d912a3
       property:
-        r: n0stack.jp/n0core/port/network
+        r: n0stack/n0core/port/network
     - property:
-        r: n0stack.jp/n0core/resource/scheduled
+        r: n0stack/n0core/resource/scheduled
       object:
         type: agent/porter/vlan
         id: a0c819fa-9dc2-4666-b7fd-d235a2551119
@@ -351,7 +351,7 @@ object:
     id: 100
   relations:
     - property:
-        r: n0stack.jp/n0core/resource/scheduled
+        r: n0stack/n0core/resource/scheduled
       object:
         type: agent/porter/vlan
         id: a0c819fa-9dc2-4666-b7fd-d235a2551119
@@ -378,7 +378,7 @@ object:
   size: 10gb
   relations:
     - property:
-        r: n0stack.jp/n0core/resource/scheduled
+        r: n0stack/n0core/resource/scheduled
       object:
         type: agent/volumer/file
         id: 264b01b8-aeb5-478a-ad11-715fbc86d2f6
@@ -410,7 +410,7 @@ object:
     id: 100
   relations:
     - property:
-        r: n0stack.jp/n0core/resource/scheduled
+        r: n0stack/n0core/resource/scheduled
       object:
         type: agent/porter/vlan
         id: a0c819fa-9dc2-4666-b7fd-d235a2551119
@@ -452,16 +452,16 @@ object:
           id: 100
         relations:
           - property:
-              r: n0stack.jp/n0core/resource/scheduled
+              r: n0stack/n0core/resource/scheduled
             object:
               type: agent/porter/vlan
               id: a0c819fa-9dc2-4666-b7fd-d235a2551119
               state: alived
               host_id: 8bce7696-f641-411c-a0ce-6ed066d912a3
       property:
-        r: n0stack.jp/n0core/port/network
+        r: n0stack/n0core/port/network
     - property:
-        r: n0stack.jp/n0core/resource/scheduled
+        r: n0stack/n0core/resource/scheduled
       object:
         type: agent/porter/vlan
         id: a0c819fa-9dc2-4666-b7fd-d235a2551119
@@ -512,23 +512,23 @@ object:
                 id: 100
               relations:
                 - property:
-                    r: n0stack.jp/n0core/resource/scheduled
+                    r: n0stack/n0core/resource/scheduled
                   object:
                     type: agent/porter/vlan
                     id: a0c819fa-9dc2-4666-b7fd-d235a2551119
                     state: alived
                     host_id: 8bce7696-f641-411c-a0ce-6ed066d912a3
             property:
-              r: n0stack.jp/n0core/port/network
+              r: n0stack/n0core/port/network
           - property:
-              r: n0stack.jp/n0core/resource/scheduled
+              r: n0stack/n0core/resource/scheduled
             object:
               type: agent/porter/vlan
               id: a0c819fa-9dc2-4666-b7fd-d235a2551119
               state: alived
               host_id: 8bce7696-f641-411c-a0ce-6ed066d912a3
       property:
-        r: n0stack.jp/n0core/vm/attachments
+        r: n0stack/n0core/vm/attachments
     - object:
         type: resource/volume/file
         id: d99163ed-0093-40a0-a61b-365a1aece509
@@ -538,17 +538,17 @@ object:
         size: 10gb
         relations:
           - property:
-              r: n0stack.jp/n0core/resource/scheduled
+              r: n0stack/n0core/resource/scheduled
             object:
               type: agent/volumer/file
               id: 264b01b8-aeb5-478a-ad11-715fbc86d2f6
               state: alived
               host_id: 8bce7696-f641-411c-a0ce-6ed066d912a3
       property:
-        r: n0stack.jp/n0core/vm/attachments
-        n0stack.jp/n0core/vm/boot_prority: 1
+        r: n0stack/n0core/vm/attachments
+        n0stack/n0core/vm/boot_prority: 1
     - property:
-        r: n0stack.jp/n0core/resource/scheduled
+        r: n0stack/n0core/resource/scheduled
       object:
         type: agent/compute/kvm
         id: 2463f81d-20d8-4395-a3c4-84a271a5b3a7

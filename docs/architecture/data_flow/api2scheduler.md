@@ -34,8 +34,8 @@
 ```yaml
 id: 100
 annotations:
-  n0stack.io/scheduling/same_host: true
-  n0stack.io/scheduling/host_id: 85cf3a3a-18e4-4fe2-b406-9e79079cae07
+  n0stack/scheduling/same_host: true
+  n0stack/scheduling/host_id: 85cf3a3a-18e4-4fe2-b406-9e79079cae07
 spec:
   - type: resource/vm/kvm
     id: 56410722-d507-472a-a800-c89211b7c261
@@ -49,20 +49,20 @@ spec:
       - object:
           id: a1f6a79b-7ad0-499e-b912-44eb73ea0f81
         property:
-          r: n0stack.jp/n0core/vm/attachments
+          r: n0stack/n0core/vm/attachments
       - object:
           id: d99163ed-0093-40a0-a61b-365a1aece509
         property:
-          r: n0stack.jp/n0core/vm/attachments
-          n0stack.jp/n0core/vm/boot_prority: 1
+          r: n0stack/n0core/vm/attachments
+          n0stack/n0core/vm/boot_prority: 1
       - object:
           id: 2282dcee-d49f-4a6a-8a41-70e3e59a80cd
         property:
-          r: n0stack.jp/n0core/vm/attachments
+          r: n0stack/n0core/vm/attachments
       - object:
           id: a8d1d875-240a-445f-a569-10e00122e65b
         property:
-          r: n0stack.jp/n0core/vm/attachments
+          r: n0stack/n0core/vm/attachments
   - type: resource/volume/nfs
     id: 2282dcee-d49f-4a6a-8a41-70e3e59a80cd
     status: claimed
@@ -87,7 +87,7 @@ spec:
       - object:
           id: 8451da31-5e3a-4c46-aa3a-2a557382a6cd
         property:
-          r: n0stack.jp/n0core/port/network
+          r: n0stack/n0core/port/network
   - type: resource/network/vlan
     id: 8451da31-5e3a-4c46-aa3a-2a557382a6cd
     state: applied

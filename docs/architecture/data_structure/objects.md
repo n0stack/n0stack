@@ -25,7 +25,7 @@ relations:
 type: resuorce/port
 state: started
 meta:
-  n0stack.jp/n0gateway/join: 9c2476ab-dc1e-4904-b8a4-6d991fdc7770
+  n0stack/n0gateway/join: 9c2476ab-dc1e-4904-b8a4-6d991fdc7770
 ```
 
 n0gatewayとしては `/api/spec` を監視していればサービスディスカバリを用意に実装することができる。
