@@ -15,7 +15,7 @@
 リソースはスケジューリングされたエージェントの情報が必要である。
 
 ```
-(resource/vm/kvm) -[r: n0stack.jp/n0core/scheduled]-> (agent/compute/kvm)
+(resource/vm/kvm) -[r: n0stack/n0core/scheduled]-> (agent/compute/kvm)
 ```
 
 ### Example 2: Depending resource
@@ -23,6 +23,6 @@
 他のリソースに依存しているVMやポートのようなオブジェクトは、ボリュームやネットワークなどのリソースの情報が必要である。
 
 ```
-(resource/vm/kvm) -[r: n0stack.jp/n0core/vm/attachment, n0stack.jp/resource/vm/boot_priority: 1]-> (resource/volume/file)
-                  -[r: n0stack.jp/n0core/vm/attachment]-> (resource/port) -[n0stack.jp/resource/port/network: true]-> (resource/network/vlan)
+(resource/vm/kvm) -[r: n0stack/n0core/vm/attachment, n0stack/resource/vm/boot_priority: 1]-> (resource/volume/file)
+                  -[r: n0stack/n0core/vm/attachment]-> (resource/port) -[n0stack/resource/port/network: true]-> (resource/network/vlan)
 ```

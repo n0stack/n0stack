@@ -62,8 +62,8 @@
 ```yaml
 version: 0
 annotations:
-  n0stack.io/scheduling/same_host: true
-  n0stack.io/scheduling/host_id: 85cf3a3a-18e4-4fe2-b406-9e79079cae07
+  n0stack/scheduling/same_host: true
+  n0stack/scheduling/host_id: 85cf3a3a-18e4-4fe2-b406-9e79079cae07
 spec:
   web:
     type: resource/vm/kvm
@@ -80,25 +80,25 @@ spec:
             - object:
                 variable: var_network
               property:
-                r: n0stack.jp/n0core/port/network
+                r: n0stack/n0core/port/network
         property:
-          r: n0stack.jp/n0core/vm/attachments
+          r: n0stack/n0core/vm/attachments
       - object:
           type: resource/volume/file
           name: new_volume
           size: 10gb
         property:
-          r: n0stack.jp/n0core/vm/attachments
-          n0stack.jp/n0core/vm/boot_prority: 1
+          r: n0stack/n0core/vm/attachments
+          n0stack/n0core/vm/boot_prority: 1
       - object:
           variable: var_volume
         property:
-          r: n0stack.jp/n0core/vm/attachments
+          r: n0stack/n0core/vm/attachments
       - object:
           id: a8d1d875-240a-445f-a569-10e00122e65b
           size: 100gb
         property:
-          r: n0stack.jp/n0core/vm/attachments
+          r: n0stack/n0core/vm/attachments
   var_volume:
     type: resource/volume/nfs
     size: 10gb
@@ -123,8 +123,8 @@ id: 100
 created_at: 1990/1/1 00:00
 version: 0
 annotations:
-  n0stack.io/scheduling/same_host: true
-  n0stack.io/scheduling/host_id: 85cf3a3a-18e4-4fe2-b406-9e79079cae07
+  n0stack/scheduling/same_host: true
+  n0stack/scheduling/host_id: 85cf3a3a-18e4-4fe2-b406-9e79079cae07
 spec:
   web:
     type: resource/vm/kvm
@@ -146,9 +146,9 @@ spec:
             - object:
                 variable: var_network
               property:
-                r: n0stack.jp/n0core/port/network
+                r: n0stack/n0core/port/network
         property:
-          r: n0stack.jp/n0core/vm/attachments
+          r: n0stack/n0core/vm/attachments
       - object:
           type: resource/volume/file
           id: d99163ed-0093-40a0-a61b-365a1aece509
@@ -156,12 +156,12 @@ spec:
           name: new_volume
           size: 10gb
         property:
-          r: n0stack.jp/n0core/vm/attachments
-          n0stack.jp/n0core/vm/boot_prority: 1
+          r: n0stack/n0core/vm/attachments
+          n0stack/n0core/vm/boot_prority: 1
       - object:
           variable: var_volume
         property:
-          r: n0stack.jp/n0core/vm/attachments
+          r: n0stack/n0core/vm/attachments
       - object:
           type: resource/volume/file
           id: a8d1d875-240a-445f-a569-10e00122e65b
@@ -169,7 +169,7 @@ spec:
           name: created_volume
           size: 100gb
         property:
-          r: n0stack.jp/n0core/vm/attachments
+          r: n0stack/n0core/vm/attachments
   var_volume:
     type: resource/volume/nfs
     id: 2282dcee-d49f-4a6a-8a41-70e3e59a80cd
@@ -205,8 +205,8 @@ spec:
 ```yaml
 version: 0
 annotations:
-  n0stack.io/scheduling/same_host: true
-  n0stack.io/scheduling/host_id: hogehoge
+  n0stack/scheduling/same_host: true
+  n0stack/scheduling/host_id: hogehoge
 spec:
   web-template:
     args:
@@ -225,16 +225,16 @@ spec:
             - object:
                 variable: var_natwork
               property:
-                r: n0stack.jp/n0core/port/network
+                r: n0stack/n0core/port/network
         property:
-          r: n0stack.jp/n0core/vm/attachments
+          r: n0stack/n0core/vm/attachments
       - object:
           type: resource/volume/file
           name: new_volume
           size: 10gb
         property:
-          r: n0stack.jp/n0core/vm/attachments
-          n0stack.jp/n0core/vm/boot_prority: 1
+          r: n0stack/n0core/vm/attachments
+          n0stack/n0core/vm/boot_prority: 1
   web-0:
     type: resource/vm/kvm
     id: 56410722-d507-472a-a800-c89211b7c261
@@ -257,8 +257,8 @@ spec:
 ```yaml
 version: 0
 annotations:
-  n0stack.io/scheduling/same_host: true
-  n0stack.io/scheduling/host_id: hogehoge
+  n0stack/scheduling/same_host: true
+  n0stack/scheduling/host_id: hogehoge
 spec:
   web-template:
     args:
@@ -277,9 +277,9 @@ spec:
             - object:
                 variable: var_natwork
               property:
-                r: n0stack.jp/n0core/port/network
+                r: n0stack/n0core/port/network
         property:
-          r: n0stack.jp/n0core/vm/attachments
+          r: n0stack/n0core/vm/attachments
       - object:
           type: resource/volume/file
           id: d99163ed-0093-40a0-a61b-365a1aece509
@@ -287,8 +287,8 @@ spec:
           name: new_volume
           size: 10gb
         property:
-          r: n0stack.jp/n0core/vm/attachments
-          n0stack.jp/n0core/vm/boot_prority: 1
+          r: n0stack/n0core/vm/attachments
+          n0stack/n0core/vm/boot_prority: 1
   web-0:
     type: resource/vm/kvm
     template_variable:
@@ -305,9 +305,9 @@ spec:
             - object:
                 variable: var_natwork
               property:
-                r: n0stack.jp/n0core/port/network
+                r: n0stack/n0core/port/network
         property:
-          r: n0stack.jp/n0core/vm/attachments
+          r: n0stack/n0core/vm/attachments
       - object:
           type: resource/volume/file
           id: a8d1d875-240a-445f-a569-10e00122e65b
@@ -315,8 +315,8 @@ spec:
           name: new_volume
           size: 10gb
         property:
-          r: n0stack.jp/n0core/vm/attachments
-          n0stack.jp/n0core/vm/boot_prority: 1
+          r: n0stack/n0core/vm/attachments
+          n0stack/n0core/vm/boot_prority: 1
   web-1:
     type: resource/vm
     memory: 8gb
@@ -334,9 +334,9 @@ spec:
             - object:
                 variable: var_natwork
               property:
-                r: n0stack.jp/n0core/port/network
+                r: n0stack/n0core/port/network
         property:
-          r: n0stack.jp/n0core/vm/attachments
+          r: n0stack/n0core/vm/attachments
       - object:
           type: resource/volume/file
           id: a8d1d875-240a-445f-a569-10e00122e65d
@@ -344,8 +344,8 @@ spec:
           name: new_volume
           size: 10gb
         property:
-          r: n0stack.jp/n0core/vm/attachments
-          n0stack.jp/n0core/vm/boot_prority: 1
+          r: n0stack/n0core/vm/attachments
+          n0stack/n0core/vm/boot_prority: 1
 ```
 
 ---
@@ -385,25 +385,25 @@ spec:
             - object:
                 variable: var_natwork
               property:
-                r: n0stack.jp/n0core/port/network
+                r: n0stack/n0core/port/network
         property:
-          r: n0stack.jp/n0core/vm/attachments
+          r: n0stack/n0core/vm/attachments
       - object:
           type: resource/volume/file
           name: new_volume
           size: 10gb
         property:
-          r: n0stack.jp/n0core/vm/attachments
-          n0stack.jp/n0core/vm/boot_prority: 1
+          r: n0stack/n0core/vm/attachments
+          n0stack/n0core/vm/boot_prority: 1
       - object:
           variable: var_volume
         property:
-          r: n0stack.jp/n0core/vm/attachments
+          r: n0stack/n0core/vm/attachments
       - object:
           id: a8d1d875-240a-445f-a569-10e00122e65b
           size: 100gb
         property:
-          r: n0stack.jp/n0core/vm/attachments
+          r: n0stack/n0core/vm/attachments
   var_volume:
     type: resource/volume/nfs
     size: 10gb
@@ -452,9 +452,9 @@ spec:
             - object:
                 variable: var_natwork
               property:
-                r: n0stack.jp/n0core/port/network
+                r: n0stack/n0core/port/network
         property:
-          r: n0stack.jp/n0core/vm/attachments
+          r: n0stack/n0core/vm/attachments
       - object:
           type: resource/volume/file
           id: d99163ed-0093-40a0-a61b-365a1aece509
@@ -462,12 +462,12 @@ spec:
           name: new_volume
           size: 10gb
         property:
-          r: n0stack.jp/n0core/vm/attachments
-          n0stack.jp/n0core/vm/boot_prority: 1
+          r: n0stack/n0core/vm/attachments
+          n0stack/n0core/vm/boot_prority: 1
       - object:
           variable: var_volume
         property:
-          r: n0stack.jp/n0core/vm/attachments
+          r: n0stack/n0core/vm/attachments
       - object:
           type: resource/volume/file
           id: a8d1d875-240a-445f-a569-10e00122e65b
@@ -475,7 +475,7 @@ spec:
           name: created_volume
           size: 100gb
         property:
-          r: n0stack.jp/n0core/vm/attachments
+          r: n0stack/n0core/vm/attachments
   var_volume:
     type: resource/volume/nfs
     id: 2282dcee-d49f-4a6a-8a41-70e3e59a80cd

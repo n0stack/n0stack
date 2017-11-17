@@ -42,10 +42,10 @@ relations:
             parameters:
               id: 100
           property:
-            r: n0stack.jp/n0core/port/network
+            r: n0stack/n0core/port/network
           direction: ->
     property:
-      r: n0stack.jp/n0core/vm/attachments
+      r: n0stack/n0core/vm/attachments
     direction: ->
   - object:
       type: resource/volume/file
@@ -55,8 +55,8 @@ relations:
       size: 10gb
       url: file:///data/hoge
     property:
-      r: n0stack.jp/n0core/vm/attachments
-      n0stack.jp/n0core/vm/boot_priority: 1
+      r: n0stack/n0core/vm/attachments
+      n0stack/n0core/vm/boot_priority: 1
     direction: ->
 ```
 
@@ -137,7 +137,7 @@ relations:
       parameters:
         id: 100
     property:
-      r: n0stack.jp/n0core/port/network
+      r: n0stack/n0core/port/network
     direction: ->
 ```
 
