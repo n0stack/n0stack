@@ -2,13 +2,9 @@
 
 オブジェクトは他のオブジェクトとの関係性、グラフで表すことができる。
 
-Objects can explained with relations and graph with other objects.
-
 ## Directed graph
 
 オブジェクトを構成するために必要な関係を有向グラフで示す。依存している理由を `r` キーで示す。
-
-Directed graph explain relatioinships necessary to construct objects. `r` key explain why the object depends on.
 
 ### 懸念点
 
@@ -18,8 +14,6 @@ Directed graph explain relatioinships necessary to construct objects. `r` key ex
 
 リソースはスケジューリングされたエージェントの情報が必要である。
 
-Resources need scheduled agent information.
-
 ```
 (resource/vm/kvm) -[r: n0stack.jp/n0core/scheduled]-> (agent/compute/kvm)
 ```
@@ -27,8 +21,6 @@ Resources need scheduled agent information.
 ### Example 2: Depending resource
 
 他のリソースに依存しているVMやポートのようなオブジェクトは、ボリュームやネットワークなどのリソースの情報が必要である。
-
-Depending resources, like VMs, need some resources informations, like volumes and ports.
 
 ```
 (resource/vm/kvm) -[r: n0stack.jp/n0core/vm/attachment, n0stack.jp/resource/vm/boot_priority: 1]-> (resource/volume/file)

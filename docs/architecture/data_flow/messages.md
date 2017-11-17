@@ -4,8 +4,6 @@
 
 メッセージのやり取りにはprotobufを用いる。
 
-Messages are written in protobuf.
-
 ![](messages.png)
 
 ## Object layer
@@ -22,8 +20,6 @@ See details below.
 - [Objects](../data_structure/objects.md)
 
 `state` にはenumフィールドとして定義されている必要がある。しかし、protobufの制約上実際には各オブジェクトで `state` を定義する。
-
-In protobuf, `state` need to use enum, so it is not defined in abstract object layer.
 
 ```yaml
 id: cdbd0107-8ee7-48b1-bfac-f671941c4948
