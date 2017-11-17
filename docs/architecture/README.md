@@ -2,8 +2,6 @@
 
 n0coreはresource(VM, volume, network)を管理するためのコンポーネントである。
 
-N0core is a component to manage computer resources like memory, cpu, volume and network.
-
 ## 0. Overview
 
 絶対書く
