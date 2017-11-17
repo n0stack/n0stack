@@ -243,7 +243,7 @@ depended_by:
 
 - networkが `parents` にも作成を通知することでportのブロック状態を解除する
 - volumeがvmにできたことを通知するが、portができていないのでブロック状態を継続
-- `topic: conductor/anycast`
+- `topic: conductor`
 - `topic: $agent_id`
 
 ```yaml
@@ -267,7 +267,7 @@ object:
         host_id: 8bce7696-f641-411c-a0ce-6ed066d912a3
 ```
 
-- `topic: conductor/anycast`
+- `topic: conductor`
 - `topic: $agent_id`
 
 ```yaml
@@ -302,7 +302,7 @@ object:
 3. Notify (port)
 
 - portが `parents` にも作成を通知することでvmのブロック状態を解除する
-- `topic: conductor/anycast`
+- `topic: conductor`
 - `topic: $agent_id`
 
 ```yaml
@@ -353,7 +353,7 @@ object:
 
 4. Notify (vm)
 
-- `topic: conductor/anycast`
+- `topic: conductor`
 
 ```yaml
 spec_id: 100
