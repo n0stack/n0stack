@@ -113,7 +113,7 @@ spec:
 
 - Store version record with spec.
 
-## 3. APIs send message `Spec` to schedulers (topic: `scheduler/anycast`).
+## 3. APIs send message `Spec` to schedulers (topic: $agent_id`scheduler/anycast`).
 
 See details in [here](data_flow/api2scheduler.md).
 
@@ -182,7 +182,7 @@ See details in [here](data_flow/agent.md).
 
 ### 5.1 Schedulers send message `Request` to each agents.
 
-- `topic: `
+- `topic: $agent_id`
 
 ```yaml
 spec_id: 100
@@ -263,7 +263,7 @@ object:
         host_id: 8bce7696-f641-411c-a0ce-6ed066d912a3
 ```
 
-- `topic: `
+- `topic: $agent_id`
 
 ```yaml
 spec_id: 100
@@ -284,7 +284,7 @@ object:
 depended_by:
 ```
 
-- `topic: `
+- `topic: $agent_id`
 
 ```yaml
 spec_id: 100
@@ -330,7 +330,7 @@ object:
 depended_by:
 ```
 
-- `topic: `
+- `topic: $agent_id`
 
 ```yaml
 spec_id: 100
@@ -363,7 +363,7 @@ depended_by:
 ### 5.2 Agents send to conductor and depended agent.
 
 - `topic: conductor/anycast`
-- `topic: `
+- `topic: $agent_id`
 
 ```yaml
 spec_id: 100
@@ -387,7 +387,7 @@ object:
 ```
 
 - `topic: conductor/anycast`
-- `topic: `
+- `topic: $agent_id`
 
 ```yaml
 spec_id: 100
@@ -421,7 +421,7 @@ object:
 ### 5.3 Agents send to conductor and depended agent 2nd.
 
 - `topic: conductor/anycast`
-- `topic: `
+- `topic: $agent_id`
 
 ```yaml
 spec_id: 100

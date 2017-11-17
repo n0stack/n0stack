@@ -59,7 +59,7 @@
 1. Request (volume, vm, network)
 
 - vmはurlがないのでvolume、bridgeがないのでnetworkのアタッチメントに失敗する
-- `topic: `
+- `topic: $agent_id`
     - 本当だったら `vm/anycast` とかに投げたいところ
         - そうすることで任意のagentが作成を受信することができるので拡張性を持たせやすい
 
@@ -142,7 +142,7 @@ object:
         host_id: 8bce7696-f641-411c-a0ce-6ed066d912a3
 ```
 
-- `topic: `
+- `topic: $agent_id`
 
 ```yaml
 spec_id: 100
@@ -163,7 +163,7 @@ object:
 depended_by:
 ```
 
-- `topic: `
+- `topic: $agent_id`
 
 ```yaml
 spec_id: 100
@@ -209,7 +209,7 @@ object:
 depended_by:
 ```
 
-- `topic: `
+- `topic: $agent_id`
 
 ```yaml
 spec_id: 100
@@ -244,7 +244,7 @@ depended_by:
 - networkが `parents` にも作成を通知することでportのブロック状態を解除する
 - volumeがvmにできたことを通知するが、portができていないのでブロック状態を継続
 - `topic: conductor/anycast`
-- `topic: `
+- `topic: $agent_id`
 
 ```yaml
 spec_id: 100
@@ -268,7 +268,7 @@ object:
 ```
 
 - `topic: conductor/anycast`
-- `topic: `
+- `topic: $agent_id`
 
 ```yaml
 spec_id: 100
@@ -303,7 +303,7 @@ object:
 
 - portが `parents` にも作成を通知することでvmのブロック状態を解除する
 - `topic: conductor/anycast`
-- `topic: `
+- `topic: $agent_id`
 
 ```yaml
 spec_id: 100
