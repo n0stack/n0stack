@@ -11,6 +11,6 @@ message VM {
   State state = 1;
   string arch = 2;
   uint32 vcpus = 3;
-  uint32 memory_mb = 4;
+  uint64 memory = 4;
   string vnc_password = 5;
 }

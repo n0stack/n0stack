@@ -8,6 +8,6 @@ message Volume {
   }
   State state = 1;
   string mode = 2;
-  uint32 size_mb = 3;
+  uint64 size = 3;
   string url = 4;
 }
