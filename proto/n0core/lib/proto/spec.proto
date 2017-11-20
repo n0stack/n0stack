@@ -4,7 +4,10 @@ import public "n0core/lib/proto/objects/object.proto";
 
 message Spec {
   string spec_id = 1;
-  //repeated map<string, string> annotations = 2;
+  repeated Object object = 2;
 
-  repeated Object object = 10;
+  message Annotation {
+    map<string, string> value = 1;
+  }
+  repeated Annotation annotations = 3;
 }

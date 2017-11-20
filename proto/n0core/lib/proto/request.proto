@@ -4,7 +4,5 @@ import public "n0core/lib/proto/objects/object.proto";
 
 message Request {
   string spec_id = 1;
-  repeated string depended_by = 2;
-
-  Object object = 10;
+  Object object = 2;
 }
