@@ -1,14 +1,12 @@
 syntax = "proto3";
 
 message Volume {
-  State state = 1;
-  string id = 2;
-  string host = 3;
-  uint32 size_mb = 4;
-
   enum State {
     CLAIMED = 0;
     RELEASED = 1;
     DESTROYED = 2;
   }
+  State state = 1;
+  uint32 size_mb = 2;
+  string url = 3;
 }

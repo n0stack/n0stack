@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+message VM {
+  enum State {
+    STARTED = 0;
+    STOPPED = 1;
+    RESTARTED = 2;
+    HALTED = 3;
+    DESTROYED = 4;
+  }
+  State state = 1;
+  string arch = 2;
+  uint32 vcpus = 3;
+  uint32 memory_mb = 4;
+  string vnc_password = 5;
+}

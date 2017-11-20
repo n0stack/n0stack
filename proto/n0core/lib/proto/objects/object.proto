@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+import public "n0core/lib/proto/objects/resources/network.proto";
+import public "n0core/lib/proto/objects/resources/port.proto";
+import public "n0core/lib/proto/objects/resources/vm.proto";
+import public "n0core/lib/proto/objects/resources/volume.proto";
+
+message Relations {
+  Object object = 1;
+  //repeated map<string, string> properties = 2;
+}
+
+
+message Object {
+  string id = 1;
+  string type = 2;
+  string name = 3;
+  repeated Relations relations = 4;
+
+  oneof data {
+    VM VM = 10;
+    Volume Volume = 11;
+    Network Network = 12;
+    Port Port = 13;
+  }
+}

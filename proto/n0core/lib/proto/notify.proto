@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+import public "n0core/lib/proto/objects/object.proto";
+
+message Notify {
+  string spec_id = 1;
+
+  enum Events {
+    SCHEDULED = 0;
+    APPLIED = 1;
+  }
+  Events event = 2;
+  bool succeeded = 3;
+  string message = 4;
+
+  Object object = 10;
+}
