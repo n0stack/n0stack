@@ -8,9 +8,9 @@
 - ユーザーのリクエストごとに複数のオブジェクトを１つのレコードで管理する
 
 ```yaml
-id: 1
-created_at: 0000
-spec:| # blob yamlとかjsonそのまま
+id: integer  # primary
+created_at: timestamp
+spec: blob  # yamlとかjsonそのまま
 ```
 
 ### Events table
@@ -18,13 +18,13 @@ spec:| # blob yamlとかjsonそのまま
 - 1つのレコードで1つのオブジェクトのイベントを意味する
 
 ```yaml
-id: 1
-version: 1
-created_at: 0010
-object: 3bbd2bfd-d6ed-4b6e-b863-7085a000d5cc
-event: APPLIED
-level: SUCCESS
-msg: succeeded creating ...
+id: integer # primary
+version: Version
+created_at: timestamp
+object: Object
+event: enum{SCHEDULED, APPLIED}
+succeeded: bool
+msg: string
 ```
 
 #### Events
@@ -32,11 +32,33 @@ msg: succeeded creating ...
 - SCHEDULED: リソースがどのagentで管理されるかが決定した時に発行する
 - APPLIED: リソースがagentによって展開された時に発行する
 
-#### level
-
-- SUCCESS
-- FAILURE
-
 ### Relations table
 
+```yaml
+id: integer  # primary
+directed: bool
+from: Object
+to: Object  # もしくはuuid? 指定先まで時系列を保存しておく場合はObject
+property: Maps <string, string>  # json?
+```
+
 ### Object table
+
+- 抽象テーブル
+
+```yaml
+id: integer  # primary
+object_id: UUID  # not_null
+name: string
+meta: Maps <string, string>  # json?
+```
+
+#### vm
+
+```yaml
+state: enum
+arch: string
+vcpus: int
+memory: string
+vnc_password: string(password)
+```
