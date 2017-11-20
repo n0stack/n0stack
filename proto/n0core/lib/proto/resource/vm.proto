@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+message VM {
+  State state = 1;
+  string id = 2;
+  string host = 3;
+  string arch = 4;
+  uint32 vcpus = 5;
+  uint32 memory_mb = 6;
+  string vnc_password = 7;
+  string volume_id = 8;
+  PowerState power_state = 9;
+
+  enum PowerState {
+    BOOT = 0;
+    REBOOT = 1;
+    POWEROFF = 2;
+    HALT = 3;
+  }
+
+  enum State {
+    CREATED = 0;
+    DELETED = 1;
+  }
+}

@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "n0core/lib/proto/vlan_network_setting.proto";
 
-message CreateNetworkInterfaceRequest {
+message NetworkInterface {
   string id = 1;
   string host = 2;
   string subnet_id = 3;
@@ -11,5 +11,10 @@ message CreateNetworkInterfaceRequest {
 
   oneof type_specific_setting {
     VlanNetworkSetting vlan_network_setting = 6;
+  }
+
+  enum State {
+    CREATED = 0;
+    DELETED = 1;
   }
 }

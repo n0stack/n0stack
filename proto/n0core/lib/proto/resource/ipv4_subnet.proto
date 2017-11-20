@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-message CreateIPv4SubnetRequest {
+message IPv4Subnet {
   string id = 1;
   string network_id = 2;
   string cidr = 3;

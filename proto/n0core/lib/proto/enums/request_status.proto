@@ -1,8 +1,0 @@
-syntax = "proto3";
-
-enum RequestStatus {
-  AWAITING = 0;
-  PROCESSING = 1;
-  FAILURE = 2;
-  SUCCESS = 3;
-}

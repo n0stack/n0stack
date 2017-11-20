@@ -3,12 +3,21 @@ syntax = "proto3";
 import "n0core/lib/proto/enums/network_type.proto";
 import "n0core/lib/proto/vlan_network_setting.proto";
 
-message CreateNetworkRequest {
+message Network {
   string id = 1;
   NetworkType type = 2;
   uint32 mtu = 4;
 
   oneof type_specific_setting {
     VlanNetworkSetting vlan_network_setting = 3;
+  }
+
+  enum NetworkType {
+    FLAT = 0;
+    VLAN = 1;
+  }
+
+  message VlanNetworkSetting {
+    uint32 vlan_id = 1;
   }
 }
