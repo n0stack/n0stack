@@ -2,7 +2,7 @@
 
 ## RDBMS
 
-### Version table
+### Spec table
 
 - idはn0coreクラスタにおけるリソース全体のバージョンと同義である
 - ユーザーのリクエストごとに複数のオブジェクトを１つのレコードで管理する
@@ -19,7 +19,7 @@ spec: blob  # yamlとかjsonそのまま
 
 ```yaml
 id: integer # primary
-version: Version
+spec: Spec
 created_at: timestamp
 object: Object
 event: enum{SCHEDULED, APPLIED}
@@ -44,7 +44,8 @@ property: Maps <string, string>  # json?
 
 ### Object table
 
-- 抽象テーブル
+- 各オブジェクトの共通部分
+- protobufにかかれているdataと同じ構成になる
 
 ```yaml
 id: integer  # primary
