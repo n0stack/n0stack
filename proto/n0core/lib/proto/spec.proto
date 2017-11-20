@@ -6,8 +6,5 @@ message Spec {
   string spec_id = 1;
   repeated Object object = 2;
 
-  message Annotation {
-    map<string, string> value = 1;
-  }
-  repeated Annotation annotations = 3;
+  map<string, string> annotations = 3;
 }

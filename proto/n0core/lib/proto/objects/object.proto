@@ -9,19 +9,13 @@ message Object {
   string id = 1;
   string name = 2;
 
-  message Property {
-    map<string, string> value = 1;
-  }
   message Relations {
     Object object = 1;
-    repeated Property properties = 2;
+    map<string, string> properties = 2;
   }
   repeated Relations relations = 3;
 
-  message Meta {
-    map<string, string> value = 1;
-  }
-  repeated Meta meta = 4;
+  map<string, string> meta = 4;
 
   oneof data {
     VM VM = 10;
