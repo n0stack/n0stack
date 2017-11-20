@@ -6,7 +6,8 @@ message Network {
     HALTED = 1;
   }
   State state = 1;
-  string bridge = 2;
+  string network_type = 2;
+  string bridge = 3;
 
   message Subnet {
     string cidr = 1;

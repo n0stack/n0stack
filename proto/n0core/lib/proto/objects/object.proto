@@ -13,9 +13,8 @@ message Relations {
 
 message Object {
   string id = 1;
-  string type = 2;
-  string name = 3;
-  repeated Relations relations = 4;
+  string name = 2;
+  repeated Relations relations = 3;
 
   oneof data {
     VM VM = 10;
