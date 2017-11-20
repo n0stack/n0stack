@@ -7,7 +7,7 @@ message Volume {
     DESTROYED = 2;
   }
   State state = 1;
-  string volume_type = 2;
+  string mode = 2;
   uint32 size_mb = 3;
   string url = 4;
 }
