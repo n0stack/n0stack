@@ -34,6 +34,15 @@ relations:
 
 以下の3種類のメッセージでオブジェクトを各プロセスに周知する。
 
+|field number|Spec|Request|Notify|
+|--|--|--|--|
+|1|string spec_id|string spec_id|string spec_id|
+|2|Object object|Object object|Object object|
+|3|repeated Annotation annotations||Events event|
+|4|||bool succeeded|
+|5|||string message|
+|6|
+
 ### Spec
 
 - -> Schedulerに用いる
@@ -64,7 +73,7 @@ depended_by:
 
 #### Notify
 
-- -> Conductor, -> agentに用いる
+- -> Conductorに用いる
 - 単一のObjectを伝える
 - agentの操作の結果を伝える
 
