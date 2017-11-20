@@ -16,7 +16,7 @@ message Network {
     string gateway_ip = 4;
     repeated string nameservers = 5;
   }
-  repeated Subnet subnets = 3;
+  repeated Subnet subnets = 4;
 
   message VlanSettings {
     uint32 vlan_id = 1;
