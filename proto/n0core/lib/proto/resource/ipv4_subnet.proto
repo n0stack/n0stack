@@ -1,11 +1,17 @@
 syntax = "proto3";
 
 message IPv4Subnet {
-  string id = 1;
-  string network_id = 2;
-  string cidr = 3;
-  bool enable_dhcp = 4;
-  string allocation_pool = 5;
-  repeated string nameservers = 6;
-  string gateway_ip = 7;
+  State state = 1;
+  string id = 2;
+  string network_id = 3;
+  string cidr = 4;
+  bool enable_dhcp = 5;
+  string allocation_pool = 6;
+  repeated string nameservers = 7;
+  string gateway_ip = 8;
+
+  enum State {
+    APPLIED = 0;
+    DESTROYED = 1;
+  }
 }

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+message Port {
+  State state = 1;
+  string id = 2;
+  string host = 3;
+  string subnet_id = 4;
+  string hw_address = 5;
+  repeated string ip_addresses = 6; 
+
+  enum State {
+    ATTACHED = 0;
+    DETACHED = 1;
+  }
+}

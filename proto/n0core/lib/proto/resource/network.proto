@@ -1,23 +1,26 @@
 syntax = "proto3";
 
-import "n0core/lib/proto/enums/network_type.proto";
-import "n0core/lib/proto/vlan_network_setting.proto";
-
 message Network {
-  string id = 1;
-  NetworkType type = 2;
+  State state = 1;
+  string id = 2;
+  NetworkType type = 3;
   uint32 mtu = 4;
 
   oneof type_specific_setting {
-    VlanNetworkSetting vlan_network_setting = 3;
+    VlanNetworkSetting vlan_network_setting = 5;
+  }
+
+  message VlanNetworkSetting {
+    uint32 vlan_id = 1;
+  }
+
+  enum State {
+    APPLIED = 0;
+    HALTED = 1;
   }
 
   enum NetworkType {
     FLAT = 0;
     VLAN = 1;
-  }
-
-  message VlanNetworkSetting {
-    uint32 vlan_id = 1;
   }
 }

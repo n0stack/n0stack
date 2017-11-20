@@ -1,5 +1,8 @@
 syntax = "proto3";
 
+import public "n0core/lib/proto/resource/port.proto";
+import public "n0core/lib/proto/resource/volume.proto";
+
 message VM {
   State state = 1;
   string id = 2;
@@ -10,6 +13,14 @@ message VM {
   string vnc_password = 7;
   string volume_id = 8;
   PowerState power_state = 9;
+  repeated Attachable attachables = 10;
+
+  message Attachable {
+    oneof Resource {
+      Port Port = 1;
+      Volume Volume = 2;
+    }
+  }
 
   enum PowerState {
     BOOT = 0;
@@ -19,7 +30,10 @@ message VM {
   }
 
   enum State {
-    CREATED = 0;
-    DELETED = 1;
+    STARTED = 0;
+    STOPPED = 1;
+    RESTARTED = 2;
+    HALTED = 3;
+    DESTROYED = 4;
   }
 }

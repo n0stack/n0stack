@@ -1,6 +1,5 @@
 syntax = "proto3";
 
-import public "n0core/lib/proto/procedure.proto";
 import public "n0core/lib/proto/request.proto";
 import public "n0core/lib/proto/notification.proto";
 
@@ -11,6 +10,5 @@ message N0stackMessage {
   oneof message {
     Request Request = 10;
     Notification Notification = 11;
-    Procedure Procedure = 12;
   }
 }

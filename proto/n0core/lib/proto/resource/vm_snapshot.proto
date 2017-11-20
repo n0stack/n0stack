@@ -1,11 +1,12 @@
 syntax = "proto3";
 
 message VMSnapshot {
-  string vm_id = 1;
-  string snapshot_id = 2;
+  State state = 1;
+  string vm_id = 2;
+  string snapshot_id = 3;
 
   enum State {
-    CREATED = 0;
-    DELETED = 1;
+    APPLIED = 0;
+    DESTROYED = 1;
   }
 }

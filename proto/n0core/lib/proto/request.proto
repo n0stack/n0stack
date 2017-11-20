@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import public "n0core/lib/proto/resource/ipv4_subnet.proto";
 import public "n0core/lib/proto/resource/network.proto";
-import public "n0core/lib/proto/resource/network_interface.proto";
+import public "n0core/lib/proto/resource/port.proto";
 import public "n0core/lib/proto/resource/vm.proto";
 import public "n0core/lib/proto/resource/vm_snapshot.proto";
 import public "n0core/lib/proto/resource/volume.proto";
@@ -12,7 +12,7 @@ message Request {
     VM VM = 11;
     Volume Volume = 12;
     Network Network = 13;
-    NetworkInterface NetworkInterface = 14;
+    Port Port = 14;
     IPv4Subnet CreateIPv4SubnetRequest = 15;
   }
 }
