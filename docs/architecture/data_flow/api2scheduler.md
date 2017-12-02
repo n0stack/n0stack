@@ -8,7 +8,7 @@
 ## 原則・モデル
 
 - あくまで複数のリソース・オブジェクトをリストとしてリクエストする機構
-  - リストなのでrelationsにはidのみを入力する
+  - リストなのでdependenciesにはidのみを入力する
 - 1つのリクエストで1つのスケジューリング単位
 - specはagentへの命令、annotationはschedulerへの命令
 
@@ -39,13 +39,13 @@ annotations:
 spec:
   - type: resource/vm/kvm
     id: 56410722-d507-472a-a800-c89211b7c261
-    status: started
+    status: running
     name: web
     arch: amd64
     vcpus: 2
     memory: 4gb
     vnc_password: hogehoge
-    relations:
+    dependencies:
       - object:
           id: a1f6a79b-7ad0-499e-b912-44eb73ea0f81
         property:
@@ -65,20 +65,20 @@ spec:
           r: n0stack/n0core/vm/attachments
   - type: resource/volume/nfs
     id: 2282dcee-d49f-4a6a-8a41-70e3e59a80cd
-    status: claimed
+    status: allocated
     name: var_volume
     size: 10gb
   - type: resource/volume/file
     id: a8d1d875-240a-445f-a569-10e00122e65b
-    status: claimed
+    status: allocated
     name: created_volume
     size: 100gb
   - type: resource/volume/file
     id: d99163ed-0093-40a0-a61b-365a1aece509
-    status: claimed
+    status: allocated
     name: new_volume
     size: 10gb
-  - type: resource/port
+  - type: resource/nic
     id: a1f6a79b-7ad0-499e-b912-44eb73ea0f81
     status: attached
     ip_addresses:
@@ -94,13 +94,13 @@ spec:
     name: vlan_network
     subnets:
       - cidr: 192.168.0.0/24
-        enable_dhcp: true
-        allocation_pool: 192.168.0.1-192.168.0.127
-        nameservers:
-          - 192.168.0.254
-        gateway_ip: 192.168.0.254
+        dhcp:
+          range: 192.168.0.1-192.168.0.127
+          nameservers:
+            - 192.168.0.254
+          gateway: 192.168.0.254
     parameters:
-      id: 100
+      vlan_id: 100
 ```
 
 ---
