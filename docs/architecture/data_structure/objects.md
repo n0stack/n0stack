@@ -7,10 +7,9 @@ id: UUID
 type: string
 state: enum
 meta: Maps <string, string>
-relations:
+dependencies:
   - object: Object
     property: Maps <string, string>
-    direction: enum{->, -, <-}
 ```
 
 ### meta
@@ -23,7 +22,7 @@ relations:
 
 ```yaml
 type: resuorce/port
-state: started
+state: running
 meta:
   n0stack/n0gateway/join: 9c2476ab-dc1e-4904-b8a4-6d991fdc7770
 ```

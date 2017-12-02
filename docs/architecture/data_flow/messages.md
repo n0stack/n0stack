@@ -24,10 +24,9 @@ See details below.
 ```yaml
 id: cdbd0107-8ee7-48b1-bfac-f671941c4948
 type:
-relations:
+dependencies:
   - object:
     property:
-    direction:
 ```
 
 ## Message layer

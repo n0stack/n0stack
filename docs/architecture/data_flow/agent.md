@@ -13,7 +13,7 @@
 - agentはステートレスであり、べき等なリソースを管理・抽象化するものである
 - agentにはリソースのべき等な状態をリクエストする
 - メッセージの中ではresource_idだけでリンクすることはない
-    - データ構造をrelationsにそのまま入れる
+    - データ構造をdependenciesにそのまま入れる
 - agentはリソースの依存関係を自分で解決できる
   - リソースの情報が足りない場合はリソースの作成プロセスをブロックし、ある一定期間自分に対するキューとして積んでおく
 
@@ -68,15 +68,15 @@ spec_id: 100
 object:
   type: resource/vm/kvm
   id: 56410722-d507-472a-a800-c89211b7c261
-  status: started
+  status: running
   name: web
   arch: amd64
   vcpus: 2
   memory: 4gb
   vnc_password: hogehoge
-  relations:
+  dependencies:
     - object:
-        type: resource/port
+        type: resource/nic
         id: a1f6a79b-7ad0-499e-b912-44eb73ea0f81
         status: attached
         hw_addr: ffffffffffff
@@ -90,14 +90,14 @@ object:
               name: vlan_network
               subnets:
                 - cidr: 192.168.0.0/24
-                  enable_dhcp: true
-                  allocation_pool: 192.168.0.1-192.168.0.127
-                  nameservers:
-                    - 192.168.0.254
-                  gateway_ip: 192.168.0.254
+                  dhcp:
+                    range: 192.168.0.1-192.168.0.127
+                    nameservers:
+                      - 192.168.0.254
+                    gateway: 192.168.0.254
               parameters:
-                id: 100
-              relations:
+                vlan_id: 100
+              dependencies:
                 - property:
                     r: n0stack/n0core/resource/scheduled
                   object:
@@ -119,10 +119,10 @@ object:
     - object:
         type: resource/volume/file
         id: d99163ed-0093-40a0-a61b-365a1aece509
-        status: claimed
+        status: allocated
         name: new_volume
         size: 10gb
-        relations:
+        dependencies:
           - property:
               r: n0stack/n0core/resource/scheduled
             object:
@@ -149,10 +149,10 @@ spec_id: 100
 object:
   type: resource/volume/file
   id: d99163ed-0093-40a0-a61b-365a1aece509
-  status: claimed
+  status: allocated
   name: new_volume
   size: 10gb
-  relations:
+  dependencies:
     - property:
         r: n0stack/n0core/resource/scheduled
       object:
@@ -168,7 +168,7 @@ depended_by:
 ```yaml
 spec_id: 100
 object:
-  type: resource/port
+  type: resource/nic
   id: a1f6a79b-7ad0-499e-b912-44eb73ea0f81
   status: attached
   hw_addr: ffffffffffff
@@ -182,14 +182,14 @@ object:
         name: vlan_network
         subnets:
           - cidr: 192.168.0.0/24
-            enable_dhcp: true
-            allocation_pool: 192.168.0.1-192.168.0.127
-            nameservers:
-              - 192.168.0.254
-            gateway_ip: 192.168.0.254
+            dhcp:
+              range: 192.168.0.1-192.168.0.127
+              nameservers:
+                - 192.168.0.254
+              gateway: 192.168.0.254
         parameters:
-          id: 100
-        relations:
+          vlan_id: 100
+        dependencies:
           - property:
               r: n0stack/n0core/resource/scheduled
             object:
@@ -221,14 +221,14 @@ object:
   bridge: br-vlan-0f97b5a3-bff2-4f13-9361-9f9b4fab3d65
   subnets:
     - cidr: 192.168.0.0/24
-      enable_dhcp: true
-      allocation_pool: 192.168.0.1-192.168.0.127
-      nameservers:
-        - 192.168.0.254
-      gateway_ip: 192.168.0.254
+      dhcp:
+        range: 192.168.0.1-192.168.0.127
+        nameservers:
+          - 192.168.0.254
+        gateway: 192.168.0.254
   parameters:
-    id: 100
-  relations:
+    vlan_id: 100
+  dependencies:
     - property:
         r: n0stack/n0core/resource/scheduled
       object:
@@ -253,11 +253,11 @@ level: SUCCESS
 object:
   type: resource/volume/file
   id: d99163ed-0093-40a0-a61b-365a1aece509
-  status: claimed
+  status: allocated
   name: new_volume
   url: file:///data/d99163ed-0093-40a0-a61b-365a1aece509
   size: 10gb
-  relations:
+  dependencies:
     - property:
         r: n0stack/n0core/resource/scheduled
       object:
@@ -282,14 +282,14 @@ object:
   bridge: br-vlan-0f97b5a3-bff2-4f13-9361-9f9b4fab3d65
   subnets:
     - cidr: 192.168.0.0/24
-      enable_dhcp: true
-      allocation_pool: 192.168.0.1-192.168.0.127
-      nameservers:
-        - 192.168.0.254
-      gateway_ip: 192.168.0.254
+      dhcp:
+        range: 192.168.0.1-192.168.0.127
+        nameservers:
+          - 192.168.0.254
+        gateway: 192.168.0.254
   parameters:
-    id: 100
-  relations:
+    vlan_id: 100
+  dependencies:
     - property:
         r: n0stack/n0core/resource/scheduled
       object:
@@ -310,7 +310,7 @@ spec_id: 100
 msg: Succeeded to create resource after waiting network resource(8451da31-5e3a-4c46-aa3a-2a557382a6cd).
 level: SUCCESS
 object:
-  type: resource/port
+  type: resource/nic
   id: a1f6a79b-7ad0-499e-b912-44eb73ea0f81
   status: attached
   hw_addr: ffffffffffff
@@ -325,14 +325,14 @@ object:
         bridge: br-vlan-0f97b5a3-bff2-4f13-9361-9f9b4fab3d65
         subnets:
           - cidr: 192.168.0.0/24
-            enable_dhcp: true
-            allocation_pool: 192.168.0.1-192.168.0.127
-            nameservers:
-              - 192.168.0.254
-            gateway_ip: 192.168.0.254
+            dhcp:
+              range: 192.168.0.1-192.168.0.127
+              nameservers:
+                - 192.168.0.254
+              gateway: 192.168.0.254
         parameters:
-          id: 100
-        relations:
+          vlan_id: 100
+        dependencies:
           - property:
               r: n0stack/n0core/resource/scheduled
             object:
@@ -362,15 +362,15 @@ level: SUCCESS
 object:
   type: resource/vm/kvm
   id: 56410722-d507-472a-a800-c89211b7c261
-  status: started
+  status: running
   name: web
   arch: amd64
   vcpus: 2
   memory: 4gb
   vnc_password: hogehoge
-  relations:
+  dependencies:
     - object:
-        type: resource/port
+        type: resource/nic
         id: a1f6a79b-7ad0-499e-b912-44eb73ea0f81
         status: attached
         hw_addr: ffffffffffff
@@ -385,14 +385,14 @@ object:
               bridge: br-vlan-0f97b5a3-bff2-4f13-9361-9f9b4fab3d65
               subnets:
                 - cidr: 192.168.0.0/24
-                  enable_dhcp: true
-                  allocation_pool: 192.168.0.1-192.168.0.127
-                  nameservers:
-                    - 192.168.0.254
-                  gateway_ip: 192.168.0.254
+                  dhcp:
+                    range: 192.168.0.1-192.168.0.127
+                    nameservers:
+                      - 192.168.0.254
+                    gateway: 192.168.0.254
               parameters:
-                id: 100
-              relations:
+                vlan_id: 100
+              dependencies:
                 - property:
                     r: n0stack/n0core/resource/scheduled
                   object:
@@ -414,11 +414,11 @@ object:
     - object:
         type: resource/volume/file
         id: d99163ed-0093-40a0-a61b-365a1aece509
-        status: claimed
+        status: allocated
         name: new_volume
         url: file:///data/d99163ed-0093-40a0-a61b-365a1aece509
         size: 10gb
-        relations:
+        dependencies:
           - property:
               r: n0stack/n0core/resource/scheduled
             object:
@@ -479,4 +479,4 @@ annotations:
 
 ### Port
 
-- WIP: `resource/port/floating_ip` の扱いについて
+- WIP: `resource/nic/floating_ip` の扱いについて

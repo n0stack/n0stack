@@ -36,7 +36,7 @@
 - 値の優先度が分かりにくい
     - テンプレートを展開した時にどちらの値を優先するのか
 - yamlの記法が複雑になりやすいので、学習コストが発生する
-- relationsの記述が冗長
+- dependenciesの記述が冗長
   - propertyはデフォルト値を柔軟に設定するしかないか？
 
 ## 懸念点
@@ -71,9 +71,9 @@ spec:
     vcpus: 2
     memory: 4gb
     vnc_password: hogehoge
-    relations:
+    dependencies:
       - object:
-          type: resource/port
+          type: resource/nic
           ip_addresses:
             - 192.168.0.1
           relatioins:
@@ -107,13 +107,13 @@ spec:
     name: vlan_network
     subnets:
       - cidr: 192.168.0.0/24
-        enable_dhcp: true
-        allocation_pool: 192.168.0.1-192.168.0.127
-        nameservers:
-          - 192.168.0.254
-        gateway_ip: 192.168.0.254
+        dhcp:
+          range: 192.168.0.1-192.168.0.127
+          nameservers:
+            - 192.168.0.254
+          gateway: 192.168.0.254
     parameters:
-      id: 100
+      vlan_id: 100
 ```
 
 2. response
@@ -129,15 +129,15 @@ spec:
   web:
     type: resource/vm/kvm
     id: 56410722-d507-472a-a800-c89211b7c261
-    status: started
+    status: running
     name: web
     arch: amd64
     vcpus: 2
     memory: 4gb
     vnc_password: hogehoge
-    relations:
+    dependencies:
       - object:
-          type: resource/port
+          type: resource/nic
           id: a1f6a79b-7ad0-499e-b912-44eb73ea0f81
           status: attached
           ip_addresses:
@@ -152,7 +152,7 @@ spec:
       - object:
           type: resource/volume/file
           id: d99163ed-0093-40a0-a61b-365a1aece509
-          status: claimed
+          status: allocated
           name: new_volume
           size: 10gb
         property:
@@ -165,7 +165,7 @@ spec:
       - object:
           type: resource/volume/file
           id: a8d1d875-240a-445f-a569-10e00122e65b
-          status: claimed
+          status: allocated
           name: created_volume
           size: 100gb
         property:
@@ -173,7 +173,7 @@ spec:
   var_volume:
     type: resource/volume/nfs
     id: 2282dcee-d49f-4a6a-8a41-70e3e59a80cd
-    status: claimed
+    status: allocated
     name: var_volume
     size: 10gb
   var_network:
@@ -183,13 +183,13 @@ spec:
     name: vlan_network
     subnets:
       - cidr: 192.168.0.0/24
-        enable_dhcp: true
-        allocation_pool: 192.168.0.1-192.168.0.127
-        nameservers:
-          - 192.168.0.254
-        gateway_ip: 192.168.0.254
+        dhcp:
+          range: 192.168.0.1-192.168.0.127
+          nameservers:
+            - 192.168.0.254
+          gateway: 192.168.0.254
     parameters:
-      id: 100
+      vlan_id: 100
 ```
 
 ### `/api/spec` テンプレート機能
@@ -216,9 +216,9 @@ spec:
     vcpus: 2
     memory: 4gb
     vnc_password: hogehoge
-    relations:
+    dependencies:
       - object:
-          type: resource/port
+          type: resource/nic
           ip_addresses:
             - 192.168.0.__ip_octet__
           relatioins:
@@ -238,14 +238,14 @@ spec:
   web-0:
     type: resource/vm/kvm
     id: 56410722-d507-472a-a800-c89211b7c261
-    status: started
+    status: running
     template_variable:
       - web-template:
           ip_octet: 1
   web-1:
     type: resource/vm/kvm
     id: 56410722-d507-472a-a800-c89211b7c262
-    status: started
+    status: running
     memory: 8gb
     template_variable:
       - web-template:
@@ -268,9 +268,9 @@ spec:
     vcpus: 2
     memory: 4gb
     vnc_password: hogehoge
-    relations:
+    dependencies:
       - object:
-          type: resource/port
+          type: resource/nic
           ip_addresses:
             - 192.168.0.__ip_octet__
           relatioins:
@@ -283,7 +283,7 @@ spec:
       - object:
           type: resource/volume/file
           id: d99163ed-0093-40a0-a61b-365a1aece509
-          status: claimed
+          status: allocated
           name: new_volume
           size: 10gb
         property:
@@ -294,9 +294,9 @@ spec:
     template_variable:
       - web-template:
           ip_octet: 1
-    relations:
+    dependencies:
       - object:
-          type: resource/port
+          type: resource/nic
           id: a1f6a79b-7ad0-499e-b912-44eb73ea0f81
           status: attached
           ip_addresses:
@@ -311,7 +311,7 @@ spec:
       - object:
           type: resource/volume/file
           id: a8d1d875-240a-445f-a569-10e00122e65b
-          status: claimed
+          status: allocated
           name: new_volume
           size: 10gb
         property:
@@ -323,9 +323,9 @@ spec:
     template_variable:
       - web-template:
           ip_octet: 1
-    relations:
+    dependencies:
       - object:
-          type: resource/port
+          type: resource/nic
           id: a1f6a79b-7ad0-499e-b912-44eb73ea0f82
           status: attached
           ip_addresses:
@@ -340,7 +340,7 @@ spec:
       - object:
           type: resource/volume/file
           id: a8d1d875-240a-445f-a569-10e00122e65d
-          status: claimed
+          status: allocated
           name: new_volume
           size: 10gb
         property:
@@ -376,9 +376,9 @@ spec:
     vcpus: 2
     memory: 4gb
     vnc_password: hogehoge
-    relations:
+    dependencies:
       - object:
-          type: resource/port
+          type: resource/nic
           ip_addresses:
             - 192.168.0.1
           relatioins:
@@ -412,13 +412,13 @@ spec:
     name: vlan_network
     subnets:
       - cidr: 192.168.0.0/24
-        enable_dhcp: true
-        allocation_pool: 192.168.0.1-192.168.0.127
-        nameservers:
-          - 192.168.0.254
-        gateway_ip: 192.168.0.254
+        dhcp:
+          range: 192.168.0.1-192.168.0.127
+          nameservers:
+            - 192.168.0.254
+          gateway: 192.168.0.254
     parameters:
-      id: 100
+      vlan_id: 100
 ```
 
 #### response
@@ -435,15 +435,15 @@ spec:
   web:
     type: resource/vm/kvm
     id: 56410722-d507-472a-a800-c89211b7c261
-    status: started
+    status: running
     name: web
     arch: amd64
     vcpus: 2
     memory: 4gb
     vnc_password: hogehoge
-    relations:
+    dependencies:
       - object:
-          type: resource/port
+          type: resource/nic
           id: a1f6a79b-7ad0-499e-b912-44eb73ea0f81
           status: attached
           ip_addresses:
@@ -458,7 +458,7 @@ spec:
       - object:
           type: resource/volume/file
           id: d99163ed-0093-40a0-a61b-365a1aece509
-          status: claimed
+          status: allocated
           name: new_volume
           size: 10gb
         property:
@@ -471,7 +471,7 @@ spec:
       - object:
           type: resource/volume/file
           id: a8d1d875-240a-445f-a569-10e00122e65b
-          status: claimed
+          status: allocated
           name: created_volume
           size: 100gb
         property:
@@ -479,7 +479,7 @@ spec:
   var_volume:
     type: resource/volume/nfs
     id: 2282dcee-d49f-4a6a-8a41-70e3e59a80cd
-    status: claimed
+    status: allocated
     name: var_network
     size: 10gb
   var_network:
@@ -489,13 +489,13 @@ spec:
     name: vlan_network
     subnets:
       - cidr: 192.168.0.0/24
-        enable_dhcp: true
-        allocation_pool: 192.168.0.1-192.168.0.127
-        nameservers:
-          - 192.168.0.254
-        gateway_ip: 192.168.0.254
+        dhcp:
+          range: 192.168.0.1-192.168.0.127
+          nameservers:
+            - 192.168.0.254
+          gateway: 192.168.0.254
     parameters:
-      id: 100
+      vlan_id: 100
 ```
 
 ### `/api/graph`
