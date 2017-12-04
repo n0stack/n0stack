@@ -151,10 +151,14 @@ def xml_generate(name,  # type: str
     # <input type="mouse" bus="ps2"/>
     el_input = Element('input', attrib={'type': 'mouse', 'bus': 'ps2'})
     el_devices.append(el_input)
+
     # <graphics type="vnc" port="-1" listen="0.0.0.0" passwd="${vnc_password}"/>
-    el_graphics = Element('graphics', attrib={'type': 'vnc', 'port': '-1',
-                                              'listen': '0.0.0.0', 'passwd': vnc_password})
+    el_graphics = Element('graphics', attrib={'type': 'vnc',
+                                              'port': '-1',
+                                              'listen': '0.0.0.0',
+                                              'passwd': vnc_password})
     el_devices.append(el_graphics)
+
     # <console type="pty"/>
     el_console = Element('console', attrib={'type': 'pty'})
     el_devices.append(el_console)
@@ -164,3 +168,15 @@ def xml_generate(name,  # type: str
     xml = ET.tostring(root).decode('utf-8').replace('\n', '')  # type: str
 
     return xml
+
+def volume_xml_generate(volume):
+    # type: (str) -> str
+    root = Element('disk', attrib={'type': 'file', 'device': 'disk'})
+    el_source = Element('source', attrib={'file': volume})
+    el_driver = Element('driver', attrib={'name': 'qemu', 'type': 'qcow2'})
+    el_memory = Element('target', attrib={'dev': 'vda', 'bus': 'virtio'})
+    root.append(el_source)
+    root.append(el_driver)
+    root.append(el_memory)
+
+    xml = ET.tostring(root).decode('utf-8').replace('\n', '')  # type: str
