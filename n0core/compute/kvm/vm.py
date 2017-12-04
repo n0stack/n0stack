@@ -125,6 +125,6 @@ class VM(QemuOpen):  # NOQA
         vm = self.conn.lookupByName(name)
         # generate xml
         volume_xml = volume_xml_generate("/home/test/" + volume_id)
-        vm.attachDevice(xml)
+        vm.attachDevice(volume_xml)
 
         return True

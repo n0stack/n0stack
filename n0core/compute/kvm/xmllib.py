@@ -169,6 +169,7 @@ def xml_generate(name,  # type: str
 
     return xml
 
+
 def volume_xml_generate(volume):
     # type: (str) -> str
     root = Element('disk', attrib={'type': 'file', 'device': 'disk'})
@@ -180,3 +181,4 @@ def volume_xml_generate(volume):
     root.append(el_memory)
 
     xml = ET.tostring(root).decode('utf-8').replace('\n', '')  # type: str
+    return xml
