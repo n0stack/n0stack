@@ -122,4 +122,9 @@ class VM(QemuOpen):  # NOQA
 
     def attach_volume(self, name, volume_id):
         # type: (str, str) -> bool
+        vm = self.conn.lookupByName(name)
+        # generate xml
+        xml = "<disk></disk>"
+        vm.attachDevice(xml)
+        
         return True
