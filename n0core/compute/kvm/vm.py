@@ -2,7 +2,7 @@ import time
 import libvirt
 from typing import Any  # NOQA
 
-from n0core.compute.kvm.xmllib import xml_generate
+from n0core.compute.kvm.xmllib import xml_generate, volume_xml_generate
 from n0core.compute.kvm.base import QemuOpen
 
 
@@ -124,7 +124,7 @@ class VM(QemuOpen):  # NOQA
         # type: (str, str) -> bool
         vm = self.conn.lookupByName(name)
         # generate xml
-        xml = "<disk></disk>"
+        volume_xml = volume_xml_generate("/home/test/" + volume_id)
         vm.attachDevice(xml)
-        
+
         return True
