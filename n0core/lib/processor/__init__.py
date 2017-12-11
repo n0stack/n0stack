@@ -1,11 +1,11 @@
 from typing import Any, Optional, Dict, List  # NOQA
 
-from n0core.lib.adaptor.incoming import IncomingAdaptor
-from n0core.lib.adaptor.outgoing import OutgoingAdaptor
+from n0core.lib.adaptor.incoming import IncomingAdapter
+from n0core.lib.adaptor.outgoing import OutgoingAdapter
 
 class Processor:
-    incoming = None  # type: Optional[IncomingAdaptor]
-    outgoing = []  # type: List[OutgoingAdaptor]
+    incoming = None  # type: Optional[IncomingAdapter]
+    outgoing = []  # type: List[OutgoingAdapter]
 
     def __init__(self):
         # type: () -> None
