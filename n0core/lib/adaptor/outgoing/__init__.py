@@ -1,0 +1,8 @@
+from typing import Dict, Any
+
+from n0core.lib.adaptor import Adaptor
+
+class OutgoingAdaptor(Adaptor):
+    def send(self, message):
+        # type: (Dict[str, Any]) -> None
+        raise NotImplementedError
