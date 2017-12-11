@@ -1,8 +1,8 @@
 from typing import Dict, Any
 
-from n0core.lib.adaptor import Adaptor
+from n0core.lib.adaptor import Adapter
 
-class IncomingAdaptor(Adaptor):
+class IncomingAdapter(Adapter):
     def receive(self):
         # type: () -> Dict[str, Any]
         raise NotImplementedError
