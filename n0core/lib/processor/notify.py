@@ -7,22 +7,23 @@ class NotifyProcessor(Processor):
     """
     Example:
         >>> class Aggregator(NotifyProcessor):
-        >>>     @on_success
-        >>>     def store(self, message):
+        >>>     def on_success(self, message):
         >>>         ...
         >>>
-        >>>     @on_failure
-        >>>     def not_store(self, message):
-        >>>         return None
+        >>>     def on_failure(self, message):
+        >>>         pass
         >>>
         >>> a = Aggregator()
         >>> a.incoming = IncomingPulsar("pulsar://...")
-        >>> a.outgoing.append = OutgoingGremlin("ws://...")
+        >>> a.outgoing.append(OutgoingGremlin("ws://..."))
         >>> a.run()
     """
 
-    def processing(self, message):
-        # type: (Dict[str, Any]) -> Dict[str, Any]
+    def process(self, message):
+        # type: (Message) -> None
+        if message.type != message.NOTIFY:
+            raise Exception("Not supported message.")
+
         message = self.pre_proccess(message)
 
         if message["succeeded"]:
@@ -32,9 +33,6 @@ class NotifyProcessor(Processor):
 
         message = self.post_process(message)
 
-        return message
-
-    # these methods will be decorator
     def pre_proccess(self, message):
         # type: (Dict[str, Any]) -> Dict[str, Any]
         return message

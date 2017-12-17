@@ -1,25 +1,24 @@
 from typing import Any, Optional, Dict, List  # NOQA
 
-from n0core.lib.adaptor.incoming import IncomingAdapter
-from n0core.lib.adaptor.outgoing import OutgoingAdapter
+from n0core.lib.adaptor import Adapter  # NOQA
+from n0core.lib.message import Message  # NOQA
+
 
 class Processor:
-    incoming = None  # type: Optional[IncomingAdapter]
-    outgoing = []  # type: List[OutgoingAdapter]
+    """
+    Processor provide logic layer.
 
-    def __init__(self):
-        # type: () -> None
-        pass
+    Input and output data is only header(notify and spec) and objects.
+    """
 
-    def processing(self, message):
-        # type: (Dict[str, Any]) -> Dict[str, Any]
-        return message
+    incoming = None  # type: Optional[Adaptor]
+
+    def process(self, message):
+        # type: (Message) -> None
+        raise NotImplementedError
 
     def run(self):
         # type: () -> None
         while True:
             nm = self.incoming.receive()
-            pm = self.processing(nm)
-
-            for o in self.outgoing:
-                o.send(pm)
+            self.process(nm)
