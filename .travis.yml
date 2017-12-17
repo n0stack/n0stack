@@ -11,7 +11,7 @@ install:
 
 script:
 - flake8 .
-- mypy -p n0core
+- mypy -p n0core --config-file .mypy.ini
 
 notifications:
   slack:
