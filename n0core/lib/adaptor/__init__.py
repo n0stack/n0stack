@@ -1,21 +1,21 @@
 from typing import Dict, Any
 
+from n0core.lib.message import Message
+
+
 class Adapter:
     """
     Adapters provide presentation layer.
     """
 
     def receive(self):
-        # type: () -> Dict[str, Any]
+        # type: () -> Message
         raise NotImplementedError
 
     def send(self, message):
-        # type: (Dict[str, Any], List[Dict[str, Any]]) -> None
+        # type: (Message) -> None
         """
         This method send message to default destination.
 
-        Args:
-            header:
-            objects:
         """
         raise NotImplementedError
