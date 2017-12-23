@@ -38,10 +38,11 @@ class Model(dict):
     def type(self):
         return self.__type
 
-    def relations(self, label):
+    def depend_on(self, label):
         # type: (str) -> List[Dependency]
 
         return [d for d in self.dependencies if d.label == label]
+
 
 class Dependency:
     """

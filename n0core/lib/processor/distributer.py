@@ -33,7 +33,7 @@ class Distributer(Processor):
                 continue
 
             # not scheduled
-            if not m.relations("n0core/models/hosted"):
+            if not m.depend_on("n0core/models/hosted"):
                 n = Notify(spec_id=message.spec_id,
                            model=m,
                            event=self.NOTIFY_EVENT,
@@ -45,7 +45,7 @@ class Distributer(Processor):
                 if not self.applied(r):
                     continue
 
-            a = m.relations("n0core/models/hosted")[0].model  # このlabelはfixする必要がある
+            a = m.depend_on("n0core/models/hosted")[0].model  # このlabelはfixする必要がある
             n = Notify(spec_id=message.spec_id,
                        model=m,
                        event=self.NOTIFY_EVENT,
