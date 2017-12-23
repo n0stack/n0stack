@@ -1,4 +1,3 @@
-# coding: UTF-8
 from xml.etree.ElementTree import Element
 import xml.etree.ElementTree as ET
 from typing import Dict, Any  # NOQA
@@ -189,17 +188,18 @@ def build_pool(name, path):
     el_pool = Element('pool', attrib={'type': 'dir'})
     el_name = Element('name')
     el_name.text = name
-    
+
     el_target = Element('target')
     el_path = Element('path')
     el_path.text = path
-    
+
     el_target.append(el_path)
-    
+
     el_pool.append(el_name)
     el_pool.append(el_target)
-    
-    return ET.tostring(el_pool).decode('utf-8')  # type: str
+
+    xml = ET.tostring(el_pool).decode('utf-8')  # type: str
+    return xml
 
 
 def build_volume(name, size):
@@ -207,12 +207,12 @@ def build_volume(name, size):
     el_volume = Element('volume')
     el_name = Element('name')
     el_name.text = name + ".img"
-    
+
     el_capacity = Element('capacity', attrib={'unit': 'M'})
     el_capacity.text = str(size)
-    
+
     el_volume.append(el_name)
     el_volume.append(el_capacity)
-    
-    return ET.tostring(el_volume).decode('utf-8')  # type: str
 
+    xml = ET.tostring(el_volume).decode('utf-8')  # type: str
+    return xml
