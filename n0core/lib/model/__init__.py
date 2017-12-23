@@ -43,7 +43,7 @@ class Model(dict):
 
         return [d for d in self.dependencies if d.label == label]
 
-class Dependency():
+class Dependency:
     """
     Example:
         >>> new_vm = Object("resource/vm/kvm", "running")
