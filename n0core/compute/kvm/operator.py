@@ -4,7 +4,8 @@ from typing import Any  # NOQA
 
 from n0core.compute.kvm.xmllib import (define_vm_xml,
                                        define_volume_xml,
-                                       build_volume)
+                                       build_volume,
+                                       build_network)
 
 from n0core.compute.kvm.base import QemuOpen
 
@@ -164,5 +165,36 @@ class Volume(QemuOpen):
         if wipe:
             storage.wipe(0)
         storage.delete(0)
+
+        return True
+
+
+class Network(QemuOpen):
+    def __init__(self):
+        # type: () -> None
+        super().__init__()
+
+    def create(self,
+               network_name,  # type: str
+               bridge_name,  # type: str
+               address,  # type: str
+               netmask,  # type: str
+               range_start,  # type: str
+               range_end  # type: str
+               ):
+        # type: (...) -> bool
+        xml = build_network(network_name,
+                            bridge_name,
+                            address,
+                            netmask,
+                            range_start,
+                            range_end)
+
+        network = self.conn.networkCreateXML(xml)
+
+        if network is None:
+            # TODO: error log
+            print('Failed to create a virtual network')
+            return False
 
         return True
