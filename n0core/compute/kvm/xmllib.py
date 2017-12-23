@@ -236,7 +236,6 @@ def build_network(network_name,  # type: str
     el_ip = Element('ip', attrib={'address': address,
                                   'netmask': netmask})
 
-
     el_dhcp = Element('dhcp')
     el_range = Element('range', attrib={'start': range_start,
                                         'end': range_end})
@@ -246,8 +245,8 @@ def build_network(network_name,  # type: str
     el_network.append(el_name)
     el_network.append(el_bridge)
     el_network.append(el_forward)
-    el_network.append(el_ip)    
+    el_network.append(el_ip)
 
     xml = ET.tostring(el_network).decode('utf-8')  # type: str
 
-    return xml    
+    return xml
