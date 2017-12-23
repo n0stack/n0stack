@@ -22,7 +22,7 @@ class QemuReadOnly:
         except libvirt.libvirtError as e:
             logger.error('unable to connect to libvirt')
             sys.exit(1)
-            
+
         try:
             pool = conn.storagePoolLookupByName(POOL_NAME)
         except libvirt.libvirtError:
@@ -30,7 +30,7 @@ class QemuReadOnly:
             pool = conn.storagePoolLookupByName(POOL_NAME)
         self.conn = conn
         self.pool = pool
-            
+
 
 class QemuOpen:
     def __init__(self):
@@ -40,7 +40,7 @@ class QemuOpen:
         except libvirt.libvirtError as e:
             logger.error('unable to connect to libvirt')
             sys.exit(1)
-            
+
         try:
             pool = conn.storagePoolLookupByName(POOL_NAME)
         except libvirt.libvirtError:
@@ -57,7 +57,7 @@ def _init_pool(conn):
     if not os.path.exists(path):
         logger.critical('not such pool path {}'.format(path))
         sys.exit(1)
-        
+
     xml = build_pool(POOL_NAME, path)
     pool = conn.storagePoolDefineXML(xml, 0)
     if pool is None:
