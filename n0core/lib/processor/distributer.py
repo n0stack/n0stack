@@ -16,7 +16,7 @@ class Distributer(Processor):
 
     def applied(self, model):
         # type: (Model) -> boolean
-        m = self.__repository.read(model.id, event="APPLIED", recursive=0)
+        m = self.__repository.read(model.id)
 
         if m:
             return True

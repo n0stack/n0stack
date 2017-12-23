@@ -1,15 +1,15 @@
 from n0core.lib.message import Message
 
 
-class Repository(object):
+class Repository:
     def __init__(self):
         pass
 
     def read(self,
-             id,        # type: str
+             id,               # type: str
              *,
-             event,     # type: str
-             recursive  # type: int
+             event="APPLIED",  # type: str
+             recursive=0       # type: int
              ):
         # type (...) -> Model
         """
@@ -18,8 +18,8 @@ class Repository(object):
             >>> m.dependencies -> not None
             >>> m.dependencies.model.dependencies -> None
         """
-        pass
+        raise NotImplementedError
 
     def store(self, message):
         # type: (Message) -> None
-        pass
+        raise NotImplementedError
