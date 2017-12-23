@@ -5,7 +5,7 @@ from n0core.lib.processor import Processor
 from n0core.lib.processor import IncompatibleMessage
 
 
-class Distributer(Processor):
+class Aggregator(Processor):
     def __init__(self, incoming, repository):
         # type: (Gateway, Repository) -> None
         super().__init__(incoming)
