@@ -4,14 +4,14 @@ import xml.etree.ElementTree as ET
 from typing import Dict, Any  # NOQA
 
 
-def xml_generate(name,  # type: str
-                 cpu,  # type: Any
-                 memory,  # type: str
-                 disk,  # type: str
-                 cdrom,  # type: str
-                 nic,  # type: Dict[str, Any]
-                 vnc_password  # type: str
-                 ):
+def define_vm_xml(name,  # type: str
+                  cpu,  # type: Any
+                  memory,  # type: str
+                  disk,  # type: str
+                  cdrom,  # type: str
+                  nic,  # type: Dict[str, Any]
+                  vnc_password  # type: str
+                  ):
     # type: (...) -> str
     root = Element('domain', attrib={'type': 'kvm'})
 
@@ -170,7 +170,7 @@ def xml_generate(name,  # type: str
     return xml
 
 
-def volume_xml_generate(volume):
+def define_volume_xml(volume):
     # type: (str) -> str
     root = Element('disk', attrib={'type': 'file', 'device': 'disk'})
     el_source = Element('source', attrib={'file': volume})
@@ -182,3 +182,37 @@ def volume_xml_generate(volume):
 
     xml = ET.tostring(root).decode('utf-8').replace('\n', '')  # type: str
     return xml
+
+
+def build_pool(name, path):
+    # type: (str, str) -> str
+    el_pool = Element('pool', attrib={'type': 'dir'})
+    el_name = Element('name')
+    el_name.text = name
+    
+    el_target = Element('target')
+    el_path = Element('path')
+    el_path.text = path
+    
+    el_target.append(el_path)
+    
+    el_pool.append(el_name)
+    el_pool.append(el_target)
+    
+    return ET.tostring(el_pool).decode('utf-8')  # type: str
+
+
+def build_volume(name, size):
+    # type: (str, str) -> str
+    el_volume = Element('volume')
+    el_name = Element('name')
+    el_name.text = name + ".img"
+    
+    el_capacity = Element('capacity', attrib={'unit': 'M'})
+    el_capacity.text = str(size)
+    
+    el_volume.append(el_name)
+    el_volume.append(el_capacity)
+    
+    return ET.tostring(el_volume).decode('utf-8')  # type: str
+
