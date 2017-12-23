@@ -12,23 +12,23 @@ class Notify(Message):
     EVENTS = Enum("EVENTS", ["SCHEDULED", "APPLIED"])
 
     def __init__(self,
-                 spec_id,     # type: string
-                 object,      # type: Object
-                 event,       # type: string
+                 spec_id,     # type: str
+                 model,      # type: Model
+                 event,       # type: str
                  succeeded,   # type: bool
-                 description  # type: string
+                 description  # type: str
                  ):
         # type: (...) -> None
         super().__init__(spec_id, Message.TYPES.NOTIFY)
 
-        self.__object = object
+        self.__model = model
         self.__event = self.EVENTS[event]
         self.__succeeded = succeeded
         self.__description = description
 
     @property
-    def object(self):
-        return self.__object
+    def model(self):
+        return self.__model
 
     @property
     def event(self):

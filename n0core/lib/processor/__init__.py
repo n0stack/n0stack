@@ -4,21 +4,37 @@ from n0core.lib.adaptor import Adapter  # NOQA
 from n0core.lib.message import Message  # NOQA
 
 
+class IncompatibleMessage(Exception):
+    pass
+
+
+class FinishProcess(Exception):
+    pass
+
+
 class Processor:
     """
-    Processor provide logic layer.
+    Processor provide logic layer; in clean architecture, this is similar to UseCase.
 
     Input and output data is only header(notify and spec) and objects.
     """
 
-    incoming = None  # type: Optional[Adaptor]
+    def __init__(self, incoming):
+        # type: (Gateway) -> None
+        self.__incoming = incoming
+
+    def init(self):
+        pass
 
     def process(self, message):
         # type: (Message) -> None
         raise NotImplementedError
 
-    def run(self):
-        # type: () -> None
-        while True:
-            nm = self.incoming.receive()
-            self.process(nm)
+    @incoming.handling
+    def handler(self, message):
+        try:
+            self.process(message)
+        except IncompatibleMessage as identifier:
+            pass
+        except FinishProcess:
+            pass

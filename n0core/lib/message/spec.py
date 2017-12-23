@@ -6,18 +6,18 @@ from n0core.lib.object import Object  # NOQA
 
 class Spec(Message):
     def __init__(self,
-                 spec_id,     # type: stiring
-                 objects,     # type: List[Objects]
-                 annotations  # type: Dict[string, string]
+                 spec_id,     # type: str
+                 models,     # type: List[Model]
+                 annotations  # type: Dict[str, str]
                  ):
         super().__init__(spec_id, Message.TYPES.SPEC)
 
-        self.__spec = objects
+        self.__models = models
         self.__annotations = annotations
 
     @property
-    def objects(self):
-        return self.__spec
+    def models(self):
+        return self.__models
 
     @property
     def annotations(self):

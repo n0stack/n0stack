@@ -2,7 +2,7 @@ from uuid import uuid4
 from typing import Dict, List  # NOQA
 
 
-class Object(dict):
+class Model(dict):
     """
     Example:
         >>> new_disk = Object("resource/volume/local", "claimed")
@@ -38,6 +38,10 @@ class Object(dict):
     def type(self):
         return self.__type
 
+    def relations(self, label):
+        # type: (str) -> List[Dependency]
+
+        return [d for d in self.dependencies if d.label == label]
 
 class Dependency():
     """
@@ -51,17 +55,18 @@ class Dependency():
         - labelを書き込み可能にするか否か
     """
     def __init__(self,
-                 object,      # type: Object
+                 model,       # type: Model
                  label,       # type: str
                  property={}  # type: Dict[str, str]
                  ):
-        self.__object = object,
+        # type: (...) -> None
+        self.__model = model,
         self.__label = label
         self.property = property
 
     @property
-    def object(self):
-        return self.__object
+    def model(self):
+        return self.__model
 
     @property
     def label(self):

@@ -1,9 +1,9 @@
-from typing import Dict, Any
+from typing import Dict, Any  # NOQA
 
-from n0core.lib.message import Message
+from n0core.lib.message import Message  # NOQA
 
 
-class Adapter:
+class Gateway:
     """
     Adapters provide presentation layer.
     """
@@ -15,7 +15,11 @@ class Adapter:
     def send(self, message):
         # type: (Message) -> None
         """
-        This method send message to default destination.
+        "send" send message to default destination.
 
         """
+        raise NotImplementedError
+
+    def send_to(self, message, model):
+        # type: (Message, Model) -> None
         raise NotImplementedError
