@@ -76,18 +76,20 @@ class VM(QemuOpen):  # NOQA
         # default values of nic
         nic = {'type': 'bridge', 'source': device, 'mac_addr': mac_addr, 'model': nic_type}
 
-        vm_xml = build_vm(name,
-                          cpu,
-                          memory,
-                          disk_path,
-                          cdrom,
-                          nic,
-                          vnc_password)
+        vm_xml = define_vm_xml(name,
+                               cpu,
+                               memory,
+                               disk_path,
+                               cdrom,
+                               nic,
+                               vnc_password)
 
         dom = self.conn.createXML(vm_xml, 0)
 
         if not dom:
+            # TODO: error log
             return False
+
         return True
 
     def delete(self, name):
@@ -103,6 +105,7 @@ class VM(QemuOpen):  # NOQA
                 vdom.undefine()
 
         except libvirt.libvirtError as e:
+            # TODO: error log
             print(e)
             return False
 
@@ -116,6 +119,7 @@ class VM(QemuOpen):  # NOQA
             dom.setMemory(memory)
 
         except libvirt.libvirtError as e:
+            # TODO: error log
             print(e)
             return False
 
@@ -125,7 +129,7 @@ class VM(QemuOpen):  # NOQA
         # type: (str, str) -> bool
         vm = self.conn.lookupByName(name)
         # generate xml
-        volume_xml = volume_xml_generate("/home/test/" + volume_id)
+        volume_xml = define_volume_xml("/home/test/" + volume_id)
         vm.attachDevice(volume_xml)
 
         return True
