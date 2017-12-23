@@ -55,6 +55,7 @@ class VM(QemuOpen):  # NOQA
             if domain.info()[0] != 1:
                 break
             if time.time() - s > 60:
+                # TODO: add error log
                 return False
 
         return True
@@ -75,13 +76,13 @@ class VM(QemuOpen):  # NOQA
         # default values of nic
         nic = {'type': 'bridge', 'source': device, 'mac_addr': mac_addr, 'model': nic_type}
 
-        vm_xml = xml_generate(name,
-                              cpu,
-                              memory,
-                              disk_path,
-                              cdrom,
-                              nic,
-                              vnc_password)
+        vm_xml = build_vm(name,
+                          cpu,
+                          memory,
+                          disk_path,
+                          cdrom,
+                          nic,
+                          vnc_password)
 
         dom = self.conn.createXML(vm_xml, 0)
 
@@ -127,4 +128,34 @@ class VM(QemuOpen):  # NOQA
         volume_xml = volume_xml_generate("/home/test/" + volume_id)
         vm.attachDevice(volume_xml)
 
+        return True
+
+
+class Volume(QemuOpen):
+    def __init__(self):
+        # type: () -> None
+        super().__init__()
+
+    def create(self, name, size):
+        # type: (str, str) -> bool
+        xml = build_volume(name, size)
+        
+        if self.pool.createXML(xml) is None:
+            # TODO: error log
+            return False
+        
+        return True
+
+    def delete(self, name, wipe=True):
+        # type: (str, bool) -> bool
+        storage = self.pool.storageVolLookupByName(name+'.img')
+        
+        if storage is None:
+            # TODO: error log
+            return False
+        
+        if wipe:
+            storage.wipe(0)
+        storage.delete(0)
+            
         return True
