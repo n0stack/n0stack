@@ -2,7 +2,10 @@ import time
 import libvirt
 from typing import Any  # NOQA
 
-from n0core.compute.kvm.xmllib import xml_generate, volume_xml_generate
+from n0core.compute.kvm.xmllib import (define_vm_xml,
+                                       define_volume_xml,
+                                       build_volume)
+
 from n0core.compute.kvm.base import QemuOpen
 
 
@@ -129,8 +132,8 @@ class VM(QemuOpen):  # NOQA
         # type: (str, str) -> bool
         vm = self.conn.lookupByName(name)
         # generate xml
-        volume_xml = define_volume_xml("/home/test/" + volume_id)
-        vm.attachDevice(volume_xml)
+        xml = define_volume_xml("/home/test/" + volume_id)
+        vm.attachDevice(xml)
 
         return True
 
@@ -143,23 +146,23 @@ class Volume(QemuOpen):
     def create(self, name, size):
         # type: (str, str) -> bool
         xml = build_volume(name, size)
-        
+
         if self.pool.createXML(xml) is None:
             # TODO: error log
             return False
-        
+
         return True
 
     def delete(self, name, wipe=True):
         # type: (str, bool) -> bool
         storage = self.pool.storageVolLookupByName(name+'.img')
-        
+
         if storage is None:
             # TODO: error log
             return False
-        
+
         if wipe:
             storage.wipe(0)
         storage.delete(0)
-            
+
         return True
