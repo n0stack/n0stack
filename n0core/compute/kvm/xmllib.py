@@ -164,7 +164,7 @@ def define_vm_xml(name,  # type: str
 
     root.append(el_devices)
 
-    xml = ET.tostring(root).decode('utf-8').replace('\n', '')  # type: str
+    xml = ET.tostring(root).decode('utf-8')  # type: str
 
     return xml
 
@@ -179,7 +179,7 @@ def define_volume_xml(volume):
     root.append(el_driver)
     root.append(el_memory)
 
-    xml = ET.tostring(root).decode('utf-8').replace('\n', '')  # type: str
+    xml = ET.tostring(root).decode('utf-8')  # type: str
     return xml
 
 
@@ -216,3 +216,38 @@ def build_volume(name, size):
 
     xml = ET.tostring(el_volume).decode('utf-8')  # type: str
     return xml
+
+
+def build_network(network_name,  # type: str
+                  bridge_name,  # type: str
+                  address,  # type: str
+                  netmask,  # type: str
+                  range_start,  # type: str
+                  range_end  # type: str
+                  ):
+    # type: (...) -> str
+    el_network = Element('network')
+    el_name = Element('name')
+    el_name.text = network_name
+
+    el_bridge = Element('bridge', attrib={'name': bridge_name})
+
+    el_forward = Element('forward', attrib={'mode': 'nat'})
+    el_ip = Element('ip', attrib={'address': address,
+                                  'netmask': netmask})
+
+
+    el_dhcp = Element('dhcp')
+    el_range = Element('range', attrib={'start': range_start,
+                                        'end': range_end})
+    el_dhcp.append(el_range)
+    el_ip.append(el_dhcp)
+
+    el_network.append(el_name)
+    el_network.append(el_bridge)
+    el_network.append(el_forward)
+    el_network.append(el_ip)    
+
+    xml = ET.tostring(el_network).decode('utf-8')  # type: str
+
+    return xml    
