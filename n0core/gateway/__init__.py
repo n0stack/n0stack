@@ -1,6 +1,4 @@
-from typing import Dict, Any  # NOQA
-
-from n0core.lib.message import Message  # NOQA
+from n0core.message import Message  # NOQA
 
 
 class Gateway:
@@ -20,6 +18,11 @@ class Gateway:
         """
         raise NotImplementedError
 
-    def send_to(self, message, model):
+    def send_to(self, message, destination):
         # type: (Message, Model) -> None
+        """
+        Args:
+            message:
+            destination: destination
+        """
         raise NotImplementedError

@@ -1,10 +1,11 @@
 from enum import Enum
 
 
-class Message():
+class Message:
     TYPES = Enum("TYPES", ["NOTIFY", "SPEC"])
 
     def __init__(self, spec_id, type):
+        # type: (str, Enum) -> (None)
         self.__spec_id = spec_id
         self.__type = type
 

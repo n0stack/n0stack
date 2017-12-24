@@ -1,8 +1,8 @@
-from n0core.lib.message import Message
-from n0core.lib.message.notify import Notify
-from n0core.lib.message.notify import Spec  # NOQA
-from n0core.lib.processor import Processor
-from n0core.lib.processor import IncompatibleMessage
+from n0core.message import Message
+from n0core.message.notify import Notify
+from n0core.message.notify import Spec  # NOQA
+from n0core.processor import Processor
+from n0core.processor import IncompatibleMessage
 
 
 class Distributer(Processor):

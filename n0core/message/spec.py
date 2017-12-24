@@ -1,7 +1,7 @@
 from typing import Dict  # NOQA
 
-from n0core.lib.message import Message
-from n0core.lib.object import Object  # NOQA
+from n0core.message import Message
+from n0core.object import Object  # NOQA
 
 
 class Spec(Message):

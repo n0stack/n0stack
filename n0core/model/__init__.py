@@ -4,6 +4,8 @@ from typing import Dict, List  # NOQA
 
 class Model(dict):
     """
+    [WARNING] 仕様が変わる可能性があるので、それを考慮して開発をするように!!
+
     Example:
         >>> new_disk = Object("resource/volume/local", "claimed")
         >>> new_disk["size"] = 100 * 1024 * 1024 * 1024
