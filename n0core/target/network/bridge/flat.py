@@ -60,7 +60,7 @@ class Flat(Bridge):
             bi = self._get_index(bn)
 
             if bi:
-                logger.info("Bridge {}({}) is created, mastering {}({})".format(bn, bi, self._interface, ii))
+                logger.info("Bridge {}({}) is created, mastering {}({})".format(bn, bi, self.interface, ii))
             else:
                 logger.critical("Failed to get created interface's index of {}, just after create interface.".format(bn))  # NOQA
                 raise Exception()
@@ -73,4 +73,3 @@ class Flat(Bridge):
 
     def delete_bridge(self):
         pass
-
