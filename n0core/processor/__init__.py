@@ -9,27 +9,35 @@ class IncompatibleMessage(Exception):
 
 class Processor:
     """
-    Processor provide logic layer; in clean architecture, this is similar to UseCase.
-
-    Input and output data is only header(notify and spec) and objects.
+    TODO:
+        - どうやってincomingのGatewayからいい感じにデータを取得するか
     """
 
-    def __init__(self, incoming):
-        # type: (Gateway) -> None
-        self.__incoming = incoming
-
-    def init(self):
+    def __init__(self):
+        # type: () -> None
         pass
 
     def process(self, message):
         # type: (Message) -> None
+        """
+        `process` is implimented by each use case.
+
+        Args:
+            message: Message which is got by Gateway.
+        """
         raise NotImplementedError
 
-    @incoming.handling
     def handler(self, message):
+        # type: (Message) -> None
+        """
+        `handler` wrap `Processor.process` to manage common processes over all like exceptions.
+
+        Gateway will call this.
+
+        Args:
+            message: Message which is got by Gateway.
+        """
         try:
             self.process(message)
         except IncompatibleMessage as identifier:
-            pass
-        except FinishProcess:
             pass
