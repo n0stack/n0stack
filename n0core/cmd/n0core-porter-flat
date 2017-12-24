@@ -2,42 +2,30 @@
 # -*- coding: utf-8 -*-
 
 
-from argparse import ArgumentParser
-from typing import Optional, Mapping  # nOqa
-from logging import getLogger
-from pulsar import Client
-
 from n0library.arguments.common import CommonArguments
-from n0core.lib.messenger import Messenger
-from n0core.porter.handler import PorterHandler
-from n0core.porter.type.flat import Flat
+from n0core.processor.agent import Agent
+from n0core.gateway.pulsar import Pulsar
+from n0core.target.network import Network
+from n0core.target.network.bridge.flat import Flat
 
 
 def main():
     argparser = CommonArguments(
         description="Process of n0stack porter type flat"
-    )  # type: ArgumentParser
+    )
     argparser.add_argument("--interface-name",
                            type=str,
                            default=None,
                            help="Set interface name to create br-flat automatically")
-    argparser.add_argument("--bridge-name",
-                           type=str,
-                           default=None,
-                           help="Set bridge name of already exists like br-flat")
     args = argparser.parse_args()
 
-    client = Client(args.mq_url)
-    type_flat = Flat(interface_name=args.interface_name,
-                     bridge_name=args.bridge_name)
-    porter = PorterHandler(type_flat)
+    # target
+    f = Flat(args.interface_name)
+    n = Network(f)
+    p = Pulsar(args.mq_url, "aggregater")
 
-    consumer = client.subscribe(
-        'persistent://sample/standalone/ns1/my-topic',
-        subscription_name=str("hogehoge"))
-    while True:
-        _, messenger = Messenger.receive_message(consumer)
-        porter.message_handler(messenger)
+    a = Agent(n, ["resource/network", "resource/port"], p)
+    a.run()  # わからん
 
 
 if __name__ == "__main__":
