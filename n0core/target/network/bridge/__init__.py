@@ -35,7 +35,7 @@ class Bridge:
         # type: (...) -> str
         raise NotImplementedError
 
-    def delete_bridge(self):
+    def delete_bridge(self, id):
         raise NotImplementedError
 
     def get_bridge_name(self, id):

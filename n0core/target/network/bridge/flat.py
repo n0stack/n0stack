@@ -71,5 +71,11 @@ class Flat(Bridge):
 
         return bn
 
-    def delete_bridge(self):
-        pass
+    def delete_bridge(self, id):
+        bn = self.get_bridge_name(id)
+        bi = self._get_index(bn)
+        if not bi:
+            logger.error("Failed to get interface index of {}, when called delete_bridge.".format(bn))
+            return
+
+        self.ip.link('delete', index=bi)
