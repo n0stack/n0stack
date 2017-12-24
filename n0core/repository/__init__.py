@@ -52,7 +52,7 @@ class Repository:
     def store(self, message):
         # type: (Message) -> None
         """
-        `store` store message to provide query methods like read and schedule.
+        `store` store message to provide query methods like Repository.read and Repository.schedule.
 
         Args:
             message: Message to store.
