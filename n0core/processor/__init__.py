@@ -1,7 +1,6 @@
 from typing import Any, Optional, Dict, List  # NOQA
 
-from n0core.lib.adaptor import Adapter  # NOQA
-from n0core.lib.message import Message  # NOQA
+from n0core.message import Message  # NOQA
 
 
 class IncompatibleMessage(Exception):

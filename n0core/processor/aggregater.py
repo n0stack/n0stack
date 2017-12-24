@@ -1,8 +1,8 @@
-from n0core.lib.message import Message
-from n0core.lib.gateway import Gateway  # NOQA
-from n0core.lib.repository import Repository  # NOQA
-from n0core.lib.processor import Processor
-from n0core.lib.processor import IncompatibleMessage
+from n0core.message import Message
+from n0core.gateway import Gateway  # NOQA
+from n0core.repository import Repository  # NOQA
+from n0core.processor import Processor
+from n0core.processor import IncompatibleMessage
 
 
 class Aggregator(Processor):
