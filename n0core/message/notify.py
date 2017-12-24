@@ -1,7 +1,8 @@
 from enum import Enum
+from typing import Any  # NOQA
 
 from n0core.message import Message
-from n0core.object import Object # NOQA
+from n0core.model import Model  # NOQA
 
 
 class Notify(Message):
@@ -13,8 +14,8 @@ class Notify(Message):
 
     def __init__(self,
                  spec_id,     # type: str
-                 model,      # type: Model
-                 event,       # type: str
+                 model,       # type: Model
+                 event,       # type: Any
                  succeeded,   # type: bool
                  description  # type: str
                  ):
@@ -28,16 +29,20 @@ class Notify(Message):
 
     @property
     def model(self):
+        # type: () -> Model
         return self.__model
 
     @property
     def event(self):
+        # type: () -> Any
         return self.__event
 
     @property
     def succeeded(self):
+        # type: () -> bool
         return self.__succeeded
 
     @property
     def description(self):
+        # type: () -> str
         return self.__description

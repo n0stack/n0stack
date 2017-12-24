@@ -1,15 +1,19 @@
-from n0core.message import Message
+from typing import Any, List
+
+from n0core.model import Model  # NOQA
+from n0core.message import Message  # NOQA
 from n0core.message.notify import Notify
 
 
 class Repository:
     def __init__(self):
+        # type: () -> None
         pass
 
     def read(self,
              id,                          # type: str
              *,
-             event=Notify.TYPES.APPLIED,  # type: int
+             event=Notify.TYPES.APPLIED,  # type: Any
              depth=0                      # type: int
              ):
         # type (...) -> Model
