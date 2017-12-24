@@ -9,12 +9,12 @@ class Repository:
              id,               # type: str
              *,
              event="APPLIED",  # type: str
-             recursive=0       # type: int
+             depth=0           # type: int
              ):
         # type (...) -> Model
         """
         Example:
-            >>> m = r.read("...", event="APPLIED", recursive=1)
+            >>> m = r.read("...", event="APPLIED", depth=1)
             >>> m.dependencies -> not None
             >>> m.dependencies.model.dependencies -> None
         """
