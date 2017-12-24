@@ -8,10 +8,6 @@ class IncompatibleMessage(Exception):
     pass
 
 
-class FinishProcess(Exception):
-    pass
-
-
 class Processor:
     """
     Processor provide logic layer; in clean architecture, this is similar to UseCase.

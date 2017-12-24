@@ -22,7 +22,7 @@ class Notify(Message):
         super().__init__(spec_id, Message.TYPES.NOTIFY)
 
         self.__model = model
-        self.__event = self.EVENTS[event]
+        self.__event = event
         self.__succeeded = succeeded
         self.__description = description
 

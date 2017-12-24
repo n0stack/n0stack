@@ -1,12 +1,16 @@
 from n0core.lib.processor import Processor
 from n0core.lib.processor import IncompatibleMessage
-from n0core.lib.processor import FinishProcess
 from n0core.lib.message import Message
 from n0core.lib.message.notify import Notify
 
 
 class Agent(Processor):
-    def __init__(self, target, model_types, notify):
+    def __init__(self,
+                 target,       # type: Target
+                 model_types,  # type: List[str]
+                 notify        # type: Repository
+                 ):
+        # type: (...) -> None
         self.__target = target
         self.__model_types = model_types
         self.__notify = notify
@@ -17,15 +21,13 @@ class Agent(Processor):
             raise IncompatibleMessage
         if message.model.type not in self.__model_types:
             raise IncompatibleMessage
-
         if not message.succeeded:
-            raise FinishProcess
+            raise IncompatibleMessage
 
         s, d = self.__target.apply(message.model)
-
         n = Notify(spec_id=message.spec_id,
                    model=message.model,
-                   event="APPLIED",
+                   event=Notify.EVENTS.APPLIED,
                    succeeded=s,
                    description=d)
 
