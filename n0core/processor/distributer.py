@@ -1,20 +1,24 @@
 from n0core.message import Message
 from n0core.message.notify import Notify
-from n0core.message.notify import Spec  # NOQA
+from n0core.message.spec import Spec  # NOQA
 from n0core.processor import Processor
 from n0core.processor import IncompatibleMessage
+from n0core.gateway import Gateway
+from n0core.repository import Repository
+from n0core.model import Model
 
 
 class Distributer(Processor):
     NOTIFY_EVENT = Notify.EVENTS.SCHEDULED
 
     def __init__(self, incoming, repository, notify):
-        # type: (Gateway, Gateway) -> None
+        # type: (Gateway, Repository, Gateway) -> None
         super().__init__(incoming)
         self.__repository = repository
         self.__notify = notify
 
     def applied(self, model):
+        # type: (Model) -> bool
         m = self.__repository.read(model.id)
 
         if m:
@@ -23,7 +27,7 @@ class Distributer(Processor):
             return False
 
     def applied_all(self, model):
-        # type: (Model) -> boolean
+        # type: (Model) -> bool
         ms = self.__repository.read(model.id, depth=1)
         ids = map(lambda d: d.model.id, ms.dependencies)
 

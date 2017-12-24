@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List  # NOQA
 
 from n0core.model import Model  # NOQA
 from n0core.message import Message  # NOQA
@@ -11,10 +11,10 @@ class Repository:
         pass
 
     def read(self,
-             id,                          # type: str
+             id,                           # type: str
              *,
-             event=Notify.TYPES.APPLIED,  # type: Any
-             depth=0                      # type: int
+             event=Notify.EVENTS.APPLIED,  # type: Any
+             depth=0                       # type: int
              ):
         # type (...) -> Model
         """
