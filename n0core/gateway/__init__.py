@@ -3,7 +3,7 @@ from n0core.message import Message  # NOQA
 
 class Gateway:
     """
-    Adapters provide presentation layer.
+    Gateway provide methods of incoming or outgoing Messages with other services.
     """
 
     def receive(self):
