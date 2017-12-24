@@ -1,14 +1,18 @@
+from typing import List  # NOQA
+
 from n0core.processor import Processor
 from n0core.processor import IncompatibleMessage
 from n0core.message import Message
 from n0core.message.notify import Notify
+from n0core.target import Target  # NOQA
+from n0core.gateway import Gateway  # NOQA
 
 
 class Agent(Processor):
     def __init__(self,
                  target,       # type: Target
                  model_types,  # type: List[str]
-                 notify        # type: Repository
+                 notify        # type: Gateway
                  ):
         # type: (...) -> None
         self.__target = target
