@@ -9,7 +9,7 @@ class Network(Target):
     def __init__(self, bridge_type):
         # type: () -> None
         self.__type = bridge_type  # instance
-        self.__dhcp = Dnsmasq.get_created()
+        self.__dhcp = []
 
     def apply(self, model):
         # type: (Model) -> Tuple[bool, str]
@@ -21,20 +21,20 @@ class Network(Target):
         resource_type = model.type.split("/")[1]
         if resource_type == "network":
             if model.state == "up":
-                model["bridge"] = b.apply_bridge(model.id, parameter=p)  # vlan idなどをどうやってわたすか
+                model["bridge"] = self.__type.apply_bridge(model.id, parameter=p)  # vlan idなどをどうやってわたすか
 
                 for s in model["subnets"]:
                     d = self.__dhcp[model.id][s["cidr"]]
 
                     if d is None:  # dhcp is created
-                        self.self.__dhcp[model.id][s["cidr"]] = Dnsmasq(model.id, model["bridge"]))  # Check already exists dnsmasq instance  cidrが一意なはず
+                        self.__dhcp[model.id][s["cidr"]] = Dnsmasq(model.id, model["bridge"])  # Check already exists dnsmasq instance  cidrが一意なはず
                         d.create_dhcp_server(s["cidr"], model["bridge"], s["dhcp"]["range"])
 
                     else:
                         d.respawn_process(s["dhcp"]["range"])
 
             elif model.state == "down":
-                self.__type.apply_bridge(model["bridge"], state=down, parameter=p)
+                self.__type.apply_bridge(model["bridge"], state="down", parameter=p)
                 for s in model["subnets"]:
                     self.__dhcp[model.id][s["cidr"]].stop_process()
 
