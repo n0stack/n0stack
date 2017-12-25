@@ -1,4 +1,5 @@
 from n0core.message import Message  # NOQA
+from n0core.model import Model  # NOQA
 
 
 class Gateway:

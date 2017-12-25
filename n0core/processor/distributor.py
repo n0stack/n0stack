@@ -3,17 +3,17 @@ from n0core.message.notify import Notify
 from n0core.message.spec import Spec  # NOQA
 from n0core.processor import Processor
 from n0core.processor import IncompatibleMessage
-from n0core.gateway import Gateway
-from n0core.repository import Repository
-from n0core.model import Model
+from n0core.gateway import Gateway  # NOQA
+from n0core.repository import Repository  # NOQA
+from n0core.model import Model  # NOQA
 
 
 class Distributer(Processor):
     NOTIFY_EVENT = Notify.EVENTS.SCHEDULED
 
-    def __init__(self, incoming, repository, notify):
-        # type: (Gateway, Repository, Gateway) -> None
-        super().__init__(incoming)
+    def __init__(self, repository, notify):
+        # type: (Repository, Gateway) -> None
+        super().__init__()
         self.__repository = repository
         self.__notify = notify
 
@@ -65,13 +65,5 @@ class Distributer(Processor):
                        succeeded=True,
                        description="")
 
-            try:
-                self.__notify.send_to(n, a)
-            except:
-                n = Notify(spec_id=message.spec_id,
-                           model=m,
-                           event=self.NOTIFY_EVENT,
-                           succeeded=False,
-                           description="Fail sending message to agent")
-
+            self.__notify.send_to(n, a)
             self.__notify.send(n)
