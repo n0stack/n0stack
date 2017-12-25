@@ -25,8 +25,7 @@ delete_network = Model("resource/network/flat", "deleted", id=NETWORK_ID)
 delete_network["subnets"] = up_network["subnets"]
 delete_network["bridge"] = "nflat00f967af"
 
-port = Model("resource/port",
-             "up")
+port = Model("resource/port", "up")
 port["hw_addr"] = "1234567890ab"
 port["ip_addrs"] = ["192.168.0.3"]
 port.add_dependency(up_network, "n0core/resource/port/network")

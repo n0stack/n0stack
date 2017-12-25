@@ -54,10 +54,11 @@ class Network(Target):
         pass
 
     def apply_bridge(self, state="up", parameters={}):
-        # type: (...) -> str
+        # type: (...) -> bool
         raise NotImplementedError
 
     def delete_bridge(self, id):
+        # type: (str) -> bool
         raise NotImplementedError
 
     def bridge_name(self, id):
