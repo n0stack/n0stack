@@ -55,6 +55,8 @@ class Flat(Network):
                 d.delete_host_entry(model["hw_addr"])
                 d.delete_allowed_host(model["hw_addr"])
 
+        return r, ""
+
     def apply_bridge(self, id, state="up", parameters={}):
         # type: (...) -> str
         """Create bridge mastering interface selected on args
@@ -98,6 +100,7 @@ class Flat(Network):
         return bn
 
     def delete_bridge(self, id):
+        # type: (str) -> None
         bn = self.bridge_name(id)
         bi = self._get_index(bn)
         if not bi:
