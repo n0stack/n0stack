@@ -8,7 +8,7 @@ from n0core.repository import Repository  # NOQA
 from n0core.model import Model  # NOQA
 
 
-class Distributer(Processor):
+class Distributor(Processor):
     NOTIFY_EVENT = Notify.EVENTS.SCHEDULED
 
     def __init__(self, repository, notify):
