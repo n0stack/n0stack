@@ -1,67 +1,92 @@
+from typing import Any, Callable, Tuple, List, Optional, cast  # NOQA
+from pyroute2 import IPRoute
+
+
 from typing import Tuple  # NOQA
 
-from n0core.target import Target
 from n0core.model import Model  # NOQA
-from n0core.target.network.dhcp.dnsmasq import Dnsmasq
+from n0core.target import Target  # NOQA
 
 
 class Network(Target):
-    def __init__(self, bridge_type):
-        # type: () -> None
-        self.__type = bridge_type  # instance
-        self.__dhcp = []
+    """
+    Example:
+        >>> b = Network(external_interface)
+        >>> b.apply_beidge(id, state="up")
+    """
+
+    BRIDGE_FORMAT = "n{}{}"        # BRIDGE_PREFIX.format(bridge_type, id(like vlan_id))
+    META_PREFIX_FORMAT = "n0core/resource/network/{}"  # META_PREFIX.format(bridge_type)
+
+    ip = IPRoute()
+
+    def __init__(self, type, interface):
+        # type: (str, str) -> None
+        super().__init__()
+
+        self.__type = type
+        self.__interface = interface
+
+        self.__meta_prefix = self.META_PREFIX_FORMAT.format(type)
+
+    @property
+    def type(self):
+        return self.__type
+
+    @property
+    def interface(self):
+        return self.__interface
+
+    @property
+    def meta_prefix(self):
+        return self.__meta_prefix
 
     def apply(self, model):
         # type: (Model) -> Tuple[bool, str]
-        if model.type.split("/")[0] != "resource":
-            return False, "This model is not supported."
+        """
+        Args:
+            model: model is Model which you want to apply.
 
-        p = self.decode_parameters(model)
+        Return:
+            - Return succeeded bool
+            - Return result description
+        """
+        pass
 
-        resource_type = model.type.split("/")[1]
-        if resource_type == "network":
-            if model.state == "up":
-                model["bridge"] = self.__type.apply_bridge(model.id, parameter=p)  # vlan idなどをどうやってわたすか
+    def apply_bridge(self, state="up", parameters={}):
+        # type: (...) -> str
+        raise NotImplementedError
 
-                for s in model["subnets"]:
-                    d = self.__dhcp[model.id][s["cidr"]]
+    def delete_bridge(self, id):
+        raise NotImplementedError
 
-                    if d is None:  # dhcp is created
-                        self.__dhcp[model.id][s["cidr"]] = Dnsmasq(model.id, model["bridge"])  # Check already exists dnsmasq instance  cidrが一意なはず
-                        d.create_dhcp_server(s["cidr"], model["bridge"], s["dhcp"]["range"])
+    def bridge_name(self, id):
+        i = id.split("-")[0]
+        return self.BRIDGE_FORMAT.format(self.type, i)
 
-                    else:
-                        d.respawn_process(s["dhcp"]["range"])
+    @classmethod
+    def _get_index(cls, name):
+        # type: (str) -> Optional[int]
+        """Translate interface name to iproute2 index.
 
-            elif model.state == "down":
-                self.__type.apply_bridge(model["bridge"], state="down", parameter=p)
-                for s in model["subnets"]:
-                    self.__dhcp[model.id][s["cidr"]].stop_process()
+        Args:
+            name: Linux interface name like "eth0".
 
-            elif model.state == "deleted":
-                self.__type.delete_bridge(model["bridge"])
-                for s in model["subnets"]:
-                    self.__dhcp[model.id][s["cidr"]].delete_dhcp_server()
+        Returns:
+            iproute2 index.
+            None when the interface do not exists.
+        """
+        ret = cls.ip.link_lookup(ifname=name)  # type: List[int]
+        if ret:
+            return ret[0]
+        else:
+            return None
 
-        elif resource_type == "port":
-            nid = model.depend_on("n0core/port/network")[0].model.id
-            d = self.__dhcp[nid][s["cidr"]]
-
-            if model.state == "attached":
-                d.add_allowed_host(model["hw_addr"])
-
-                for i in model["ip_addrs"]:
-                    d.add_host_entry(model["hw_addr"], i)
-
-            elif model.state == "detached":
-                d.delete_host_entry(model["hw_addr"])
-                d.delete_allowed_host(model["hw_addr"])
-
-    def decode_parameters(self, model):
+    def _decode_parameters(self, model):
         # type: (Model) -> Dict[str, str]
         d = {}
 
-        for k, v in filter(lambda k, v: self.__type.meta_prefix in k, model.meta.items()):
+        for k, v in filter(lambda k, v: self.meta_prefix in k, model.meta.items()):
             d[k.split("/")[-1]] = v
 
         return d

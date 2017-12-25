@@ -1,4 +1,4 @@
-from ipaddress import IPv4Interface  # NOQA
+from ipaddress import ip_interface, IPv4Interface  # NOQA
 import os
 from shutil import rmtree
 from typing import Any, Dict, List, Optional, Tuple  # NOQA
@@ -57,25 +57,28 @@ class Dnsmasq(object):
     """
     ip = IPRoute()  # type: IPRoute
 
-    def __init__(self, subnet_id, log_dir):
+    def __init__(self, network_id, bridge_name, log_dir=None):  # logging is disabled
         # type: (str, str) -> None
         """
         Set names in order to create or delete resources.
 
         Args:
             subnet_id: Subnet ID.
+            bridge_name: Name of bridge linked to Dnsmasq server.
             log_dir: Directory path to save log file.
         """
-        self.netns_name = 'dhcp-{}'.format(subnet_id)  # type: str
-        self.tap_name = 'tap-dhcp-{}'.format(subnet_id)  # type: str
-        self.peer_name = 'eth-dhcp-{}'.format(subnet_id)  # type: str
+        id = network_id.split("-")[0]
+        self.netns_name = 'nndhcp{}'.format(network_id)
+        self.tap_name = 'ntndhcp{}'.format(id)
+        self.peer_name = 'nedhcp{}'.format(id)
+        self.bridge_name = bridge_name
 
         self.dirname = os.path.join('/var/lib/n0stack/', self.netns_name)  # type: str
         self.pid_filename = os.path.join(self.dirname, 'pid')  # type: str
         self.dhcp_hostsfilename = os.path.join(self.dirname, 'hosts')  # type: str
         self.dhcp_leasefilename = os.path.join(self.dirname, 'lease')  # type: str
         self.dhcp_optsfilename = os.path.join(self.dirname, 'opts')  # type: str
-        self.log_path = os.path.join(log_dir, 'dnsmasq-{}.log'.format(self.netns_name))  # type: str
+        # self.log_path = os.path.join(log_dir, 'dnsmasq-{}.log'.format(self.netns_name))  # type: str
 
         self.__hw_to_ip = {}  # type: Dict[str, str]
         self.__ip_to_hw = {}  # type: Dict[str, str]
@@ -144,7 +147,7 @@ class Dnsmasq(object):
             open(self.dhcp_optsfilename, 'w').close()
 
         if self.get_pid() is not None:
-            logger.warn("dnsmasq process in {} is already running".format(self.netns_name))
+            logger.warning("dnsmasq process in {} is already running".format(self.netns_name))
             return
 
         ns = NetNS(self.netns_name)  # type: NetNS
@@ -158,7 +161,7 @@ class Dnsmasq(object):
         dhcp_leasefile = '--dhcp-leasefile={}'.format(self.dhcp_leasefilename)  # type: str
         interface = '--interface={}'.format(self.peer_name)  # type: str
         dhcp_range = '--dhcp-range={},{},12h'.format(pool[0], pool[1])  # type: str
-        log_facility = '--log-facility={}'.format(self.log_path)
+        # log_facility = '--log-facility={}'.format(self.log_path)
         cmd = ['/usr/sbin/dnsmasq',
                '--no-resolv',
                '--no-hosts',
@@ -169,8 +172,8 @@ class Dnsmasq(object):
                dhcp_optsfile,
                dhcp_leasefile,
                interface,
-               dhcp_range,
-               log_facility]  # type: List[str]
+               dhcp_range]
+            #    log_facility]  # type: List[str]
         NSPopen(self.netns_name, cmd)
 
     def stop_process(self):
@@ -183,7 +186,7 @@ class Dnsmasq(object):
         if pid is not None:
             os.kill(pid, 9)
         else:
-            logger.warn("dnsmasq process is not running in {}".format(self.netns_name))
+            logger.warning("dnsmasq process is not running in {}".format(self.netns_name))
 
     def respawn_process(self, pool):
         # type: (Tuple[str, str]) -> None
@@ -242,7 +245,7 @@ class Dnsmasq(object):
             if all([dhcp_rule != rule for rule in output_chain.rules]):
                 output_chain.insert_rule(dhcp_rule)
 
-    def create_dhcp_server(self, interface_addr, bridge_name, pool):
+    def create_dhcp_server(self, interface_addr, pool):  # interface_addrを文字列のcidrを受け取ってインターフェイスをいいかんじに作成する
         # type: (IPv4Interface, str, Tuple[str, str]) -> None
         """
         Create Dnsmasq server on specified subnet.
@@ -263,20 +266,19 @@ class Dnsmasq(object):
 
         Args:
             interface_addr: IP address of Dnsmasq server.
-            bridge_name: Name of bridge linked to Dnsmasq server.
             pool: Dnsmasq allocation pool. Allocate pool[0]-pool[1].
 
         Raises:
             Exception: If specified bridge does not exist, raise Exception.
             Exception: If one of the veth pair exists and the other not, raise Exception.
         """
-        bri_list = self.ip.link_lookup(ifname=bridge_name)  # type: List[Any]
+        bri_list = self.ip.link_lookup(ifname=self.bridge_name)  # type: List[Any]
         bri = None  # type: Optional[int]
 
         if bri_list:
             bri = bri_list[0]
         else:
-            raise Exception("Specified bridge {} does not exist".format(bridge_name))
+            raise Exception("Specified bridge {} does not exist".format(self.bridge_name))
 
         ns = NetNS(self.netns_name, flags=os.O_CREAT)  # type: NetNS
 
@@ -290,7 +292,7 @@ class Dnsmasq(object):
             self.ip.link('add', ifname=tap_name, peer=peer_name, kind='veth')
         except NetlinkError as e:
             if e.code == 17:
-                logger.warn("veth {} existing, ignore and continue".format(tap_name))
+                logger.warning("veth {} existing, ignore and continue".format(tap_name))
                 peer_list = ns.link_lookup(ifname=peer_name)  # type: List[Any]
 
                 if peer_list:
@@ -303,14 +305,15 @@ class Dnsmasq(object):
             peer = self.ip.link_lookup(ifname=peer_name)[0]
             self.ip.link('set', index=peer, net_ns_fd=self.netns_name)
 
-        address = str(interface_addr.ip)  # type: str
-        prefixlen = int(interface_addr.network.prefixlen)  # type: int
+        interface_addr = ip_interface(interface_addr) + 1  # rangeと被らないようにする必要がある
+        address = str(interface_addr.ip)
+        prefixlen = int(interface_addr.network.prefixlen)
 
         try:
             ns.addr('add', index=peer, address=address, prefixlen=prefixlen)
         except NetlinkError as e:
             if e.code == 17:
-                logger.warn("IP address is already assinged to {}, ignore and continue".format(peer_name))
+                logger.warning("IP address is already assinged to {}, ignore and continue".format(peer_name))
             else:
                 raise e
 
@@ -342,14 +345,14 @@ class Dnsmasq(object):
         if os.path.exists(self.dirname):
             rmtree(self.dirname)
         else:
-            logger.warn("dnsmasq directory {} does not exist".format(self.dirname))
+            logger.warning("dnsmasq directory {} does not exist".format(self.dirname))
 
         tap_list = self.ip.link_lookup(ifname=self.tap_name)  # type: List[Any]
 
         if tap_list:
             self.ip.link('del', index=tap_list[0])
         else:
-            logger.warn("veth {} does not exist".format(self.tap_name))
+            logger.warning("veth {} does not exist".format(self.tap_name))
 
         ns = NetNS(self.netns_name)  # type: NetNS
         ns.close()
@@ -431,7 +434,7 @@ class Dnsmasq(object):
             raise Exception("Specified IP address {} is already used".format(ip_addr))
 
         if hw_addr in self.__hw_to_ip:
-            logger.warn("Spacified MAC address {} being used, update entry".format(hw_addr))
+            logger.warning("Spacified MAC address {} being used, update entry".format(hw_addr))
             self.__hw_to_ip[hw_addr] = ip_addr
             self.__ip_to_hw[ip_addr] = hw_addr
 
@@ -466,7 +469,7 @@ class Dnsmasq(object):
             raise Exception("dnsmasq process is not running in {}".format(self.netns_name))
 
         if hw_addr not in self.__hw_to_ip:
-            logger.warn("Specified MAC address {} does not exist in entries".format(hw_addr))
+            logger.warning("Specified MAC address {} does not exist in entries".format(hw_addr))
             return
 
         ip_addr = self.__hw_to_ip[hw_addr]  # type: str
