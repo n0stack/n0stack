@@ -3,7 +3,9 @@ FROM python:3.6
 COPY . /srv
 WORKDIR /srv
 RUN apt-get update \
- && apt-get install -y iptables \
+ && apt-get install -y \
+        dnsmasq \
+        iptables \
  && pip install --no-cache-dir \
         pulsar-client \
         pyroute2 \
