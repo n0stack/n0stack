@@ -6,9 +6,9 @@ from n0core.processor import IncompatibleMessage
 
 
 class Aggregator(Processor):
-    def __init__(self, incoming, repository):
-        # type: (Gateway, Repository) -> None
-        super().__init__(incoming)
+    def __init__(self, repository):
+        # type: (Repository) -> None
+        super().__init__()
         self.__repository = repository
 
     def process(self, message):

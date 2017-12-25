@@ -1,4 +1,5 @@
 from typing import Any, List  # NOQA
+from enum import Enum  # NOQA
 
 from n0core.model import Model  # NOQA
 from n0core.message import Message  # NOQA
@@ -13,10 +14,10 @@ class Repository:
     def read(self,
              id,                           # type: str
              *,
-             event=Notify.EVENTS.APPLIED,  # type: Any
+             event=Notify.EVENTS.APPLIED,  # type: Enum
              depth=0                       # type: int
              ):
-        # type (...) -> Model
+        # type: (...) -> Model
         """
         `read` can get model by id.
 

@@ -3,10 +3,6 @@ from typing import Any, Optional, Dict, List  # NOQA
 from n0core.message import Message  # NOQA
 
 
-class IncompatibleMessage(Exception):
-    pass
-
-
 class Processor:
     """
     TODO:
@@ -18,7 +14,7 @@ class Processor:
         pass
 
     def process(self, message):
-        # type: (Message) -> None
+        # type: (Any) -> None
         """
         `process` is implimented by each use case.
 
@@ -41,3 +37,25 @@ class Processor:
             self.process(message)
         except IncompatibleMessage as identifier:
             pass
+
+
+class IncompatibleMessage(Exception):
+    pass
+
+
+class ReceivedUnsupportedMessage(Exception):
+    """Raise when received not supported message.
+
+    You sent wrong message or forgot the message implementation.
+
+    Args:
+        message_type: Set message type defined on protobuf.
+    """
+
+    def __init__(self, message_type):
+        # type: (str) -> None
+        self.message_type = message_type
+
+    def __str__(self):
+        # type: () -> str
+        return "on {}".format(self.message_type)

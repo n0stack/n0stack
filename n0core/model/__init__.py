@@ -18,17 +18,17 @@ class Model(dict):
         - dependencyの2重定義ができないようにしたい
     """
     def __init__(self,
-                 type,            # str
-                 state,           # str
-                 id="",           # str
-                 meta={},         # Dict[str, str]
-                 dependencies=[]  # List[_Dependency]
+                 type,            # type: str
+                 state,           # type: str
+                 id="",           # type: str
+                 meta={},         # type: Dict[str, str]
+                 dependencies=[]  # type: List[_Dependency]
                  ):
         # type: (...) -> None
         if id:
             self.__id = id
         else:
-            self.__id = uuid4()
+            self.__id = str(uuid4())
 
         self.__type = type
         self.state = state
@@ -37,10 +37,12 @@ class Model(dict):
 
     @property
     def id(self):
+        # type: () -> str
         return self.__id
 
     @property
     def type(self):
+        # type: () -> str
         return self.__type
 
     def depend_on(self, label):
@@ -56,7 +58,7 @@ class Model(dict):
         # type: (...) -> None
         d = _Dependency(model, label, property)
 
-        for i, v in enumerate(self.dependencies):
+        for (i, v) in enumerate(self.dependencies):
             if v.model.id == d.model.id:
                 self.dependencies.pop(i)
 
@@ -79,14 +81,16 @@ class _Dependency:
                  property={}  # type: Dict[str, str]
                  ):
         # type: (...) -> None
-        self.__model = model,
+        self.__model = model
         self.__label = label
         self.property = property
 
     @property
     def model(self):
+        # type: () -> Model
         return self.__model
 
     @property
     def label(self):
+        # type: () -> str
         return self.__label
