@@ -22,7 +22,7 @@ class Model(dict):
                  state,           # str
                  id="",           # str
                  meta={},         # Dict[str, str]
-                 dependencies=[]  # List[Dependency]
+                 dependencies=[]  # List[_Dependency]
                  ):
         # type: (...) -> None
         if id:
@@ -44,18 +44,31 @@ class Model(dict):
         return self.__type
 
     def depend_on(self, label):
-        # type: (str) -> List[Dependency]
+        # type: (str) -> List[_Dependency]
 
         return [d for d in self.dependencies if d.label == label]
 
+    def add_dependency(self,
+                       model,       # type: Model
+                       label,       # type: str
+                       property={}  # type: Dict[str, str]
+                       ):
+        # type: (...) -> None
+        d = _Dependency(model, label, property)
 
-class Dependency:
+        for i, v in enumerate(self.dependencies):
+            if v.model.id == d.model.id:
+                self.dependencies.pop(i)
+
+        self.dependencies.append(d)
+
+
+class _Dependency:
     """
     Example:
-        >>> new_vm = Object("resource/vm/kvm", "running")
-        >>> new_disk = Object("resource/volume/local", "claimed")
-        >>> new_dependency = Dependency(new_disk, "n0stack/n0core/resource/vm/attachments")
-        >>> new_vm.dependencies.append(new_dependency)
+        >>> new_vm = Model("resource/vm/kvm", "running")
+        >>> new_disk = Model("resource/volume/local", "claimed")
+        >>> new_vm.add_dependency(new_disk, "n0stack/n0core/resource/vm/attachments")
 
     TODO:
         - labelを書き込み可能にするか否か
