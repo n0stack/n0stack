@@ -67,21 +67,14 @@ class Network(Model):
                  ):
         # type: (...) -> None
         super().__init__(id=id,
-                         type=join("resource/nic", type),
+                         type=join("resource/network", type),
                          state=state,
                          name=name,
                          meta=meta,
                          dependencies=dependencies)
 
-        self.__id = id
-        self.__type = type
-        self.state = state
-
         self.bridge = bridge
         self.__subnets = subnets
-
-        self.meta = meta
-        self.dependencies = dependencies
 
     @property
     def subnets(self):

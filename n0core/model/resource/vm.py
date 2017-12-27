@@ -42,7 +42,7 @@ class VM(Model):
                   subnets:
                   - cidr: 192.168.0.0/24
                     dhcp:
-                      range: 192.168.0.1, 192.168.0.127
+                      range: 192.168.0.1-192.168.0.127
                       nameservers:
                         - 192.168.0.254
                       gateway: 192.168.0.254
@@ -109,17 +109,10 @@ class VM(Model):
                          meta=meta,
                          dependencies=dependencies)
 
-        self.__id = id
-        self.__type = type
-        self.state = state
-
         self.__arch = arch
         self.__vcpus = vcpus
         self.__memory = memory
         self.__vnc_password = vnc_password
-
-        self.meta = meta
-        self.dependencies = dependencies
 
     @property
     def arch(self):

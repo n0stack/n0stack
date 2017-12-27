@@ -61,15 +61,8 @@ class Volume(Model):
                          meta=meta,
                          dependencies=dependencies)
 
-        self.__id = id
-        self.__type = type
-        self.state = state
-
         self.__size = size
         self.url = url
-
-        self.meta = meta
-        self.dependencies = dependencies
 
     @property
     def size(self):

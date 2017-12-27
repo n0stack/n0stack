@@ -40,7 +40,7 @@ class Repository:
     def schedule(self, model, ids):
         # type: (Model, List[str]) -> Model
         """
-        `schedule` is needed to implement *in the future*.
+        `schedule` is needed to implement *in v0.0.3*.
 
         Args:
             model: Model of necessary to schedule models.
