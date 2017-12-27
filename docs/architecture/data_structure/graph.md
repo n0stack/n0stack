@@ -4,7 +4,7 @@
 
 ## Directed graph
 
-オブジェクトを構成するために必要な関係を有向グラフで示す。依存している理由を `r` キーで示す。
+オブジェクトを構成するために必要な関係を有向グラフで示す。依存している理由を `label` で示す。
 
 ### 懸念点
 
@@ -15,7 +15,7 @@
 リソースはスケジューリングされたエージェントの情報が必要である。
 
 ```
-(resource/vm/kvm) -[r: n0stack/n0core/scheduled]-> (agent/compute/kvm)
+(resource/vm/kvm) -[n0stack/n0core/esource/hosted]-> (agent/compute/kvm)
 ```
 
 ### Example 2: Depending resource
@@ -23,6 +23,6 @@
 他のリソースに依存しているVMやポートのようなオブジェクトは、ボリュームやネットワークなどのリソースの情報が必要である。
 
 ```
-(resource/vm/kvm) -[r: n0stack/n0core/vm/attachment, n0stack/resource/vm/boot_priority: 1]-> (resource/volume/file)
-                  -[r: n0stack/n0core/vm/attachment]-> (resource/nic) -[n0stack/resource/nic/network: true]-> (resource/network/vlan)
+(resource/vm/kvm) -[n0stack/n0core/resource/vm/attachment, n0stack/n0core/resource/vm/boot_priority: 1]-> (resource/volume/file)
+                  -[n0stack/n0core/resource/vm/attachment]-> (resource/noc) -[n0stack/n0core/resource/noc/network: true]-> (resource/network/vlan)
 ```
