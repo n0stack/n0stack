@@ -1,5 +1,5 @@
 from n0core.message import Message
-from n0core.message.notify import Notify
+from n0core.message.notification import Notification
 from n0core.message.spec import Spec  # NOQA
 from n0core.processor import Processor
 from n0core.processor import IncompatibleMessage
@@ -9,13 +9,13 @@ from n0core.model import Model  # NOQA
 
 
 class Distributor(Processor):
-    NOTIFY_EVENT = Notify.EVENTS.SCHEDULED
+    NOTIFICATION_EVENT = Notification.EVENTS.SCHEDULED
 
-    def __init__(self, repository, notify):
+    def __init__(self, repository, notification):
         # type: (Repository, Gateway) -> None
         super().__init__()
         self.__repository = repository
-        self.__notify = notify
+        self.__notification = notification
 
     def applied(self, model):
         # type: (Model) -> bool
@@ -39,7 +39,7 @@ class Distributor(Processor):
 
     def process(self, message):
         # type: (Spec) -> None
-        if message.type is not Message.TYPES.NOTIFY:
+        if message.type is not Message.TYPES.NOTIFICATION:
             raise IncompatibleMessage
 
         for m in message.models:
@@ -48,22 +48,22 @@ class Distributor(Processor):
 
             # not scheduled
             if not m.depend_on("resource/hosted"):
-                n = Notify(spec_id=message.spec_id,
-                           model=m,
-                           event=self.NOTIFY_EVENT,
-                           succeeded=False,
-                           description="not scheduled on your hand.")
-                self.__notify.send(n)
+                n = Notification(spec_id=message.spec_id,
+                                 model=m,
+                                 event=self.NOTIFICATION_EVENT,
+                                 succeeded=False,
+                                 description="not scheduled on your hand.")
+                self.__notification.send(n)
 
             if not self.applied_all(m):
                 continue
 
             a = m.depend_on("resource/hosted")[0].model  # このlabelはfixする必要がある
-            n = Notify(spec_id=message.spec_id,
-                       model=m,
-                       event=self.NOTIFY_EVENT,
-                       succeeded=True,
-                       description="")
+            n = Notification(spec_id=message.spec_id,
+                             model=m,
+                             event=self.NOTIFICATION_EVENT,
+                             succeeded=True,
+                             description="")
 
-            self.__notify.send_to(n, a)
-            self.__notify.send(n)
+            self.__notification.send_to(n, a)
+            self.__notification.send(n)

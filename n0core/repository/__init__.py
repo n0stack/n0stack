@@ -3,7 +3,7 @@ from enum import Enum  # NOQA
 
 from n0core.model import Model  # NOQA
 from n0core.message import Message  # NOQA
-from n0core.message.notify import Notify
+from n0core.message.notification import Notification
 
 
 class Repository:
@@ -14,7 +14,7 @@ class Repository:
     def read(self,
              id,                           # type: str
              *,
-             event=Notify.EVENTS.APPLIED,  # type: Enum
+             event=Notification.EVENTS.APPLIED,  # type: Enum
              depth=0                       # type: int
              ):
         # type: (...) -> Model
@@ -23,7 +23,7 @@ class Repository:
 
         Args:
             id: Model ID such as uuid.
-            event: Notify event such as "APPLIED" and "SCHEDULED".
+            event: Notification event such as "APPLIED" and "SCHEDULED".
             depth: Depth of model dependency.
                    For example, "VM -> Volume" is 1, "VM" is 0, and "VM -> Volume -> Volume agent" is 2.
 

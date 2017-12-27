@@ -13,7 +13,7 @@ class Aggregator(Processor):
 
     def process(self, message):
         # type: (Message) -> None
-        if message.type is not Message.TYPES.NOTIFY:
+        if message.type is not Message.TYPES.NOTIFICATION:
             raise IncompatibleMessage
 
         self.__repository.store(message)
