@@ -2,14 +2,15 @@ import time
 import libvirt
 from typing import Any  # NOQA
 
-from n0core.model import Model  #NOQA
 from n0core.target.compute.xml_generator import (define_vm_xml,
                                                  define_volume_xml,
+                                                 define_interface_xml,
                                                  build_volume,
                                                  build_network)
 from n0core.target.compute.base import QemuOpen
 from n0core.target import Target
 from n0core.model.resource.vm import VM as KVM
+
 
 class VM(QemuOpen, Target):  # NOQA
     """
@@ -35,14 +36,13 @@ class VM(QemuOpen, Target):  # NOQA
                 return model, False, "faild"
 
             return model, True, "succeeded"
-        
+
         elif model.state is KVM.STATES.DELETED:
             if not self.delete(model.name):
                 # TODO: error process
                 return model, False, "faild"
 
             return model, True, "succeeded"
-            
 
     def start(self, name):
         # type: (str) -> bool
