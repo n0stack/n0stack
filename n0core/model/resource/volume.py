@@ -20,9 +20,9 @@ class Volume(Model):
         ```
 
     States:
-        - allocated
-        - deleted
-        - destroyed
+        allocated: Allocate volume size and share volume.
+        deleted: Delete volume resource, but not delete data in volume.
+        destroyed: Destroy data in volume.
 
     Labels:
 

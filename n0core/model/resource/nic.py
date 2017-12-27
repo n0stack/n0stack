@@ -40,8 +40,8 @@ class NIC(Model):
         ```
 
     States:
-        - attached
-        - deleted
+        attached: Attached NIC.
+        deleted: Deleted NIC.
 
     Labels:
         n0stack/n0core/resource/nic/network: Network to be attached.
