@@ -13,7 +13,7 @@ class Notification(Message):
         model: Model that the top of it will be created.
         annotations: Options as scheduling hint and etc.
         event:
-        succeeded:
+        is_succeeded:
         description:
 
     Example:
@@ -22,7 +22,7 @@ class Notification(Message):
         >>> Spec(spec_id="ba6f8ced-c8c2-41e9-98d0-5c961dff6c9cf",
                  model=m,
                  event=Notification.EVENTS.SCHEDULED,
-                 succeeded=True,
+                 is_succeeded=True,
                  description="Succeeded to schedule {}.".format(m.id))
     """
 
@@ -32,7 +32,7 @@ class Notification(Message):
                  spec_id,     # type: str
                  model,       # type: Model
                  event,       # type: Any
-                 succeeded,   # type: bool
+                 is_succeeded,   # type: bool
                  description  # type: str
                  ):
         # type: (...) -> None
@@ -40,7 +40,7 @@ class Notification(Message):
 
         self.__model = model
         self.__event = event
-        self.__succeeded = succeeded
+        self.__is_succeeded = is_succeeded
         self.__description = description
 
     @property
@@ -54,9 +54,9 @@ class Notification(Message):
         return self.__event
 
     @property
-    def succeeded(self):
+    def is_succeeded(self):
         # type: () -> bool
-        return self.__succeeded
+        return self.__is_succeeded
 
     @property
     def description(self):

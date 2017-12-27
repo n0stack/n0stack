@@ -48,7 +48,7 @@ class Repository:
 
         Return: Model which is attached scheduled agent model.
         """
-        pass
+        raise NotImplementedError
 
     def store(self, message):
         # type: (Message) -> None

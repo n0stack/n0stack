@@ -25,14 +25,14 @@ class Agent(Processor):
             raise IncompatibleMessage
         if message.model.type not in self.__model_types:
             raise IncompatibleMessage
-        if not message.succeeded:
+        if not message.is_succeeded:
             raise IncompatibleMessage
 
-        model, succeeded, description = self.__target.apply(message.model)
+        model, is_succeeded, description = self.__target.apply(message.model)
         notification = Notification(spec_id=message.spec_id,
                                     model=model,
                                     event=Notification.EVENTS.APPLIED,
-                                    succeeded=succeeded,
+                                    is_succeeded=is_succeeded,
                                     description=description)
 
         self.__notification.send(notification)

@@ -19,6 +19,6 @@ class Target(object):
             model: Model is Model which you want to apply.
 
         Return:
-            Tuple of processed model, succeeded and description.
+            Tuple of processed model, is_succeeded and description.
         """
         pass

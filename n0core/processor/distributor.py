@@ -47,22 +47,22 @@ class Distributor(Processor):
                 continue
 
             # not scheduled
-            if not m.depend_on("resource/hosted"):
+            if not m.depend_on("n0stack/n0core/resource/hosted"):
                 n = Notification(spec_id=message.spec_id,
                                  model=m,
                                  event=self.NOTIFICATION_EVENT,
-                                 succeeded=False,
+                                 is_succeeded=False,
                                  description="not scheduled on your hand.")
                 self.__notification.send(n)
 
             if not self.applied_all(m):
                 continue
 
-            a = m.depend_on("resource/hosted")[0].model  # このlabelはfixする必要がある
+            a = m.depend_on("n0stack/n0core/resource/hosted")[0].model  # このlabelはfixする必要がある
             n = Notification(spec_id=message.spec_id,
                              model=m,
                              event=self.NOTIFICATION_EVENT,
-                             succeeded=True,
+                             is_succeeded=True,
                              description="")
 
             self.__notification.send_to(n, a)
