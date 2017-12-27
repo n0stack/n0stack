@@ -33,26 +33,23 @@ class Model(dict):
         dependencies: List of dependency to 
 
     Example:
-        >>> new_disk = Object("resource/volume/local", "claimed")
+        >>> new_disk = Model("resource/volume/local", "claimed")
         >>> new_disk["size"] = 100 * 1024 * 1024 * 1024
         >>> new_disk.meta["resource/vm/boot_priority"] = "1"
 
     TODO:
         - dependencyの2重定義ができないようにしたい
     """
+
     def __init__(self,
+                 id,              # type: str
                  type,            # type: str
                  state,           # type: str
-                 id="",           # type: str
                  meta={},         # type: Dict[str, str]
                  dependencies=[]  # type: List[_Dependency]
                  ):
         # type: (...) -> None
-        if id:
-            self.__id = id
-        else:
-            self.__id = str(uuid4())
-
+        self.__id = id
         self.__type = type
         self.state = state
         self.meta = meta
