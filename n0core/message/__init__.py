@@ -2,6 +2,10 @@ from enum import Enum
 
 
 class Message:
+    """
+    DO NOT REUSE INSTANCE.
+    """
+
     TYPES = Enum("TYPES", ["NOTIFY", "SPEC"])
 
     def __init__(self, spec_id, type):

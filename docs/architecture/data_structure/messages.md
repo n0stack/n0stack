@@ -1,23 +1,17 @@
 # Messages
 
-**If you want to get latest informations, please see `/proto`.**
-
-メッセージのやり取りにはprotobufを用いる。
-
-![](messages.png)
-
 ## Object layer
 
 See details below.
 
-- [Resources](../data_structure/resources.md)
-- [Agents](../data_structure/agents.md)
+- [Resources](resources.md)
+- [Agents](agents.md)
 
 ## Abstract object layer
 
 See details below.
 
-- [Objects](../data_structure/objects.md)
+- [Model](models.md)
 
 `state` にはenumフィールドとして定義されている必要がある。しかし、protobufの制約上実際には各オブジェクトで `state` を定義する。
 
@@ -55,19 +49,6 @@ annotations:
   hoge: hoge
 spec:
   - object
-```
-
-### Request
-
-- -> agentに用いる
-- 単一のObjectを伝える
-- agentにresourceを展開させる
-
-```yaml
-spec_id:
-object:
-depended_by:
-  - resource/vm/kvm/ihsadiufs
 ```
 
 #### Notify
