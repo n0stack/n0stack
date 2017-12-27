@@ -59,10 +59,16 @@ class VM(Model):
             n0stack/n0core/resource/vm/boot_priority: 1
         ```
 
-    Label:
+    States:
+        - poweroff
+        - runnnig
+        - saved
+        - deleted
+
+    Labels:
         n0stack/n0core/resource/vm/attachments: Attachemt resource
 
-    Property:
+    Properties:
         n0stack/n0core/resource/vm/boot_priority: Boot priority of volume.
 
     Args:
