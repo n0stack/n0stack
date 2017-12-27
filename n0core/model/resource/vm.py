@@ -61,10 +61,10 @@ class VM(Model):
         ```
 
     States:
-        - poweroff
-        - runnnig
-        - saved
-        - deleted
+        poweroff: Shutdowned VM.
+        runnnig: Running VM.
+        saved: Suspended VM.
+        deleted: Deleted VM.
 
     Labels:
         n0stack/n0core/resource/vm/attachments: Attachemt resource
