@@ -17,7 +17,7 @@ class Distributor(Processor):
         self.__repository = repository
         self.__notification = notification
 
-    def applied(self, model):
+    def _is_applied(self, model):
         # type: (Model) -> bool
         m = self.__repository.read(model.id)
 
@@ -26,7 +26,7 @@ class Distributor(Processor):
         else:
             return False
 
-    def applied_all(self, model):
+    def _is_applied_all(self, model):
         # type: (Model) -> bool
         ms = self.__repository.read(model.id, depth=1)
         ids = map(lambda d: d.model.id, ms.dependencies)
@@ -43,7 +43,7 @@ class Distributor(Processor):
             raise IncompatibleMessage
 
         for m in message.models:
-            if self.applied(m):
+            if self._is_applied(m):
                 continue
 
             # not scheduled
@@ -55,7 +55,7 @@ class Distributor(Processor):
                                  description="not scheduled on your hand.")
                 self.__notification.send(n)
 
-            if not self.applied_all(m):
+            if not self._is_applied_all(m):
                 continue
 
             a = m.depend_on("n0stack/n0core/resource/hosted")[0].model  # このlabelはfixする必要がある
