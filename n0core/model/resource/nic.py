@@ -43,6 +43,8 @@ class NIC(Model):
         attached: Attached NIC.
         deleted: Deleted NIC.
 
+    Meta:
+
     Labels:
         n0stack/n0core/resource/nic/network: Network to be attached.
 
