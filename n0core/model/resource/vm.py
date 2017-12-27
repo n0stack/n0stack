@@ -15,6 +15,7 @@ class VM(Model):
         type: resource/vm/kvm
         name: hogehoge
         state: running
+        name:
         arch: amd64
         vcpus: 2
         memory: 4 * 1024 * 1024 * 1024
@@ -75,6 +76,7 @@ class VM(Model):
         id: UUID
         type:
         state:
+        name:
         arch: CPU architecture.
         vcpus: Number of CPU cores.
         memory: Size of memory bytes.
@@ -89,6 +91,7 @@ class VM(Model):
                  id,              # type: str
                  type,            # type: str
                  state,           # type: Enum
+                 name,            # type: str
                  arch,            # type: str
                  vcpus,           # type: int
                  memory,          # type: int
@@ -100,6 +103,7 @@ class VM(Model):
         super().__init__(id=id,
                          type=join("resource/vm", type),
                          state=state,
+                         name=name,
                          meta=meta,
                          dependencies=dependencies)
 
