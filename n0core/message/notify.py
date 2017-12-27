@@ -13,7 +13,7 @@ class Notify(Message):
         model: Model that the top of it will be created.
         annotations: Options as scheduling hint and etc.
         event:
-        succeeded: 
+        succeeded:
         description:
 
     Example:

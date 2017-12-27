@@ -24,9 +24,9 @@ class Model:
     Args:
         id: UUID  default: generate uuid
         type:
-        state: 
-        meta: 
-        dependencies: List of dependency to 
+        state:
+        meta:
+        dependencies: List of dependency to
 
     Example:
         >>> new_disk = Model("resource/volume/local", "claimed")
