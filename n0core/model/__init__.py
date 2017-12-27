@@ -39,7 +39,7 @@ class Model:
     def __init__(self,
                  id,              # type: str
                  type,            # type: str
-                 state,           # type: str
+                 state,           # type: Enum
                  meta={},         # type: Dict[str, str]
                  dependencies=[]  # type: List[_Dependency]
                  ):
