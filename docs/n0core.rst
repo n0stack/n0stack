@@ -6,9 +6,12 @@ Subpackages
 
 .. toctree::
 
-    n0core.compute
-    n0core.lib
-    n0core.scheduler
+    n0core.gateway
+    n0core.message
+    n0core.model
+    n0core.processor
+    n0core.repository
+    n0core.target
 
 Module contents
 ---------------
