@@ -5,7 +5,7 @@ from n0core.message import Message
 from n0core.model import Model  # NOQA
 
 
-class Notify(Message):
+class Notification(Message):
     """Spec is sent from API to scheduler to propagate Models.
 
     Args:
@@ -21,7 +21,7 @@ class Notify(Message):
         >>> m = Model(...)
         >>> Spec(spec_id="ba6f8ced-c8c2-41e9-98d0-5c961dff6c9cf",
                  model=m,
-                 event=Notify.EVENTS.SCHEDULED,
+                 event=Notification.EVENTS.SCHEDULED,
                  succeeded=True,
                  description="Succeeded to schedule {}.".format(m.id))
     """
@@ -36,7 +36,7 @@ class Notify(Message):
                  description  # type: str
                  ):
         # type: (...) -> None
-        super().__init__(spec_id, Message.TYPES.NOTIFY)
+        super().__init__(spec_id, Message.TYPES.NOTIFICATION)
 
         self.__model = model
         self.__event = event
