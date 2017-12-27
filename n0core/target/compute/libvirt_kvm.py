@@ -3,10 +3,10 @@ import libvirt
 from typing import Any  # NOQA
 
 from n0core.model import Model  #NOQA
-from n0core.target.compute.xmllib import (define_vm_xml,
-                                          define_volume_xml,
-                                          build_volume,
-                                          build_network)
+from n0core.target.compute.xml_generator import (define_vm_xml,
+                                                 define_volume_xml,
+                                                 build_volume,
+                                                 build_network)
 from n0core.target.compute.base import QemuOpen
 from n0core.target import Target
 
@@ -22,7 +22,7 @@ class VM(QemuOpen, Target):  # NOQA
     def apply(self, model):
         # type: (Model) -> Tuple[Model, bool, str]
 
-        if self.start(model.name):
+        if not self.start(model.name):
             # TODO: error process
             return model, False, "faild"
 
