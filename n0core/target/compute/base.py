@@ -5,7 +5,7 @@ import sys
 import libvirt
 
 from n0library.logger import Logger
-from .xmllib import build_pool
+from .xml_generator import build_pool
 
 
 POOL_NAME = 'n0stack'
