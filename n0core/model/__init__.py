@@ -7,7 +7,30 @@ class Model(dict):
     [WARNING] 仕様が変わる可能性があるので、それを考慮して開発をするように!!
 
     Model and Dependency is mapped to express graph data structure.
-    See details in /doc/architecture.
+    See details in /docs/architecture.
+
+    About meta:
+        There are a lot of way to collaborate other service.
+
+        #### Example 1: n0gateway
+
+        以下のようなリクエストをユーザーが行うと `9c2476ab-dc1e-4904-b8a4-6d991fdc7770` のUUIDに関連付けられているLBサービスにportが参加する。
+
+        ```yaml
+        type: resuorce/nic
+        state: running
+        meta:
+        n0stack/n0gateway/join: 9c2476ab-dc1e-4904-b8a4-6d991fdc7770
+        ```
+
+        n0gatewayとしては `/api/spec` を監視していればサービスディスカバリを用意に実装することができる。
+
+    Args:
+        type:
+        state: 
+        id: UUID  default: generate uuid
+        meta: 
+        dependencies: List of dependency to 
 
     Example:
         >>> new_disk = Object("resource/volume/local", "claimed")
@@ -58,7 +81,7 @@ class Model(dict):
         # type: (...) -> None
         d = _Dependency(model, label, property)
 
-        for (i, v) in enumerate(self.dependencies):
+        for i, v in enumerate(self.dependencies):
             if v.model.id == d.model.id:
                 self.dependencies.pop(i)
 

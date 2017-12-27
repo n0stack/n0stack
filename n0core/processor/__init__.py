@@ -40,10 +40,6 @@ class Processor:
 
 
 class IncompatibleMessage(Exception):
-    pass
-
-
-class ReceivedUnsupportedMessage(Exception):
     """Raise when received not supported message.
 
     You sent wrong message or forgot the message implementation.

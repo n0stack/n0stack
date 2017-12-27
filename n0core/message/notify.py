@@ -6,8 +6,24 @@ from n0core.model import Model  # NOQA
 
 
 class Notify(Message):
-    """
-    DO NOT REUSE INSTANCE.
+    """Spec is sent from API to scheduler to propagate Models.
+
+    Args:
+        spec_id: ID to distinguish spec as a user request.
+        model: Model that the top of it will be created.
+        annotations: Options as scheduling hint and etc.
+        event:
+        succeeded: 
+        description:
+
+    Example:
+        >>> from n0core.model import Model
+        >>> m = Model(...)
+        >>> Spec(spec_id="ba6f8ced-c8c2-41e9-98d0-5c961dff6c9cf",
+                 model=m,
+                 event=Notify.EVENTS.SCHEDULED,
+                 succeeded=True,
+                 description="Succeeded to schedule {}.".format(m.id))
     """
 
     EVENTS = Enum("EVENTS", ["SCHEDULED", "APPLIED"])
