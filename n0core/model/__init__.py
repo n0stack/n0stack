@@ -1,4 +1,5 @@
 from typing import Dict, List  # NOQA
+from enum import Enum  # NOQA
 
 
 class Model:
@@ -40,6 +41,7 @@ class Model:
                  id,              # type: str
                  type,            # type: str
                  state,           # type: Enum
+                 name,            # type: str
                  meta={},         # type: Dict[str, str]
                  dependencies=[]  # type: List[_Dependency]
                  ):
@@ -47,6 +49,7 @@ class Model:
         self.__id = id
         self.__type = type
         self.state = state
+        self.__name = name
         self.meta = meta
         self.dependencies = dependencies
 
@@ -59,6 +62,11 @@ class Model:
     def type(self):
         # type: () -> str
         return self.__type
+
+    @property
+    def name(self):
+        # type: () -> str
+        return self.__name
 
     def depend_on(self, label):
         # type: (str) -> List[_Dependency]
