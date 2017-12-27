@@ -97,6 +97,7 @@ class _Dependency:
     TODO:
         - labelを書き込み可能にするか否か
     """
+
     def __init__(self,
                  model,       # type: Model
                  label,       # type: str
