@@ -1,8 +1,8 @@
 from os.path import join
 from enum import Enum
-from ipaddress import IPv4Network, IPv6Network  # NOQA
-from ipaddress import IPv4Address, IPv6Address  # NOQA
-from typing import Dict, List, Optional, Tuple, Union  # NOQA
+from ipaddress import ip_address, IPv4Network, IPv6Network  # NOQA
+from ipaddress import ip_network, IPv4Address, IPv6Address  # NOQA
+from typing import Dict, List, Optional, Tuple, Union, Any  # NOQA
 
 from n0core.model import Model
 from n0core.model import _Dependency # NOQA
@@ -89,18 +89,19 @@ class Network(Model):
         return self.__subnets
 
     def add_subnet(self,
-                   cidr,         # type: Union[IPv4Network, IPv6Network]
-                   range,        # type: Union[Tuple[IPv4Address, IPv4Address], Tuple[IPv6Address, IPv6Address]]
-                   nameservers,  # type: List[Union[IPv4Address, IPv6Address]]
-                   gateway       # type: Union[IPv4Address, IPv6Address]
+                   cidr,         # type: str
+                   range,        # type: str
+                   nameservers,  # type: List[str]
+                   gateway       # type: str
                    ):
         # type: (...) -> None
         for s in self.subnets:
             if cidr in s.cidr or s.cidr in cidr:
                 raise Exception  # 例外を飛ばす already exists
 
-        d = _DHCP(range, nameservers, gateway)
-        s = _Subnet(cidr, d)
+        r = [map(lambda r: ip_address(r), range.split("-"))]
+        d = _DHCP((r[0], r[1]), [ip_address(nameservers)], ip_address(gateway))
+        s = _Subnet(ip_network(cidr), d)
 
         self.__subnets.append(s)
 
@@ -160,7 +161,7 @@ class _DHCP:
     """
 
     def __init__(self,
-                 range,        # type: Union[Tuple[IPv4Address, IPv4Address], Tuple[IPv6Address, IPv6Address]]
+                 range,        # type: Tuple[Any, Any]
                  nameservers,  # type: List[Union[IPv4Address, IPv6Address]]
                  gateway       # type: Union[IPv4Address, IPv6Address]
                  ):

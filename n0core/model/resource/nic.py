@@ -1,7 +1,7 @@
 from os.path import join
 from enum import Enum
 from ipaddress import IPv4Interface, IPv6Interface  # NOQA
-from typing import Dict, List  # NOQA
+from typing import Dict, List, Union  # NOQA
 
 from n0core.model import Model
 from n0core.model import _Dependency # NOQA
@@ -94,5 +94,5 @@ class NIC(Model):
 
     @property
     def ip_addrs(self):
-        # type: () -> List[IPv4Interface]
+        # type: () -> List[Union[IPv4Interface, IPv6Interface]]
         return self.__ip_addrs
