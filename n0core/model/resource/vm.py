@@ -82,7 +82,7 @@ class VM(Model):
     def __init__(self,
                  id,              # type: str
                  type,            # type: str
-                 state,           # type: str
+                 state,           # type: Enum
                  arch,            # type: str
                  vcpus,           # type: int
                  memory,          # type: int
@@ -92,7 +92,7 @@ class VM(Model):
                  ):
         # type: (...) -> None
         super().__init__(id=id,
-                         type=join("resource/network", type),
+                         type=join("resource/vm", type),
                          state=state,
                          meta=meta,
                          dependencies=dependencies)
