@@ -132,11 +132,19 @@ class VM(QemuOpen):  # NOQA
     def attach_volume(self, name, volume_id):
         # type: (str, str) -> bool
         vm = self.conn.lookupByName(name)
-        # generate xml
-        xml = define_volume_xml("/home/test/" + volume_id)
+
+        xml = define_volume_xml("/var/lib/n0stack/" + volume_id)
         vm.attachDevice(xml)
 
         return True
+
+    def attach_nic(self, name, network_name, mac_address):
+        # type: (str, str) -> bool
+
+        # TODO: mac_address
+        vm = self.conn.lookupByName(name)
+
+        xml = define_interface_xml(network_name, mac_address)
 
 
 class Volume(QemuOpen):
