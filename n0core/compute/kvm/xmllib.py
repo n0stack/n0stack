@@ -183,6 +183,18 @@ def define_volume_xml(volume):
     return xml
 
 
+def define_interface_xml(nic, mac_address):
+    # type: (str) -> str
+    root = Element('interface', attrib={'type': 'network'})
+    el_mac = Element('mac', attrib={'address': mac_address})
+    el_model = Element('model', attrib={'type': 'virtio'})
+    root.append(el_mac)
+    root.append(el_model)
+
+    xml = ET.tostring(root).decode('utf-8')  # type: str
+    return xml
+
+
 def build_pool(name, path):
     # type: (str, str) -> str
     el_pool = Element('pool', attrib={'type': 'dir'})
