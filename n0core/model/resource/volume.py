@@ -24,6 +24,8 @@ class Volume(Model):
         deleted: Delete volume resource, but not delete data in volume.
         destroyed: Destroy data in volume.
 
+    Meta:
+
     Labels:
 
     Property:

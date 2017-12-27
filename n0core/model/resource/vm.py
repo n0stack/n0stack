@@ -66,6 +66,8 @@ class VM(Model):
         saved: Suspended VM.
         deleted: Deleted VM.
 
+    Meta:
+
     Labels:
         n0stack/n0core/resource/vm/attachments: Attachemt resource
 
