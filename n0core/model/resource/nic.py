@@ -1,5 +1,6 @@
 from os.path import join
 from enum import Enum
+from ipaddress import IPv4Interface, IPv6Interface  # NOQA
 from typing import Dict, List  # NOQA
 
 from n0core.model import Model
@@ -69,7 +70,7 @@ class NIC(Model):
                  state,           # type: Enum
                  name,            # type: str
                  hw_addr,         # type: str
-                 ip_addrs,        # type: List[str]
+                 ip_addrs,        # type: List[Union[IPv4Interface, IPv6Interface]]
                  meta={},         # type: Dict[str, str]
                  dependencies=[]  # type: List[_Dependency]
                  ):
@@ -85,18 +86,13 @@ class NIC(Model):
         self.__type = type
         self.state = state
 
-        self.__hw_addr = hw_addr
+        self.hw_addr = hw_addr
         self.__ip_addrs = ip_addrs
 
         self.meta = meta
         self.dependencies = dependencies
 
     @property
-    def hw_addr(self):
-        # type: () -> str
-        return self.__hw_addr
-
-    @property
     def ip_addrs(self):
-        # type: () -> List[str]
+        # type: () -> List[IPv4Interface]
         return self.__ip_addrs
