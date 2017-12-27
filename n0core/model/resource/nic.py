@@ -32,7 +32,7 @@ class NIC(Model):
             subnets:
               - cidr: 192.168.0.0/24
                 dhcp:
-                  range: 192.168.0.1,192.168.0.127
+                  range: 192.168.0.1-192.168.0.127
                   nameservers:
                     - 192.168.0.254
                   gateway: 192.168.0.254
@@ -82,11 +82,7 @@ class NIC(Model):
                          meta=meta,
                          dependencies=dependencies)
 
-        self.__id = id
-        self.__type = type
-        self.state = state
-
-        self.hw_addr = hw_addr
+        self.hw_addr = hw_addr  # hw_addrを誰が生成するかを決定したあとに要修正
         self.__ip_addrs = ip_addrs
 
         self.meta = meta
