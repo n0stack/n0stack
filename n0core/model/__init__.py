@@ -1,13 +1,8 @@
-from uuid import uuid4
 from typing import Dict, List  # NOQA
 
 
-class Model(dict):
-    """
-    [WARNING] 仕様が変わる可能性があるので、それを考慮して開発をするように!!
-
-    Model and Dependency is mapped to express graph data structure.
-    See details in /docs/architecture.
+class Model:
+    """Model is mapped to express graph data structure with _Dependency.
 
     About meta:
         There are a lot of way to collaborate other service.
@@ -26,16 +21,16 @@ class Model(dict):
         n0gatewayとしては `/api/spec` を監視していればサービスディスカバリを用意に実装することができる。
 
     Args:
+        id: UUID  default: generate uuid
         type:
         state: 
-        id: UUID  default: generate uuid
         meta: 
         dependencies: List of dependency to 
 
     Example:
         >>> new_disk = Model("resource/volume/local", "claimed")
         >>> new_disk["size"] = 100 * 1024 * 1024 * 1024
-        >>> new_disk.meta["resource/vm/boot_priority"] = "1"
+        >>> new_disk.meta["n0stack/n0core/resource/vm/boot_priority"] = "1"
 
     TODO:
         - dependencyの2重定義ができないようにしたい
@@ -67,7 +62,6 @@ class Model(dict):
 
     def depend_on(self, label):
         # type: (str) -> List[_Dependency]
-
         return [d for d in self.dependencies if d.label == label]
 
     def add_dependency(self,
