@@ -58,7 +58,7 @@ PROTO_MODULES = [
     'vlan_network_setting_pb2'
 ]
 PROTO_MODULES = ['n0core.lib.proto.' + i for i in PROTO_MODULES]
-MOCK_MODULES = MOCK_MODULES + PROTO_MODULES
+MOCK_MODULES = MOCK_MODULES + PROTO_MODULES + ['n0core.lib.proto.enums']
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = mock.Mock()
 
