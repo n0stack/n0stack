@@ -29,6 +29,35 @@ html_theme = "sphinx_rtd_theme"
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 MOCK_MODULES = ['libvirt', 'pulsar', 'n0core.lib.proto.']
+PROTO_MODULES = [
+    'attach_network_interface_request_pb2',
+    'attach_volume_request_pb2',
+    'create_ipv4_subnet_request_pb2',
+    'create_network_interface_request_pb2',
+    'create_network_request_pb2',
+    'create_vm_request_pb2',
+    'create_vm_snapshot_request_pb2',
+    'create_volume_request_pb2',
+    'delete_ipv4_subnet_request_pb2',
+    'delete_network_request_pb2',
+    'delete_vm_request_pb2',
+    'delete_vm_snapshot_request_pb2',
+    'delete_volume_request_pb2',
+    'detach_network_interface_request_pb2',
+    'detach_volume_request_pb2',
+    'n0stack_message_pb2',
+    'notification_pb2',
+    'procedure_pb2',
+    'request_pb2',
+    'simple_notification_pb2',
+    'update_ipv4_subnet_request_pb2',
+    'update_network_interface_request_pb2',
+    'update_network_request_pb2',
+    'update_vm_power_state_request_pb2',
+    'update_vm_request_pb2',
+    'vlan_network_setting_pb2'
+]
+MOCK_MODULES = MOCK_MODULES + PROTO_MODULES
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = mock.Mock()
 
