@@ -6,7 +6,7 @@ class Message:
     DO NOT REUSE INSTANCE.
     """
 
-    TYPES = Enum("TYPES", ["NOTIFY", "SPEC"])
+    TYPES = Enum("TYPES", ["NOTIFICATION", "SPEC"])
 
     def __init__(self, spec_id, type):
         # type: (str, Enum) -> (None)
