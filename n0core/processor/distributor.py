@@ -9,7 +9,7 @@ from n0core.model import Model  # NOQA
 
 
 class Distributor(Processor):
-    NOTIFY_EVENT = Notification.EVENTS.SCHEDULED
+    NOTIFICATION_EVENT = Notification.EVENTS.SCHEDULED
 
     def __init__(self, repository, notification):
         # type: (Repository, Gateway) -> None
@@ -39,7 +39,7 @@ class Distributor(Processor):
 
     def process(self, message):
         # type: (Spec) -> None
-        if message.type is not Message.TYPES.NOTIFY:
+        if message.type is not Message.TYPES.NOTIFICATION:
             raise IncompatibleMessage
 
         for m in message.models:
@@ -50,7 +50,7 @@ class Distributor(Processor):
             if not m.depend_on("resource/hosted"):
                 n = Notification(spec_id=message.spec_id,
                                  model=m,
-                                 event=self.NOTIFY_EVENT,
+                                 event=self.NOTIFICATION_EVENT,
                                  succeeded=False,
                                  description="not scheduled on your hand.")
                 self.__notification.send(n)
@@ -61,7 +61,7 @@ class Distributor(Processor):
             a = m.depend_on("resource/hosted")[0].model  # このlabelはfixする必要がある
             n = Notification(spec_id=message.spec_id,
                              model=m,
-                             event=self.NOTIFY_EVENT,
+                             event=self.NOTIFICATION_EVENT,
                              succeeded=True,
                              description="")
 
