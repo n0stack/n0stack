@@ -9,6 +9,8 @@ install:
 - pip install mypy lxml
 - pip install git+https://github.com/n0stack/n0library.git@develop
 - pip install Sphinx
+- pip install sphinx_rtd_theme
+- pip install libvirt-python
 
 script:
 - flake8 .
