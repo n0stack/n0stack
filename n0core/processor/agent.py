@@ -28,9 +28,9 @@ class Agent(Processor):
         if not message.succeeded:
             raise IncompatibleMessage
 
-        s, d = self.__target.apply(message.model)
+        m, s, d = self.__target.apply(message.model)
         n = Notify(spec_id=message.spec_id,
-                   model=message.model,
+                   model=m,
                    event=Notify.EVENTS.APPLIED,
                    succeeded=s,
                    description=d)

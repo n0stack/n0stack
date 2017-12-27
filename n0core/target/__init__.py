@@ -9,13 +9,12 @@ class Target(object):
         pass
 
     def apply(self, model):
-        # type: (Model) -> Tuple[bool, str]
+        # type: (Model) -> Tuple[Model, bool, str]
         """
         Args:
             model: model is Model which you want to apply.
 
         Return:
-            - Return succeeded bool
-            - Return result description
+            Tuple of processed model, succeeded and description.
         """
         pass
