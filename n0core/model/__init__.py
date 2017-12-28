@@ -68,7 +68,7 @@ class Model:
         # type: () -> str
         return self.__name
 
-    def depend_on(self, label):
+    def models_depended_on_via(self, label):
         # type: (str) -> List[_Dependency]
         return [d for d in self.dependencies if d.label == label]
 
