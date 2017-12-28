@@ -1,7 +1,6 @@
 from os.path import join
 from enum import Enum
-from ipaddress import ip_address, IPv4Network, IPv6Network  # NOQA
-from ipaddress import ip_network, IPv4Address, IPv6Address  # NOQA
+from netaddr.ip import IPAddress
 from typing import Dict, List, Optional, Tuple, Union, Any  # NOQA
 
 from n0core.model import Model
@@ -53,14 +52,14 @@ class Network(Model):
         dependencies: List of dependency to
     """
 
-    STATES = Enum("STATES", ["ATTACHED", "DELETED"])
+    STATES = Enum("STATES", ["UP", "DOWN", "DELETED"])
 
     def __init__(self,
                  id,              # type: str
                  type,            # type: str
                  state,           # type: Enum
                  name,            # type: str
-                 bridge,          # type: str
+                 bridge="",       # type: str
                  subnets=[],      # type: List[_Subnet]
                  meta={},         # type: Dict[str, str]
                  dependencies=[]  # type: List[_Dependency]
@@ -92,9 +91,9 @@ class Network(Model):
             if cidr in s.cidr or s.cidr in cidr:
                 raise Exception  # 例外を飛ばす already exists
 
-        r = [map(lambda r: ip_address(r), range.split("-"))]
-        d = _DHCP((r[0], r[1]), [ip_address(nameservers)], ip_address(gateway))
-        s = _Subnet(ip_network(cidr), d)
+        r = [map(lambda r: IPAddress(r), range.split("-"))]
+        d = _DHCP((r[0], r[1]), [IPAddress(nameservers)], IPAddress(gateway))
+        s = _Subnet(IPAddress(cidr), d)
 
         self.__subnets.append(s)
 
@@ -118,7 +117,7 @@ class _Subnet:
     """
 
     def __init__(self,
-                 cidr,  # type: Union[IPv4Network, IPv6Network]
+                 cidr,  # type: IPAddress
                  dhcp,  # type: _DHCP
                  ):
         # type: (...) -> None
@@ -127,7 +126,7 @@ class _Subnet:
 
     @property
     def cidr(self):
-        # type: () -> Union[IPv4Network, IPv6Network]
+        # type: () -> IPAddress
         return self.__cidr
 
     @property
@@ -154,9 +153,9 @@ class _DHCP:
     """
 
     def __init__(self,
-                 range,        # type: Tuple[Any, Any]
-                 nameservers,  # type: List[Union[IPv4Address, IPv6Address]]
-                 gateway       # type: Union[IPv4Address, IPv6Address]
+                 range,        # type: Tuple[IPAddress, IPAddress]
+                 nameservers,  # type: List[IPAddress]
+                 gateway       # type: IPAddress
                  ):
         # type: (...) -> None
         self.__range = range
@@ -165,15 +164,15 @@ class _DHCP:
 
     @property
     def range(self):
-        # type: () -> Union[Tuple[IPv4Address, IPv4Address], Tuple[IPv6Address, IPv6Address]]
+        # type: () -> Tuple[IPAddress, IPAddress]
         return self.__range
 
     @property
     def nameservers(self):
-        # type: () -> List[Union[IPv4Address, IPv6Address]]
+        # type: () -> List[IPAddress]
         return self.__nameservers
 
     @property
     def gateway(self):
-        # type: () -> Union[IPv4Address, IPv6Address]
+        # type: () -> IPAddress
         return self.__gateway

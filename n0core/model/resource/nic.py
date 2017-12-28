@@ -1,6 +1,7 @@
 from os.path import join
 from enum import Enum
-from ipaddress import IPv4Interface, IPv6Interface  # NOQA
+from netaddr import EUI
+from netaddr.ip import IPAddress
 from typing import Dict, List, Union  # NOQA
 
 from n0core.model import Model
@@ -70,7 +71,7 @@ class NIC(Model):
                  state,           # type: Enum
                  name,            # type: str
                  hw_addr,         # type: str
-                 ip_addrs,        # type: List[Union[IPv4Interface, IPv6Interface]]
+                 ip_addrs,        # type: List[str]
                  meta={},         # type: Dict[str, str]
                  dependencies=[]  # type: List[_Dependency]
                  ):
@@ -82,13 +83,13 @@ class NIC(Model):
                          meta=meta,
                          dependencies=dependencies)
 
-        self.hw_addr = hw_addr  # hw_addrを誰が生成するかを決定したあとに要修正
-        self.__ip_addrs = ip_addrs
+        self.hw_addr = EUI(hw_addr)  # hw_addrを誰が生成するかを決定したあとに要修正
+        self.__ip_addrs = [map(lambda i: IPAddress(i), ip_addrs)]
 
         self.meta = meta
         self.dependencies = dependencies
 
     @property
     def ip_addrs(self):
-        # type: () -> List[Union[IPv4Interface, IPv6Interface]]
+        # type: () -> List[IPAddress]
         return self.__ip_addrs
