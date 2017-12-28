@@ -252,7 +252,18 @@ class Volume(QemuOpen, Target):
 
     def apply(self, model):
         # type: (Model) -> Tuple[Model, bool, str]
-        return model, True, "succeeded"
+        is_exist = True
+        try:
+            self.conn.storagePoolLookupByName(model.name)
+        except libvirt.libvirtError:
+            is_exist = False    
+
+        if not is_exist:
+            self.create(model.name, model.size)
+            return model, True, "succeeded"
+
+        # TODO: add delete handling
+        return model, False, "already exists"
 
     def create(self, name, size):
         # type: (str, str) -> bool
