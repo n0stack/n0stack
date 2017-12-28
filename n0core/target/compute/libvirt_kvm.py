@@ -23,14 +23,14 @@ class VM(QemuOpen, Target):  # NOQA
     def apply(self, model):
         # type: (Model) -> Tuple[Model, bool, str]
         # Create VM
-        is_exist = False
+        is_exist = True
         try:
             self.conn.lookupByName(model.name)
         except libvirt.libvirtError:
             print(model.name)
-            is_exist = True
+            is_exist = False
 
-        if is_exist:
+        if not is_exist:
             cpu = {"arch": model.arch, "vcpus": model.vcpus}
             
             nic_type = model.dependencies[0].model.type.split('/')[-1]
@@ -173,10 +173,14 @@ class VM(QemuOpen, Target):  # NOQA
                                cdrom,
                                nic,
                                vnc_password)
-        print(vm_xml)
-        dom = self.conn.createXML(vm_xml, 0)
 
-        if not dom:
+        dom = self.conn.defineXML(vm_xml)
+
+        if dom:
+            # TODO: error log
+            return False
+
+        if dom.create(dom) < 0:
             # TODO: error log
             return False
 

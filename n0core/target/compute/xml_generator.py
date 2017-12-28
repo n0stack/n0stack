@@ -34,8 +34,8 @@ def define_vm_xml(name,  # type: str
     el_os = Element('os')
     el_type = Element('type', attrib={'arch': cpu['arch']})
     el_type.text = "hvm"
-    el_boot1 = Element('boot', attrib={'dev': 'cdrom'})
-    el_boot2 = Element('boot', attrib={'dev': 'hd'})
+    el_boot1 = Element('boot', attrib={'dev': 'hd'})
+    el_boot2 = Element('boot', attrib={'dev': 'cdrom'})
     el_os.append(el_type)
     el_os.append(el_boot1)
     el_os.append(el_boot2)
