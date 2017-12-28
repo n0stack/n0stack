@@ -19,11 +19,11 @@ def define_vm_xml(name,  # type: str
     root.append(el_name)
 
     el_memory = Element('memory')
-    el_memory.text = memory
+    el_memory.text = str(memory)
     root.append(el_memory)
 
     el_vcpu = Element('vcpu')
-    el_vcpu.text = cpu['nvcpu']
+    el_vcpu.text = str(cpu['vcpus'])
     root.append(el_vcpu)
 
     # <os>
@@ -163,7 +163,7 @@ def define_vm_xml(name,  # type: str
     el_devices.append(el_console)
 
     root.append(el_devices)
-
+    print(root)
     xml = ET.tostring(root).decode('utf-8')  # type: str
 
     return xml

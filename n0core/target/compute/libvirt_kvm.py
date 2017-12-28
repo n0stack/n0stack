@@ -27,19 +27,24 @@ class VM(QemuOpen, Target):  # NOQA
             if model.name == domain.name():
                 return model, False, "already exist"
 
+        cpu = {"arch": model.arch, "vcpus": model.vcpus}
 
-        disk_path = model.dependencies[1].url
-        iso_path = "/tmp/ubuntu-16.04.3-server-amd64.iso"
+        nic_type = model.dependencies[0].model.type.split('/')[-1]
+        nic_name = model.dependencies[0].model.name
+        hw_addr = model.dependencies[0].model.hw_addr
 
-        if not create(model.name,
-                      model.vcpus,
-                      memory,
-                      disk_path,
-                      iso_path,
-                      nic_type,
-                      nic_name,
-                      mac_addr,
-                      vnc_password):
+        disk_path = model.dependencies[1].model.url
+        iso_path = "/home/palloc/ubuntu-16.04.3-server-amd64.iso"
+
+        if not self.create(model.name,
+                           cpu,
+                           model.memory,
+                           disk_path,
+                           iso_path,
+                           nic_type,
+                           nic_name,
+                           hw_addr,
+                           model.vnc_password):
             # TODO: error handling
             return model, False, "failed to create VM"
     
@@ -137,7 +142,7 @@ class VM(QemuOpen, Target):  # NOQA
                                cdrom,
                                nic,
                                vnc_password)
-
+        print(vm_xml)
         dom = self.conn.createXML(vm_xml, 0)
 
         if not dom:
