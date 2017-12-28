@@ -22,24 +22,49 @@ class VM(QemuOpen, Target):  # NOQA
 
     def apply(self, model):
         # type: (Model) -> Tuple[Model, bool, str]
+        domains = self.conn.listAllDomains()
+        for domain in domains:
+            if model.name == domain.name():
+                return model, False, "already exist"
+
+
+        disk_path = model.dependencies[1].url
+        iso_path = "/tmp/ubuntu-16.04.3-server-amd64.iso"
+
+        if not create(model.name,
+                      model.vcpus,
+                      memory,
+                      disk_path,
+                      iso_path,
+                      nic_type,
+                      nic_name,
+                      mac_addr,
+                      vnc_password):
+            # TODO: error handling
+            return model, False, "failed to create VM"
+    
+        return model, True, "succeeded"
+                
+            
+        # Operate VM state
         if model.state is VM_MODEL.STATES.RUNNING:
             if not self.start(model.name):
-                # TODO: error process
-                return model, False, "faild"
+                # TODO: error handling
+                return model, False, "failed"
 
             return model, True, "succeeded"
 
         elif model.state is VM_MODEL.STATES.POWEROFF:
             if not self.force_stop(model.name):
-                # TODO: error process
-                return model, False, "faild"
+                # TODO: error handling
+                return model, False, "failed"
 
             return model, True, "succeeded"
 
         elif model.state is VM_MODEL.STATES.DELETED:
             if not self.delete(model.name):
-                # TODO: error process
-                return model, False, "faild"
+                # TODO: error handling
+                return model, False, "failed"
 
             return model, True, "succeeded"
 
@@ -95,15 +120,15 @@ class VM(QemuOpen, Target):  # NOQA
                memory,  # type: str
                disk_path,  # type: str
                cdrom,  # type: str
-               device,  # type: Any
+               nic_type,  # type: str
+               nic_name,  # type: str
                mac_addr,  # type: str
                vnc_password,  # type: str
-               nic_type  # type: Any
                ):
         # type: (...) -> bool
 
         # default values of nic
-        nic = {'type': 'bridge', 'source': device, 'mac_addr': mac_addr, 'model': nic_type}
+        nic = {'type': 'bridge', 'source': nic_name, 'mac_addr': mac_addr, 'model': nic_type}
 
         vm_xml = define_vm_xml(name,
                                cpu,
