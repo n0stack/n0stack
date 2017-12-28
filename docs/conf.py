@@ -75,8 +75,12 @@ for mod_name in MOCK_MODULES:
 extensions = ['sphinx.ext.mathjax',
               'sphinx.ext.viewcode',
               'sphinx.ext.githubpages',
-              'sphinx.ext.autodoc'
+              'sphinx.ext.autodoc',
+              'sphinx.ext.napoleon'
               ]
+
+napoleon_google_docstring = True
+napoleon_numpy_docstring = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
