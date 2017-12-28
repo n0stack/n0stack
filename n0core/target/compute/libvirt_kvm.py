@@ -9,7 +9,7 @@ from n0core.target.compute.xml_generator import (define_vm_xml,
                                                  build_network)
 from n0core.target.compute.base import QemuOpen
 from n0core.target import Target
-from n0core.model.resource.vm import VM as KVM
+from n0core.model.resource.vm import VM as VM_MODEL
 
 
 class VM(QemuOpen, Target):  # NOQA
@@ -22,22 +22,21 @@ class VM(QemuOpen, Target):  # NOQA
 
     def apply(self, model):
         # type: (Model) -> Tuple[Model, bool, str]
-
-        if model.state is KVM.STATES.RUNNING:
+        if model.state is VM_MODEL.STATES.RUNNING:
             if not self.start(model.name):
                 # TODO: error process
                 return model, False, "faild"
 
             return model, True, "succeeded"
 
-        elif model.state is KVM.STATES.POWEROFF:
+        elif model.state is VM_MODEL.STATES.POWEROFF:
             if not self.force_stop(model.name):
                 # TODO: error process
                 return model, False, "faild"
 
             return model, True, "succeeded"
 
-        elif model.state is KVM.STATES.DELETED:
+        elif model.state is VM_MODEL.STATES.DELETED:
             if not self.delete(model.name):
                 # TODO: error process
                 return model, False, "faild"
@@ -176,10 +175,18 @@ class VM(QemuOpen, Target):  # NOQA
         return True
 
 
-class Volume(QemuOpen):
+class Volume(QemuOpen, Target):
+    """
+    Generate xml of volume
+    """
     def __init__(self):
         # type: () -> None
         super().__init__()
+
+    def apply(self, model):
+        # type: (Model) -> Tuple[Model, bool, str]
+        return model, True, "succeeded"
+
 
     def create(self, name, size):
         # type: (str, str) -> bool
@@ -207,9 +214,17 @@ class Volume(QemuOpen):
 
 
 class Network(QemuOpen):
+    """
+    Generate xml of network
+    """
     def __init__(self):
         # type: () -> None
         super().__init__()
+
+    def apply(self, model):
+        # type: (Model) -> Tuple[Model, bool, str]
+        return model, True, "succeeded"
+
 
     def create(self,
                network_name,  # type: str
