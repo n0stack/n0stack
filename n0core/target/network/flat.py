@@ -1,64 +1,71 @@
 from ipaddress import ip_interface
-from typing import Tuple, Dict, Optional  # NOQA
+from typing import Tuple, Dict, Optional, Union, cast  # NOQA
 
 from n0library.logger import Logger
-from n0core.target.network import Network
+from n0core.target.network import Network as NetworkTarget
 from n0core.model import Model  # NOQA
+from n0core.model.resource.network import Network
+from n0core.model.resource.nic import NIC
 from n0core.target.network.dhcp.dnsmasq import Dnsmasq
 
 
 logger = Logger(__name__)
 
 
-class Flat(Network):
+class Flat(NetworkTarget):
     TYPE = "flat"
 
     def __init__(self, interface):
+        # type: (str) -> None
         super().__init__(self.TYPE, interface)
 
     def apply(self, model):
-        # type: (Model) -> Tuple[bool, str]
+        # type: (Model) -> Tuple[Model, bool, str]
         resource_type = model.type.split("/")[1]
+
         if resource_type == "network":
-            d = Dnsmasq(model.id, self.bridge_name(model.id))
+            model = cast(Network, model)
+            dnsmasq = Dnsmasq(model.id, self.bridge_name(model.id))
 
-            if model.state == "up":
-                model["bridge"] = self.apply_bridge(model.id)
+            if model.state == Network.STATES.UP:
+                _ = self.apply_bridge(model.id)
+                model.bridge = self.bridge_name(model.id)
 
-                s = model["subnets"][0]  # first version support only one subnet
+                subnet = model.subnets[0]  # first version support only one subnet
 
-                if d.get_pid():  # dhcp is running
-                    d.respawn_process(s["dhcp"]["range"].split("-"))
+                if dnsmasq.get_pid():  # dhcp is running
+                    dnsmasq.respawn_process(subnet.dhcp.range)
                 else:
-                    d.create_dhcp_server(s["cidr"], s["dhcp"]["range"].split("-"))  # rangeが変わったらip addressも変えないといけないのでは？
+                    dhcp_addr = ip_interface(subnet.cidr) + 1
+                    dnsmasq.create_dhcp_server(dhcp_addr, subnet.dhcp.range)  # rangeが変わったらip addressも変えないといけないのでは？
 
-            elif model.state == "down":
+            elif model.state == Network.STATES.DOWN:
                 self.apply_bridge(model.id, state="down")
-                d.stop_process()
+                dnsmasq.stop_process()
 
-            elif model.state == "deleted":
-                d.delete_dhcp_server()
+            elif model.state == Network.STATES.DELETED:
+                dnsmasq.delete_dhcp_server()
                 self.delete_bridge(model.id)
 
-        elif resource_type == "port":
-            nid = model.depend_on("n0core/port/network")[0].model.id
-            nb = model.depend_on("n0core/port/network")[0].model.bridge
-            d = Dnsmasq(nid, nb)
+        elif resource_type == "nic":
+            model = cast(NIC, model)
+            network = cast(Network, model.depend_on("n0stack/n0core/resource/nic/network")[0].model)
+            dnsmasq = Dnsmasq(network.id, network.bridge)
 
-            if model.state == "up":
-                d.add_allowed_host(model["hw_addr"])
+            if model.state == NIC.STATES.ATTACHED:
+                dnsmasq.add_allowed_host(model.hw_addr)
 
-                for i in model["ip_addrs"]:
-                    d.add_host_entry(model["hw_addr"], i)
+                for i in model.ip_addrs:
+                    dnsmasq.add_host_entry(model.hw_addr, i)
 
-            elif model.state == "delete":
-                d.delete_host_entry(model["hw_addr"])
-                d.delete_allowed_host(model["hw_addr"])
+            elif model.state == NIC.STATES.DELETED:
+                dnsmasq.delete_host_entry(model.hw_addr)
+                dnsmasq.delete_allowed_host(model.hw_addr)
 
-        return r, ""
+        return model, True, "Succeeded"
 
     def apply_bridge(self, id, state="up", parameters={}):
-        # type: (...) -> str
+        # type: (str, str, Dict[str, str]) -> bool
         """Create bridge mastering interface selected on args
 
         1. Create a bridge, when the bridge does not exist.
@@ -97,14 +104,16 @@ class Flat(Network):
         self.ip.link("set", index=ii, master=bi)
         self.ip.link('set', index=bi, state=state)
 
-        return bn
+        return True
 
     def delete_bridge(self, id):
-        # type: (str) -> None
+        # type: (str) -> bool
         bn = self.bridge_name(id)
         bi = self._get_index(bn)
         if not bi:
             logger.error("Failed to get interface index of {}, when called delete_bridge.".format(bn))
-            return
+            return False
 
         self.ip.link('delete', index=bi)
+
+        return True

@@ -1,8 +1,5 @@
-from typing import Any, Callable, Tuple, List, Optional, cast  # NOQA
 from pyroute2 import IPRoute
-
-
-from typing import Tuple  # NOQA
+from typing import Tuple, List, Optional, Dict  # NOQA
 
 from n0core.model import Model  # NOQA
 from n0core.target import Target  # NOQA
@@ -31,30 +28,21 @@ class Network(Target):
 
     @property
     def type(self):
+        # type: () -> str
         return self.__type
 
     @property
     def interface(self):
+        # type: () -> str
         return self.__interface
 
     @property
     def meta_prefix(self):
+        # type: () -> str
         return self.__meta_prefix
 
-    def apply(self, model):
-        # type: (Model) -> Tuple[bool, str]
-        """
-        Args:
-            model: model is Model which you want to apply.
-
-        Return:
-            - Return succeeded bool
-            - Return result description
-        """
-        pass
-
-    def apply_bridge(self, state="up", parameters={}):
-        # type: (...) -> bool
+    def apply_bridge(self, id, state="up", parameters={}):
+        # type: (str, str, Dict[str, str]) -> bool
         raise NotImplementedError
 
     def delete_bridge(self, id):
@@ -62,6 +50,7 @@ class Network(Target):
         raise NotImplementedError
 
     def bridge_name(self, id):
+        # type: (str) -> str
         i = id.split("-")[0]
         return self.BRIDGE_FORMAT.format(self.type, i)
 
@@ -87,7 +76,8 @@ class Network(Target):
         # type: (Model) -> Dict[str, str]
         d = {}
 
-        for k, v in filter(lambda k, v: self.meta_prefix in k, model.meta.items()):
-            d[k.split("/")[-1]] = v
+        for k, v in model.meta.items():
+            if self.meta_prefix in k:
+                d[k.split("/")[-1]] = v
 
         return d

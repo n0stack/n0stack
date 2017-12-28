@@ -1,7 +1,7 @@
-from ipaddress import ip_interface, IPv4Interface  # NOQA
+from netaddr.ip import IPAddress  # NOQA
 import os
 from shutil import rmtree
-from typing import Any, Dict, List, Optional, Tuple  # NOQA
+from typing import Any, Dict, List, Optional, Tuple, Union  # NOQA
 
 from netns import NetNS as nsscope
 
@@ -58,7 +58,7 @@ class Dnsmasq(object):
     ip = IPRoute()  # type: IPRoute
 
     def __init__(self, network_id, bridge_name, log_dir=None):  # logging is disabled
-        # type: (str, str) -> None
+        # type: (str, str, Optional[str]) -> None
         """
         Set names in order to create or delete resources.
 
@@ -128,7 +128,7 @@ class Dnsmasq(object):
             return pid
 
     def start_process(self, pool):
-        # type: (Tuple[str, str]) -> None
+        # type: (Tuple[IPAddress, IPAddress]) -> None
         """
         Start dnsmasq process on netns.
 
@@ -189,7 +189,7 @@ class Dnsmasq(object):
             logger.warning("dnsmasq process is not running in {}".format(self.netns_name))
 
     def respawn_process(self, pool):
-        # type: (Tuple[str, str]) -> None
+        # type: (Tuple[IPAddress, IPAddress]) -> None
         """
         Respawn dnsmasq process on netns.
 
@@ -246,7 +246,7 @@ class Dnsmasq(object):
                 output_chain.insert_rule(dhcp_rule)
 
     def create_dhcp_server(self, interface_addr, pool):  # interface_addrを文字列のcidrを受け取ってインターフェイスをいいかんじに作成する
-        # type: (IPv4Interface, str, Tuple[str, str]) -> None
+        # type: (IPAddress, Tuple[IPAddress, IPAddress]) -> None
         """
         Create Dnsmasq server on specified subnet.
 
@@ -305,7 +305,7 @@ class Dnsmasq(object):
             peer = self.ip.link_lookup(ifname=peer_name)[0]
             self.ip.link('set', index=peer, net_ns_fd=self.netns_name)
 
-        interface_addr = ip_interface(interface_addr) + 1  # rangeと被らないようにする必要がある
+        interface_addr = interface_addr + 1  # rangeと被らないようにする必要がある
         address = str(interface_addr.ip)
         prefixlen = int(interface_addr.network.prefixlen)
 
