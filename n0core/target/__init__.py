@@ -16,7 +16,7 @@ class Target(object):
         """Apply resource with some framework.
 
         Args:
-            model: Model is Model which you want to apply.
+            model: Model which you want to apply.
 
         Return:
             Tuple of processed model, is_succeeded and description.
