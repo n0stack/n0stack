@@ -102,12 +102,12 @@ def define_vm_xml(name,  # type: str
     el_devices = Element('devices')
 
     # <disk type="file" device="disk">
-    #   <driver name="qemu" type="raw"/>
+    #   <driver name="qemu" type="qcow2"/>
     #   <source file="${disk}"/>
     #   <target dev="vda" bus="virtio"/>
     # </disk>
     el_disk = Element('disk', attrib={'type': 'file', 'device': 'disk'})
-    el_driver = Element('driver', attrib={'name': 'qemu', 'type': 'raw'})
+    el_driver = Element('driver', attrib={'name': 'qemu', 'type': 'qcow2'})
     el_source = Element('source', attrib={'file': disk})
     el_target = Element('target', attrib={'dev': 'vda', 'bus': 'virtio'})
     el_disk.append(el_driver)
