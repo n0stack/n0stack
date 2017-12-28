@@ -22,56 +22,90 @@ class VM(QemuOpen, Target):  # NOQA
 
     def apply(self, model):
         # type: (Model) -> Tuple[Model, bool, str]
-        domains = self.conn.listAllDomains()
-        for domain in domains:
-            if model.name == domain.name():
-                return model, False, "already exist"
+        # Create VM
+        is_exist = False
+        try:
+            self.conn.lookupByName(model.name)
+        except libvirt.libvirtError:
+            print(model.name)
+            is_exist = True
 
-        cpu = {"arch": model.arch, "vcpus": model.vcpus}
-
-        nic_type = model.dependencies[0].model.type.split('/')[-1]
-        nic_name = model.dependencies[0].model.name
-        hw_addr = model.dependencies[0].model.hw_addr
-
-        disk_path = model.dependencies[1].model.url
-        iso_path = "/home/palloc/ubuntu-16.04.3-server-amd64.iso"
-
-        if not self.create(model.name,
-                           cpu,
-                           model.memory,
-                           disk_path,
-                           iso_path,
-                           nic_type,
-                           nic_name,
-                           hw_addr,
-                           model.vnc_password):
-            # TODO: error handling
-            return model, False, "failed to create VM"
-    
-        return model, True, "succeeded"
-                
+        if is_exist:
+            cpu = {"arch": model.arch, "vcpus": model.vcpus}
             
+            nic_type = model.dependencies[0].model.type.split('/')[-1]
+            nic_name = model.dependencies[0].model.name
+            hw_addr = model.dependencies[0].model.hw_addr
+            
+            disk_path = model.dependencies[1].model.url
+            iso_path = "/var/lib/n0stack/ubuntu-16.04.3-server-amd64.iso"
+            
+            if not self.create(model.name,
+                               cpu,
+                               model.memory,
+                               disk_path,
+                               iso_path,
+                               nic_type,
+                               nic_name,
+                               hw_addr,
+                               model.vnc_password):
+                # TODO: error handling
+                return model, False, "failed to create VM"
+            
+            return model, True, "succeeded"
+
         # Operate VM state
-        if model.state is VM_MODEL.STATES.RUNNING:
-            if not self.start(model.name):
-                # TODO: error handling
-                return model, False, "failed"
+        domain = self.conn.lookupByName(model.name)
+        state, reason = domain.state()
+        if state == libvirt.VIR_DOMAIN_RUNNING:
+            if model.state is VM_MODEL.STATES.POWEROFF:
+                if not self.force_stop(model.name):
+                    # TODO: error handling
+                    return model, False, "failed"
 
-            return model, True, "succeeded"
+                return model, True, "succeeded"
 
-        elif model.state is VM_MODEL.STATES.POWEROFF:
-            if not self.force_stop(model.name):
-                # TODO: error handling
-                return model, False, "failed"
+        elif state == libvirt.VIR_DOMAIN_PAUSED:
+            if model.state is VM_MODEL.STATES.RUNNING:
+                if not self.start(model.name):
+                    # TODO: error handling
+                    return model, False, "failed"
 
-            return model, True, "succeeded"
+                return model, True, "succeeded"
 
-        elif model.state is VM_MODEL.STATES.DELETED:
+        elif state == libvirt.VIR_DOMAIN_SHUTDOWN:
+            if model.state is VM_MODEL.STATES.RUNNING:
+                if not self.start(model.name):
+                    # TODO: error handling
+                    return model, False, "failed"
+
+                return model, True, "succeeded"
+
+        elif state == libvirt.VIR_DOMAIN_SHUTOFF:
+            if model.state is VM_MODEL.STATES.RUNNING:
+                if not self.start(model.name):
+                    # TODO: error handling
+                    return model, False, "failed"
+
+                return model, True, "succeeded"
+
+        elif state == libvirt.VIR_DOMAIN_PMSUSPENDED:
+            if model.state is VM_MODEL.STATES.RUNNING:
+                if not self.start(model.name):
+                    # TODO: error handling
+                    return model, False, "failed"
+
+                return model, True, "succeeded"
+        
+        # Delete VM
+        if model.state is VM_MODEL.STATES.DELETED:
             if not self.delete(model.name):
                 # TODO: error handling
                 return model, False, "failed"
 
-            return model, True, "succeeded"
+            return model, True, "succeeded to delete VM"
+
+        return model, False, "nothing to change"
 
     def start(self, name):
         # type: (str) -> bool
@@ -114,7 +148,7 @@ class VM(QemuOpen, Target):  # NOQA
             if domain.info()[0] != 1:
                 break
             if time.time() - s > 60:
-                # TODO: add error log
+                # TODO: error log
                 return False
 
         return True
@@ -127,13 +161,16 @@ class VM(QemuOpen, Target):  # NOQA
                cdrom,  # type: str
                nic_type,  # type: str
                nic_name,  # type: str
-               mac_addr,  # type: str
+               hw_addr,  # type: str
                vnc_password,  # type: str
                ):
         # type: (...) -> bool
 
         # default values of nic
-        nic = {'type': 'bridge', 'source': nic_name, 'mac_addr': mac_addr, 'model': nic_type}
+        nic = {'type': 'bridge',
+               'source': nic_name,
+               'mac_addr': hw_addr,
+               'model': nic_type}
 
         vm_xml = define_vm_xml(name,
                                cpu,
@@ -217,7 +254,6 @@ class Volume(QemuOpen, Target):
         # type: (Model) -> Tuple[Model, bool, str]
         return model, True, "succeeded"
 
-
     def create(self, name, size):
         # type: (str, str) -> bool
         xml = build_volume(name, size)
@@ -253,8 +289,8 @@ class Network(QemuOpen):
 
     def apply(self, model):
         # type: (Model) -> Tuple[Model, bool, str]
+        # TODO
         return model, True, "succeeded"
-
 
     def create(self,
                network_name,  # type: str
