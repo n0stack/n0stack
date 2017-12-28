@@ -183,12 +183,12 @@ def define_volume_xml(volume):
     return xml
 
 
-def define_interface_xml(nic, mac_address):
+def define_interface_xml(hw_addr):
     # type: (str) -> str
     root = Element('interface', attrib={'type': 'network'})
-    el_mac = Element('mac', attrib={'address': mac_address})
+    el_hw = Element('mac', attrib={'address': hw_addr})
     el_model = Element('model', attrib={'type': 'virtio'})
-    root.append(el_mac)
+    root.append(el_hw)
     root.append(el_model)
 
     xml = ET.tostring(root).decode('utf-8')  # type: str

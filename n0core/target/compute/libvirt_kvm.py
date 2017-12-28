@@ -51,7 +51,7 @@ class VM(QemuOpen, Target):  # NOQA
                                model.vnc_password):
                 # TODO: error handling
                 return model, False, "failed to create VM"
-            
+
             return model, True, "succeeded"
 
         # Operate VM state
@@ -62,7 +62,6 @@ class VM(QemuOpen, Target):  # NOQA
                 if not self.force_stop(model.name):
                     # TODO: error handling
                     return model, False, "failed"
-
                 return model, True, "succeeded"
 
         elif state == libvirt.VIR_DOMAIN_PAUSED:
@@ -70,7 +69,6 @@ class VM(QemuOpen, Target):  # NOQA
                 if not self.start(model.name):
                     # TODO: error handling
                     return model, False, "failed"
-
                 return model, True, "succeeded"
 
         elif state == libvirt.VIR_DOMAIN_SHUTDOWN:
@@ -78,7 +76,6 @@ class VM(QemuOpen, Target):  # NOQA
                 if not self.start(model.name):
                     # TODO: error handling
                     return model, False, "failed"
-
                 return model, True, "succeeded"
 
         elif state == libvirt.VIR_DOMAIN_SHUTOFF:
@@ -86,7 +83,6 @@ class VM(QemuOpen, Target):  # NOQA
                 if not self.start(model.name):
                     # TODO: error handling
                     return model, False, "failed"
-
                 return model, True, "succeeded"
 
         elif state == libvirt.VIR_DOMAIN_PMSUSPENDED:
@@ -94,7 +90,6 @@ class VM(QemuOpen, Target):  # NOQA
                 if not self.start(model.name):
                     # TODO: error handling
                     return model, False, "failed"
-
                 return model, True, "succeeded"
         
         # Delete VM
@@ -102,7 +97,6 @@ class VM(QemuOpen, Target):  # NOQA
             if not self.delete(model.name):
                 # TODO: error handling
                 return model, False, "failed"
-
             return model, True, "succeeded to delete VM"
 
         return model, False, "nothing to change"
