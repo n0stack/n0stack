@@ -13,7 +13,7 @@ delete_network = Network(NETWORK_ID, "flat", Network.STATES.DELETED, "test_netwo
 delete_network.apply_subnet("192.168.1.0/24", "192.168.0.3-192.168.0.127", ["192.168.0.254"], "192.168.0.254")
 
 nic = NIC("755cedc3-1fe2-44a8-bc45-93d8edf2ad82",
-          "dhcp",
+          "none",
           NIC.STATES.ATTACHED,
           "test_nic",
           "e2:78:18:7e:da:4e",
