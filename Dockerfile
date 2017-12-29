@@ -6,12 +6,7 @@ RUN apt-get update \
  && apt-get install -y \
         dnsmasq \
         iptables \
- && pip install --no-cache-dir \
-        pulsar-client \
-        pyroute2 \
-        python-iptables \
-        git+https://github.com/larsks/python-netns.git \
-        git+https://github.com/n0stack/n0library.git \
+ && pip install --no-cache-dir -r requirements.txt \
  && python setup.py install \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
