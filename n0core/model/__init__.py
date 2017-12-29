@@ -68,9 +68,9 @@ class Model:
         # type: () -> str
         return self.__name
 
-    def depend_on(self, label):
-        # type: (str) -> List[_Dependency]
-        return [d for d in self.dependencies if d.label == label]
+    def depend_on(self, label="", type=""):
+        # type: (str, str) -> List[_Dependency]
+        return [d for d in self.dependencies if label in d.label and type in d.model.name]
 
     def add_dependency(self,
                        model,       # type: Model
@@ -92,7 +92,7 @@ class _Dependency:
     Example:
         >>> new_vm = Model("resource/vm/kvm", "running")
         >>> new_disk = Model("resource/volume/local", "claimed")
-        >>> new_vm.add_dependency(new_disk, "resource/vm/attachments")
+        >>> new_vm.add_dependency(new_disk, "n0stack/n0core/resource/vm/attachments")
 
     TODO:
         - labelを書き込み可能にするか否か
