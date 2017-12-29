@@ -1,0 +1,5 @@
+netaddr
+pyroute2
+python-iptables
+git+https://github.com/larsks/python-netns.git
+git+https://github.com/n0stack/n0library.git
