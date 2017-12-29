@@ -173,7 +173,7 @@ class Dnsmasq(object):
                dhcp_leasefile,
                interface,
                dhcp_range]
-            #    log_facility]  # type: List[str]
+        #      log_facility]  # type: List[str]
         NSPopen(self.netns_name, cmd)
 
     def stop_process(self):
