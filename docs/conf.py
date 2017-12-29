@@ -101,8 +101,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'n0stack'
-copyright = '2017, yatuhashi kei'
-author = 'yatuhashi kei'
+copyright = '2017, n0stack Creators'
+author = 'n0stack Creators'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
