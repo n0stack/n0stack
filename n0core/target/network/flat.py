@@ -28,7 +28,7 @@ class Flat(NetworkTarget):
             dnsmasq = Dnsmasq(model.id, self.bridge_name(model.id))
 
             if model.state == Network.STATES.UP:
-                _ = self.apply_bridge(model.id)
+                self.apply_bridge(model.id)
                 model.bridge = self.bridge_name(model.id)
 
                 subnet = model.subnets[0]  # first version support only one subnet
