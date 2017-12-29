@@ -1,7 +1,7 @@
-from netaddr.ip import IPAddress  # NOQA
+from netaddr.ip import IPAddress, IPRange  # NOQA
 import os
 from shutil import rmtree
-from typing import Any, Dict, List, Optional, Tuple, Union  # NOQA
+from typing import Any, Dict, List, Optional, Union  # NOQA
 
 from netns import NetNS as nsscope
 
@@ -128,7 +128,7 @@ class Dnsmasq(object):
             return pid
 
     def start_process(self, pool):
-        # type: (Tuple[IPAddress, IPAddress]) -> None
+        # type: (IPRange) -> None
         """
         Start dnsmasq process on netns.
 
@@ -189,7 +189,7 @@ class Dnsmasq(object):
             logger.warning("dnsmasq process is not running in {}".format(self.netns_name))
 
     def respawn_process(self, pool):
-        # type: (Tuple[IPAddress, IPAddress]) -> None
+        # type: (IPRange) -> None
         """
         Respawn dnsmasq process on netns.
 
@@ -246,7 +246,7 @@ class Dnsmasq(object):
                 output_chain.insert_rule(dhcp_rule)
 
     def create_dhcp_server(self, interface_addr, pool):  # interface_addrを文字列のcidrを受け取ってインターフェイスをいいかんじに作成する
-        # type: (IPAddress, Tuple[IPAddress, IPAddress]) -> None
+        # type: (IPAddress, IPRange) -> None
         """
         Create Dnsmasq server on specified subnet.
 

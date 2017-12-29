@@ -1,6 +1,7 @@
 from os.path import join
 from enum import Enum
-from netaddr.ip import IPAddress
+from netaddr import IPSet
+from netaddr.ip import IPAddress, IPNetwork, IPRange
 from typing import Dict, List, Optional, Tuple, Union, Any  # NOQA
 
 from n0core.model import Model
@@ -80,22 +81,23 @@ class Network(Model):
         # type: () -> List[_Subnet]
         return self.__subnets
 
-    def add_subnet(self,
-                   cidr,         # type: str
-                   range,        # type: str
-                   nameservers,  # type: List[str]
-                   gateway       # type: str
-                   ):
+    def apply_subnet(self,
+                     cidr,         # type: str
+                     range,        # type: str
+                     nameservers,  # type: List[str]
+                     gateway       # type: str
+                     ):
         # type: (...) -> None
-        for s in self.subnets:
-            if cidr in s.cidr or s.cidr in cidr:
-                raise Exception  # 例外を飛ばす already exists
+        for i, s in enumerate(self.subnets):
+            if IPSet([cidr]) & IPSet(s.cidr):
+                self.subnets.pop(i)
 
-        r = [map(lambda r: IPAddress(r), range.split("-"))]
-        d = _DHCP((r[0], r[1]), [IPAddress(nameservers)], IPAddress(gateway))
-        s = _Subnet(IPAddress(cidr), d)
+        ip_range = IPRange(range.split("-")[0], range.split("-")[1])
+        ns = list(map(lambda n: IPAddress(n), nameservers))
+        dhcp = _DHCP(ip_range, ns, IPAddress(gateway))
+        subnet = _Subnet(IPNetwork(cidr), dhcp)
 
-        self.__subnets.append(s)
+        self.__subnets.append(subnet)
 
 
 class _Subnet:
