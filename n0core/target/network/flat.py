@@ -104,16 +104,28 @@ class Flat(NetworkTarget):
         self.ip.link("set", index=ii, master=bi)
         self.ip.link('set', index=bi, state=state)
 
+<<<<<<< HEAD
         return True
 
     def delete_bridge(self, id):
         # type: (str) -> bool
+=======
+        return bn
+
+    def delete_bridge(self, id):
+>>>>>>> 7a260066e253642fd37016bd7dc1373cca0c67b9
         bn = self.bridge_name(id)
         bi = self._get_index(bn)
         if not bi:
             logger.error("Failed to get interface index of {}, when called delete_bridge.".format(bn))
+<<<<<<< HEAD
             return False
 
         self.ip.link('delete', index=bi)
 
         return True
+=======
+            return
+
+        self.ip.link('delete', index=bi)
+>>>>>>> 7a260066e253642fd37016bd7dc1373cca0c67b9

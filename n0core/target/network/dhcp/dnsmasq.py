@@ -305,7 +305,6 @@ class Dnsmasq(object):
             peer = self.ip.link_lookup(ifname=peer_name)[0]
             self.ip.link('set', index=peer, net_ns_fd=self.netns_name)
 
-        interface_addr = interface_addr + 1  # rangeと被らないようにする必要がある
         address = str(interface_addr.ip)
         prefixlen = int(interface_addr.network.prefixlen)
 
