@@ -369,7 +369,7 @@ class Dnsmasq(object):
         rule.add_match(proto_match)
 
         mac_match = Match(rule, 'mac')  # type: Match
-        mac_match.mac_source = str(hw_addr).replace("-", ":")
+        mac_match.mac_source = hw_addr
         rule.add_match(mac_match)
 
         return rule
