@@ -6,7 +6,7 @@ from n0core.target.network import Network as NetworkTarget
 from n0core.model import Model  # NOQA
 from n0core.model.resource.network import Network
 from n0core.model.resource.nic import NIC
-from n0core.target.network.dhcp.dnsmasq import Dnsmasq
+from n0core.lib.dhcp.dnsmasq import Dnsmasq
 
 
 logger = Logger(__name__)
