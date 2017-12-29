@@ -26,10 +26,10 @@ class Distributor(Processor):
         else:
             return False
 
-    def _is_applied_all(self, model):
+    def _is_all_applied(self, model):
         # type: (Model) -> bool
-        ms = self.__repository.read(model.id, depth=1)
-        ids = map(lambda d: d.model.id, ms.dependencies)
+        models = self.__repository.read(model.id, depth=1)
+        ids = map(lambda d: d.model.id, models.dependencies)
 
         for i in map(lambda d: d.model.id, model.dependencies):
             if i not in ids:
@@ -47,7 +47,7 @@ class Distributor(Processor):
                 continue
 
             # not scheduled
-            if not m.depend_on("n0stack/n0core/resource/hosted"):
+            if not m.models_depended_on_via("n0stack/n0core/resource/hosted"):
                 n = Notification(spec_id=message.spec_id,
                                  model=m,
                                  event=self.NOTIFICATION_EVENT,
@@ -55,15 +55,15 @@ class Distributor(Processor):
                                  description="not scheduled on your hand.")
                 self.__notification.send(n)
 
-            if not self._is_applied_all(m):
+            if not self._is_all_applied(m):
                 continue
 
-            a = m.depend_on("n0stack/n0core/resource/hosted")[0].model  # このlabelはfixする必要がある
+            a = m.models_depended_on_via("n0stack/n0core/resource/hosted")[0].model  # このlabelはfixする必要がある
             n = Notification(spec_id=message.spec_id,
                              model=m,
                              event=self.NOTIFICATION_EVENT,
                              is_succeeded=True,
                              description="")
 
-            self.__notification.send_to(n, a)
+            self.__notification.send(n, destination=a)
             self.__notification.send(n)

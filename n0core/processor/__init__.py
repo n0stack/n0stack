@@ -16,22 +16,22 @@ class Processor:
     def process(self, message):
         # type: (Any) -> None
         """
-        `process` is implimented by each use case.
+        `process` is implemented by each use case.
 
         Args:
-            message: Message which is got by Gateway.
+            message: Message which Gateway received.
         """
         raise NotImplementedError
 
     def handler(self, message):
         # type: (Message) -> None
         """
-        `handler` wrap `Processor.process` to manage common processes over all like exceptions.
+        `handler` wrap `Processor.process` to manage common exceptions raised in.
 
         Gateway will call this.
 
         Args:
-            message: Message which is got by Gateway.
+            message: Message which Gateway received.
         """
         try:
             self.process(message)
