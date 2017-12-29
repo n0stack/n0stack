@@ -11,7 +11,9 @@ class NIC(Model):
     """NIC manage IP address resource.
 
     Example:
-        ```yaml
+
+        .. code-block:: yaml
+
         id: 0a0615bf-8d26-4e9f-bfbc-bbd0890fcd4f
         type: resource/nic
         name: port
@@ -38,11 +40,10 @@ class NIC(Model):
                   gateway: 192.168.0.254
             parameters:
           label: n0stack/n0core/resource/nic/network
-        ```
 
     States:
-        attached: Attached NIC.
-        deleted: Deleted NIC.
+        ATTACHED: Attached NIC.
+        DELETED: Deleted NIC.
 
     Meta:
 

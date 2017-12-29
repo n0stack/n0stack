@@ -10,19 +10,20 @@ class Volume(Model):
     """Volume manage persistent volume resource.
 
     Example:
-        ```yaml
+
+        .. code-block:: yaml
+
         type: resource/volume/file
         id: 486274b2-49e4-4bcd-a60d-4f627ce8c041
         state: allocated
         name: hogehoge
         size: 10 * 1024 * 1024 * 1024
         url: file:///data/hoge
-        ```
 
-    States:
-        allocated: Allocate volume size and share volume.
-        deleted: Delete volume resource, but not delete data in volume.
-        destroyed: Destroy data in volume.
+    STATES:
+        ALLOCATED: Allocate volume size and share volume.
+        DELETED: Delete volume resource, but not delete data in volume.
+        DESTROYED: Destroy data in volume.
 
     Meta:
 
@@ -41,7 +42,7 @@ class Volume(Model):
         dependencies: List of dependency to
     """
 
-    STATES = Enum("STATES", ["POWEROFF", "RUNNING", "SAVED", "DELETED"])
+    STATES = Enum("STATES", ["ALLOCATED", "DELETED", "DESTROYED"])
 
     def __init__(self,
                  id,              # type: str

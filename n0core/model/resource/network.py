@@ -12,7 +12,9 @@ class Network(Model):
     """Network manage network range resource.
 
     Example:
-        ```yaml
+
+        .. code-block:: yaml
+
         id: 0f97b5a3-bff2-4f13-9361-9f9b4fab3d65
         type: resource/network/vlan
         name: hogehoge
@@ -27,12 +29,11 @@ class Network(Model):
               gateway: 192.168.0.254
         meta:
           n0stack/n0core/resource/network/vlan/id: 100
-        ```
 
     States:
-        up: Up network.
-        down: Down network.
-        deleted: Delete network.
+        UP: Up network.
+        DOWN: Down network.
+        DELETED: Delete network.
 
     Meta:
         n0stack/n0core/resource/network/vlan/id: VLAN ID on vlan network type.
@@ -53,7 +54,7 @@ class Network(Model):
         dependencies: List of dependency to
     """
 
-    STATES = Enum("STATES", ["ATTACHED", "DELETED"])
+    STATES = Enum("STATES", ["UP", "DOWN", "DELETED"])
 
     def __init__(self,
                  id,              # type: str
