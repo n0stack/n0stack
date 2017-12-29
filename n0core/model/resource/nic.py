@@ -1,6 +1,6 @@
 from os.path import join
 from enum import Enum
-from netaddr import EUI
+from netaddr import EUI, mac_unix
 from netaddr.ip import IPAddress
 from typing import Dict, List, Union  # NOQA
 
@@ -84,6 +84,7 @@ class NIC(Model):
                          dependencies=dependencies)
 
         self.hw_addr = EUI(hw_addr)  # hw_addrを誰が生成するかを決定したあとに要修正
+        self.hw_addr.dialect = mac_unix
         self.__ip_addrs = [map(lambda i: IPAddress(i), ip_addrs)]
 
         self.meta = meta
