@@ -1,15 +1,15 @@
 import time
-import libvirt
 from typing import Any  # NOQA
+import libvirt
 
+from n0core.target.compute.base import QemuOpen
+from n0core.target import Target
+from n0core.model.resource.vm import VM as VM_MODEL
 from n0core.target.compute.xml_generator import (define_vm_xml,
                                                  define_volume_xml,
                                                  define_interface_xml,
                                                  build_volume,
                                                  build_network)
-from n0core.target.compute.base import QemuOpen
-from n0core.target import Target
-from n0core.model.resource.vm import VM as VM_MODEL
 
 
 class VM(QemuOpen, Target):  # NOQA
@@ -32,14 +32,14 @@ class VM(QemuOpen, Target):  # NOQA
 
         if not is_exist:
             cpu = {"arch": model.arch, "vcpus": model.vcpus}
-            
+
             nic_type = model.dependencies[0].model.type.split('/')[-1]
             nic_name = model.dependencies[0].model.name
             hw_addr = model.dependencies[0].model.hw_addr
-            
+
             disk_path = model.dependencies[1].model.url
             iso_path = "/var/lib/n0stack/ubuntu-16.04.3-server-amd64.iso"
-            
+
             if not self.create(model.name,
                                cpu,
                                model.memory,
@@ -91,7 +91,7 @@ class VM(QemuOpen, Target):  # NOQA
                     # TODO: error handling
                     return model, False, "failed"
                 return model, True, "succeeded"
-        
+
         # Delete VM
         if model.state is VM_MODEL.STATES.DELETED:
             if not self.delete(model.name):
@@ -254,7 +254,7 @@ class Volume(QemuOpen, Target):
         try:
             self.conn.storagePoolLookupByName(model.name)
         except libvirt.libvirtError:
-            is_exist = False    
+            is_exist = False
 
         if not is_exist:
             self.create(model.name, model.size)
