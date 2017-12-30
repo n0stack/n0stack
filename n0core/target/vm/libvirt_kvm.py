@@ -23,7 +23,7 @@ class LibvirtKVM(QemuOpen, Target):  # NOQA
     """
     def __init__(self):
         # type: () -> None
-        super().__init__()
+        super().__init__("resource/vm/libvirt_kvm")
 
     def apply(self, model):
         # type: (Model) -> Tuple[Model, bool, str]
