@@ -1,9 +1,9 @@
 from n0core.model.resource.network import Network
 from n0core.model.resource.nic import NIC
 from n0core.model.resource.volume import Volume
-from n0core.model.resource.vm import VM as VM_MODEL
+from n0core.model.resource.vm import VM
 from n0core.target.network.flat import Flat
-from n0core.target.compute.libvirt_kvm import VM
+from n0core.target.vm.libvirt_kvm import LibvirtKVM
 
 
 INTERFACE_NAME = "enp0s25"
@@ -31,14 +31,14 @@ nic.add_dependency(up_network, "n0stack/n0core/resource/nic/network")
 test_nic, _, _ = f.apply(nic)
 
 
-v = VM()
-vm = VM_MODEL("fc470967-bae8-4afa-af11-3eb7d7d51f42",
+v = LibvirtKVM()
+vm = VM("fc470967-bae8-4afa-af11-3eb7d7d51f42",
               "kvm",
-              VM_MODEL.STATES.RUNNING,
+              VM.STATES.RUNNING,
               "vm_ubuntu-10G-04",
               "x86_64",
               1,
-              1*1024*1024,
+              1*1024*1024*1024,
               "hogehoge")
 vm.add_dependency(test_nic, "n0stack/n0core/resource/vm/attachments")
 
