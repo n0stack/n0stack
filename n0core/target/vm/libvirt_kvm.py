@@ -57,10 +57,6 @@ class LibvirtKVM(QemuOpen, Target):  # NOQA
 
             return model, True, "succeeded"
 
-        # Operate VM state
-        domain = self.conn.lookupByName(model.name)
-        state, reason = domain.state()
-
         if model.state is VM.STATES.POWEROFF:
             if not self.force_stop(model.name):
                 return model, False, "failed"
@@ -79,7 +75,7 @@ class LibvirtKVM(QemuOpen, Target):  # NOQA
                 return model, False, "failed"
             return model, True, "succeeded to delete VM"
 
-        return model, False, "nothing to change"
+        return model, True, "nothing to change"
 
     def start(self, name):
         # type: (str) -> bool
