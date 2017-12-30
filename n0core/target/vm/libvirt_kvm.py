@@ -60,35 +60,18 @@ class LibvirtKVM(QemuOpen, Target):  # NOQA
         # Operate VM state
         domain = self.conn.lookupByName(model.name)
         state, reason = domain.state()
-        if state == libvirt.VIR_DOMAIN_RUNNING:
-            if model.state is VM.STATES.POWEROFF:
-                if not self.force_stop(model.name):
-                    return model, False, "failed"
-                return model, True, "succeeded"
 
-        elif state == libvirt.VIR_DOMAIN_PAUSED:
-            if model.state is VM.STATES.RUNNING:
-                if not self.start(model.name):
-                    return model, False, "failed"
-                return model, True, "succeeded"
+        if model.state is VM.STATES.POWEROFF:
+            if not self.force_stop(model.name):
+                return model, False, "failed"
+            return model, True, "succeeded"
 
-        elif state == libvirt.VIR_DOMAIN_SHUTDOWN:
-            if model.state is VM.STATES.RUNNING:
-                if not self.start(model.name):
-                    return model, False, "failed"
-                return model, True, "succeeded"
-
-        elif state == libvirt.VIR_DOMAIN_SHUTOFF:
-            if model.state is VM.STATES.RUNNING:
-                if not self.start(model.name):
-                    return model, False, "failed"
-                return model, True, "succeeded"
-
-        elif state == libvirt.VIR_DOMAIN_PMSUSPENDED:
-            if model.state is VM.STATES.RUNNING:
-                if not self.start(model.name):
-                    return model, False, "failed"
-                return model, True, "succeeded"
+        elif model.state is VM.STATES.RUNNING:
+            if not self.start(model.name):
+                return model, False, "failed"
+            return model, True, "succeeded"
+ 
+        #  TODO: SAVED process
 
         # Delete VM
         if model.state is VM.STATES.DELETED:
