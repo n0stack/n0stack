@@ -12,7 +12,7 @@ from n0core.target.compute.xml_generator import (define_vm_xml,
                                                  build_network)
 
 
-class VM(QemuOpen, Target):  # NOQA
+class VM_Manager(QemuOpen, Target):  # NOQA
     """
     manage vm status
     """
@@ -33,11 +33,11 @@ class VM(QemuOpen, Target):  # NOQA
         if not is_exist:
             cpu = {"arch": model.arch, "vcpus": model.vcpus}
 
-            nic_type = model.dependencies[0].model.type.split('/')[-1]
+            nic_type = model.dependencies[0].model.type.split("/")[-1]
             nic_name = model.dependencies[0].model.name
             hw_addr = model.dependencies[0].model.hw_addr
 
-            disk_path = model.dependencies[1].model.url
+            disk_path = model.dependencies[1].model.url.replace("file:///", "")
             iso_path = "/var/lib/n0stack/ubuntu-16.04.3-server-amd64.iso"
 
             if not self.create(model.name,
