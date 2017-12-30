@@ -6,7 +6,7 @@ from n0library.logger import Logger
 
 from n0core.target.compute.base import QemuOpen
 from n0core.target import Target
-from n0core.model.resource.vm import VM as VM_MODEL
+from n0core.model.resource.vm import VM
 from n0core.target.compute.xml_generator import (define_vm_xml,
                                                  define_volume_xml,
                                                  define_interface_xml,
@@ -17,7 +17,7 @@ from n0core.target.compute.xml_generator import (define_vm_xml,
 logger = Logger()
 
 
-class VM_Manager(QemuOpen, Target):  # NOQA
+class LibvirtKVM(QemuOpen, Target):  # NOQA
     """
     manage vm status
     """
@@ -61,37 +61,37 @@ class VM_Manager(QemuOpen, Target):  # NOQA
         domain = self.conn.lookupByName(model.name)
         state, reason = domain.state()
         if state == libvirt.VIR_DOMAIN_RUNNING:
-            if model.state is VM_MODEL.STATES.POWEROFF:
+            if model.state is VM.STATES.POWEROFF:
                 if not self.force_stop(model.name):
                     return model, False, "failed"
                 return model, True, "succeeded"
 
         elif state == libvirt.VIR_DOMAIN_PAUSED:
-            if model.state is VM_MODEL.STATES.RUNNING:
+            if model.state is VM.STATES.RUNNING:
                 if not self.start(model.name):
                     return model, False, "failed"
                 return model, True, "succeeded"
 
         elif state == libvirt.VIR_DOMAIN_SHUTDOWN:
-            if model.state is VM_MODEL.STATES.RUNNING:
+            if model.state is VM.STATES.RUNNING:
                 if not self.start(model.name):
                     return model, False, "failed"
                 return model, True, "succeeded"
 
         elif state == libvirt.VIR_DOMAIN_SHUTOFF:
-            if model.state is VM_MODEL.STATES.RUNNING:
+            if model.state is VM.STATES.RUNNING:
                 if not self.start(model.name):
                     return model, False, "failed"
                 return model, True, "succeeded"
 
         elif state == libvirt.VIR_DOMAIN_PMSUSPENDED:
-            if model.state is VM_MODEL.STATES.RUNNING:
+            if model.state is VM.STATES.RUNNING:
                 if not self.start(model.name):
                     return model, False, "failed"
                 return model, True, "succeeded"
 
         # Delete VM
-        if model.state is VM_MODEL.STATES.DELETED:
+        if model.state is VM.STATES.DELETED:
             if not self.delete(model.name):
                 return model, False, "failed"
             return model, True, "succeeded to delete VM"
