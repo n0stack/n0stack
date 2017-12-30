@@ -6,7 +6,7 @@ from n0core.model import Model
 from n0core.model import _Dependency # NOQA
 
 
-class NICState(Enum):
+class VMState(Enum):
     POWEROFF = 1
     RUNNING = 2
     SAVED = 3
