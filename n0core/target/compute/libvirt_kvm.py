@@ -2,6 +2,8 @@ import time
 from typing import Any  # NOQA
 import libvirt
 
+from n0library.logger import Logger
+
 from n0core.target.compute.base import QemuOpen
 from n0core.target import Target
 from n0core.model.resource.vm import VM as VM_MODEL
@@ -10,6 +12,9 @@ from n0core.target.compute.xml_generator import (define_vm_xml,
                                                  define_interface_xml,
                                                  build_volume,
                                                  build_network)
+
+
+logger = Logger()
 
 
 class VM_Manager(QemuOpen, Target):  # NOQA
@@ -27,7 +32,6 @@ class VM_Manager(QemuOpen, Target):  # NOQA
         try:
             self.conn.lookupByName(model.name)
         except libvirt.libvirtError:
-            print(model.name)
             is_exist = False
 
         if not is_exist:
@@ -268,7 +272,7 @@ class Volume(QemuOpen, Target):
         xml = build_volume(name, size)
 
         if self.pool.createXML(xml) is None:
-            # TODO: error log
+            logger.error("Failed to create the volume")
             return False
 
         return True
@@ -278,7 +282,7 @@ class Volume(QemuOpen, Target):
         storage = self.pool.storageVolLookupByName(name+'.img')
 
         if storage is None:
-            # TODO: error log
+            logger.error("Failed to delete the storage")
             return False
 
         if wipe:
@@ -320,8 +324,7 @@ class Network(QemuOpen):
         network = self.conn.networkCreateXML(xml)
 
         if network is None:
-            # TODO: error log
-            print('Failed to create a virtual network')
+            logger.error("Failed to create a virtual network")
             return False
 
         return True
