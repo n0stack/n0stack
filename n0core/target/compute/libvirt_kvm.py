@@ -53,7 +53,6 @@ class VM_Manager(QemuOpen, Target):  # NOQA
                                nic_name,
                                hw_addr,
                                model.vnc_password):
-                # TODO: error handling
                 return model, False, "failed to create VM"
 
             return model, True, "succeeded"
@@ -64,42 +63,36 @@ class VM_Manager(QemuOpen, Target):  # NOQA
         if state == libvirt.VIR_DOMAIN_RUNNING:
             if model.state is VM_MODEL.STATES.POWEROFF:
                 if not self.force_stop(model.name):
-                    # TODO: error handling
                     return model, False, "failed"
                 return model, True, "succeeded"
 
         elif state == libvirt.VIR_DOMAIN_PAUSED:
             if model.state is VM_MODEL.STATES.RUNNING:
                 if not self.start(model.name):
-                    # TODO: error handling
                     return model, False, "failed"
                 return model, True, "succeeded"
 
         elif state == libvirt.VIR_DOMAIN_SHUTDOWN:
             if model.state is VM_MODEL.STATES.RUNNING:
                 if not self.start(model.name):
-                    # TODO: error handling
                     return model, False, "failed"
                 return model, True, "succeeded"
 
         elif state == libvirt.VIR_DOMAIN_SHUTOFF:
             if model.state is VM_MODEL.STATES.RUNNING:
                 if not self.start(model.name):
-                    # TODO: error handling
                     return model, False, "failed"
                 return model, True, "succeeded"
 
         elif state == libvirt.VIR_DOMAIN_PMSUSPENDED:
             if model.state is VM_MODEL.STATES.RUNNING:
                 if not self.start(model.name):
-                    # TODO: error handling
                     return model, False, "failed"
                 return model, True, "succeeded"
 
         # Delete VM
         if model.state is VM_MODEL.STATES.DELETED:
             if not self.delete(model.name):
-                # TODO: error handling
                 return model, False, "failed"
             return model, True, "succeeded to delete VM"
 
@@ -116,6 +109,7 @@ class VM_Manager(QemuOpen, Target):  # NOQA
             if domain.info()[0] == 1:
                 break
             if time.time() - s > 120:
+                logger.error("Failed to start VM")
                 return False
 
         return True
@@ -131,6 +125,7 @@ class VM_Manager(QemuOpen, Target):  # NOQA
             if domain.info()[0] != 1:
                 break
             if time.time() - s > 120:
+                logger.error("Failed to stop VM")
                 return False
 
         return True
@@ -146,7 +141,7 @@ class VM_Manager(QemuOpen, Target):  # NOQA
             if domain.info()[0] != 1:
                 break
             if time.time() - s > 60:
-                # TODO: error log
+                logger.error("Failed to stop VM")
                 return False
 
         return True
@@ -181,11 +176,11 @@ class VM_Manager(QemuOpen, Target):  # NOQA
         dom = self.conn.defineXML(vm_xml)
 
         if dom:
-            # TODO: error log
+            logger.error("Failed to create VM")
             return False
 
         if dom.create(dom) < 0:
-            # TODO: error log
+            logger.error("Failed to create VM")
             return False
 
         return True
@@ -203,8 +198,7 @@ class VM_Manager(QemuOpen, Target):  # NOQA
                 vdom.undefine()
 
         except libvirt.libvirtError as e:
-            # TODO: error log
-            print(e)
+            logger.error("Failed to delete VM")
             return False
 
         return True
@@ -217,8 +211,7 @@ class VM_Manager(QemuOpen, Target):  # NOQA
             dom.setMemory(memory)
 
         except libvirt.libvirtError as e:
-            # TODO: error log
-            print(e)
+            logger.error("Failed to change memory capacity")
             return False
 
         return True
