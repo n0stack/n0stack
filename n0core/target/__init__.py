@@ -9,6 +9,8 @@ class Target(object):
     A target manage only one type `*/*/*` of resource like `resource/network/flat`.
     Directory structure and class name is ruled by resource type.
     For example, `resource/network/flat` define `class Flat` which is placed on `n0core.resource.network.flat`.
+
+    Do not kill resource when target is killed.
     """
 
     def __init__(self):
