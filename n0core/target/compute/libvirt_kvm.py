@@ -42,7 +42,7 @@ class VM(QemuOpen, Target):  # NOQA
 
             if not self.create(model.name,
                                cpu,
-                               model.memory,
+                               int(model.memory / 1024),
                                disk_path,
                                iso_path,
                                nic_type,
