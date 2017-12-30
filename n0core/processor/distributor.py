@@ -9,6 +9,21 @@ from n0core.model import Model  # NOQA
 
 
 class Distributor(Processor):
+    """Distributor is a processor which schedule resource from spec message
+    and distribute the notification messages to agents.
+
+    1. Receive a message from gateway.
+    2. Schdule resource from spec message.
+    3. Send notification message to the agent on scheduled host with gateway.
+    4. Send notification message to aggreagater to notify result.
+
+    Args:
+        repository: Data store to schedule resource.
+        notification: Gateway to notify result to agent and aggregater.
+
+    Example:
+    """
+
     NOTIFICATION_EVENT = Notification.EVENTS.SCHEDULED
 
     def __init__(self, repository, notification):

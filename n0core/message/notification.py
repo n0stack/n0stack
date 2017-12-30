@@ -6,7 +6,7 @@ from n0core.model import Model  # NOQA
 
 
 class Notification(Message):
-    """Spec is sent from API to scheduler to propagate Models.
+    """Notification is sent to agent and aggregater to notify a Model.
 
     Args:
         spec_id: ID to distinguish spec as a user request.

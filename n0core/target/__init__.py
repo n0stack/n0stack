@@ -4,7 +4,7 @@ from n0core.model import Model  # NOQA
 
 
 class Target(object):
-    """Application service to apply resources with some framework like KVM and iproute2.
+    """Target is application service to apply resources with some framework like KVM and iproute2.
     """
 
     def __init__(self):

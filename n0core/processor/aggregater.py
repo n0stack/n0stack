@@ -6,6 +6,17 @@ from n0core.processor import IncompatibleMessage
 
 
 class Aggregator(Processor):
+    """Aggregator is a processor which store messages.
+
+    1. Receive a message from gateway.
+    2. Store messages to repository to provide repository functions.
+
+    Args:
+        repository: Data store to store result.
+
+    Exaples:
+    """
+
     def __init__(self, repository):
         # type: (Repository) -> None
         super().__init__()
