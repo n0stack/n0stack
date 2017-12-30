@@ -1,5 +1,7 @@
-from n0core.message import Message
+from n0core.message import Message  # NOQA
+from n0core.message import MessageType
 from n0core.message.notification import Notification
+from n0core.message.notification import Event
 from n0core.message.spec import Spec  # NOQA
 from n0core.processor import Processor
 from n0core.processor import IncompatibleMessage
@@ -24,7 +26,7 @@ class Distributor(Processor):
     Example:
     """
 
-    NOTIFICATION_EVENT = Notification.EVENTS.SCHEDULED
+    NOTIFICATION_EVENT = Event.SCHEDULED
 
     def __init__(self, repository, notification):
         # type: (Repository, Gateway) -> None
@@ -54,7 +56,7 @@ class Distributor(Processor):
 
     def process(self, message):
         # type: (Spec) -> None
-        if message.type is not Message.TYPES.NOTIFICATION:
+        if message.type is not MessageType.NOTIFICATION:
             raise IncompatibleMessage
 
         for m in message.models:

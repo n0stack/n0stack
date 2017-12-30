@@ -3,7 +3,7 @@ from enum import Enum  # NOQA
 
 from n0core.model import Model  # NOQA
 from n0core.message import Message  # NOQA
-from n0core.message.notification import Notification
+from n0core.message.notification import Event
 
 
 class Repository:
@@ -17,7 +17,7 @@ class Repository:
     def read(self,
              id,                           # type: str
              *,
-             event=Notification.EVENTS.APPLIED,  # type: Enum
+             event=Event.APPLIED,  # type: Enum
              depth=0                       # type: int
              ):
         # type: (...) -> Model

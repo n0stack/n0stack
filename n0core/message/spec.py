@@ -1,6 +1,7 @@
 from typing import Dict, List  # NOQA
 
 from n0core.message import Message
+from n0core.message import MessageType
 from n0core.model import Model  # NOQA
 
 
@@ -26,7 +27,7 @@ class Spec(Message):
                  annotations={}  # type: Dict[str, str]
                  ):
         # type: (...) -> None
-        super().__init__(spec_id, Message.TYPES.SPEC)
+        super().__init__(spec_id, MessageType.SPEC)
 
         self.__models = models
         self.__annotations = annotations
