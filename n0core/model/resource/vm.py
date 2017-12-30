@@ -6,6 +6,13 @@ from n0core.model import Model
 from n0core.model import _Dependency # NOQA
 
 
+class NICState(Enum):
+    POWEROFF = 1
+    RUNNING = 2
+    SAVED = 3
+    DELETED = -1
+
+
 class VM(Model):
     """VM manage memory and CPU resource.
 
@@ -87,8 +94,6 @@ class VM(Model):
         meta:
         dependencies: List of dependency to
     """
-
-    STATES = Enum("STATES", ["POWEROFF", "RUNNING", "SAVED", "DELETED"])
 
     def __init__(self,
                  id,              # type: str
