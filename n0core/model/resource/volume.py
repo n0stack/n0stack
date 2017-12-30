@@ -6,6 +6,12 @@ from n0core.model import Model
 from n0core.model import _Dependency # NOQA
 
 
+class VolumeState(Enum):
+    ALLOCATED = 1
+    DELETED = -1
+    DESTROYED = -2
+
+
 class Volume(Model):
     """Volume manage persistent volume resource.
 
@@ -41,8 +47,6 @@ class Volume(Model):
         meta:
         dependencies: List of dependency to
     """
-
-    STATES = Enum("STATES", ["ALLOCATED", "DELETED", "DESTROYED"])
 
     def __init__(self,
                  id,              # type: str

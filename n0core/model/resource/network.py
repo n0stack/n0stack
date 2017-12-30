@@ -8,6 +8,12 @@ from n0core.model import Model
 from n0core.model import _Dependency # NOQA
 
 
+class NetworkState(Enum):
+    UP = 1
+    DOWN = 2
+    DELETED = -1
+
+
 class Network(Model):
     """Network manage network range resource.
 
@@ -53,8 +59,6 @@ class Network(Model):
         meta:
         dependencies: List of dependency to
     """
-
-    STATES = Enum("STATES", ["UP", "DOWN", "DELETED"])
 
     def __init__(self,
                  id,              # type: str

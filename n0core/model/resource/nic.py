@@ -7,6 +7,11 @@ from n0core.model import Model
 from n0core.model import _Dependency # NOQA
 
 
+class NICState(Enum):
+    ATTACHED = 1
+    DELETED = -1
+
+
 class NIC(Model):
     """NIC manage IP address resource.
 
@@ -62,8 +67,6 @@ class NIC(Model):
         meta:
         dependencies: List of dependency to
     """
-
-    STATES = Enum("STATES", ["ATTACHED", "DELETED"])
 
     def __init__(self,
                  id,              # type: str
