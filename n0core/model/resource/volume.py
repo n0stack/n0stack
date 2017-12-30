@@ -41,7 +41,7 @@ class Volume(Model):
         dependencies: List of dependency to
     """
 
-    STATES = Enum("STATES", ["POWEROFF", "RUNNING", "SAVED", "DELETED"])
+    STATES = Enum("STATES", ["ALLOCATED", "DELETED", "DESTROYED"])
 
     def __init__(self,
                  id,              # type: str
