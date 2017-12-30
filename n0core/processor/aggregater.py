@@ -1,4 +1,5 @@
-from n0core.message import Message
+from n0core.message import Message  # NOQA
+from n0core.message import MessageType
 from n0core.gateway import Gateway  # NOQA
 from n0core.repository import Repository  # NOQA
 from n0core.processor import Processor
@@ -24,7 +25,7 @@ class Aggregator(Processor):
 
     def process(self, message):
         # type: (Message) -> None
-        if message.type is not Message.TYPES.NOTIFICATION:
+        if message.type is not MessageType.NOTIFICATION:
             raise IncompatibleMessage
 
         self.__repository.store(message)
