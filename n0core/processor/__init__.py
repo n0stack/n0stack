@@ -7,9 +7,9 @@ class Processor:
     """Processor is enterprise service to provide abstract process which is shown on overall architecture.
 
     "n0core" is based on onion architecture.
-    Application service, which is target, repository and gateway, is depending for this,
+    Application service, which is target, repository and gateway, is depending for Processor,
     and enterprise service is depending for nothing,
-    so this life cycle must be long.
+    so life cycle of Processor must be long.
 
     TODO:
         - どうやってincomingのGatewayからいい感じにデータを取得するか
@@ -22,7 +22,7 @@ class Processor:
     def process(self, message):
         # type: (Any) -> None
         """
-        `process` is implimented by each use case.
+        `process` is implimented for each use case.
 
         Args:
             message: Message which is got by Gateway.
@@ -34,7 +34,8 @@ class Processor:
         """
         `handler` wrap `Processor.process` to manage common processes over all like exceptions.
 
-        Gateway will call this.
+        TODO:
+            Gateway will call handler.
 
         Args:
             message: Message which is got by Gateway.

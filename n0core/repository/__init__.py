@@ -7,6 +7,9 @@ from n0core.message.notification import Notification
 
 
 class Repository:
+    """Repository is application service to store messages on RDBMS, KVS, GraphDB and etc.
+    """
+
     def __init__(self):
         # type: () -> None
         pass
@@ -40,13 +43,14 @@ class Repository:
     def schedule(self, model, ids):
         # type: (Model, List[str]) -> Model
         """
-        `schedule` is needed to implement *in v0.0.3*.
+        `schedule` is needed to implement *after v0.0.3*.
 
         Args:
             model: Model of necessary to schedule models.
             ids: List of necessary to create models.
 
-        Return: Model which is attached scheduled agent model.
+        Return:
+            Model which is attached scheduled agent model.
         """
         raise NotImplementedError
 
