@@ -35,10 +35,14 @@ class Agent(Processor):
                  ):
         # type: (...) -> None
         self.__notification = notification
-        self.__targets = targets
+        self.__targets = {}  # type: Dict[str, Target]
+
+        for t in targets:
+            self.__targets[t.support_model] = t
 
     @property
     def targets(self):
+        # type: () -> Dict[str, Target]
         return self.__targets
 
     def proccess(self, message):
