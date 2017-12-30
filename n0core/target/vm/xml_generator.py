@@ -163,7 +163,6 @@ def define_vm_xml(name,  # type: str
     el_devices.append(el_console)
 
     root.append(el_devices)
-    print(root)
     xml = ET.tostring(root).decode('utf-8')  # type: str
 
     return xml
