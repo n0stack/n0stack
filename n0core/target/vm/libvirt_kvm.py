@@ -29,8 +29,9 @@ class LibvirtKVM(QemuOpen, Target):  # NOQA
         # type: (Model) -> Tuple[Model, bool, str]
         # Create VM
         is_exist = True
+        vm_name = model.name + model.id
         try:
-            self.conn.lookupByName(model.name)
+            self.conn.lookupByName(vm_name)
         except libvirt.libvirtError:
             is_exist = False
 
@@ -44,7 +45,7 @@ class LibvirtKVM(QemuOpen, Target):  # NOQA
             disk_path = model.dependencies[1].model.url.replace("file:///", "")
             iso_path = "/var/lib/n0stack/ubuntu-16.04.3-server-amd64.iso"
 
-            if not self.create(model.name + model.id,
+            if not self.create(vm_name,
                                cpu,
                                int(model.memory / 1024),
                                disk_path,
@@ -58,12 +59,12 @@ class LibvirtKVM(QemuOpen, Target):  # NOQA
             return model, True, "succeeded"
 
         if model.state is VM.STATES.POWEROFF:
-            if not self.force_stop(model.name):
+            if not self.force_stop(vm_name):
                 return model, False, "failed"
             return model, True, "succeeded"
 
         elif model.state is VM.STATES.RUNNING:
-            if not self.start(model.name):
+            if not self.start(vm_name):
                 return model, False, "failed"
             return model, True, "succeeded"
 
@@ -71,7 +72,7 @@ class LibvirtKVM(QemuOpen, Target):  # NOQA
 
         # Delete VM
         if model.state is VM.STATES.DELETED:
-            if not self.delete(model.name):
+            if not self.delete(vm_name):
                 return model, False, "failed"
             return model, True, "succeeded to delete VM"
 
@@ -227,13 +228,14 @@ class Volume(QemuOpen, Target):
     def apply(self, model):
         # type: (Model) -> Tuple[Model, bool, str]
         is_exist = True
+        vm_name = model.name + model.id
         try:
-            self.conn.storagePoolLookupByName(model.name)
+            self.conn.storagePoolLookupByName(vm_name)
         except libvirt.libvirtError:
             is_exist = False
 
         if not is_exist:
-            self.create(model.name, model.size)
+            self.create(vm_name, model.size)
             return model, True, "succeeded"
 
         # TODO: add delete handling
