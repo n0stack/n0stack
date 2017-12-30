@@ -33,13 +33,13 @@ test_nic, _, _ = f.apply(nic)
 
 v = LibvirtKVM()
 vm = VM("fc470967-bae8-4afa-af11-3eb7d7d51f42",
-              "kvm",
-              VM.STATES.RUNNING,
-              "vm_ubuntu-10G-04",
-              "x86_64",
-              1,
-              1*1024*1024*1024,
-              "hogehoge")
+        "kvm",
+        VM.STATES.RUNNING,
+        "vm_ubuntu-10G-04",
+        "x86_64",
+        1,
+        1*1024*1024*1024,
+        "hogehoge")
 vm.add_dependency(test_nic, "n0stack/n0core/resource/vm/attachments")
 
 volume = Volume("a5793fbb-7031-4bd1-b1aa-ca915c56cf46",
