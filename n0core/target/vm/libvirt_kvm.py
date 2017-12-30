@@ -4,14 +4,14 @@ import libvirt
 
 from n0library.logger import Logger
 
-from n0core.target.compute.base import QemuOpen
+from n0core.target.vm.base import QemuOpen
 from n0core.target import Target
 from n0core.model.resource.vm import VM
-from n0core.target.compute.xml_generator import (define_vm_xml,
-                                                 define_volume_xml,
-                                                 define_interface_xml,
-                                                 build_volume,
-                                                 build_network)
+from n0core.target.vm.xml_generator import (define_vm_xml,
+                                            define_volume_xml,
+                                            define_interface_xml,
+                                            build_volume,
+                                            build_network)
 
 
 logger = Logger()
