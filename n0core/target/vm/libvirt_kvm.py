@@ -66,7 +66,7 @@ class LibvirtKVM(QemuOpen, Target):  # NOQA
             if not self.start(model.name):
                 return model, False, "failed"
             return model, True, "succeeded"
- 
+
         #  TODO: SAVED process
 
         # Delete VM
