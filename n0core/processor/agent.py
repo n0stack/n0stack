@@ -9,6 +9,23 @@ from n0core.gateway import Gateway  # NOQA
 
 
 class Agent(Processor):
+    """Agent is a processor which apply resources with targets.
+
+    1. Receive a message from gateway.
+    2. Apply resource with target.
+    3. Send a result message to gateway.
+
+    Args:
+        target:
+        model_types:
+        notification:
+
+    Exapmle:
+ 
+    TODO:
+        - 引数のnotificationはわかりにくい
+    """
+
     def __init__(self,
                  target,       # type: Target
                  model_types,  # type: List[str]

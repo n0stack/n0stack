@@ -4,7 +4,13 @@ from n0core.message import Message  # NOQA
 
 
 class Processor:
-    """
+    """Processor is enterprise service to provide abstract process which is shown on overall architecture.
+
+    "n0core" is based on onion architecture.
+    Application service, which is target, repository and gateway, is depending for this,
+    and enterprise service is depending for nothing,
+    so this life cycle must be long.
+
     TODO:
         - どうやってincomingのGatewayからいい感じにデータを取得するか
     """
