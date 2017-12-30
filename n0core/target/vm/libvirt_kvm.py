@@ -44,7 +44,7 @@ class LibvirtKVM(QemuOpen, Target):  # NOQA
             disk_path = model.dependencies[1].model.url.replace("file:///", "")
             iso_path = "/var/lib/n0stack/ubuntu-16.04.3-server-amd64.iso"
 
-            if not self.create(model.name,
+            if not self.create(model.name + model.id,
                                cpu,
                                int(model.memory / 1024),
                                disk_path,
