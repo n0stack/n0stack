@@ -21,7 +21,7 @@ class Agent(Processor):
         notification:
 
     Exapmle:
- 
+
     TODO:
         - 引数のnotificationはわかりにくい
     """
