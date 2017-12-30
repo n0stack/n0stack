@@ -23,8 +23,7 @@ class Agent(Processor):
         notification:
 
     Exapmle:
-        >>> agent = Agent(notification)
-        >>> agent.add_target("resource/network/flat", flat_network_target)
+        >>> agent = Agent(notification, [flat_network_target])
 
     TODO:
         - 引数のnotificationはわかりにくい
@@ -32,26 +31,26 @@ class Agent(Processor):
 
     def __init__(self,
                  notification,  # type: Gateway
-                 targets={}      # type: Dict[str, Target]
+                 targets=[]     # type: List[Target]
                  ):
         # type: (...) -> None
         self.__notification = notification
         self.__targets = targets
 
-    def add_target(self, type, target):
-        # type: (str, Target) -> None
-        self.__targets[type] = target
+    @property
+    def targets(self):
+        return self.__targets
 
     def proccess(self, message):
         # type: (Notification) -> None
         if message.type is not MessageType.NOTIFICATION:
             raise IncompatibleMessage
-        if message.model.type not in self.__targets.keys():
+        if message.model.type not in self.targets.keys():
             raise IncompatibleMessage
         if not message.is_succeeded:
             raise IncompatibleMessage
 
-        model, is_succeeded, description = self.__targets[message.model.type].apply(message.model)
+        model, is_succeeded, description = self.targets[message.model.type].apply(message.model)
         notification = Notification(spec_id=message.spec_id,
                                     model=model,
                                     event=Event.APPLIED,

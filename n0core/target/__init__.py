@@ -11,11 +11,26 @@ class Target(object):
     For example, `resource/network/flat` define `class Flat` which is placed on `n0core.resource.network.flat`.
 
     Do not kill resource when target is killed.
+
+    Args:
+        support_model: Model type which is supported on each target.
+
+    Example:
+        in `n0core.target.vm.example`
+
+        >>> class Exapmle(Target):
+        >>>     def __init__(self):
+        >>>         super().__init__("resource/vm/example")
     """
 
-    def __init__(self):
-        # type: () -> None
-        pass
+    def __init__(self, support_model):
+        # type: (str) -> None
+        self.__support_model = support_model
+
+    @property
+    def support_model(self):
+        # type: () -> str
+        return self.__support_model
 
     def apply(self, model):
         # type: (Model) -> Tuple[Model, bool, str]
