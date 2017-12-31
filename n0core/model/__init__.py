@@ -29,9 +29,11 @@ class Model:
         dependencies: List of dependency to
 
     Example:
+        >>> new_vm = Model("resource/vm/kvm", "running")
         >>> new_disk = Model("resource/volume/local", "claimed")
-        >>> new_disk["size"] = 100 * 1024 * 1024 * 1024
-        >>> new_disk.meta["n0stack/n0core/resource/vm/boot_priority"] = "1"
+        >>> new_vm.add_dependency(new_disk,
+                                  "n0stack/n0core/resource/vm/attachments",
+                                  {"n0stack/n0core/resource/vm/boot_priority": "1"})
 
     TODO:
         - dependencyの2重定義ができないようにしたい
@@ -68,9 +70,18 @@ class Model:
         # type: () -> str
         return self.__name
 
-    def depend_on(self, label):
-        # type: (str) -> List[_Dependency]
-        return [d for d in self.dependencies if d.label == label]
+    def depend_on(self, label="", type=""):
+        # type: (str, str) -> List[_Dependency]
+        """`depend_on` select Models with some queries.
+
+        Args:
+            label: Label of _Dependency.
+            type: Type to select Models on _Dependency.
+
+        Return:
+            List of _Dependencies which is selected with args.
+        """
+        return [d for d in self.dependencies if label in d.label and type in d.model.name]
 
     def add_dependency(self,
                        model,       # type: Model
@@ -78,6 +89,15 @@ class Model:
                        property={}  # type: Dict[str, str]
                        ):
         # type: (...) -> None
+        """`add_dependency` add dependency.
+
+        If model have already been set, new modeland dependency is set. (Old dependency is deleted.)
+
+        Args:
+            model: Model which is depended.
+            label: A word about the relationship of dependence.
+            property: Additional options to explain the relationship of dependence.
+        """
         d = _Dependency(model, label, property)
 
         for i, v in enumerate(self.dependencies):
@@ -89,10 +109,10 @@ class Model:
 
 class _Dependency:
     """
-    Example:
-        >>> new_vm = Model("resource/vm/kvm", "running")
-        >>> new_disk = Model("resource/volume/local", "claimed")
-        >>> new_vm.add_dependency(new_disk, "resource/vm/attachments")
+    Args:
+        model: Model which is depended.
+        label: A word about the relationship of dependence.
+        property: Additional options to explain the relationship of dependence.
 
     TODO:
         - labelを書き込み可能にするか否か
