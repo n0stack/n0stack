@@ -5,6 +5,7 @@ from n0core.target import Target
 from n0core.model import Model  # NOQA
 from n0core.model.resource.network import Network
 from n0core.model.resource.nic import NIC
+from n0core.model.resource.nic import NICState
 from n0core.lib.dhcp.dnsmasq import Dnsmasq
 
 
@@ -16,7 +17,7 @@ class Direct(Target):
 
     def __init__(self, interface):
         # type: (str) -> None
-        super().__init__()
+        super().__init__("resource/nic/direct")
 
     def apply(self, model):
         # type: (Model) -> Tuple[Model, bool, str]
@@ -28,13 +29,13 @@ class Direct(Target):
 
         dnsmasq = Dnsmasq(network.id, network.bridge)
 
-        if model.state == NIC.STATES.ATTACHED:
+        if model.state == NICState.ATTACHED:
             dnsmasq.add_allowed_host(model.hw_addr)
 
             for i in model.ip_addrs:
                 dnsmasq.add_host_entry(model.hw_addr, i)
 
-        elif model.state == NIC.STATES.DELETED:
+        elif model.state == NICState.DELETED:
             dnsmasq.delete_host_entry(model.hw_addr)
             dnsmasq.delete_allowed_host(model.hw_addr)
 
