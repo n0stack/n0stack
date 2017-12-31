@@ -5,6 +5,7 @@ from n0library.logger import Logger
 from n0core.target.network import Network as NetworkTarget
 from n0core.model import Model  # NOQA
 from n0core.model.resource.network import Network
+from n0core.model.resource.network import NetworkState
 from n0core.lib.dhcp.dnsmasq import Dnsmasq
 
 
@@ -23,7 +24,7 @@ class Flat(NetworkTarget):
         model = cast(Network, model)
         dnsmasq = Dnsmasq(model.id, self.bridge_name(model.id))
 
-        if model.state == Network.STATES.UP:
+        if model.state == NetworkState.UP:
             self.apply_bridge(model.id)
             model.bridge = self.bridge_name(model.id)
 
@@ -35,11 +36,11 @@ class Flat(NetworkTarget):
                 dhcp_addr = ip_interface(subnet.cidr) + 1
                 dnsmasq.create_dhcp_server(dhcp_addr, subnet.dhcp.range)  # rangeが変わったらip addressも変えないといけないのでは？
 
-        elif model.state == Network.STATES.DOWN:
+        elif model.state == NetworkState.DOWN:
             self.apply_bridge(model.id, state="down")
             dnsmasq.stop_process()
 
-        elif model.state == Network.STATES.DELETED:
+        elif model.state == NetworkState.DELETED:
             dnsmasq.delete_dhcp_server()
             self.delete_bridge(model.id)
 
