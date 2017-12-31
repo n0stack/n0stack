@@ -1,12 +1,11 @@
 from typing import Dict, List  # NOQA
 
 from n0core.message import Message
-from n0core.message import MessageType
 from n0core.model import Model  # NOQA
 
 
 class Spec(Message):
-    """Spec is sent to distributor to propagate Models.
+    """Spec is sent from API to scheduler to propagate Models.
 
     Args:
         spec_id: ID to distinguish spec as a user request.
@@ -27,7 +26,7 @@ class Spec(Message):
                  annotations={}  # type: Dict[str, str]
                  ):
         # type: (...) -> None
-        super().__init__(spec_id, MessageType.SPEC)
+        super().__init__(spec_id, Message.TYPES.SPEC)
 
         self.__models = models
         self.__annotations = annotations

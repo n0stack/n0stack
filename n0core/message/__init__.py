@@ -1,15 +1,12 @@
 from enum import Enum
 
 
-class MessageType(Enum):
-    SPEC = 1
-    NOTIFICATION = 2
-
-
 class Message:
     """
     DO NOT REUSE INSTANCE.
     """
+
+    TYPES = Enum("TYPES", ["NOTIFICATION", "SPEC"])
 
     def __init__(self, spec_id, type):
         # type: (str, Enum) -> (None)
