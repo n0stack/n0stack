@@ -8,11 +8,16 @@ install:
 - pip install flake8
 - pip install mypy lxml
 - pip install git+https://github.com/n0stack/n0library.git@develop
+- pip install Sphinx
+- pip install sphinx_rtd_theme
+- pip install recommonmark commonmark
 
 script:
 - flake8 .
 - mypy -p n0core
 - python setup.py install
+- sphinx-apidoc -F -o docs/ .
+- cd docs/ && make html
 
 notifications:
   slack:
