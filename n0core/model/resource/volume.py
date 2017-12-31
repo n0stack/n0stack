@@ -8,8 +8,8 @@ from n0core.model import _Dependency # NOQA
 
 class VolumeState(Enum):
     ALLOCATED = 1
+    DEALLOCATED = 0
     DELETED = -1
-    DESTROYED = -2
 
 
 class Volume(Model):
@@ -28,8 +28,8 @@ class Volume(Model):
 
     STATES:
         ALLOCATED: Allocate volume size and share volume.
-        DELETED: Delete volume resource, but not delete data in volume.
-        DESTROYED: Destroy data in volume.
+        DEALLOCATED: Delete volume resource, but not delete data in volume.
+        DELETED: Delete data in volume.
 
     Meta:
 
