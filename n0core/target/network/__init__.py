@@ -19,7 +19,7 @@ class Network(Target):
 
     def __init__(self, type, interface):
         # type: (str, str) -> None
-        super().__init__()
+        super().__init__("resource/network/{}".format(type))
 
         self.__type = type
         self.__interface = interface

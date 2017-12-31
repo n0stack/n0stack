@@ -2,11 +2,17 @@ from enum import Enum
 from typing import Any  # NOQA
 
 from n0core.message import Message
+from n0core.message import MessageType
 from n0core.model import Model  # NOQA
 
 
+class Event(Enum):
+    SCHEDULED = 1
+    APPLIED = 2
+
+
 class Notification(Message):
-    """Spec is sent from API to scheduler to propagate Models.
+    """Notification is sent to agent and aggregater to notify a Model.
 
     Args:
         spec_id: ID to distinguish spec as a user request.
@@ -21,12 +27,10 @@ class Notification(Message):
         >>> m = Model(...)
         >>> Spec(spec_id="ba6f8ced-c8c2-41e9-98d0-5c961dff6c9cf",
                  model=m,
-                 event=Notification.EVENTS.SCHEDULED,
+                 event=Event.SCHEDULED,
                  is_succeeded=True,
                  description="Succeeded to schedule {}.".format(m.id))
     """
-
-    EVENTS = Enum("EVENTS", ["SCHEDULED", "APPLIED"])
 
     def __init__(self,
                  spec_id,     # type: str
@@ -36,7 +40,7 @@ class Notification(Message):
                  description  # type: str
                  ):
         # type: (...) -> None
-        super().__init__(spec_id, Message.TYPES.NOTIFICATION)
+        super().__init__(spec_id, MessageType.NOTIFICATION)
 
         self.__model = model
         self.__event = event
