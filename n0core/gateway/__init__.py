@@ -3,10 +3,8 @@ from n0core.model import Model  # NOQA
 
 
 class Gateway:
-    """Gateway provide methods of incoming or outgoing Messages with other services.
-
-    TODO:
-        仕様が決まっていない
+    """
+    Gateway provide methods of incoming or outgoing Messages with other services.
     """
 
     def receive(self):
