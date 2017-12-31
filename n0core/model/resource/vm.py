@@ -6,20 +6,11 @@ from n0core.model import Model
 from n0core.model import _Dependency # NOQA
 
 
-class VMState(Enum):
-    POWEROFF = 1
-    RUNNING = 2
-    SAVED = 3
-    DELETED = -1
-
-
 class VM(Model):
     """VM manage memory and CPU resource.
 
     Example:
-
-        .. code-block:: yaml
-
+        ```yaml
         id: 13bae4ae-67f3-456a-ab05-a217d7cf0861
         type: resource/vm/kvm
         name: hogehoge
@@ -67,12 +58,13 @@ class VM(Model):
           label: n0stack/n0core/resource/vm/attachments
           property:
             n0stack/n0core/resource/vm/boot_priority: 1
+        ```
 
     States:
-        POWEROFF: Shutdowned VM.
-        RUNNING: Running VM.
-        SAVED: Suspended VM.
-        DELETED: Deleted VM.
+        poweroff: Shutdowned VM.
+        runnnig: Running VM.
+        saved: Suspended VM.
+        deleted: Deleted VM.
 
     Meta:
 
@@ -94,6 +86,8 @@ class VM(Model):
         meta:
         dependencies: List of dependency to
     """
+
+    STATES = Enum("STATES", ["POWEROFF", "RUNNING", "SAVED", "DELETED"])
 
     def __init__(self,
                  id,              # type: str

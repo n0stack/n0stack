@@ -4,13 +4,7 @@ from n0core.message import Message  # NOQA
 
 
 class Processor:
-    """Processor is enterprise service to provide abstract process which is shown on overall architecture.
-
-    "n0core" is based on onion architecture.
-    Application service, which is target, repository and gateway, is depending for Processor,
-    and enterprise service is depending for nothing,
-    so life cycle of Processor must be long.
-
+    """
     TODO:
         - どうやってincomingのGatewayからいい感じにデータを取得するか
     """
@@ -22,7 +16,7 @@ class Processor:
     def process(self, message):
         # type: (Any) -> None
         """
-        `process` is implimented for each use case.
+        `process` is implimented by each use case.
 
         Args:
             message: Message which is got by Gateway.
@@ -34,8 +28,7 @@ class Processor:
         """
         `handler` wrap `Processor.process` to manage common processes over all like exceptions.
 
-        TODO:
-            Gateway will call handler.
+        Gateway will call this.
 
         Args:
             message: Message which is got by Gateway.

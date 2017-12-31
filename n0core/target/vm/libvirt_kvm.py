@@ -6,7 +6,7 @@ from n0library.logger import Logger
 
 from n0core.target.vm.base import QemuOpen
 from n0core.target import Target
-from n0core.model.resource.vm import VMState
+from n0core.model.resource.vm import VM
 from n0core.target.vm.xml_generator import (define_vm_xml,
                                             define_volume_xml,
                                             define_interface_xml,
@@ -23,7 +23,7 @@ class LibvirtKVM(QemuOpen, Target):  # NOQA
     """
     def __init__(self):
         # type: () -> None
-        super().__init__("resource/vm/libvirt_kvm")
+        super().__init__()
 
     def apply(self, model):
         # type: (Model) -> Tuple[Model, bool, str]
@@ -58,12 +58,12 @@ class LibvirtKVM(QemuOpen, Target):  # NOQA
 
             return model, True, "succeeded"
 
-        if model.state is VMState.POWEROFF:
+        if model.state is VM.STATES.POWEROFF:
             if not self.force_stop(vm_name):
                 return model, False, "failed"
             return model, True, "succeeded"
 
-        elif model.state is VMState.RUNNING:
+        elif model.state is VM.STATES.RUNNING:
             if not self.start(vm_name):
                 return model, False, "failed"
             return model, True, "succeeded"
@@ -71,7 +71,7 @@ class LibvirtKVM(QemuOpen, Target):  # NOQA
         #  TODO: SAVED process
 
         # Delete VM
-        if model.state is VMState.DELETED:
+        if model.state is VM.STATES.DELETED:
             if not self.delete(vm_name):
                 return model, False, "failed"
             return model, True, "succeeded to delete VM"
