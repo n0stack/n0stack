@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+message Network {
+  enum State {
+    APPLIED = 0;
+    HALTED = 1;
+  }
+  State state = 1;
+  string mode = 2;
+  string bridge = 3;
+
+  message Subnet {
+    string cidr = 1;
+    bool enable_dhcp = 2;
+    string allocation_pool = 3;
+    string gateway_ip = 4;
+    repeated string nameservers = 5;
+  }
+  repeated Subnet subnets = 4;
+
+  message VlanSettings {
+    uint32 vlan_id = 1;
+  }
+  oneof parameters {
+    VlanSettings vlan_settings = 10;
+  }
+}

@@ -1,9 +1,0 @@
-syntax = "proto3";
-
-message AttachVolumeRequest {
-  string vm_id = 1;
-  oneof volumes {
-    string volume_id = 2;
-    string iso_path = 3;
-  }
-}

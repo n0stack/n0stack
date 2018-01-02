@@ -2,7 +2,9 @@ syntax = "proto3";
 
 import public "n0core/lib/proto/objects/object.proto";
 
-message Request {
+message Spec {
   string spec_id = 1;
-  Object object = 2;
+  repeated Object object = 2;
+
+  map<string, string> annotations = 3;
 }

@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+message Volume {
+  enum State {
+    CLAIMED = 0;
+    RELEASED = 1;
+    DESTROYED = 2;
+  }
+  State state = 1;
+  string mode = 2;
+  uint64 size = 3;
+  string url = 4;
+}

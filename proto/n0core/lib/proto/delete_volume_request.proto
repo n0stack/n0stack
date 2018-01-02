@@ -1,6 +1,0 @@
-syntax = "proto3";
-
-message DeleteVolumeRequest {
-  string id = 1;
-  string host = 2;
-}
