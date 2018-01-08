@@ -1,23 +1,18 @@
 language: python
 
-jobs:
-  include:
-    - stage: test
-      python:
-        - 3.5
-        - 3.6
-      install:
-        - pip install -e ".[test]"
-      script:
-        - flake8 .
-        - mypy -p n0core --config-file .mypy.ini
-    - stage: build_docs
-      python: 3.6
-      install:
-        - pip install -e ".[docs]"
-      script:
-        - sphinx-apidoc -F -o docs/ .
-        - cd docs/ && make html
+python:
+  - 3.5
+  - 3.6
+
+install:
+  - pip install -e ".[test]"
+  - pip install -e ".[docs]"
+
+script:
+  - flake8 .
+  - mypy -p n0core --config-file .mypy.ini
+  - sphinx-apidoc -F -o docs/ .
+  - cd docs/ && make html
 
 notifications:
   slack:
