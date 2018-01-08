@@ -5,19 +5,20 @@ python:
 - 3.6
 
 install:
-- pip install flake8
-- pip install mypy lxml
-- pip install git+https://github.com/n0stack/n0library.git@develop
-- pip install Sphinx
-- pip install sphinx_rtd_theme
-- pip install recommonmark commonmark
+- pip install -e ".[test]"
+- pip install -e ".[docs]"
 
-script:
-- flake8 .
-- mypy -p n0core --config-file .mypy.ini
-- python setup.py install
-- sphinx-apidoc -F -o docs/ .
-- cd docs/ && make html
+jobs:
+  include:
+    - stage: test
+      script:
+        - flake8 .
+        - mypy -p n0core --config-file .mypy.ini
+    - stage: build_docs
+      python: 3.6
+      script:
+        - sphinx-apidoc -F -o docs/ .
+        - cd docs/ && make html
 
 notifications:
   slack:
