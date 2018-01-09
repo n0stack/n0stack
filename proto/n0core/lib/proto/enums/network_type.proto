@@ -1,6 +1,0 @@
-syntax = "proto3";
-
-enum NetworkType {
-  FLAT = 0;
-  VLAN = 1;
-}

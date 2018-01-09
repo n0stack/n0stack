@@ -1,8 +1,0 @@
-syntax = "proto3";
-
-import "n0core/lib/proto/enums/vm_power_state.proto";
-
-message UpdateVMPowerStateRequest {
-  string id = 1;
-  VMPowerState status = 2;
-}

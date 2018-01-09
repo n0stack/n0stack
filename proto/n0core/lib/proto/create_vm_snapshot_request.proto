@@ -1,6 +1,0 @@
-syntax = "proto3";
-
-message CreateVMSnapshotRequest {
-  string vm_id = 1;
-  string snapshot_id = 2;
-}
