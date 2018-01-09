@@ -15,7 +15,7 @@ if __name__ == "__main__":
         "git+https://github.com/larsks/python-netns.git",
 
         # n0core.target.vm
-        # "libvirt-python"
+        # "l1ibvirt-python"
     ]
 
     extras = {
@@ -23,6 +23,7 @@ if __name__ == "__main__":
             "flake8",
             "mypy",
             "lxml",
+            "ipython",
         ],
         "docs": [
             "Sphinx",
