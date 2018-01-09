@@ -1,5 +1,0 @@
-syntax = "proto3";
-
-message VlanNetworkSetting {
-  uint32 vlan_id = 1;
-}
