@@ -9,7 +9,7 @@ import (
 )
 
 func TestVMGetModel(t *testing.T) {
-	id, _ := uuid.NewV4()
+	id := uuid.NewV4()
 	m := &model.Model{
 		ID:           id,
 		Type:         "test/test",
