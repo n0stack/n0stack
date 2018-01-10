@@ -24,7 +24,7 @@ func (mr MockRepository) DigModel(i *uuid.UUID, e string, d uint) (*model.Model,
 }
 
 func TestAggregatorProcessMessage(t *testing.T) {
-	id, _ := uuid.NewV4()
+	id := uuid.NewV4()
 	m := &model.Model{
 		ID:           id,
 		Type:         "test/test",
@@ -39,7 +39,7 @@ func TestAggregatorProcessMessage(t *testing.T) {
 		SupportingTypes: []string{"test/test"},
 	}
 
-	specID, _ := uuid.NewV4()
+	specID := uuid.NewV4()
 	mes := &message.Notification{
 		SpecID:      specID,
 		Model:       c,
