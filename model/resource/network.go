@@ -68,6 +68,6 @@ type (
 	}
 )
 
-func (n Network) GetModel() *model.Model {
+func (n Network) ToModel() *model.Model {
 	return &n.Model
 }

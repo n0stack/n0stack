@@ -90,6 +90,6 @@ type VM struct {
 	VNCPassword string
 }
 
-func (v VM) GetModel() *model.Model {
+func (v VM) ToModel() *model.Model {
 	return &v.Model
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-func TestComputeGetModel(t *testing.T) {
+func TestComputeToModel(t *testing.T) {
 	id := uuid.NewV4()
 	m := &model.Model{
 		ID:           id,
@@ -24,9 +24,9 @@ func TestComputeGetModel(t *testing.T) {
 		SupportingTypes: []string{"test/test"},
 	}
 
-	f := c.GetModel()
+	f := c.ToModel()
 
-	if !reflect.DeepEqual(f, m) {
-		t.Errorf("Got another model on GetModel:\ngot  %v\nwant %v", f, m)
+	if !reflect.DeepEqual(f, m) { // これ本当に正しいか怪しい
+		t.Errorf("Got another model on ToModel:\ngot  %v\nwant %v", f, m)
 	}
 }

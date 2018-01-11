@@ -8,7 +8,7 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-func TestNetworkGetModel(t *testing.T) {
+func TestNetworkToModel(t *testing.T) {
 	id := uuid.NewV4()
 	m := &model.Model{
 		ID:           id,
@@ -25,9 +25,9 @@ func TestNetworkGetModel(t *testing.T) {
 		Subnets: []subnet{},
 	}
 
-	f := n.GetModel()
+	f := n.ToModel()
 
 	if !reflect.DeepEqual(f, m) {
-		t.Errorf("Got another model on GetModel:\ngot  %v\nwant %v", f, m)
+		t.Errorf("Got another model on ToModel:\ngot  %v\nwant %v", f, m)
 	}
 }

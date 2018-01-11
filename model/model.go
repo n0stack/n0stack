@@ -50,7 +50,7 @@ type (
 
 	// AbstractModel is abstract interface for all models to use as Model.
 	AbstractModel interface {
-		GetModel() *Model
+		ToModel() *Model
 	}
 
 	// Args:
