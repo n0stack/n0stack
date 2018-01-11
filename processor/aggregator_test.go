@@ -4,24 +4,14 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/n0stack/n0core/repository"
+
 	"github.com/n0stack/n0core/message"
 	"github.com/n0stack/n0core/model/node"
 
 	"github.com/n0stack/n0core/model"
 	"github.com/satori/go.uuid"
 )
-
-type MockRepository struct {
-	f func(m *message.Notification)
-}
-
-func (mr MockRepository) StoreNotification(m *message.Notification) {
-	mr.f(m)
-}
-
-func (mr MockRepository) DigModel(i *uuid.UUID, e string, d uint) (*model.Model, error) {
-	return &model.Model{}, nil
-}
 
 func TestAggregatorProcessMessage(t *testing.T) {
 	id := uuid.NewV4()
@@ -54,7 +44,8 @@ func TestAggregatorProcessMessage(t *testing.T) {
 		}
 	}
 
-	r := &MockRepository{f: f}
+	r := &repository.MockRepository{}
+	r.PatchStoreNotification = f
 
 	a := &Aggregator{Repository: r}
 	a.ProcessMessage(mes)
