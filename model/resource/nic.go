@@ -66,6 +66,6 @@ type NIC struct {
 	IPAddrs []net.IP
 }
 
-func (n NIC) GetModel() *model.Model {
+func (n NIC) ToModel() *model.Model {
 	return &n.Model
 }

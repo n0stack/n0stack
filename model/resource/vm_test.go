@@ -8,7 +8,7 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-func TestVMGetModel(t *testing.T) {
+func TestVMToModel(t *testing.T) {
 	id := uuid.NewV4()
 	m := &model.Model{
 		ID:           id,
@@ -27,9 +27,9 @@ func TestVMGetModel(t *testing.T) {
 		VNCPassword: "foobar",
 	}
 
-	f := v.GetModel()
+	f := v.ToModel()
 
 	if !reflect.DeepEqual(f, m) {
-		t.Errorf("Got another model on GetModel:\ngot  %v\nwant %v", f, m)
+		t.Errorf("Got another model on ToModel:\ngot  %v\nwant %v", f, m)
 	}
 }

@@ -9,7 +9,7 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-func TestNICGetModel(t *testing.T) {
+func TestNICToModel(t *testing.T) {
 	id := uuid.NewV4()
 	m := &model.Model{
 		ID:           id,
@@ -28,9 +28,9 @@ func TestNICGetModel(t *testing.T) {
 		IPAddrs: []net.IP{net.ParseIP("192.168.0.1")},
 	}
 
-	f := n.GetModel()
+	f := n.ToModel()
 
 	if !reflect.DeepEqual(f, m) {
-		t.Errorf("Got another model on GetModel:\ngot  %v\nwant %v", f, m)
+		t.Errorf("Got another model on ToModel:\ngot  %v\nwant %v", f, m)
 	}
 }

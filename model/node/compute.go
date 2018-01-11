@@ -8,6 +8,6 @@ type Compute struct {
 	SupportingTypes []string
 }
 
-func (c Compute) GetModel() *model.Model {
+func (c Compute) ToModel() *model.Model {
 	return &c.Model
 }

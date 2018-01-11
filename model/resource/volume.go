@@ -46,6 +46,6 @@ type Volume struct {
 	URL  *url.URL
 }
 
-func (v Volume) GetModel() *model.Model {
+func (v Volume) ToModel() *model.Model {
 	return &v.Model
 }
