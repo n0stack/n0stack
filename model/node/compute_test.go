@@ -24,9 +24,10 @@ func TestComputeToModel(t *testing.T) {
 		SupportingTypes: []string{"test/test"},
 	}
 
+	// m.Meta = map[string]string{"hoge": "hogehoge"}
 	f := c.ToModel()
 
-	if !reflect.DeepEqual(f, m) { // これ本当に正しいか怪しい
+	if !reflect.DeepEqual(f, m) { // これ本当に正しいか怪しい、というか原理的に壊れることはないと思うんだが :thinking_face:
 		t.Errorf("Got another model on ToModel:\ngot  %v\nwant %v", f, m)
 	}
 }
