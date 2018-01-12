@@ -1,4 +1,4 @@
-package processor
+package aggregator
 
 import (
 	"github.com/n0stack/n0core/message"
@@ -19,10 +19,11 @@ type Aggregator struct {
 }
 
 func (a Aggregator) ProcessMessage(m message.AbstractMessage) {
-	n, ok := m.(message.Notification)
+	n, ok := m.(*message.Notification)
 	if !ok {
+		// logging
 		return
 	}
 
-	a.Repository.StoreNotification(&n)
+	a.Repository.StoreNotification(n)
 }
