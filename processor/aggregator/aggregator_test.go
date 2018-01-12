@@ -38,52 +38,90 @@ func TestProcessNotification(t *testing.T) {
 		Description: "foobar",
 	}
 
-	f := func(mod *message.Notification) {
+	f := func(mod *message.Notification) bool {
 		if !reflect.DeepEqual(mod, mes) {
 			t.Errorf("Got another message on MockRepository.StoreNotification:\ngot  %v\nwant %v", mod, mes)
 		}
+
+		return true
 	}
 
 	r := &repository.MockRepository{}
 	r.PatchStoreNotification = f
 
 	a := &Aggregator{Repository: r}
-	a.ProcessMessage(mes)
+	err := a.ProcessMessage(mes)
+	if err != nil {
+		t.Errorf("Failed to process message: %v", err.Error())
+	}
 }
 
-// ログの出力がされることを確認する必要がある
-// func TestProcessSpec(t *testing.T) {
-// 	id := uuid.NewV4()
-// 	m := &model.Model{
-// 		ID:           id,
-// 		Type:         "test/test",
-// 		State:        "testing",
-// 		Name:         "test_model",
-// 		Meta:         map[string]string{"hoge": "hoge"},
-// 		Dependencies: model.Dependencies{},
-// 	}
+func TestProcessSpec(t *testing.T) {
+	id := uuid.NewV4()
+	m := &model.Model{
+		ID:           id,
+		Type:         "test/test",
+		State:        "testing",
+		Name:         "test_model",
+		Meta:         map[string]string{"hoge": "hoge"},
+		Dependencies: model.Dependencies{},
+	}
 
-// 	c := &node.Compute{
-// 		Model:           *m,
-// 		SupportingTypes: []string{"test/test"},
-// 	}
+	c := &node.Compute{
+		Model:           *m,
+		SupportingTypes: []string{"test/test"},
+	}
 
-// 	specID := uuid.NewV4()
-// 	mes := &message.Notification{
-// 		SpecID:      specID,
-// 		Model:       c,
-// 		Event:       "APPLIED",
-// 		IsSucceeded: true,
-// 		Description: "foobar",
-// 	}
+	specID := uuid.NewV4()
+	mes := &message.Spec{
+		SpecID: specID,
+		Models: []model.AbstractModel{c},
+	}
 
-// 	f := func(mod *message.Notification) {
-// 		t.Errorf("Got another message on MockRepository.StoreNotification:\ngot  %v\nwant %v", mod, mes)
-// 	}
+	r := &repository.MockRepository{}
+	a := &Aggregator{Repository: r}
 
-// 	r := &repository.MockRepository{}
-// 	r.PatchStoreNotification = f
+	err := a.ProcessMessage(mes)
+	if !(err != nil && err.Error() == "Received notification message which is not supported, maybe there are stranger or distributor has bugs") {
+		t.Errorf("Could not specify notification message when got spec message:\nwant error message 'Received notification message which is not supported, maybe there are stranger or distributor has bugs'\ngot  error message '%v'", err.Error())
+	}
+}
 
-// 	a := &Aggregator{Repository: r}
-// 	a.ProcessMessage(mes)
-// }
+func TestProcessMessageOnRepositoryFailure(t *testing.T) {
+	id := uuid.NewV4()
+	m := &model.Model{
+		ID:           id,
+		Type:         "test/test",
+		State:        "testing",
+		Name:         "test_model",
+		Meta:         map[string]string{"hoge": "hoge"},
+		Dependencies: model.Dependencies{},
+	}
+
+	c := &node.Compute{
+		Model:           *m,
+		SupportingTypes: []string{"test/test"},
+	}
+
+	specID := uuid.NewV4()
+	mes := &message.Notification{
+		SpecID:      specID,
+		Model:       c,
+		Event:       "APPLIED",
+		IsSucceeded: true,
+		Description: "foobar",
+	}
+
+	f := func(mod *message.Notification) bool {
+		return false
+	}
+
+	r := &repository.MockRepository{}
+	r.PatchStoreNotification = f
+
+	a := &Aggregator{Repository: r}
+	err := a.ProcessMessage(mes)
+	if !(err != nil && err.Error() == "Failed to store notification message") {
+		t.Errorf("Could not handling failure to store notification message:\nwant error message 'Failed to store notification message'\ngot  error message '%v'", err.Error())
+	}
+}
