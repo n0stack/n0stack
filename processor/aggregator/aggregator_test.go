@@ -4,30 +4,15 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/n0stack/n0core/repository"
-
 	"github.com/n0stack/n0core/message"
-	"github.com/n0stack/n0core/model/node"
-
 	"github.com/n0stack/n0core/model"
+	"github.com/n0stack/n0core/repository"
 	"github.com/satori/go.uuid"
 )
 
 func TestProcessNotification(t *testing.T) {
 	id := uuid.NewV4()
-	m := &model.Model{
-		ID:           id,
-		Type:         "test/test",
-		State:        "testing",
-		Name:         "test_model",
-		Meta:         map[string]string{"hoge": "hoge"},
-		Dependencies: model.Dependencies{},
-	}
-
-	c := &node.Compute{
-		Model:           *m,
-		SupportingTypes: []string{"test/test"},
-	}
+	c := model.NewCompute(id, "testing", "test_model", map[string]string{"hoge": "hoge"}, model.Dependencies{}, []string{"test/test"})
 
 	specID := uuid.NewV4()
 	mes := &message.Notification{
@@ -58,19 +43,7 @@ func TestProcessNotification(t *testing.T) {
 
 func TestProcessSpec(t *testing.T) {
 	id := uuid.NewV4()
-	m := &model.Model{
-		ID:           id,
-		Type:         "test/test",
-		State:        "testing",
-		Name:         "test_model",
-		Meta:         map[string]string{"hoge": "hoge"},
-		Dependencies: model.Dependencies{},
-	}
-
-	c := &node.Compute{
-		Model:           *m,
-		SupportingTypes: []string{"test/test"},
-	}
+	c := model.NewCompute(id, "testing", "test_model", map[string]string{"hoge": "hoge"}, model.Dependencies{}, []string{"test/test"})
 
 	specID := uuid.NewV4()
 	mes := &message.Spec{
@@ -89,19 +62,7 @@ func TestProcessSpec(t *testing.T) {
 
 func TestProcessMessageOnRepositoryFailure(t *testing.T) {
 	id := uuid.NewV4()
-	m := &model.Model{
-		ID:           id,
-		Type:         "test/test",
-		State:        "testing",
-		Name:         "test_model",
-		Meta:         map[string]string{"hoge": "hoge"},
-		Dependencies: model.Dependencies{},
-	}
-
-	c := &node.Compute{
-		Model:           *m,
-		SupportingTypes: []string{"test/test"},
-	}
+	c := model.NewCompute(id, "testing", "test_model", map[string]string{"hoge": "hoge"}, model.Dependencies{}, []string{"test/test"})
 
 	specID := uuid.NewV4()
 	mes := &message.Notification{
