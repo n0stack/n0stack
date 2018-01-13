@@ -2,9 +2,13 @@ package resource
 
 import (
 	"net"
+	"path/filepath"
 
 	"github.com/n0stack/n0core/model"
+	uuid "github.com/satori/go.uuid"
 )
+
+const NICType = "resource/nic"
 
 // NIC manage IP address resource.
 //
@@ -60,7 +64,7 @@ import (
 // 	meta:
 // 	dependencies: List of dependency to
 type NIC struct {
-	model.Model
+	model.Model `yaml:",inline"`
 
 	HWAddr  net.HardwareAddr
 	IPAddrs []net.IP
@@ -68,4 +72,19 @@ type NIC struct {
 
 func (n NIC) ToModel() *model.Model {
 	return &n.Model
+}
+
+func NewNIC(id uuid.UUID, specificType, state, name string, meta map[string]string, dependencies model.Dependencies, hwAddr net.HardwareAddr, ipAddrs []net.IP) *NIC {
+	return &NIC{
+		Model: model.Model{
+			ID:           id,
+			Type:         filepath.Join(NICType, specificType),
+			State:        state,
+			Name:         name,
+			Meta:         meta,
+			Dependencies: model.Dependencies{},
+		},
+		HWAddr:  hwAddr,
+		IPAddrs: ipAddrs,
+	}
 }
