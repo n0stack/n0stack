@@ -1,22 +1,21 @@
-package node
+package model
 
 import (
 	"reflect"
 	"testing"
 
-	"github.com/n0stack/n0core/model"
 	"github.com/satori/go.uuid"
 )
 
 func TestComputeToModel(t *testing.T) {
 	id := uuid.NewV4()
-	m := &model.Model{
+	m := &Model{
 		ID:           id,
 		Type:         "test/test",
 		State:        "testing",
 		Name:         "test_model",
 		Meta:         map[string]string{"hoge": "hoge"},
-		Dependencies: model.Dependencies{},
+		Dependencies: Dependencies{},
 	}
 
 	c := &Compute{
@@ -32,15 +31,15 @@ func TestComputeToModel(t *testing.T) {
 	}
 }
 
-func TestNewVM(t *testing.T) {
+func TestNewCompute(t *testing.T) {
 	id := uuid.NewV4()
-	m := &model.Model{
+	m := &Model{
 		ID:           id,
 		Type:         ComputeType,
 		State:        "testing",
 		Name:         "test_model",
 		Meta:         map[string]string{"hoge": "hoge"},
-		Dependencies: model.Dependencies{},
+		Dependencies: Dependencies{},
 	}
 
 	v := &Compute{

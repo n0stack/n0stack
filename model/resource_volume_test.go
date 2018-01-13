@@ -1,4 +1,4 @@
-package resource
+package model
 
 import (
 	"net/url"
@@ -6,19 +6,18 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/n0stack/n0core/model"
 	"github.com/satori/go.uuid"
 )
 
 func TestVolumeToModel(t *testing.T) {
 	id := uuid.NewV4()
-	m := &model.Model{
+	m := &Model{
 		ID:           id,
 		Type:         "test/test",
 		State:        "testing",
 		Name:         "test_model",
 		Meta:         map[string]string{"hoge": "hoge"},
-		Dependencies: model.Dependencies{},
+		Dependencies: Dependencies{},
 	}
 
 	u, _ := url.Parse("file:///opt/n0core")
@@ -38,13 +37,13 @@ func TestVolumeToModel(t *testing.T) {
 func TestNewVolume(t *testing.T) {
 	id := uuid.NewV4()
 	specificType := "hoge"
-	m := &model.Model{
+	m := &Model{
 		ID:           id,
 		Type:         filepath.Join(VolumeType, specificType),
 		State:        "testing",
 		Name:         "test_model",
 		Meta:         map[string]string{"hoge": "hoge"},
-		Dependencies: model.Dependencies{},
+		Dependencies: Dependencies{},
 	}
 
 	u, _ := url.Parse("file:///opt/n0core")
