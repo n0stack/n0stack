@@ -7,12 +7,12 @@ import (
 )
 
 type MockRepository struct {
-	PatchStoreNotification func(m *message.Notification)
+	PatchStoreNotification func(m *message.Notification) bool
 	PatchDigModel          func(i *uuid.UUID, e string, d uint) (*model.Model, error)
 }
 
-func (mr MockRepository) StoreNotification(m *message.Notification) {
-	mr.PatchStoreNotification(m)
+func (mr MockRepository) StoreNotification(m *message.Notification) bool { // TODO: errorにするかboolにするか
+	return mr.PatchStoreNotification(m)
 }
 
 func (mr MockRepository) DigModel(i *uuid.UUID, e string, d uint) (*model.Model, error) {

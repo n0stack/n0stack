@@ -23,7 +23,7 @@ type Repository interface {
 	// 	>>> m = r.read("...", event="APPLIED", depth=1)
 	// 	>>> m.dependencies -> not None
 	// 	>>> m.dependencies.model.dependencies -> None
-	DigModel(i *uuid.UUID, e string, d uint) (*model.Model, error)
+	DigModel(id *uuid.UUID, event string, depth uint) (*model.Model, error)
 
 	// Schedule is needed to implement *after v0.0.3*.
 	//
@@ -40,5 +40,5 @@ type Repository interface {
 	// Args:
 	// 	message: Message to store.
 	// 			 Model on the top is only stored.
-	StoreNotification(m *message.Notification)
+	StoreNotification(n *message.Notification) bool
 }
