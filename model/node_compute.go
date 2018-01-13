@@ -1,31 +1,30 @@
-package node
+package model
 
 import (
-	"github.com/n0stack/n0core/model"
 	uuid "github.com/satori/go.uuid"
 )
 
 const ComputeType = "node/compute"
 
 type Compute struct {
-	model.Model `yaml:",inline"`
+	Model `yaml:",inline"`
 
 	SupportingTypes []string `yaml:"supportingTypes"`
 }
 
-func (c Compute) ToModel() *model.Model {
+func (c Compute) ToModel() *Model {
 	return &c.Model
 }
 
-func NewCompute(id uuid.UUID, state, name string, meta map[string]string, dependencies model.Dependencies, supportingTypes []string) *Compute {
+func NewCompute(id uuid.UUID, state, name string, meta map[string]string, dependencies Dependencies, supportingTypes []string) *Compute {
 	return &Compute{
-		Model: model.Model{
+		Model: Model{
 			ID:           id,
 			Type:         ComputeType,
 			State:        state,
 			Name:         name,
 			Meta:         meta,
-			Dependencies: model.Dependencies{},
+			Dependencies: Dependencies{},
 		},
 		SupportingTypes: supportingTypes,
 	}

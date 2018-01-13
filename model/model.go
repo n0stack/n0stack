@@ -1,6 +1,8 @@
 package model
 
 import (
+	"fmt"
+
 	"github.com/satori/go.uuid"
 )
 
@@ -61,7 +63,7 @@ type (
 	// TODO:
 	// 	- labelを書き込み可能にするか否か
 	Dependency struct {
-		Model    Model
+		Model    AbstractModel
 		Label    string
 		Property map[string]string
 	}
@@ -75,4 +77,30 @@ func (d Dependencies) SelectWithLabel(l string) (Dependencies, error) {
 
 func (d Dependencies) SelectWithModelType(t string) (Dependencies, error) {
 	return d, nil
+}
+
+func (d Dependency) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	m := make(map[string]interface{})
+	unmarshal(&m)
+
+	d.Label = m["label"].(string)
+	d.Property = m["property"].(map[string]string)
+
+	mi, ok := m["model"]
+	if !ok {
+		return nil
+	}
+
+	mm, ok := mi.(map[interface{}]interface{})
+	if !ok {
+		return fmt.Errorf("hoge")
+	}
+
+	var err error
+	d.Model, err = MapToAbstractModel(mm)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

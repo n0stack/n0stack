@@ -1,10 +1,9 @@
-package resource
+package model
 
 import (
 	"net/url"
 	"path/filepath"
 
-	"github.com/n0stack/n0core/model"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -44,25 +43,25 @@ const VolumeType = "resource/volume"
 // 	meta:
 // 	dependencies: List of dependency to
 type Volume struct {
-	model.Model `yaml:",inline"`
+	Model `yaml:",inline"`
 
 	Size uint64
 	URL  *url.URL
 }
 
-func (v Volume) ToModel() *model.Model {
+func (v Volume) ToModel() *Model {
 	return &v.Model
 }
 
-func NewVolume(id uuid.UUID, specificType, state, name string, meta map[string]string, dependencies model.Dependencies, size uint64, u *url.URL) *Volume {
+func NewVolume(id uuid.UUID, specificType, state, name string, meta map[string]string, dependencies Dependencies, size uint64, u *url.URL) *Volume {
 	return &Volume{
-		Model: model.Model{
+		Model: Model{
 			ID:           id,
 			Type:         filepath.Join(VolumeType, specificType),
 			State:        state,
 			Name:         name,
 			Meta:         meta,
-			Dependencies: model.Dependencies{},
+			Dependencies: Dependencies{},
 		},
 		Size: size,
 		URL:  u,

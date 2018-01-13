@@ -1,10 +1,9 @@
-package resource
+package model
 
 import (
 	"net"
 	"path/filepath"
 
-	"github.com/n0stack/n0core/model"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -64,25 +63,25 @@ const NICType = "resource/nic"
 // 	meta:
 // 	dependencies: List of dependency to
 type NIC struct {
-	model.Model `yaml:",inline"`
+	Model `yaml:",inline"`
 
 	HWAddr  net.HardwareAddr
 	IPAddrs []net.IP
 }
 
-func (n NIC) ToModel() *model.Model {
+func (n NIC) ToModel() *Model {
 	return &n.Model
 }
 
-func NewNIC(id uuid.UUID, specificType, state, name string, meta map[string]string, dependencies model.Dependencies, hwAddr net.HardwareAddr, ipAddrs []net.IP) *NIC {
+func NewNIC(id uuid.UUID, specificType, state, name string, meta map[string]string, dependencies Dependencies, hwAddr net.HardwareAddr, ipAddrs []net.IP) *NIC {
 	return &NIC{
-		Model: model.Model{
+		Model: Model{
 			ID:           id,
 			Type:         filepath.Join(NICType, specificType),
 			State:        state,
 			Name:         name,
 			Meta:         meta,
-			Dependencies: model.Dependencies{},
+			Dependencies: Dependencies{},
 		},
 		HWAddr:  hwAddr,
 		IPAddrs: ipAddrs,

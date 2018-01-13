@@ -1,23 +1,22 @@
-package resource
+package model
 
 import (
 	"path/filepath"
 	"reflect"
 	"testing"
 
-	"github.com/n0stack/n0core/model"
 	"github.com/satori/go.uuid"
 )
 
 func TestVMToModel(t *testing.T) {
 	id := uuid.NewV4()
-	m := &model.Model{
+	m := &Model{
 		ID:           id,
 		Type:         "test/test",
 		State:        "testing",
 		Name:         "test_model",
 		Meta:         map[string]string{"hoge": "hoge"},
-		Dependencies: model.Dependencies{},
+		Dependencies: Dependencies{},
 	}
 
 	v := &VM{
@@ -38,13 +37,13 @@ func TestVMToModel(t *testing.T) {
 func TestNewVM(t *testing.T) {
 	id := uuid.NewV4()
 	specificType := "hoge"
-	m := &model.Model{
+	m := &Model{
 		ID:           id,
 		Type:         filepath.Join(VMType, specificType),
 		State:        "testing",
 		Name:         "test_model",
 		Meta:         map[string]string{"hoge": "hoge"},
-		Dependencies: model.Dependencies{},
+		Dependencies: Dependencies{},
 	}
 
 	v := &VM{

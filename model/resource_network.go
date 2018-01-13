@@ -1,10 +1,9 @@
-package resource
+package model
 
 import (
 	"net"
 	"path/filepath"
 
-	"github.com/n0stack/n0core/model"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -53,7 +52,7 @@ type (
 	// 	meta:
 	// 	dependencies: List of dependency to
 	Network struct {
-		model.Model `yaml:",inline"`
+		Model `yaml:",inline"`
 
 		Bridge  string
 		Subnets []Subnet
@@ -72,19 +71,19 @@ type (
 	}
 )
 
-func (n Network) ToModel() *model.Model {
+func (n Network) ToModel() *Model {
 	return &n.Model
 }
 
-func NewNetwork(id uuid.UUID, specificType, state, name string, meta map[string]string, dependencies model.Dependencies, bridge string, subnets []Subnet) *Network {
+func NewNetwork(id uuid.UUID, specificType, state, name string, meta map[string]string, dependencies Dependencies, bridge string, subnets []Subnet) *Network {
 	return &Network{
-		Model: model.Model{
+		Model: Model{
 			ID:           id,
 			Type:         filepath.Join(NetworkType, specificType),
 			State:        state,
 			Name:         name,
 			Meta:         meta,
-			Dependencies: model.Dependencies{},
+			Dependencies: Dependencies{},
 		},
 		Bridge:  bridge,
 		Subnets: subnets,
