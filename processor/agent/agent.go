@@ -8,7 +8,6 @@ import (
 	"github.com/n0stack/n0core/gateway"
 	"github.com/n0stack/n0core/message"
 	"github.com/n0stack/n0core/model"
-	"github.com/n0stack/n0core/model/node"
 	"github.com/n0stack/n0core/target"
 	"github.com/satori/go.uuid"
 )
@@ -42,22 +41,12 @@ func NewAgent(t []target.Target, g gateway.Gateway, m map[string]string) (*Agent
 		}
 	}
 
-	i, err := a.getComputeUUID()
+	id, err := a.getComputeUUID()
 	if err != nil {
 		return nil, err // エラーについて考える
 	}
-
-	c := &node.Compute{
-		Model: model.Model{
-			ID:           i,
-			Type:         "node/compute",
-			State:        "JOINED",
-			Name:         "hoge", // コマンドライン引数から取る or hostnameから取る
-			Meta:         map[string]string{"hoge": "hoge"},
-			Dependencies: model.Dependencies{},
-		},
-		SupportingTypes: a.SupportingTypes(),
-	}
+	// hostName, err := a.getHostName()
+	c := model.NewCompute(id, "JOINED", "test_model", map[string]string{"hoge": "hoge"}, model.Dependencies{}, []string{"test/test"})
 
 	n := &message.Notification{
 		// SpecID: uuid.NewV4(),
