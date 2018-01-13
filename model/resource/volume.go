@@ -2,9 +2,13 @@ package resource
 
 import (
 	"net/url"
+	"path/filepath"
 
 	"github.com/n0stack/n0core/model"
+	uuid "github.com/satori/go.uuid"
 )
+
+const VolumeType = "resource/volume"
 
 // Volume manage persistent volume resource.
 //
@@ -40,7 +44,7 @@ import (
 // 	meta:
 // 	dependencies: List of dependency to
 type Volume struct {
-	model.Model
+	model.Model `yaml:",inline"`
 
 	Size uint64
 	URL  *url.URL
@@ -48,4 +52,19 @@ type Volume struct {
 
 func (v Volume) ToModel() *model.Model {
 	return &v.Model
+}
+
+func NewVolume(id uuid.UUID, specificType, state, name string, meta map[string]string, dependencies model.Dependencies, size uint64, u *url.URL) *Volume {
+	return &Volume{
+		Model: model.Model{
+			ID:           id,
+			Type:         filepath.Join(VolumeType, specificType),
+			State:        state,
+			Name:         name,
+			Meta:         meta,
+			Dependencies: model.Dependencies{},
+		},
+		Size: size,
+		URL:  u,
+	}
 }

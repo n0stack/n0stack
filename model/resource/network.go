@@ -2,9 +2,13 @@ package resource
 
 import (
 	"net"
+	"path/filepath"
 
 	"github.com/n0stack/n0core/model"
+	uuid "github.com/satori/go.uuid"
 )
+
+const NetworkType = "resource/network"
 
 type (
 	// Network manage network range resource.
@@ -49,18 +53,18 @@ type (
 	// 	meta:
 	// 	dependencies: List of dependency to
 	Network struct {
-		model.Model
+		model.Model `yaml:",inline"`
 
 		Bridge  string
-		Subnets []subnet
+		Subnets []Subnet
 	}
 
-	subnet struct {
+	Subnet struct {
 		Cidr net.IPNet
-		DHCP dhcp
+		DHCP DHCP
 	}
 
-	dhcp struct {
+	DHCP struct {
 		RangeStart  net.IPAddr
 		RangeEnd    net.IPAddr
 		Gateway     net.IPAddr
@@ -70,4 +74,19 @@ type (
 
 func (n Network) ToModel() *model.Model {
 	return &n.Model
+}
+
+func NewNetwork(id uuid.UUID, specificType, state, name string, meta map[string]string, dependencies model.Dependencies, bridge string, subnets []Subnet) *Network {
+	return &Network{
+		Model: model.Model{
+			ID:           id,
+			Type:         filepath.Join(NetworkType, specificType),
+			State:        state,
+			Name:         name,
+			Meta:         meta,
+			Dependencies: model.Dependencies{},
+		},
+		Bridge:  bridge,
+		Subnets: subnets,
+	}
 }

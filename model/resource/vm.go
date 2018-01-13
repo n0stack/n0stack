@@ -1,6 +1,13 @@
 package resource
 
-import "github.com/n0stack/n0core/model"
+import (
+	"path/filepath"
+
+	"github.com/n0stack/n0core/model"
+	uuid "github.com/satori/go.uuid"
+)
+
+const VMType = "resource/vm"
 
 // VM manage memory and CPU resource.
 //
@@ -82,7 +89,7 @@ import "github.com/n0stack/n0core/model"
 // 	meta:
 // 	dependencies: List of dependency to
 type VM struct {
-	model.Model
+	model.Model `yaml:",inline"`
 
 	Arch        string // enumにしたい
 	VCPUs       uint
@@ -92,4 +99,21 @@ type VM struct {
 
 func (v VM) ToModel() *model.Model {
 	return &v.Model
+}
+
+func NewVM(id uuid.UUID, specificType, state, name string, meta map[string]string, dependencies model.Dependencies, arch string, vCPUs uint, memory uint64, vncPassword string) *VM {
+	return &VM{
+		Model: model.Model{
+			ID:           id,
+			Type:         filepath.Join(VMType, specificType),
+			State:        state,
+			Name:         name,
+			Meta:         meta,
+			Dependencies: model.Dependencies{},
+		},
+		Arch:        arch,
+		VCPUs:       vCPUs,
+		Memory:      memory,
+		VNCPassword: vncPassword,
+	}
 }
