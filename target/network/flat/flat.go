@@ -2,6 +2,7 @@ package flat
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/satori/go.uuid"
@@ -10,8 +11,14 @@ import (
 	"github.com/vishvananda/netlink"
 )
 
+const FlatType = "flat"
+
 type Flat struct {
 	InterfaceName string
+}
+
+func (f Flat) ManagingType() string {
+	return filepath.Join(model.NICType, FlatType)
 }
 
 func (f Flat) Apply(m model.AbstractModel) (string, bool) {
