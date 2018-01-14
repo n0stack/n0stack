@@ -19,8 +19,12 @@ import "github.com/n0stack/n0core/model"
 // 	>>> class Exapmle(Target):
 // 	>>>     def __init__(self):
 // 	>>>         super().__init__("resource/vm/example")
+//
+// Dependency packages:
+//
+// Orchestration pipeline:
+//
 type Target interface {
-
 	// Apply resource with some framework.
 	//
 	// Args:
@@ -28,5 +32,16 @@ type Target interface {
 	//
 	// Return:
 	// 	Tuple of processed is_succeeded and description.
-	Apply(m *model.AbstractModel) (bool, string)
+	Apply(m model.AbstractModel) (string, bool)
+
+	// Initialize initialize target to orchestrate resources.
+	//
+	// Ex. detect already orchestrated resource and test automatically.
+	// Initialize() (string, bool)
+
+	// Do test in Initialize to check whether target can orchestrate resource rightly.
+	// test() (string, bool)
+
+	// ManagingType return supporting model type.
+	ManagingType() string
 }
