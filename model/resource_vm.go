@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"path/filepath"
 
 	uuid "github.com/satori/go.uuid"
@@ -100,10 +101,15 @@ func (v VM) ToModel() *Model {
 	return &v.Model
 }
 
-func NewVM(id uuid.UUID, specificType, state, name string, meta map[string]string, dependencies Dependencies, arch string, vCPUs uint, memory uint64, vncPassword string) *VM {
+func NewVM(id, specificType, state, name string, meta map[string]string, dependencies Dependencies, arch string, vCPUs uint, memory uint64, vncPassword string) (*VM, error) {
+	i, err := uuid.FromString(id)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to parse uuid of id:\ngot %v", id)
+	}
+
 	return &VM{
 		Model: Model{
-			ID:           id,
+			ID:           i,
 			Type:         filepath.Join(VMType, specificType),
 			State:        state,
 			Name:         name,
@@ -114,5 +120,5 @@ func NewVM(id uuid.UUID, specificType, state, name string, meta map[string]strin
 		VCPUs:       vCPUs,
 		Memory:      memory,
 		VNCPassword: vncPassword,
-	}
+	}, nil
 }
