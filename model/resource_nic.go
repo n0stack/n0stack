@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"net"
 	"path/filepath"
 
@@ -73,17 +74,35 @@ func (n NIC) ToModel() *Model {
 	return &n.Model
 }
 
-func NewNIC(id uuid.UUID, specificType, state, name string, meta map[string]string, dependencies Dependencies, hwAddr net.HardwareAddr, ipAddrs []net.IP) *NIC {
+func NewNIC(id, specificType, state, name string, meta map[string]string, dependencies Dependencies, hwAddr string, ipAddrs []string) (*NIC, error) {
+	i, err := uuid.FromString(id)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to parse uuid of id:\ngot %v", id)
+	}
+
+	h, err := net.ParseMAC(hwAddr)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to parse mac address of hwAddr:\ngot %v", hwAddr)
+	}
+
+	ip := make([]net.IP, len(ipAddrs))
+	for j, v := range ipAddrs {
+		ip[j] = net.ParseIP(v)
+		if ip[j] == nil {
+			return nil, fmt.Errorf("Failed to parse IP address:\ngot %v", v)
+		}
+	}
+
 	return &NIC{
 		Model: Model{
-			ID:           id,
+			ID:           i,
 			Type:         filepath.Join(NICType, specificType),
 			State:        state,
 			Name:         name,
 			Meta:         meta,
 			Dependencies: Dependencies{},
 		},
-		HWAddr:  hwAddr,
-		IPAddrs: ipAddrs,
-	}
+		HWAddr:  h,
+		IPAddrs: ip,
+	}, nil
 }
