@@ -79,12 +79,12 @@ func TestNewVMFailOnParseID(t *testing.T) {
 func TestYamlVM(t *testing.T) {
 	v, err := NewVM(uuid.NewV4().String(), "test", "RUNNING", "test_model", map[string]string{"hoge": "hoge"}, Dependencies{}, "x86/64", 1, 128*1024*1024*1024, "foobar")
 	if err != nil {
-		t.Errorf("Failed to create nic instance: error message %v", err.Error())
+		t.Errorf("Failed to create vm instance: error message %v", err.Error())
 	}
 
 	y, err := yaml.Marshal(v)
 	if err != nil {
-		t.Errorf("Failed to marshal nic")
+		t.Errorf("Failed to marshal vm")
 	}
 
 	t.Logf("%v", string(y))
