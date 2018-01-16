@@ -1,10 +1,12 @@
 package model
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
 	"github.com/satori/go.uuid"
+	yaml "gopkg.in/yaml.v2"
 )
 
 func TestComputeToModel(t *testing.T) {
@@ -47,9 +49,39 @@ func TestNewCompute(t *testing.T) {
 		SupportingTypes: []string{"test/test"},
 	}
 
-	nv := NewCompute(v.ID, v.State, v.Name, v.Meta, v.Dependencies, v.SupportingTypes)
+	nv, err := NewCompute(v.ID.String(), v.State, v.Name, v.Meta, v.Dependencies, v.SupportingTypes)
+	if err != nil {
+		t.Errorf("Failed to create compute instance: error message %v", err.Error())
+	}
 
 	if !reflect.DeepEqual(v, nv) {
-		t.Errorf("Got another model on NewVM:\ngot  %v\nwant %v", v, nv)
+		t.Errorf("Got another model on NewCompute:\ngot  %v\nwant %v", v, nv)
+	}
+}
+
+func TestNewComputeFailOnParseID(t *testing.T) {
+	i := "hogehoge"
+	c := fmt.Sprintf("Failed to parse uuid of id:\ngot %v", i)
+
+	_, err := NewCompute(i, "UP", "test_model", map[string]string{"hoge": "hoge"}, Dependencies{}, []string{"test/test"})
+	if !(err != nil && err.Error() == c) {
+		t.Errorf("Failed to issue error on parse id:\ngot  error message %v\nwant error message %v", err.Error(), c)
+	}
+}
+
+func TestYamlCompute(t *testing.T) {
+	v, err := NewCompute(uuid.NewV4().String(), "UP", "test_model", map[string]string{"hoge": "hoge"}, Dependencies{}, []string{"test/test"})
+	if err != nil {
+		t.Errorf("Failed to create compute instance: error message %v", err.Error())
+	}
+
+	y, err := yaml.Marshal(v)
+	if err != nil {
+		t.Errorf("Failed to marshal nic")
+	}
+
+	m, err := ParseYAMLModel(y, v.Type)
+	if !reflect.DeepEqual(m, v) {
+		t.Errorf("Got another model on ToModel:\ngot  %v\nwant %v", m, v) // deep equal is not watching subnets
 	}
 }

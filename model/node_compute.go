@@ -1,6 +1,8 @@
 package model
 
 import (
+	"fmt"
+
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -16,10 +18,15 @@ func (c Compute) ToModel() *Model {
 	return &c.Model
 }
 
-func NewCompute(id uuid.UUID, state, name string, meta map[string]string, dependencies Dependencies, supportingTypes []string) *Compute {
+func NewCompute(id, state, name string, meta map[string]string, dependencies Dependencies, supportingTypes []string) (*Compute, error) {
+	i, err := uuid.FromString(id)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to parse uuid of id:\ngot %v", id)
+	}
+
 	return &Compute{
 		Model: Model{
-			ID:           id,
+			ID:           i,
 			Type:         ComputeType,
 			State:        state,
 			Name:         name,
@@ -27,5 +34,5 @@ func NewCompute(id uuid.UUID, state, name string, meta map[string]string, depend
 			Dependencies: Dependencies{},
 		},
 		SupportingTypes: supportingTypes,
-	}
+	}, nil
 }

@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"net/url"
 	"path/filepath"
 
@@ -53,10 +54,21 @@ func (v Volume) ToModel() *Model {
 	return &v.Model
 }
 
-func NewVolume(id uuid.UUID, specificType, state, name string, meta map[string]string, dependencies Dependencies, size uint64, u *url.URL) *Volume {
+func NewVolume(id, specificType, state, name string, meta map[string]string, dependencies Dependencies, size uint64, path string) (*Volume, error) {
+	i, err := uuid.FromString(id)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to parse uuid of id:\ngot %v", id)
+	}
+
+	u, err := url.Parse(path)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to parse url of path:\ngot %v", path)
+		// return nil, err
+	}
+
 	return &Volume{
 		Model: Model{
-			ID:           id,
+			ID:           i,
 			Type:         filepath.Join(VolumeType, specificType),
 			State:        state,
 			Name:         name,
@@ -65,5 +77,5 @@ func NewVolume(id uuid.UUID, specificType, state, name string, meta map[string]s
 		},
 		Size: size,
 		URL:  u,
-	}
+	}, nil
 }
