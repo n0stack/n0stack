@@ -16,7 +16,7 @@ func TestTaskUnmarshalYAML(t *testing.T) {
 	mes := &Task{
 		TaskID: taskID,
 		Task:   "Hoge",
-		Models: []model.AbstractModel{c},
+		Model:  c,
 	}
 
 	y, err := yaml.Marshal(mes)
