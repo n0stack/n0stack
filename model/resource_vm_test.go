@@ -87,8 +87,6 @@ func TestYamlVM(t *testing.T) {
 		t.Errorf("Failed to marshal vm")
 	}
 
-	t.Logf("%v", string(y))
-
 	m, err := ParseYAMLModel(y, v.Type)
 	if !reflect.DeepEqual(m, v) {
 		t.Errorf("Got another model on ToModel:\ngot  %v\nwant %v", m, v) // deep equal is not watching subnets

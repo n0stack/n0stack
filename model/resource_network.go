@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"net"
 	"path/filepath"
 
@@ -55,19 +56,19 @@ type (
 		Model `yaml:",inline"`
 
 		Bridge  string
-		Subnets []Subnet
+		Subnets []*Subnet
 	}
 
 	Subnet struct {
-		Cidr net.IPNet
-		DHCP DHCP
+		Cidr *net.IPNet `yaml:"-"`
+		DHCP *DHCP
 	}
 
 	DHCP struct {
-		RangeStart  net.IPAddr
-		RangeEnd    net.IPAddr
-		Gateway     net.IPAddr
-		Nameservers []net.IPAddr
+		RangeStart  net.IP `yaml:"rangeStart"`
+		RangeEnd    net.IP `yaml:"rangeEnd"`
+		Gateway     net.IP
+		Nameservers []net.IP
 	}
 )
 
@@ -75,10 +76,15 @@ func (n Network) ToModel() *Model {
 	return &n.Model
 }
 
-func NewNetwork(id uuid.UUID, specificType, state, name string, meta map[string]string, dependencies Dependencies, bridge string, subnets []Subnet) *Network {
+func NewNetwork(id, specificType, state, name string, meta map[string]string, dependencies Dependencies, bridge string, subnets []*Subnet) (*Network, error) {
+	i, err := uuid.FromString(id)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Network{
 		Model: Model{
-			ID:           id,
+			ID:           i,
 			Type:         filepath.Join(NetworkType, specificType),
 			State:        state,
 			Name:         name,
@@ -87,5 +93,81 @@ func NewNetwork(id uuid.UUID, specificType, state, name string, meta map[string]
 		},
 		Bridge:  bridge,
 		Subnets: subnets,
+	}, nil
+}
+
+func NewSubnet(c string, d *DHCP) (*Subnet, error) {
+	_, i, err := net.ParseCIDR(c)
+	if err != nil {
+		return nil, err
 	}
+
+	return &Subnet{
+		Cidr: i,
+		DHCP: d,
+	}, nil
+}
+
+func NewDHCP(start, end, gateway string, nameservers []string) (*DHCP, error) {
+	s := net.ParseIP(start)
+	if s == nil {
+		return nil, fmt.Errorf("Failed to parse IP address of range start: got %v", start)
+	}
+
+	e := net.ParseIP(end)
+	if e == nil {
+		return nil, fmt.Errorf("Failed to parse IP address of range end: got %v", end)
+	}
+
+	g := net.ParseIP(gateway)
+	if g == nil {
+		return nil, fmt.Errorf("Failed to parse IP address of gateway: got %v", gateway)
+	}
+
+	n := make([]net.IP, len(nameservers))
+	for i, ns := range nameservers {
+		n[i] = net.ParseIP(ns)
+		if g == nil {
+			return nil, fmt.Errorf("Failed to parse IP address of nameservers: got %v", ns)
+		}
+	}
+
+	return &DHCP{
+		RangeStart:  s,
+		RangeEnd:    e,
+		Gateway:     g,
+		Nameservers: n,
+	}, nil
+}
+
+func (d *Subnet) MarshalYAML() (interface{}, error) {
+	return &struct {
+		Cidr string
+		DHCP *DHCP
+	}{
+		Cidr: d.Cidr.String(),
+		DHCP: d.DHCP,
+	}, nil
+}
+
+func (d *Subnet) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	type Alias Subnet
+	a := &struct {
+		Cidr string
+		DHCP **DHCP
+	}{
+		DHCP: &d.DHCP,
+	}
+
+	err := unmarshal(a)
+	if err != nil {
+		return err
+	}
+
+	_, d.Cidr, err = net.ParseCIDR(a.Cidr)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
