@@ -8,39 +8,21 @@ import (
 )
 
 type Notification struct {
-	SpecID      uuid.UUID `yaml:"specID"      json:"spec_id"`
-	Model       model.AbstractModel
-	Event       string // enum的なのにしたい
-	IsSucceeded bool   `yaml:"isSucceeded" json:"is_succeeded"`
+	TaskID      uuid.UUID `yaml:"taskID"`
+	Task        string
+	Operation   string
+	IsSucceeded bool `yaml:"isSucceeded" json:"is_succeeded"`
 	Description string
+	Model       model.AbstractModel
 }
-
-// func (n *Notification) UnmarshalYAML(unmarshal func(interface{}) error) error {
-// 	type Alias Notification
-// 	a := &struct {
-// 		Alias `yaml:",inline"`
-// 		Model model.Model `yaml:"model"`
-// 	}{}
-
-// 	unmarshal(&a)
-
-// 	*n = (Notification)(a.Alias)
-
-// 	// var err error
-// 	// n.Model, err = model.MapToAbstractModel(a.Model)
-// 	// if err != nil {
-// 	// 	return err
-// 	// }
-
-// 	return nil
-// }
 
 func (n *Notification) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	m := make(map[string]interface{})
 	unmarshal(&m)
 
-	n.SpecID = uuid.FromStringOrNil(m["specID"].(string))
-	n.Event = m["event"].(string)
+	n.TaskID = uuid.FromStringOrNil(m["taskID"].(string))
+	n.Task = m["task"].(string)
+	n.Operation = m["operation"].(string)
 	n.IsSucceeded = m["isSucceeded"].(bool)
 	n.Description = m["description"].(string)
 

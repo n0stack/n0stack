@@ -52,7 +52,7 @@ type (
 
 	// AbstractModel is abstract interface for all models to use as Model.
 	AbstractModel interface {
-		ToModel() *Model
+		ToModel() *Model // Model() に変更する
 	}
 
 	// Args:

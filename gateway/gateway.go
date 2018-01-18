@@ -10,8 +10,8 @@ type Gateway interface {
 	// // StartReceiveMessage start receive message from something. 任意のコントローラを利用する
 	// StartReceiveMessage()
 
-	// SendMessage send message to distributor
-	SendMessage(m message.AbstractMessage) bool
+	// SendNotification send message to distributor
+	SendNotification(m *message.Notification) bool
 
 	// SendNotificationToCompute send message to destination compute
 	SendNotificationToCompute(m *message.Notification, d *model.Compute) bool

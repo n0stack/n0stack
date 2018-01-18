@@ -12,21 +12,27 @@ import (
 func TestNotificationUnmarshalYAML(t *testing.T) {
 	c, _ := model.NewCompute("1578ce2b-b845-41b2-9c73-7e05009785e6", "testing", "test_model", map[string]string{"hoge": "hoge"}, model.Dependencies{}, []string{"test/test"})
 
-	specID, _ := uuid.FromString("2efbfd8d-6136-4390-a513-033e7c5f2391")
+	taskID, _ := uuid.FromString("2efbfd8d-6136-4390-a513-033e7c5f2391")
 	mes := &Notification{
-		SpecID:      specID,
-		Model:       c,
-		Event:       "APPLIED",
+		TaskID:      taskID,
+		Task:        "Hoge",
+		Operation:   "Hoge",
 		IsSucceeded: true,
 		Description: "foobar",
+		Model:       c,
 	}
 
 	y, err := yaml.Marshal(mes)
 	if err != nil {
 		t.Errorf("Failed to marshal message to yaml: error message %v", err.Error())
 	}
+	t.Logf("%v", string(y))
 
-	r := []byte(`specID: 2efbfd8d-6136-4390-a513-033e7c5f2391
+	r := []byte(`taskID: 2efbfd8d-6136-4390-a513-033e7c5f2391
+task: Hoge
+operation: Hoge
+isSucceeded: true
+description: foobar
 model:
   id: 1578ce2b-b845-41b2-9c73-7e05009785e6
   type: node/compute
@@ -37,9 +43,6 @@ model:
   dependencies: []
   supportingTypes:
   - test/test
-event: APPLIED
-isSucceeded: true
-description: foobar
 `)
 	if !reflect.DeepEqual(r, y) {
 		t.Errorf("Failed to marshal to yaml:\ngot\n%v\nwant\n%v", string(y), string(r))
