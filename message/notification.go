@@ -8,12 +8,32 @@ import (
 )
 
 type Notification struct {
-	SpecID      uuid.UUID           `yaml:"specID"      json:"spec_id"`
-	Model       model.AbstractModel `yaml:"model"       json:"model"`
-	Event       string              `yaml:"event"       json:"event"` // enum的なのにしたい
-	IsSucceeded bool                `yaml:"isSucceeded" json:"is_succeeded"`
-	Description string              `yaml:"description" json:"description"`
+	SpecID      uuid.UUID `yaml:"specID"      json:"spec_id"`
+	Model       model.AbstractModel
+	Event       string // enum的なのにしたい
+	IsSucceeded bool   `yaml:"isSucceeded" json:"is_succeeded"`
+	Description string
 }
+
+// func (n *Notification) UnmarshalYAML(unmarshal func(interface{}) error) error {
+// 	type Alias Notification
+// 	a := &struct {
+// 		Alias `yaml:",inline"`
+// 		Model model.Model `yaml:"model"`
+// 	}{}
+
+// 	unmarshal(&a)
+
+// 	*n = (Notification)(a.Alias)
+
+// 	// var err error
+// 	// n.Model, err = model.MapToAbstractModel(a.Model)
+// 	// if err != nil {
+// 	// 	return err
+// 	// }
+
+// 	return nil
+// }
 
 func (n *Notification) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	m := make(map[string]interface{})

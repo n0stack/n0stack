@@ -10,8 +10,7 @@ import (
 )
 
 func TestNotificationUnmarshalYAML(t *testing.T) {
-	id, _ := uuid.FromString("1578ce2b-b845-41b2-9c73-7e05009785e6")
-	c := model.NewCompute(id, "testing", "test_model", map[string]string{"hoge": "hoge"}, model.Dependencies{}, []string{"test/test"})
+	c, _ := model.NewCompute("1578ce2b-b845-41b2-9c73-7e05009785e6", "testing", "test_model", map[string]string{"hoge": "hoge"}, model.Dependencies{}, []string{"test/test"})
 
 	specID, _ := uuid.FromString("2efbfd8d-6136-4390-a513-033e7c5f2391")
 	mes := &Notification{
