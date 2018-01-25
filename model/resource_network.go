@@ -10,6 +10,24 @@ import (
 
 const NetworkType = "resource/network"
 
+var NetworkStateMachine = map[string]map[string]bool{
+	"UP": map[string]bool{
+		"Up":     true,
+		"Down":   true,
+		"Delete": true,
+	},
+	"DOWN": map[string]bool{
+		"Up":     true,
+		"Down":   true,
+		"Delete": true,
+	},
+	"DELETED": map[string]bool{
+		"Up":     false,
+		"Down":   false,
+		"Delete": true,
+	},
+}
+
 type (
 	// Network manage network range resource.
 	//
