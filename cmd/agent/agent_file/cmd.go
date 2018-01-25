@@ -1,6 +1,9 @@
 package main
 
 import (
+	"flag"
+	"io/ioutil"
+
 	loggingGateway "github.com/n0stack/n0core/gateway/logging"
 
 	"github.com/n0stack/n0core/message"
@@ -31,30 +34,19 @@ func main() {
 	// 	},
 	// }
 
-	// buf, err := ioutil.ReadFile("test.yml")
-	// if err != nil {
-	// 	panic(err)
-	// }
+	filename := flag.String("f", "", "file name of yaml file which is read as task message.")
+	flag.Parse()
+	if *filename == "" {
+		panic("filename is required.")
+	}
 
-	buf := []byte(`taskID: 2efbfd8d-6136-4390-a513-033e7c5f2391
-task: Delete
-model:
-  id: 0f97b5a3-bff2-4f13-9361-9f9b4fab3d65
-  type: resource/network/flat
-  name: hogehoge
-  state: UP
-  subnets:
-  - cidr: 192.168.0.0/24
-    dhcp:
-      rangeStart: 192.168.0.1
-      rangeEnd: 192.168.0.127
-      nameservers:
-        - 192.168.0.254
-      gateway: 192.168.0.254
-`)
+	buf, err := ioutil.ReadFile(*filename)
+	if err != nil {
+		panic(err)
+	}
 
 	t := message.Task{}
-	err := yaml.Unmarshal(buf, &t)
+	err = yaml.Unmarshal(buf, &t)
 	if err != nil {
 		panic(err)
 	}
