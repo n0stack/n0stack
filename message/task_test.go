@@ -26,8 +26,8 @@ func TestTaskUnmarshalYAML(t *testing.T) {
 
 	r := []byte(`taskID: 2efbfd8d-6136-4390-a513-033e7c5f2391
 task: Hoge
-models:
-- id: 1578ce2b-b845-41b2-9c73-7e05009785e6
+model:
+  id: 1578ce2b-b845-41b2-9c73-7e05009785e6
   type: node/compute
   state: testing
   name: test_model

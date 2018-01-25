@@ -26,7 +26,7 @@ func (t *Task) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		t.Annotations = map[string]string{}
 	}
 
-	mi, ok := m["models"]
+	mi, ok := m["model"]
 	if !ok {
 		return nil
 	}
