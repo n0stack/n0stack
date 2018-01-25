@@ -2,14 +2,16 @@ package message
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/n0stack/n0core/model"
 	"github.com/satori/go.uuid"
 )
 
 type Notification struct {
-	TaskID      uuid.UUID `yaml:"taskID"`
+	TaskID      uuid.UUID `yaml:"taskID" json:"task_id"`
 	Task        string
+	NotifiedAt  time.Time `yaml:"notifiedAt" json:"notified_at"`
 	Operation   string
 	IsSucceeded bool `yaml:"isSucceeded" json:"is_succeeded"`
 	Description string
@@ -26,6 +28,13 @@ func (n *Notification) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	n.IsSucceeded = m["isSucceeded"].(bool)
 	n.Description = m["description"].(string)
 
+	t := m["notifiedAt"].(string)
+	var err error
+	n.NotifiedAt, err = time.Parse(time.RFC3339, t)
+	if err != nil {
+		return err
+	}
+
 	mi, ok := m["model"]
 	if !ok {
 		return nil
@@ -36,7 +45,6 @@ func (n *Notification) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		return fmt.Errorf("Failed to parse model")
 	}
 
-	var err error
 	n.Model, err = model.MapToAbstractModel(mm)
 	if err != nil {
 		return err

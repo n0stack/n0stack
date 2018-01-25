@@ -3,6 +3,7 @@ package message
 import (
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/n0stack/n0core/model"
 	uuid "github.com/satori/go.uuid"
@@ -16,6 +17,7 @@ func TestNotificationUnmarshalYAML(t *testing.T) {
 	mes := &Notification{
 		TaskID:      taskID,
 		Task:        "Hoge",
+		NotifiedAt:  time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC),
 		Operation:   "Hoge",
 		IsSucceeded: true,
 		Description: "foobar",
@@ -30,6 +32,7 @@ func TestNotificationUnmarshalYAML(t *testing.T) {
 
 	r := []byte(`taskID: 2efbfd8d-6136-4390-a513-033e7c5f2391
 task: Hoge
+notifiedAt: 2000-01-01T00:00:00Z
 operation: Hoge
 isSucceeded: true
 description: foobar
