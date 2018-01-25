@@ -4,12 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/n0stack/n0core/gateway"
 	"github.com/n0stack/n0core/message"
-	"github.com/n0stack/n0core/model"
 	"github.com/n0stack/n0core/target"
-	"github.com/satori/go.uuid"
 )
 
 // Agent is a processor which apply resources with targets.
@@ -29,49 +28,45 @@ type Agent struct {
 	Notifier gateway.Gateway
 }
 
-func NewAgent(t []target.Target, g gateway.Gateway, m map[string]string) (*Agent, error) {
+func NewAgent(t []target.Target, g gateway.Gateway, meta map[string]string) (*Agent, error) {
 	a := new(Agent)
 	a.Targets = t
 	a.Notifier = g
 
-	for _, v := range t {
-		d, ok := v.Initialize()
-		if !ok {
-			return nil, fmt.Errorf(d) // エラーについて考える
-		}
-	}
+	// // for _, v := range t {
+	// // 	d, ok := v.Initialize()
+	// // 	if !ok {
+	// // 		return nil, fmt.Errorf(d) // エラーについて考える
+	// // 	}
+	// // }
 
-	id, err := a.getComputeUUID()
-	if err != nil {
-		return nil, err // エラーについて考える
-	}
-	// hostName, err := a.getHostName()
-	c := model.NewCompute(id, "JOINED", "test_model", map[string]string{"hoge": "hoge"}, model.Dependencies{}, []string{"test/test"})
+	// id, err := a.getComputeUUID()
+	// if err != nil {
+	// 	return nil, err // エラーについて考える
+	// }
+	// // hostName, err := a.getHostName()
+	// c := model.NewCompute(id, "JOINED", "test_model", map[string]string{"hoge": "hoge"}, model.Dependencies{}, []string{"test/test"})
 
-	n := &message.Notification{
-		// SpecID: uuid.NewV4(),
-		Model:       c,
-		Event:       "APPLIED",
-		IsSucceeded: true,
-		Description: "Joined",
-	}
+	// n := &message.Notification{
+	// 	// SpecID: uuid.NewV4(),
+	// 	Model:       c,
+	// 	Event:       "APPLIED",
+	// 	IsSucceeded: true,
+	// 	Description: "Joined",
+	// }
 
-	ok := a.Notifier.SendMessage(n)
-	if !ok {
-		return nil, fmt.Errorf("Failed to send spec message to initialize and join agent")
-	}
+	// ok := a.Notifier.SendMessage(n)
+	// if !ok {
+	// 	return nil, fmt.Errorf("Failed to send spec message to initialize and join agent")
+	// }
 
 	return a, nil
 }
 
 func (a Agent) ProcessMessage(am message.AbstractMessage) error {
-	n, ok := am.(message.Notification)
+	task, ok := am.(*message.Task)
 	if !ok {
 		return fmt.Errorf("Received notification message which is not supported, maybe there are stranger or distributor has bugs")
-	}
-
-	if n.IsSucceeded {
-		return fmt.Errorf("Received notification message which is not succeeded, maybe there are stranger or distributor has bugs")
 	}
 
 	// c, ok := n.Model.(node.Compute)
@@ -79,25 +74,45 @@ func (a Agent) ProcessMessage(am message.AbstractMessage) error {
 	// 	// joinの処理
 	// }
 
-	m := n.Model.ToModel()
+	m := task.Model.ToModel()
 	t, ok := a.isSupportModelType(m.Type)
 	if !ok {
 		return fmt.Errorf("Received model which is not supported, maybe there are stranger or distributor has bugs")
 	}
 
-	// TODO: check whether model is scheduled or not, and scheduling
+	ops, ok := t.Operations(m.State, task.Task)
+	if !ok {
+		n := &message.Notification{
+			TaskID:      task.TaskID,
+			Task:        task.Task,
+			NotifiedAt:  time.Now(),
+			Operation:   "",
+			IsSucceeded: false,
+			Description: fmt.Sprintf("No operations on task '%v' when a state of model '%v' is '%v", task.Task, m.ID, m.State),
+			Model:       task.Model,
+		}
 
-	d, ok := t.Apply(n.Model)
-	newN := &message.Notification{
-		SpecID:      n.SpecID,
-		Model:       n.Model,
-		Event:       "APPLIED",
-		IsSucceeded: ok,
-		Description: d,
+		if !a.Notifier.SendNotification(n) {
+			return fmt.Errorf("Failed to send a notification message: %v", n)
+		}
 	}
 
-	if !a.Notifier.SendMessage(newN) {
-		return fmt.Errorf("Failed to send notification message")
+	for _, o := range ops {
+		opsName, ok, desc := o(task.Model)
+
+		n := &message.Notification{
+			TaskID:      task.TaskID,
+			Task:        task.Task,
+			NotifiedAt:  time.Now(),
+			Operation:   opsName,
+			IsSucceeded: ok,
+			Description: desc,
+			Model:       task.Model,
+		}
+
+		if !a.Notifier.SendNotification(n) {
+			return fmt.Errorf("Failed to send a notification message: %v", n)
+		}
 	}
 
 	return nil
@@ -117,9 +132,9 @@ func (a Agent) SupportingTypes() []string {
 	return t
 }
 
-func (a Agent) isSupportModelType(mt string) (target.Target, bool) {
+func (a Agent) isSupportModelType(m string) (target.Target, bool) {
 	for _, t := range a.Targets {
-		if t.ManagingType() == mt {
+		if t.ManagingType() == m {
 			return t, true
 		}
 	}
@@ -127,22 +142,17 @@ func (a Agent) isSupportModelType(mt string) (target.Target, bool) {
 	return nil, false
 }
 
-func (a Agent) getComputeUUID() (uuid.UUID, error) {
+func (a Agent) getComputeUUID() (string, error) {
 	f, err := os.Open(`/sys/class/dmi/id/product_uuid`)
 	if err != nil {
-		return uuid.UUID{}, fmt.Errorf("Failed to open /sys/class/dmi/id/product_uuid to read compute UUID")
+		return "", fmt.Errorf("Failed to open /sys/class/dmi/id/product_uuid to read compute UUID")
 	}
 	defer f.Close()
 
 	s := bufio.NewScanner(f)
 	for s.Scan() {
-		i, err := uuid.FromString(s.Text())
-		if err != nil {
-			return uuid.UUID{}, fmt.Errorf("Failed to parse compute UUID on /sys/class/dmi/id/product_uuid")
-		}
-
-		return i, nil
+		return s.Text(), nil
 	}
 
-	return uuid.UUID{}, fmt.Errorf("Failed to read compute UUID by /sys/class/dmi/id/product_uuid")
+	return "", fmt.Errorf("Failed to read compute UUID by /sys/class/dmi/id/product_uuid")
 }

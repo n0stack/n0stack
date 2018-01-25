@@ -25,14 +25,11 @@ import "github.com/n0stack/n0core/model"
 // Orchestration pipeline:
 //
 type Target interface {
-	// Apply resource with some framework.
-	//
-	// Args:
-	// 	model: Model which you want to apply.
-	//
-	// Return:
-	// 	Tuple of processed is_succeeded and description.
-	Apply(m model.AbstractModel) (string, bool)
+	// Operations return slice of functions as operations on the task, when task can be processed on the state.
+	Operations(state, task string) ([]func(n model.AbstractModel) (string, bool, string), bool)
+
+	// ManagingType return supporting model type.
+	ManagingType() string
 
 	// Initialize initialize target to orchestrate resources.
 	//
@@ -41,7 +38,4 @@ type Target interface {
 
 	// Do test in Initialize to check whether target can orchestrate resource rightly.
 	// test() (string, bool)
-
-	// ManagingType return supporting model type.
-	ManagingType() string
 }
