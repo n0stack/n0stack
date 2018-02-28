@@ -11,8 +11,8 @@ import (
 )
 
 func TestProcessNotification(t *testing.T) {
-	id := uuid.NewV4()
-	c := model.NewCompute(id, "testing", "test_model", map[string]string{"hoge": "hoge"}, model.Dependencies{}, []string{"test/test"})
+	id := uuid.NewV4().String()
+	c, _ := model.NewCompute(id, "testing", "test_model", map[string]string{"hoge": "hoge"}, model.Dependencies{}, []string{"test/test"})
 
 	specID := uuid.NewV4()
 	mes := &message.Notification{
@@ -42,8 +42,8 @@ func TestProcessNotification(t *testing.T) {
 }
 
 func TestProcessSpec(t *testing.T) {
-	id := uuid.NewV4()
-	c := model.NewCompute(id, "testing", "test_model", map[string]string{"hoge": "hoge"}, model.Dependencies{}, []string{"test/test"})
+	id := uuid.NewV4().String()
+	c, _ := model.NewCompute(id, "testing", "test_model", map[string]string{"hoge": "hoge"}, model.Dependencies{}, []string{"test/test"})
 
 	specID := uuid.NewV4()
 	mes := &message.Spec{
@@ -61,8 +61,8 @@ func TestProcessSpec(t *testing.T) {
 }
 
 func TestProcessMessageOnRepositoryFailure(t *testing.T) {
-	id := uuid.NewV4()
-	c := model.NewCompute(id, "testing", "test_model", map[string]string{"hoge": "hoge"}, model.Dependencies{}, []string{"test/test"})
+	id := uuid.NewV4().String()
+	c, _ := model.NewCompute(id, "testing", "test_model", map[string]string{"hoge": "hoge"}, model.Dependencies{}, []string{"test/test"})
 
 	specID := uuid.NewV4()
 	mes := &message.Notification{

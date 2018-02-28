@@ -10,6 +10,17 @@ import (
 
 const NICType = "resource/nic"
 
+var NICStateMachine = map[string]map[string]bool{
+	"ATTACHED": map[string]bool{
+		"Attach": true,
+		"Delete": true,
+	},
+	"DELETED": map[string]bool{
+		"Attach": false,
+		"Delete": true,
+	},
+}
+
 // NIC manage IP address resource.
 //
 // Example:

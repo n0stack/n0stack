@@ -1,8 +1,10 @@
 package gateway
 
 import (
-	"github.com/n0stack/n0core/message"
+	"time"
+
 	"github.com/n0stack/n0core/model"
+	"github.com/satori/go.uuid"
 )
 
 // Gateway provide methods of incoming or outgoing Messages with other services.
@@ -11,8 +13,24 @@ type Gateway interface {
 	// StartReceiveMessage()
 
 	// SendNotification send message to distributor
-	SendNotification(m *message.Notification) bool
+	SendNotification(
+		id uuid.UUID,
+		task string,
+		operation string,
+		notifiedAt time.Time,
+		isSucceeded bool,
+		description string,
+		model model.AbstractModel,
+	) bool
 
-	// SendNotificationToCompute send message to destination compute
-	SendNotificationToCompute(m *message.Notification, d *model.Compute) bool
+	// SendNotificationToAgent send message to destination compute
+	SendNotificationToAgent(
+		id uuid.UUID,
+		task string,
+		operation string,
+		notifiedAt time.Time,
+		isSucceeded bool,
+		description string,
+		model model.AbstractModel,
+	) bool
 }

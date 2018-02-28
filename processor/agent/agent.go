@@ -7,8 +7,9 @@ import (
 	"time"
 
 	"github.com/n0stack/n0core/gateway"
-	"github.com/n0stack/n0core/message"
+	"github.com/n0stack/n0core/model"
 	"github.com/n0stack/n0core/target"
+	uuid "github.com/satori/go.uuid"
 )
 
 // Agent is a processor which apply resources with targets.
@@ -63,55 +64,47 @@ func NewAgent(t []target.Target, g gateway.Gateway, meta map[string]string) (*Ag
 	return a, nil
 }
 
-func (a Agent) ProcessMessage(am message.AbstractMessage) error {
-	task, ok := am.(*message.Task)
-	if !ok {
-		return fmt.Errorf("Received notification message which is not supported, maybe there are stranger or distributor has bugs")
-	}
-
+func (a Agent) ProcessMessage(id uuid.UUID, task string, model model.AbstractModel, annotations map[string]string) error {
 	// c, ok := n.Model.(node.Compute)
 	// if ok {
 	// 	// joinの処理
 	// }
 
-	m := task.Model.ToModel()
+	m := model.ToModel()
 	t, ok := a.isSupportModelType(m.Type)
 	if !ok {
 		return fmt.Errorf("Received model which is not supported, maybe there are stranger or distributor has bugs")
 	}
 
-	ops, ok := t.Operations(m.State, task.Task)
-	if !ok {
-		n := &message.Notification{
-			TaskID:      task.TaskID,
-			Task:        task.Task,
-			NotifiedAt:  time.Now(),
-			Operation:   "",
-			IsSucceeded: false,
-			Description: fmt.Sprintf("No operations on task '%v' when a state of model '%v' is '%v", task.Task, m.ID, m.State),
-			Model:       task.Model,
-		}
-
-		if !a.Notifier.SendNotification(n) {
-			return fmt.Errorf("Failed to send a notification message: %v", n)
+	ops, err := t.Operations(m.State, task)
+	if err != nil {
+		d := fmt.Sprintf("No allowed operations on task '%v': error message '%v' ", task, err.Error())
+		if !a.Notifier.SendNotification(
+			id,
+			task,
+			"",
+			time.Now(),
+			false,
+			d,
+			model,
+		) {
+			return fmt.Errorf("Failed to send a notification message: id=%v, task=%v, operation=%v, succeeded=%v, description=%v", id, task, "", false, d)
 		}
 	}
 
 	for _, o := range ops {
-		opsName, ok, desc := o(task.Model)
+		ok, desc := o.Function(model)
 
-		n := &message.Notification{
-			TaskID:      task.TaskID,
-			Task:        task.Task,
-			NotifiedAt:  time.Now(),
-			Operation:   opsName,
-			IsSucceeded: ok,
-			Description: desc,
-			Model:       task.Model,
-		}
-
-		if !a.Notifier.SendNotification(n) {
-			return fmt.Errorf("Failed to send a notification message: %v", n)
+		if !a.Notifier.SendNotification(
+			id,
+			task,
+			o.Name,
+			time.Now(),
+			ok,
+			desc,
+			model,
+		) {
+			return fmt.Errorf("Failed to send a notification message: id=%v, task=%v, operation=%v, succeeded=%v, description=%v", id, task, "", false, desc)
 		}
 	}
 

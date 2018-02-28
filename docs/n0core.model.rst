@@ -8,6 +8,10 @@ Subpackages
 
     n0core.model.resource
 
+.. toctree::
+
+    n0core.model.node
+
 Module contents
 ---------------
 
