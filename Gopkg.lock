@@ -2,14 +2,53 @@
 
 
 [[projects]]
+  branch = "master"
+  name = "github.com/bradfitz/gomemcache"
+  packages = ["memcache"]
+  revision = "1952afaa557dc08e8e0d89eafab110fb501c1a2b"
+
+[[projects]]
   name = "github.com/satori/go.uuid"
   packages = ["."]
   revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
   version = "v1.2.0"
 
+[[projects]]
+  name = "github.com/urfave/cli"
+  packages = ["."]
+  revision = "cfb38830724cc34fedffe9a2a29fb54fa9169cd1"
+  version = "v1.20.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/vishvananda/netlink"
+  packages = [
+    ".",
+    "nl"
+  ]
+  revision = "1882fa99fc5adc217f354c6f37a172876877f77d"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/vishvananda/netns"
+  packages = ["."]
+  revision = "be1fbeda19366dea804f00efff2dd73a1642fdcc"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/sys"
+  packages = ["unix"]
+  revision = "810d7000345868fc619eb81f46307107118f4ae1"
+
+[[projects]]
+  branch = "v2"
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  revision = "d670f9405373e636a5a2765eea47fac0c9bc91a4"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e34151ee34ca3b36f1e58ff0eedfdeaab932df9d0bad56924b668c296e8e1163"
+  inputs-digest = "f1de3abc79addbc1f738a613916de1df5c6e4107e17d7cd28be94f79d9f267fb"
   solver-name = "gps-cdcl"
   solver-version = 1

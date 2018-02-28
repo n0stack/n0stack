@@ -24,18 +24,28 @@ import "github.com/n0stack/n0core/model"
 //
 // Orchestration pipeline:
 //
-type Target interface {
-	// Operations return slice of functions as operations on the task, when task can be processed on the state.
-	Operations(state, task string) ([]func(n model.AbstractModel) (string, bool, string), bool)
+type (
+	Target interface {
+		// Operations return slice of functions as operations on the task, when task can be processed on the state.
+		Operations(state, task string) ([]*Operation, error)
 
-	// ManagingType return supporting model type.
-	ManagingType() string
+		// ManagingType return supporting model type.
+		ManagingType() string
 
-	// Initialize initialize target to orchestrate resources.
-	//
-	// Ex. detect already orchestrated resource and test automatically.
-	// Initialize() (string, bool)
+		// Initialize initialize target to orchestrate resources.
+		//
+		// Ex. detect already orchestrated resource and test automatically.
+		// Initialize() (string, bool)
 
-	// Do test in Initialize to check whether target can orchestrate resource rightly.
-	// test() (string, bool)
-}
+		// Do test in Initialize to check whether target can orchestrate resource rightly.
+		// test() (string, bool)
+
+		ParseModel(m model.AbstractModel) (bool, string)
+		CheckState(m model.AbstractModel) (bool, string)
+	}
+
+	Operation struct {
+		Function func(n model.AbstractModel) (bool, string)
+		Name     string
+	}
+)

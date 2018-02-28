@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/satori/go.uuid"
 )
@@ -71,12 +72,28 @@ type (
 	Dependencies []Dependency
 )
 
-func (d Dependencies) SelectWithLabel(l string) (Dependencies, error) {
-	return d, nil
+func (d Dependencies) SelectWithLabel(l string) Dependencies {
+	var dep Dependencies
+
+	for _, m := range d {
+		if strings.Contains(m.Label, l) {
+			dep = append(dep, m)
+		}
+	}
+
+	return dep
 }
 
-func (d Dependencies) SelectWithModelType(t string) (Dependencies, error) {
-	return d, nil
+func (d Dependencies) SelectWithModelType(t string) Dependencies {
+	var dep Dependencies
+
+	for _, m := range d {
+		if strings.Contains(m.Model.ToModel().Type, t) {
+			dep = append(dep, m)
+		}
+	}
+
+	return dep
 }
 
 func (d Dependency) UnmarshalYAML(unmarshal func(interface{}) error) error {

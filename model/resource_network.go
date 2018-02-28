@@ -79,15 +79,15 @@ type (
 
 	Subnet struct {
 		Cidr *net.IPNet `yaml:"-"`
-		DHCP *DHCP
+		// DHCP *DHCP
 	}
 
-	DHCP struct {
-		RangeStart  net.IP `yaml:"rangeStart"`
-		RangeEnd    net.IP `yaml:"rangeEnd"`
-		Gateway     net.IP
-		Nameservers []net.IP
-	}
+	// DHCP struct {
+	// 	RangeStart  net.IP `yaml:"rangeStart"`
+	// 	RangeEnd    net.IP `yaml:"rangeEnd"`
+	// 	Gateway     net.IP
+	// 	Nameservers []net.IP
+	// }
 )
 
 func (n Network) ToModel() *Model {

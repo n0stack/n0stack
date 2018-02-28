@@ -91,10 +91,10 @@ const VMType = "resource/vm"
 type VM struct {
 	Model `yaml:",inline"`
 
-	Arch        string // enumにしたい
-	VCPUs       uint
-	Memory      uint64
-	VNCPassword string
+	Arch   string // enumにしたい
+	VCPUs  uint
+	Memory uint64
+	// VNCPassword string
 }
 
 func (v VM) ToModel() *Model {
