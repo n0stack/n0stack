@@ -1,3 +1,0 @@
-[submodule "proto"]
-	path = proto
-	url = git@github.com:n0stack/proto.git
