@@ -130,7 +130,7 @@ func (k *kvm) runVM(spec *vm.Spec) *n0stack.Notification {
 
 	// VNC
 	k.args = append(k.args, "-vnc")
-	k.args = append(k.args, ":0") // ぶつからないようにポートを設定する必要がある, unix socketでも可 unix:$workdir/vnc.sock,websocket
+	k.args = append(k.args, ":0,websocket=5700") // ぶつからないようにポートを設定する必要がある, unix socketでも可 unix:$workdir/vnc.sock,websocket
 
 	// clock
 	k.args = append(k.args, "-rtc")
