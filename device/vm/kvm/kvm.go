@@ -30,9 +30,10 @@ type (
 		id      uuid.UUID
 		workDir string
 
-		args []string
-		pid  int
-		qmp  *qmp.SocketMonitor
+		args   []string
+		pid    int
+		qmp    *qmp.SocketMonitor
+		status *vm.Status
 	}
 )
 
@@ -171,29 +172,91 @@ func (k *kvm) runVM(spec *vm.Spec) *n0stack.Notification {
 	}
 	k.pid = cmd.Process.Pid
 
-	done := make(chan error)
-	go func() {
-		done <- cmd.Wait()
-	}()
+	// バックグラウンドプロセスにならなくなってしまう
+	// ただ正常にプロセスが起動したかは待たないとわからない
+	// done := make(chan error)
+	// go func() {
+	// 	done <- cmd.Wait()
+	// }()
 
-	select {
-	case <-time.After(3 * time.Second):
-		return MakeNotification("startQEMUProcess", true, "")
-	case err := <-done:
-		return MakeNotification("startQEMUProcess.waitError", true, fmt.Sprintf("error message '%s', args '%s'", err.Error(), k.args)) // stderrを表示できるようにする必要がある
-	}
+	// select {
+	// case <-time.After(3 * time.Second):
+	// 	return MakeNotification("startQEMUProcess", true, "")
+	// case err := <-done:
+	// 	return MakeNotification("startQEMUProcess.waitError", true, fmt.Sprintf("error message '%s', args '%s'", err.Error(), k.args)) // stderrを表示できるようにする必要がある
+	// }
+
+	return MakeNotification("startQEMUProcess", true, "")
 }
 
-// func (k *kvm) connectQMP() *n0stack.Notification {
-// 	qmpPath := ""
+func (k kvm) getQMPPath() string {
+	chardev := map[string]string{}
+	chardevID := ""
 
-// 	var err error
-// 	k.qmp, err = qmp.NewSocketMonitor("unix", qmpPath, 2*time.Second)
-// 	if err != nil {
-// 		return MakeNotification("connectQMP", true, "")
-// 	}
+	for i, a := range k.args {
+		switch {
+		case a == "-mon":
+			ops := strings.Split(k.args[i+1], ",")
+			for _, o := range ops {
+				if strings.HasPrefix(o, "chardev=") {
+					chardevID = strings.Split(o, "=")[1]
+				}
+			}
 
-// 	return MakeNotification("connectQMP", true, "")
+		case a == "-chardev":
+			var (
+				id string
+				p  string
+			)
+
+			ops := strings.Split(k.args[i+1], ",")
+			for _, o := range ops {
+				switch {
+				case strings.HasPrefix(o, "id="):
+					id = strings.Split(o, "=")[1]
+				case strings.HasPrefix(o, "path="):
+					p = strings.Split(o, "=")[1]
+				}
+			}
+
+			chardev[id] = p
+		}
+	}
+
+	return chardev[chardevID]
+}
+
+func (k *kvm) connectQMP() *n0stack.Notification {
+	qmpPath := k.getQMPPath()
+
+	var err error
+	k.qmp, err = qmp.NewSocketMonitor("unix", qmpPath, 5*time.Second)
+	if err != nil {
+		return MakeNotification("connectQMP", false, fmt.Sprintf("error message '%s'", err.Error()))
+	}
+
+	return MakeNotification("connectQMP", true, "")
+}
+
+func (k *kvm) bootVM() *n0stack.Notification {
+	k.qmp.Connect()
+	defer k.qmp.Disconnect()
+
+	cmd := []byte(`{ "execute": "cont" }`)
+	raw, err := k.qmp.Run(cmd)
+	if err != nil {
+		k.status.RunLevel = vm.RunLevel_SHUTDOWN
+		return MakeNotification("bootVM", false, fmt.Sprintf("error message '%s', qmp response '%s'", err.Error(), raw))
+	}
+
+	k.status.RunLevel = vm.RunLevel_RUNNING
+	return MakeNotification("bootVM", true, fmt.Sprintf("qmp response '%s'", raw))
+}
+
+// func (t tap) getMACAddr() *net.HardwareAddr {
+// 	c := crc32.ChecksumIEEE(t.id.Bytes())
+
+// 	return &net.HardwareAddr{0x52, 0x54, c[2:]}
 // }
 
 // Apply スペックを元にステートレスに適用する
@@ -214,11 +277,18 @@ func (a *Agent) Apply(ctx context.Context, spec *vm.Spec) (*n0stack.Notification
 		if !n.Success {
 			return n, nil
 		}
-		return n, nil
 	}
 
 	// qmp-shell .../monitor.sock
-	// k.connectQMP()
+	n = k.connectQMP()
+	if !n.Success {
+		return n, nil
+	}
+
+	// (QEMU) cont
+	// Applyした時に毎回ブートしなければいけないわけではない
+	n = k.bootVM()
+	return n, nil
 
 	// (QEMU) ...
 	// conn :=
