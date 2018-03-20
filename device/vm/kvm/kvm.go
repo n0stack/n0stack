@@ -10,12 +10,12 @@ import (
 	"time"
 
 	"github.com/digitalocean/go-qemu/qmp"
-	"github.com/golang/protobuf/ptypes"
 	"github.com/shirou/gopsutil/process"
 
 	"code.cloudfoundry.org/bytefmt"
 	"github.com/satori/go.uuid"
 
+	"github.com/n0stack/n0core/lib"
 	n0stack "github.com/n0stack/proto"
 	"github.com/n0stack/proto/device/vm"
 	"github.com/n0stack/proto/resource/cpu"
@@ -41,18 +41,6 @@ const (
 	modelType = "device/vm/kvm"
 )
 
-// MakeNotification return Notification message with time.
-// In the future, this method will be hooked some functions such as storing notifications for database.
-// Hard-code string without some logic for making searching line easily, when you set arguments for operation. (ゴミ英語、grep検索を容易にするために関数呼び出しをするときにはtypoがあってもいいからstringをハードコードしろってこと、別にtypoがあってもバグにはならないし検索するときには問題ないため)
-func MakeNotification(operation string, success bool, description string) *n0stack.Notification {
-	return &n0stack.Notification{
-		Operation:   operation,
-		Success:     success,
-		Description: description,
-		NotifiedAt:  ptypes.TimestampNow(),
-	}
-}
-
 func (k kvm) getInstanceName(n string) string {
 	return fmt.Sprintf("n0core-%s", n)
 }
@@ -63,19 +51,17 @@ func getVM(model *n0stack.Model) (*kvm, *n0stack.Notification) {
 	var err error
 	k.id, err = uuid.FromBytes(model.Id)
 	if err != nil {
-		return nil, MakeNotification("getVM.validateUUID", false, fmt.Sprintf("error message '%s'", err.Error()))
+		return nil, lib.MakeNotification("getVM.validateUUID", false, fmt.Sprintf("error message '%s'", err.Error()))
 	}
 
-	const basedir = "/var/lib/n0core"
-	k.workDir = filepath.Join(basedir, modelType)
-	k.workDir = filepath.Join(k.workDir, k.id.String())
-	if err := os.MkdirAll(k.workDir, os.ModePerm); err != nil {
-		return nil, MakeNotification("getVM.prepareWorkDir", false, fmt.Sprintf("error message '%s', when creating work directory, '%s'", k.workDir, err.Error()))
+	k.workDir, err = lib.GetWorkDir(modelType, k.id)
+	if err != nil {
+		return nil, lib.MakeNotification("getVM.getWorkDir", false, fmt.Sprintf("error message '%s', when creating work directory, '%s'", k.workDir, err.Error()))
 	}
 
 	ps, err := process.Processes()
 	if err != nil {
-		return nil, MakeNotification("getVM.getProcessList", false, fmt.Sprintf("error message '%s'", err.Error()))
+		return nil, lib.MakeNotification("getVM.getProcessList", false, fmt.Sprintf("error message '%s'", err.Error()))
 	}
 
 	for _, p := range ps {
@@ -85,11 +71,11 @@ func getVM(model *n0stack.Model) (*kvm, *n0stack.Notification) {
 			k.args, _ = p.CmdlineSlice()
 
 			k.pid = int(p.Pid)
-			return k, MakeNotification("getVM", true, fmt.Sprintf("Already running: pid=%d", k.pid))
+			return k, lib.MakeNotification("getVM", true, fmt.Sprintf("Already running: pid=%d", k.pid))
 		}
 	}
 
-	return k, MakeNotification("getVM", true, "Not running QEMU process")
+	return k, lib.MakeNotification("getVM", true, "Not running QEMU process")
 }
 
 func (k *kvm) runVM(spec *vm.Spec) *n0stack.Notification {
@@ -168,7 +154,7 @@ func (k *kvm) runVM(spec *vm.Spec) *n0stack.Notification {
 
 	cmd := exec.Command(k.args[0], k.args[1:]...)
 	if err := cmd.Start(); err != nil {
-		return MakeNotification("startQEMUProcess.startProcess", false, fmt.Sprintf("error message '%s', args '%s'", err.Error(), k.args))
+		return lib.MakeNotification("startQEMUProcess.startProcess", false, fmt.Sprintf("error message '%s', args '%s'", err.Error(), k.args))
 	}
 	k.pid = cmd.Process.Pid
 
@@ -181,12 +167,12 @@ func (k *kvm) runVM(spec *vm.Spec) *n0stack.Notification {
 
 	// select {
 	// case <-time.After(3 * time.Second):
-	// 	return MakeNotification("startQEMUProcess", true, "")
+	// 	return lib.MakeNotification("startQEMUProcess", true, "")
 	// case err := <-done:
-	// 	return MakeNotification("startQEMUProcess.waitError", true, fmt.Sprintf("error message '%s', args '%s'", err.Error(), k.args)) // stderrを表示できるようにする必要がある
+	// 	return lib.MakeNotification("startQEMUProcess.waitError", true, fmt.Sprintf("error message '%s', args '%s'", err.Error(), k.args)) // stderrを表示できるようにする必要がある
 	// }
 
-	return MakeNotification("startQEMUProcess", true, "")
+	return lib.MakeNotification("startQEMUProcess", true, "")
 }
 
 func (k kvm) getQMPPath() string {
@@ -232,10 +218,10 @@ func (k *kvm) connectQMP() *n0stack.Notification {
 	var err error
 	k.qmp, err = qmp.NewSocketMonitor("unix", qmpPath, 5*time.Second)
 	if err != nil {
-		return MakeNotification("connectQMP", false, fmt.Sprintf("error message '%s'", err.Error()))
+		return lib.MakeNotification("connectQMP", false, fmt.Sprintf("error message '%s'", err.Error()))
 	}
 
-	return MakeNotification("connectQMP", true, "")
+	return lib.MakeNotification("connectQMP", true, "")
 }
 
 func (k *kvm) bootVM() *n0stack.Notification {
@@ -246,11 +232,11 @@ func (k *kvm) bootVM() *n0stack.Notification {
 	raw, err := k.qmp.Run(cmd)
 	if err != nil {
 		k.status.RunLevel = vm.RunLevel_SHUTDOWN
-		return MakeNotification("bootVM", false, fmt.Sprintf("error message '%s', qmp response '%s'", err.Error(), raw))
+		return lib.MakeNotification("bootVM", false, fmt.Sprintf("error message '%s', qmp response '%s'", err.Error(), raw))
 	}
 
 	k.status.RunLevel = vm.RunLevel_RUNNING
-	return MakeNotification("bootVM", true, fmt.Sprintf("qmp response '%s'", raw))
+	return lib.MakeNotification("bootVM", true, fmt.Sprintf("qmp response '%s'", raw))
 }
 
 // func (t tap) getMACAddr() *net.HardwareAddr {
@@ -297,16 +283,16 @@ func (a *Agent) Apply(ctx context.Context, spec *vm.Spec) (*n0stack.Notification
 	// k.attachVolume()
 	// k.attachNIC()
 
-	return MakeNotification("Apply", true, ""), nil
+	return lib.MakeNotification("Apply", true, ""), nil
 }
 
-func (k kvm) Kill() *n0stack.Notification {
+func (k kvm) kill() *n0stack.Notification {
 	p, _ := os.FindProcess(k.pid)
 	if err := p.Kill(); err != nil {
-		return MakeNotification("Kill", false, fmt.Sprintf("error message '%s'", err.Error()))
+		return lib.MakeNotification("Kill", false, fmt.Sprintf("error message '%s'", err.Error()))
 	}
 
-	return MakeNotification("Kill", true, "")
+	return lib.MakeNotification("Kill", true, "")
 }
 
 func (a *Agent) Delete(ctx context.Context, model *n0stack.Model) (*n0stack.Notification, error) {
@@ -318,14 +304,14 @@ func (a *Agent) Delete(ctx context.Context, model *n0stack.Model) (*n0stack.Noti
 
 	// if vm is not running
 	if k.args == nil {
-		return MakeNotification("Delete", true, "Process is not existing"), nil
+		return lib.MakeNotification("Delete", true, "Process is not existing"), nil
 	}
 
 	// kill $qemu
-	n = k.Kill()
+	n = k.kill()
 	if !n.Success {
 		return n, nil
 	}
 
-	return MakeNotification("Delete", true, ""), nil
+	return lib.MakeNotification("Delete", true, ""), nil
 }
