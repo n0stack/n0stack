@@ -13,6 +13,24 @@ const modelType = "device/volume/qcow2"
 
 type Agent struct{}
 
+func (a Agent) Get(ctx context.Context, model *n0stack.Model) (r *volume.Response, err error) {
+	var (
+		n *n0stack.Notification
+		q qcow2
+	)
+	r = &volume.Response{
+		Notification: n,
+		Spec:         &q.Spec,
+		Status:       &q.Status,
+	}
+
+	if n = q.getStatus(model); !n.Success {
+		return
+	}
+
+	return
+}
+
 func (a Agent) Apply(ctx context.Context, spec *volume.Spec) (*volume.Response, error) {
 	var (
 		n *n0stack.Notification
@@ -20,10 +38,11 @@ func (a Agent) Apply(ctx context.Context, spec *volume.Spec) (*volume.Response, 
 	)
 	v := &volume.Response{
 		Notification: n,
+		Spec:         &q.Spec,
 		Status:       &q.Status,
 	}
 
-	if n = q.getStatus(spec.Device.Model); !n.Success {
+	if n = q.getStatus(spec.Model); !n.Success {
 		return v, nil
 	}
 
@@ -32,7 +51,7 @@ func (a Agent) Apply(ctx context.Context, spec *volume.Spec) (*volume.Response, 
 			return v, nil
 		}
 
-		if n = q.getStatus(spec.Device.Model); !n.Success {
+		if n = q.getStatus(spec.Model); !n.Success {
 			return v, nil
 		}
 	} else {
@@ -52,11 +71,13 @@ func (a Agent) Delete(ctx context.Context, model *n0stack.Model) (*volume.Respon
 	)
 	v := &volume.Response{
 		Notification: n,
+		Spec:         &q.Spec,
 		Status:       &q.Status,
 	}
 
 	if n = q.getStatus(model); !n.Success {
 		return v, nil
+		// return v, grpc.Errorf(codes.InvalidArgument, v.Notification.Description)
 	}
 
 	if q.Storage != nil {

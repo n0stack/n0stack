@@ -20,6 +20,7 @@ const fileName = "disk.qcow2"
 
 type qcow2 struct {
 	volume.Status
+	volume.Spec
 
 	id      uuid.UUID
 	workDir string
@@ -27,6 +28,8 @@ type qcow2 struct {
 
 // qemu-img info $url
 func (q *qcow2) getStatus(model *n0stack.Model) *n0stack.Notification {
+	q.Model = model
+
 	var err error
 	q.id, err = uuid.FromBytes(model.Id)
 	if err != nil {
