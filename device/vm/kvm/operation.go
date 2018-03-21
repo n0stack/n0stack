@@ -1,50 +1,40 @@
 package kvm
 
 import (
-	"context"
 	"fmt"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/digitalocean/go-qemu/qmp"
-	"github.com/shirou/gopsutil/process"
-
 	"code.cloudfoundry.org/bytefmt"
-	"github.com/satori/go.uuid"
-
+	"github.com/digitalocean/go-qemu/qmp"
 	"github.com/n0stack/n0core/lib"
 	n0stack "github.com/n0stack/proto"
 	"github.com/n0stack/proto/device/vm"
 	"github.com/n0stack/proto/resource/cpu"
+	uuid "github.com/satori/go.uuid"
+	"github.com/shirou/gopsutil/process"
 )
 
-type (
-	Agent struct {
-		// DB *gorm.DB
-	}
+type kvm struct {
+	vm.Status
 
-	kvm struct {
-		id      uuid.UUID
-		workDir string
+	id      uuid.UUID
+	workDir string
 
-		args   []string
-		pid    int
-		qmp    *qmp.SocketMonitor
-		status *vm.Status
-	}
-)
-
-const (
-	modelType = "device/vm/kvm"
-)
+	args []string
+	pid  int
+	qmp  *qmp.SocketMonitor
+}
 
 func (k kvm) getInstanceName(n string) string {
 	return fmt.Sprintf("n0core-%s", n)
 }
 
+// ps auxfww | grep $uuid
 func getVM(model *n0stack.Model) (*kvm, *n0stack.Notification) {
 	k := &kvm{}
 
@@ -56,7 +46,7 @@ func getVM(model *n0stack.Model) (*kvm, *n0stack.Notification) {
 
 	k.workDir, err = lib.GetWorkDir(modelType, k.id)
 	if err != nil {
-		return nil, lib.MakeNotification("getVM.getWorkDir", false, fmt.Sprintf("error message '%s', when creating work directory, '%s'", k.workDir, err.Error()))
+		return nil, lib.MakeNotification("getVM.GetWorkDir", false, fmt.Sprintf("error message '%s', when creating work directory, '%s'", k.workDir, err.Error()))
 	}
 
 	ps, err := process.Processes()
@@ -66,8 +56,7 @@ func getVM(model *n0stack.Model) (*kvm, *n0stack.Notification) {
 
 	for _, p := range ps {
 		c, _ := p.Cmdline() // エラーが発生する場合が考えられない
-		// println(c)
-		if strings.Contains(c, k.id.String()) {
+		if strings.Contains(c, k.id.String()) && strings.HasPrefix(c, "qemu") {
 			k.args, _ = p.CmdlineSlice()
 
 			k.pid = int(p.Pid)
@@ -78,6 +67,7 @@ func getVM(model *n0stack.Model) (*kvm, *n0stack.Notification) {
 	return k, lib.MakeNotification("getVM", true, "Not running QEMU process")
 }
 
+// qemu-system...
 func (k *kvm) runVM(spec *vm.Spec) *n0stack.Notification {
 	switch spec.Cpu.Architecture {
 	case cpu.Architecture_x86_64:
@@ -158,65 +148,26 @@ func (k *kvm) runVM(spec *vm.Spec) *n0stack.Notification {
 	}
 	k.pid = cmd.Process.Pid
 
-	// バックグラウンドプロセスにならなくなってしまう
-	// ただ正常にプロセスが起動したかは待たないとわからない
-	// done := make(chan error)
-	// go func() {
-	// 	done <- cmd.Wait()
-	// }()
+	// 現状バックグラウンドプロセスになっていない
+	done := make(chan error)
+	go func() {
+		done <- cmd.Wait()
+	}()
 
-	// select {
-	// case <-time.After(3 * time.Second):
-	// 	return lib.MakeNotification("startQEMUProcess", true, "")
-	// case err := <-done:
-	// 	return lib.MakeNotification("startQEMUProcess.waitError", true, fmt.Sprintf("error message '%s', args '%s'", err.Error(), k.args)) // stderrを表示できるようにする必要がある
-	// }
-
-	return lib.MakeNotification("startQEMUProcess", true, "")
-}
-
-func (k kvm) getQMPPath() string {
-	chardev := map[string]string{}
-	chardevID := ""
-
-	for i, a := range k.args {
-		switch {
-		case a == "-mon":
-			ops := strings.Split(k.args[i+1], ",")
-			for _, o := range ops {
-				if strings.HasPrefix(o, "chardev=") {
-					chardevID = strings.Split(o, "=")[1]
-				}
-			}
-
-		case a == "-chardev":
-			var (
-				id string
-				p  string
-			)
-
-			ops := strings.Split(k.args[i+1], ",")
-			for _, o := range ops {
-				switch {
-				case strings.HasPrefix(o, "id="):
-					id = strings.Split(o, "=")[1]
-				case strings.HasPrefix(o, "path="):
-					p = strings.Split(o, "=")[1]
-				}
-			}
-
-			chardev[id] = p
-		}
+	select {
+	case <-time.After(1 * time.Second):
+		return lib.MakeNotification("startQEMUProcess", true, "")
+	case err := <-done:
+		return lib.MakeNotification("startQEMUProcess.waitError", true, fmt.Sprintf("error message '%s', args '%s'", err.Error(), k.args)) // stderrを表示できるようにする必要がある
 	}
-
-	return chardev[chardevID]
 }
 
+// qmp-shell .../monitor.sock
 func (k *kvm) connectQMP() *n0stack.Notification {
 	qmpPath := k.getQMPPath()
 
 	var err error
-	k.qmp, err = qmp.NewSocketMonitor("unix", qmpPath, 5*time.Second)
+	k.qmp, err = qmp.NewSocketMonitor("unix", qmpPath, 2*time.Second)
 	if err != nil {
 		return lib.MakeNotification("connectQMP", false, fmt.Sprintf("error message '%s'", err.Error()))
 	}
@@ -224,94 +175,98 @@ func (k *kvm) connectQMP() *n0stack.Notification {
 	return lib.MakeNotification("connectQMP", true, "")
 }
 
+// (QEMU) cont
 func (k *kvm) bootVM() *n0stack.Notification {
-	k.qmp.Connect()
-	defer k.qmp.Disconnect()
-
 	cmd := []byte(`{ "execute": "cont" }`)
 	raw, err := k.qmp.Run(cmd)
 	if err != nil {
-		k.status.RunLevel = vm.RunLevel_SHUTDOWN
+		k.RunLevel = vm.RunLevel_SHUTDOWN
 		return lib.MakeNotification("bootVM", false, fmt.Sprintf("error message '%s', qmp response '%s'", err.Error(), raw))
 	}
 
-	k.status.RunLevel = vm.RunLevel_RUNNING
+	k.RunLevel = vm.RunLevel_RUNNING
 	return lib.MakeNotification("bootVM", true, fmt.Sprintf("qmp response '%s'", raw))
 }
 
-// func (t tap) getMACAddr() *net.HardwareAddr {
-// 	c := crc32.ChecksumIEEE(t.id.Bytes())
+type volumeURL struct {
+	id  []byte
+	url string
+}
 
-// 	return &net.HardwareAddr{0x52, 0x54, c[2:]}
-// }
+// (QEMU) blockdev-add options={"driver":"qcow2","id":"drive-virtio-disk0","file":{"driver":"file","filename":"/home/h-otter/wk/test-qemu/ubuntu16.04.qcow2"}}
+// (QEMU) device_add driver=virtio-blk-pci bus=pci.0 scsi=off drive=drive-virtio-disk0 id=virtio-disk0 bootindex=1 // bootindexがどうやって更新されるのかがわからない
+func (k *kvm) attachVolumes(volumes []volumeURL) *n0stack.Notification {
+	for i, v := range volumes {
+		u, err := url.Parse(v.url)
+		if err != nil {
+			return lib.MakeNotification("attachVolume.parseURL", false, fmt.Sprintf("error message '%s', URL '%s', id '%s'", err.Error(), v.url, v.id))
+		}
 
-// Apply スペックを元にステートレスに適用する
-func (a *Agent) Apply(ctx context.Context, spec *vm.Spec) (*n0stack.Notification, error) {
-	// ps auxfww | grep $uuid
-	k, n := getVM(spec.Device.Model)
-	if !n.Success {
-		return n, nil
-	}
+		id, err := uuid.FromBytes(v.id)
+		if err != nil {
+			return lib.MakeNotification("attachVolume.parseUUID", false, fmt.Sprintf("error message '%s', id '%s'", err.Error(), v.id))
+		}
 
-	// if vm is not running
-	if k.args == nil {
-		// check CPU usage
-		// check Memory usage
+		var cmd []byte
+		switch {
+		case u.Scheme == "file":
+			cmd = []byte(fmt.Sprintf(`
+				{
+					"execute": "blockdev-add",
+					"arguments": {
+						"options": {
+							"driver": "qcow2",
+							"id": "drive-%s",
+							"file": {
+								"driver": "file",
+								"filename": "%s"
+							}
+						}
+					}
+				}
+			`, id.String(), u.Path))
+		}
 
-		// qemu-system...
-		n = k.runVM(spec)
-		if !n.Success {
-			return n, nil
+		raw, err := k.qmp.Run(cmd)
+		if err != nil && false { // already existsが発行されてしまう
+			return lib.MakeNotification("attachVolume.blockdev-add", false, fmt.Sprintf("error message '%s', qmp response '%s'", err.Error(), raw))
+		}
+
+		cmd = []byte(fmt.Sprintf(`
+				{
+					"execute": "device_add",
+					"arguments": {
+						"driver": "virtio-blk-pci",
+						"id": "virtio-%s",
+						"drive": "drive-%s",
+						"bus": "pci.0",
+						"scsi": "off",
+						"bootindex": "%d"
+					}
+				}
+			`, id.String(), id.String(), i+1)) // bootindexはcdのために1を追加する
+
+		raw, err = k.qmp.Run(cmd)
+		if err != nil && false { // already existsが発行されてしまう
+			return lib.MakeNotification("attachVolume.device_add", false, fmt.Sprintf("error message '%s', qmp response '%s'", err.Error(), raw))
 		}
 	}
 
-	// qmp-shell .../monitor.sock
-	n = k.connectQMP()
-	if !n.Success {
-		return n, nil
-	}
-
-	// (QEMU) cont
-	// Applyした時に毎回ブートしなければいけないわけではない
-	n = k.bootVM()
-	return n, nil
-
-	// (QEMU) ...
-	// conn :=
-	// vcl := volume.NewRepositoryClient(conn)
-	// vcl.
-	// k.attachVolume()
-	// k.attachNIC()
-
-	return lib.MakeNotification("Apply", true, ""), nil
+	return lib.MakeNotification("attachVolume", true, "")
 }
 
+// // (QEMU) query-block
+// func (k kvm) listVolumes() *n0stack.Notification {
+
+// 	return lib.MakeNotification("listVolumes", true, "")
+// }
+
+// kill $qemu
 func (k kvm) kill() *n0stack.Notification {
 	p, _ := os.FindProcess(k.pid)
 	if err := p.Kill(); err != nil {
-		return lib.MakeNotification("Kill", false, fmt.Sprintf("error message '%s'", err.Error()))
+		return lib.MakeNotification("kill", false, fmt.Sprintf("error message '%s'", err.Error()))
 	}
 
-	return lib.MakeNotification("Kill", true, "")
-}
-
-func (a *Agent) Delete(ctx context.Context, model *n0stack.Model) (*n0stack.Notification, error) {
-	// ps auxfww | grep $uuid
-	k, n := getVM(model)
-	if !n.Success {
-		return n, nil
-	}
-
-	// if vm is not running
-	if k.args == nil {
-		return lib.MakeNotification("Delete", true, "Process is not existing"), nil
-	}
-
-	// kill $qemu
-	n = k.kill()
-	if !n.Success {
-		return n, nil
-	}
-
-	return lib.MakeNotification("Delete", true, ""), nil
+	return lib.MakeNotification("kill", true, "")
 }
