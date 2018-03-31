@@ -2,9 +2,11 @@ package kvm
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/n0stack/n0core/lib"
 	n0stack "github.com/n0stack/proto"
+	"github.com/n0stack/proto/device/tap/v0"
 	"github.com/n0stack/proto/device/vm"
 	"github.com/n0stack/proto/device/volume"
 	"google.golang.org/grpc"
@@ -18,8 +20,16 @@ const (
 	modelType = "device/vm/kvm"
 )
 
+func notify(n *n0stack.Notification) {
+	if !n.Success {
+		panic(n)
+	}
+
+	fmt.Printf("%v\n", n)
+}
+
 // Apply スペックを元にステートレスに適用する
-func (a *Agent) Apply(ctx context.Context, spec *vm.Spec) (*n0stack.Notification, error) {
+func (a *Agent) Apply(ctx context.Context, spec *vm.Spec) (n *n0stack.Notification, errRes error) {
 	// var (
 	// 	n *n0stack.Notification
 	// 	k kvm
@@ -40,18 +50,14 @@ func (a *Agent) Apply(ctx context.Context, spec *vm.Spec) (*n0stack.Notification
 		// check CPU usage
 		// check Memory usage
 
-		if n := k.runVM(spec); !n.Success {
-			return n, nil
-		}
+		notify(k.runVM(spec))
 	}
 
-	if n := k.connectQMP(); !n.Success {
-		return n, nil
-	}
+	notify(k.connectQMP())
 	k.qmp.Connect()
 	defer k.qmp.Disconnect()
 
-	// if n := k.listVolumes(); !n.Success {
+	// if n := k.getStatus(); !n.Success {
 	// 	return n, nil
 	// }
 
@@ -61,8 +67,7 @@ func (a *Agent) Apply(ctx context.Context, spec *vm.Spec) (*n0stack.Notification
 	}
 	defer conn.Close()
 
-	var volumes []volumeURL
-	for _, v := range spec.Volume {
+	for i, v := range spec.Volumes {
 		cli := volume.NewStandardClient(conn)
 
 		r, err := cli.Apply(context.Background(), v) // これはすでにあるvolumeを再利用したい時に危険である
@@ -70,19 +75,32 @@ func (a *Agent) Apply(ctx context.Context, spec *vm.Spec) (*n0stack.Notification
 			return nil, nil
 		}
 
-		volumes = append(volumes, volumeURL{
+		notify(k.attachVolume(&volumeURL{
 			id:  r.Spec.Model.Id,
 			url: r.Status.Url,
+		}, i+1))
+	}
+
+	for _, n := range spec.Nics {
+		cli := tap.NewStandardClient(conn)
+
+		r, err := cli.Apply(context.Background(), &tap.ApplyRequest{
+			Model: n.Model,
+			Spec:  n.Tap,
 		})
-	}
+		if err != nil {
+			return nil, nil
+		}
 
-	if n := k.attachVolumes(volumes); !n.Success {
-		return n, nil
+		notify(k.attachNIC(&nic{
+			id:  r.Model.Id,
+			tap: r.Status.Tap,
+			mac: n.HwAddr.Address,
+		}))
 	}
-
-	// k.attachNIC()
 
 	// Applyした時に毎回ブートしなければいけないわけではない
+	// TODO: プロセスを始めたらbootする
 	if n := k.bootVM(); !n.Success {
 		return n, nil
 	}
@@ -100,6 +118,8 @@ func (a *Agent) Delete(ctx context.Context, model *n0stack.Model) (*n0stack.Noti
 	if k.args == nil {
 		return lib.MakeNotification("Delete", true, "Process is not existing"), nil
 	}
+
+	// vmのシャットダウン
 
 	n = k.kill()
 	if !n.Success {

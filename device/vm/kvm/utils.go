@@ -1,6 +1,14 @@
 package kvm
 
-import "strings"
+import (
+	"encoding/binary"
+	"fmt"
+	"hash/crc32"
+	"net"
+	"strings"
+
+	"github.com/satori/go.uuid"
+)
 
 func (k kvm) getQMPPath() string {
 	chardev := map[string]string{}
@@ -39,8 +47,11 @@ func (k kvm) getQMPPath() string {
 	return chardev[chardevID]
 }
 
-// func (t tap) getMACAddr() *net.HardwareAddr {
-// 	c := crc32.ChecksumIEEE(t.id.Bytes())
+func (k kvm) getMACAddr(id uuid.UUID) *net.HardwareAddr {
+	b := make([]byte, 4)
+	binary.LittleEndian.PutUint32(b, crc32.ChecksumIEEE(id.Bytes()))
+	s := fmt.Sprintf("52:54:%02x:%02x:%02x:%02x", b[0], b[1], b[2], b[3])
+	h, _ := net.ParseMAC(s)
 
-// 	return &net.HardwareAddr{0x52, 0x54, c[2:]}
-// }
+	return &h
+}
