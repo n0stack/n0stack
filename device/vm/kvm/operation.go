@@ -2,6 +2,7 @@ package kvm
 
 import (
 	"fmt"
+	"net"
 	"net/url"
 	"os"
 	"os/exec"
@@ -55,8 +56,8 @@ func getVM(model *n0stack.Model) (*kvm, *n0stack.Notification) {
 	}
 
 	for _, p := range ps {
-		c, _ := p.Cmdline() // エラーが発生する場合が考えられない
-		if strings.Contains(c, k.id.String()) && strings.HasPrefix(c, "qemu") {
+		c, _ := p.Cmdline()                                                     // エラーが発生する場合が考えられない
+		if strings.Contains(c, k.id.String()) && strings.HasPrefix(c, "qemu") { // このfilterはガバガバなので後でリファクタリングする
 			k.args, _ = p.CmdlineSlice()
 
 			k.pid = int(p.Pid)
@@ -82,6 +83,7 @@ func (k *kvm) runVM(spec *vm.Spec) *n0stack.Notification {
 	k.args = append(k.args, "-msg")
 	k.args = append(k.args, "timestamp=on")
 
+	k.args = append(k.args, "-daemonize")
 	k.args = append(k.args, "-nodefaults")     // Don't create default devices
 	k.args = append(k.args, "-no-user-config") // The "-no-user-config" option makes QEMU not load any of the user-provided config files on sysconfdir
 	k.args = append(k.args, "-S")              // Do not start CPU at startup
@@ -158,11 +160,16 @@ func (k *kvm) runVM(spec *vm.Spec) *n0stack.Notification {
 	case <-time.After(1 * time.Second):
 		return lib.MakeNotification("startQEMUProcess", true, "")
 	case err := <-done:
-		return lib.MakeNotification("startQEMUProcess.waitError", true, fmt.Sprintf("error message '%s', args '%s'", err.Error(), k.args)) // stderrを表示できるようにする必要がある
+		if err != nil {
+			return lib.MakeNotification("startQEMUProcess.waitError", false, fmt.Sprintf("error message '%s', args '%s'", err.Error(), k.args)) // stderrを表示できるようにする必要がある
+		}
+		return lib.MakeNotification("startQEMUProcess.wait", true, fmt.Sprintf("args '%s'", k.args)) // stderrを表示できるようにする必要がある
+
 	}
 }
 
 // qmp-shell .../monitor.sock
+// TODO: 他のプロセスがソケットにつなげていた場合、何故か無制限にロックされてしまう
 func (k *kvm) connectQMP() *n0stack.Notification {
 	qmpPath := k.getQMPPath()
 
@@ -188,29 +195,38 @@ func (k *kvm) bootVM() *n0stack.Notification {
 	return lib.MakeNotification("bootVM", true, fmt.Sprintf("qmp response '%s'", raw))
 }
 
+// // (QEMU) query-block
+// func (k kvm) listVolumes() *n0stack.Notification {
+
+// 	return lib.MakeNotification("listVolumes", true, "")
+// }
+
 type volumeURL struct {
 	id  []byte
 	url string
 }
 
 // (QEMU) blockdev-add options={"driver":"qcow2","id":"drive-virtio-disk0","file":{"driver":"file","filename":"/home/h-otter/wk/test-qemu/ubuntu16.04.qcow2"}}
-// (QEMU) device_add driver=virtio-blk-pci bus=pci.0 scsi=off drive=drive-virtio-disk0 id=virtio-disk0 bootindex=1 // bootindexがどうやって更新されるのかがわからない
-func (k *kvm) attachVolumes(volumes []volumeURL) *n0stack.Notification {
-	for i, v := range volumes {
-		u, err := url.Parse(v.url)
-		if err != nil {
-			return lib.MakeNotification("attachVolume.parseURL", false, fmt.Sprintf("error message '%s', URL '%s', id '%s'", err.Error(), v.url, v.id))
-		}
+// (QEMU) device_add driver=virtio-blk-pci bus=pci.0 scsi=off drive=drive-virtio-disk0 id=virtio-disk0 bootindex=1
+// まだべき等ではない
+// TODO:
+//   - すでにアタッチされていた場合、エラー処理を文字列で判定する必要がある
+//   - bootindexがどうやって更新されるのかがわからない
+func (k *kvm) attachVolume(v *volumeURL, i int) *n0stack.Notification {
+	u, err := url.Parse(v.url)
+	if err != nil {
+		return lib.MakeNotification("attachVolume.parseURL", false, fmt.Sprintf("error message '%s', URL '%s', id '%s'", err.Error(), v.url, v.id))
+	}
 
-		id, err := uuid.FromBytes(v.id)
-		if err != nil {
-			return lib.MakeNotification("attachVolume.parseUUID", false, fmt.Sprintf("error message '%s', id '%s'", err.Error(), v.id))
-		}
+	id, err := uuid.FromBytes(v.id)
+	if err != nil {
+		return lib.MakeNotification("attachVolume.parseUUID", false, fmt.Sprintf("error message '%s', id '%s'", err.Error(), v.id))
+	}
 
-		var cmd []byte
-		switch {
-		case u.Scheme == "file":
-			cmd = []byte(fmt.Sprintf(`
+	var cmd []byte
+	switch {
+	case u.Scheme == "file":
+		cmd = []byte(fmt.Sprintf(`
 				{
 					"execute": "blockdev-add",
 					"arguments": {
@@ -225,41 +241,96 @@ func (k *kvm) attachVolumes(volumes []volumeURL) *n0stack.Notification {
 					}
 				}
 			`, id.String(), u.Path))
-		}
+	}
 
-		raw, err := k.qmp.Run(cmd)
-		if err != nil && false { // already existsが発行されてしまう
-			return lib.MakeNotification("attachVolume.blockdev-add", false, fmt.Sprintf("error message '%s', qmp response '%s'", err.Error(), raw))
-		}
+	raw, err := k.qmp.Run(cmd)
+	if err != nil && false { // already existsが発行されてしまう
+		return lib.MakeNotification("attachVolume.blockdev-add", false, fmt.Sprintf("error message '%s', qmp response '%s'", err.Error(), raw))
+	}
 
-		cmd = []byte(fmt.Sprintf(`
+	cmd = []byte(fmt.Sprintf(`
 				{
 					"execute": "device_add",
 					"arguments": {
 						"driver": "virtio-blk-pci",
-						"id": "virtio-%s",
+						"id": "virtio-blk-%s",
 						"drive": "drive-%s",
 						"bus": "pci.0",
 						"scsi": "off",
 						"bootindex": "%d"
 					}
 				}
-			`, id.String(), id.String(), i+1)) // bootindexはcdのために1を追加する
+			`, id.String(), id.String(), i)) // bootindexはcdのために1を追加する
 
-		raw, err = k.qmp.Run(cmd)
-		if err != nil && false { // already existsが発行されてしまう
-			return lib.MakeNotification("attachVolume.device_add", false, fmt.Sprintf("error message '%s', qmp response '%s'", err.Error(), raw))
-		}
+	raw, err = k.qmp.Run(cmd)
+	if err != nil && false { // already existsが発行されてしまう
+		return lib.MakeNotification("attachVolume.device_add", false, fmt.Sprintf("error message '%s', qmp response '%s'", err.Error(), raw))
 	}
 
 	return lib.MakeNotification("attachVolume", true, "")
 }
 
-// // (QEMU) query-block
-// func (k kvm) listVolumes() *n0stack.Notification {
+type nic struct {
+	id  []byte
+	tap string
+	mac string
+}
 
-// 	return lib.MakeNotification("listVolumes", true, "")
-// }
+// (QEMU) netdev_add id=tap0 type=tap vhost=true ifname=tap0 script=no downscript=no
+// (QEMU) device_add driver=virtio-net-pci netdev=tap0 id=test0 mac=52:54:00:df:89:29 bus=pci.0
+// まだべき等ではない
+// TODO:
+//   - すでにアタッチされていた場合、エラー処理を文字列で判定する必要がある
+//   - MACアドレスを変更する
+func (k *kvm) attachNIC(n *nic) *n0stack.Notification {
+	hw, err := net.ParseMAC(n.mac)
+	if err != nil {
+		return lib.MakeNotification("attachNICs.ParseMAC", false, fmt.Sprintf("error message '%s', HWAddr '%s', id '%s'", err.Error(), n.mac, n.id))
+	}
+
+	id, err := uuid.FromBytes(n.id)
+	if err != nil {
+		return lib.MakeNotification("attachNICs.parseUUID", false, fmt.Sprintf("error message '%s', id '%s'", err.Error(), n.id))
+	}
+
+	cmd := []byte(fmt.Sprintf(`
+			{
+				"execute": "netdev_add",
+				"arguments": {
+					"id": "netdev-%s",
+					"type": "tap",
+					"ifname": "%s",
+					"vhost": true,
+					"script": "no",
+					"downscript": "no"
+				}
+			}
+		`, id.String(), n.tap))
+	raw, err := k.qmp.Run(cmd)
+	if err != nil { // already existsが発行されてしまう
+		return lib.MakeNotification("attachNICs.netdev_add", false, fmt.Sprintf("error message '%s', qmp response '%s'", err.Error(), raw))
+	}
+
+	cmd = []byte(fmt.Sprintf(`
+				{
+					"execute": "device_add",
+					"arguments": {
+						"driver": "virtio-net-pci",
+						"id": "virtio-net-%s",
+						"netdev": "netdev-%s",
+						"bus": "pci.0",
+						"mac": "%s"
+					}
+				}
+			`, id.String(), id.String(), hw.String()))
+
+	raw, err = k.qmp.Run(cmd)
+	if err != nil { // already existsが発行されてしまう
+		return lib.MakeNotification("attachNICs.device_add", false, fmt.Sprintf("error message '%s', qmp response '%s'", err.Error(), raw))
+	}
+
+	return lib.MakeNotification("attachNICs", true, fmt.Sprintf("id:%s", id.String()))
+}
 
 // kill $qemu
 func (k kvm) kill() *n0stack.Notification {
