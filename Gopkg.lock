@@ -65,21 +65,14 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/n0stack/go-proto"
+  name = "github.com/n0stack/go.proto"
   packages = [
-    ".",
-    "device",
-    "device/tap/v0",
-    "device/vm",
-    "device/volume",
-    "resource",
-    "resource/cpu",
-    "resource/hwaddr",
-    "resource/memory",
-    "resource/networkid/v0",
-    "resource/storage"
+    "kvm/v0",
+    "notification/v0",
+    "qcow2/v0",
+    "tap/v0"
   ]
-  revision = "1d1701b12611b632fa80d0b5c6042b8577553fb2"
+  revision = "ef78c059d7895316b46dc1cdd7c8d7abb255e5bc"
 
 [[projects]]
   name = "github.com/satori/go.uuid"
@@ -206,6 +199,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7f2b8033beca46a879ad4bf703c05bf0c1b01d7796e85b8c121f02857020605b"
+  inputs-digest = "ebdb14e4b150772133c339f98a301c0331c62a0b9ff74be51cc2934b6c79a9fc"
   solver-name = "gps-cdcl"
   solver-version = 1
