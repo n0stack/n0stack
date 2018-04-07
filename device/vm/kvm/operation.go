@@ -12,10 +12,10 @@ import (
 
 	"code.cloudfoundry.org/bytefmt"
 	"github.com/digitalocean/go-qemu/qmp"
+	n0stack "github.com/n0stack/go-proto"
+	"github.com/n0stack/go-proto/device/vm"
+	"github.com/n0stack/go-proto/resource/cpu"
 	"github.com/n0stack/n0core/lib"
-	n0stack "github.com/n0stack/proto"
-	"github.com/n0stack/proto/device/vm"
-	"github.com/n0stack/proto/resource/cpu"
 	uuid "github.com/satori/go.uuid"
 	"github.com/shirou/gopsutil/process"
 )

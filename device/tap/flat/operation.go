@@ -1,10 +1,10 @@
 package flat
 
 import (
+	n0stack "github.com/n0stack/go-proto"
+	tap "github.com/n0stack/go-proto/device/tap/v0"
+	"github.com/n0stack/go-proto/resource/networkid/v0"
 	"github.com/n0stack/n0core/lib"
-	n0stack "github.com/n0stack/proto"
-	tap "github.com/n0stack/proto/device/tap/v0"
-	"github.com/n0stack/proto/resource/networkid/v0"
 	"github.com/satori/go.uuid"
 	"github.com/vishvananda/netlink"
 )

@@ -3,7 +3,7 @@ package lib
 import (
 	"github.com/golang/protobuf/ptypes"
 
-	n0stack "github.com/n0stack/proto"
+	n0stack "github.com/n0stack/go-proto"
 )
 
 // MakeNotification return Notification message with time.
