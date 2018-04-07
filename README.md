@@ -14,3 +14,33 @@
 ### n0core
 
 - 本リポジトリは他のコンポーネントを開発するためのフレームワークを作成していくための雛形である
+
+## Dependencies
+
+### kvm
+
+- qemu-kvm
+
+### tap
+
+- iproute2
+
+### qcow2
+
+- qemu-utils
+
+## How to run
+
+### Install packages
+
+```sh
+sudo apt install -y \
+  iproute2 \
+  qemu-kvm \
+  qemu-utils
+```
+
+### Run n0core
+
+- `sudo go run main.go`
+- build and run binary with `sudo`.
