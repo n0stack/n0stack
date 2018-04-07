@@ -3,10 +3,10 @@ package qcow2
 import (
 	"context"
 
+	"github.com/n0stack/go-proto/device/volume"
 	"github.com/n0stack/n0core/lib"
-	"github.com/n0stack/proto/device/volume"
 
-	n0stack "github.com/n0stack/proto"
+	n0stack "github.com/n0stack/go-proto"
 )
 
 const modelType = "device/volume/qcow2"
@@ -81,7 +81,7 @@ func (a Agent) Delete(ctx context.Context, model *n0stack.Model) (*volume.Respon
 	}
 
 	if q.Storage != nil {
-		if n = q.deleteImage(); !n.Success {
+		if n = q.deleteImage(); !n.Success { // -> deleteWorkdir にする必要がある
 			return v, nil
 		}
 	}

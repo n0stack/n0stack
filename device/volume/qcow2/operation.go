@@ -9,10 +9,10 @@ import (
 	"path/filepath"
 
 	"code.cloudfoundry.org/bytefmt"
+	n0stack "github.com/n0stack/go-proto"
+	"github.com/n0stack/go-proto/device/volume"
+	"github.com/n0stack/go-proto/resource/storage"
 	"github.com/n0stack/n0core/lib"
-	n0stack "github.com/n0stack/proto"
-	"github.com/n0stack/proto/device/volume"
-	"github.com/n0stack/proto/resource/storage"
 	uuid "github.com/satori/go.uuid"
 )
 

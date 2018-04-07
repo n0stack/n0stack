@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	n0stack "github.com/n0stack/go-proto"
+	"github.com/n0stack/go-proto/device/tap/v0"
+	"github.com/n0stack/go-proto/device/vm"
+	"github.com/n0stack/go-proto/device/volume"
 	"github.com/n0stack/n0core/lib"
-	n0stack "github.com/n0stack/proto"
-	"github.com/n0stack/proto/device/tap/v0"
-	"github.com/n0stack/proto/device/vm"
-	"github.com/n0stack/proto/device/volume"
 	"google.golang.org/grpc"
 )
 
