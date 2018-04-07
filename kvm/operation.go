@@ -12,16 +12,17 @@ import (
 
 	"code.cloudfoundry.org/bytefmt"
 	"github.com/digitalocean/go-qemu/qmp"
-	n0stack "github.com/n0stack/go-proto"
-	"github.com/n0stack/go-proto/device/vm"
-	"github.com/n0stack/go-proto/resource/cpu"
+	pkvm "github.com/n0stack/go.proto/kvm/v0"
+	pnotification "github.com/n0stack/go.proto/notification/v0"
 	"github.com/n0stack/n0core/lib"
+	"github.com/n0stack/n0core/notification"
 	uuid "github.com/satori/go.uuid"
 	"github.com/shirou/gopsutil/process"
 )
 
 type kvm struct {
-	vm.Status
+	pkvm.Spec
+	pkvm.Status
 
 	id      uuid.UUID
 	workDir string
@@ -31,28 +32,17 @@ type kvm struct {
 	qmp  *qmp.SocketMonitor
 }
 
-func (k kvm) getInstanceName(n string) string {
-	return fmt.Sprintf("n0core-%s", n)
-}
-
 // ps auxfww | grep $uuid
-func getVM(model *n0stack.Model) (*kvm, *n0stack.Notification) {
-	k := &kvm{}
-
+func (k *kvm) getKVM() *pnotification.Notification {
 	var err error
-	k.id, err = uuid.FromBytes(model.Id)
-	if err != nil {
-		return nil, lib.MakeNotification("getVM.validateUUID", false, fmt.Sprintf("error message '%s'", err.Error()))
-	}
-
 	k.workDir, err = lib.GetWorkDir(modelType, k.id)
 	if err != nil {
-		return nil, lib.MakeNotification("getVM.GetWorkDir", false, fmt.Sprintf("error message '%s', when creating work directory, '%s'", k.workDir, err.Error()))
+		return notification.MakeNotification("getVM.GetWorkDir", false, fmt.Sprintf("error message '%s', when creating work directory, '%s'", k.workDir, err.Error()))
 	}
 
 	ps, err := process.Processes()
 	if err != nil {
-		return nil, lib.MakeNotification("getVM.getProcessList", false, fmt.Sprintf("error message '%s'", err.Error()))
+		return notification.MakeNotification("getVM.getProcessList", false, fmt.Sprintf("error message '%s'", err.Error()))
 	}
 
 	for _, p := range ps {
@@ -61,25 +51,22 @@ func getVM(model *n0stack.Model) (*kvm, *n0stack.Notification) {
 			k.args, _ = p.CmdlineSlice()
 
 			k.pid = int(p.Pid)
-			return k, lib.MakeNotification("getVM", true, fmt.Sprintf("Already running: pid=%d", k.pid))
+			return notification.MakeNotification("getVM", true, fmt.Sprintf("Already running: pid=%d", k.pid))
 		}
 	}
 
-	return k, lib.MakeNotification("getVM", true, "Not running QEMU process")
+	return notification.MakeNotification("getVM", true, "Not running QEMU process")
 }
 
 // qemu-system...
-func (k *kvm) runVM(spec *vm.Spec) *n0stack.Notification {
-	switch spec.Cpu.Architecture {
-	case cpu.Architecture_x86_64:
-		k.args = []string{"qemu-system-x86_64"}
-	}
+func (k *kvm) runVM(vcpus uint32, memory uint64) *pnotification.Notification {
+	k.args = []string{"qemu-system-x86_64"}
 
 	// -- QEMU metadata --
 	k.args = append(k.args, "-uuid")
 	k.args = append(k.args, k.id.String())
 	k.args = append(k.args, "-name")
-	k.args = append(k.args, fmt.Sprintf("guest=%s,debug-threads=on", k.getInstanceName(spec.Device.Model.Name)))
+	k.args = append(k.args, fmt.Sprintf("guest=%s,debug-threads=on", k.getInstanceName()))
 	k.args = append(k.args, "-msg")
 	k.args = append(k.args, "timestamp=on")
 
@@ -123,14 +110,14 @@ func (k *kvm) runVM(spec *vm.Spec) *n0stack.Notification {
 	k.args = append(k.args, "-cpu")
 	k.args = append(k.args, "host")
 	k.args = append(k.args, "-smp")
-	k.args = append(k.args, fmt.Sprintf("%d,sockets=1,cores=%d,threads=1", spec.Cpu.Vcpus, spec.Cpu.Vcpus))
+	k.args = append(k.args, fmt.Sprintf("%d,sockets=1,cores=%d,threads=1", vcpus, vcpus))
 	k.args = append(k.args, "-enable-kvm")
 	// return true, "Succeeded to check cpu configurations"
 
 	// Memory
 	// TODO: スケジューリングが可能かどうか調べる
 	k.args = append(k.args, "-m")
-	k.args = append(k.args, fmt.Sprintf("%s", bytefmt.ByteSize(spec.Memory.Bytes)))
+	k.args = append(k.args, fmt.Sprintf("%s", bytefmt.ByteSize(memory)))
 	k.args = append(k.args, "-device")
 	k.args = append(k.args, "virtio-balloon-pci,id=balloon0,bus=pci.0") // dynamic configurations
 	k.args = append(k.args, "-realtime")
@@ -146,11 +133,10 @@ func (k *kvm) runVM(spec *vm.Spec) *n0stack.Notification {
 
 	cmd := exec.Command(k.args[0], k.args[1:]...)
 	if err := cmd.Start(); err != nil {
-		return lib.MakeNotification("startQEMUProcess.startProcess", false, fmt.Sprintf("error message '%s', args '%s'", err.Error(), k.args))
+		return notification.MakeNotification("startQEMUProcess.startProcess", false, fmt.Sprintf("error message '%s', args '%s'", err.Error(), k.args))
 	}
 	k.pid = cmd.Process.Pid
 
-	// 現状バックグラウンドプロセスになっていない
 	done := make(chan error)
 	go func() {
 		done <- cmd.Wait()
@@ -158,53 +144,48 @@ func (k *kvm) runVM(spec *vm.Spec) *n0stack.Notification {
 
 	select {
 	case <-time.After(1 * time.Second):
-		return lib.MakeNotification("startQEMUProcess", true, "")
+		return notification.MakeNotification("startQEMUProcess", true, "")
 	case err := <-done:
 		if err != nil {
-			return lib.MakeNotification("startQEMUProcess.waitError", false, fmt.Sprintf("error message '%s', args '%s'", err.Error(), k.args)) // stderrを表示できるようにする必要がある
+			return notification.MakeNotification("startQEMUProcess.waitError", false, fmt.Sprintf("error message '%s', args '%s'", err.Error(), k.args)) // stderrを表示できるようにする必要がある
 		}
-		return lib.MakeNotification("startQEMUProcess.wait", true, fmt.Sprintf("args '%s'", k.args)) // stderrを表示できるようにする必要がある
+		return notification.MakeNotification("startQEMUProcess.wait", true, fmt.Sprintf("args '%s'", k.args)) // stderrを表示できるようにする必要がある
 
 	}
 }
 
 // qmp-shell .../monitor.sock
 // TODO: 他のプロセスがソケットにつなげていた場合、何故か無制限にロックされてしまう
-func (k *kvm) connectQMP() *n0stack.Notification {
+func (k *kvm) connectQMP() *pnotification.Notification {
 	qmpPath := k.getQMPPath()
 
 	var err error
 	k.qmp, err = qmp.NewSocketMonitor("unix", qmpPath, 2*time.Second)
 	if err != nil {
-		return lib.MakeNotification("connectQMP", false, fmt.Sprintf("error message '%s'", err.Error()))
+		return notification.MakeNotification("connectQMP", false, fmt.Sprintf("error message '%s'", err.Error()))
 	}
 
-	return lib.MakeNotification("connectQMP", true, "")
+	return notification.MakeNotification("connectQMP", true, "")
 }
 
 // (QEMU) cont
-func (k *kvm) bootVM() *n0stack.Notification {
+func (k *kvm) bootVM() *pnotification.Notification {
 	cmd := []byte(`{ "execute": "cont" }`)
 	raw, err := k.qmp.Run(cmd)
 	if err != nil {
-		k.RunLevel = vm.RunLevel_SHUTDOWN
-		return lib.MakeNotification("bootVM", false, fmt.Sprintf("error message '%s', qmp response '%s'", err.Error(), raw))
+		k.RunLevel = pkvm.Status_SHUTDOWN
+		return notification.MakeNotification("bootVM", false, fmt.Sprintf("error message '%s', qmp response '%s'", err.Error(), raw))
 	}
 
-	k.RunLevel = vm.RunLevel_RUNNING
-	return lib.MakeNotification("bootVM", true, fmt.Sprintf("qmp response '%s'", raw))
+	k.RunLevel = pkvm.Status_RUNNING
+	return notification.MakeNotification("bootVM", true, fmt.Sprintf("qmp response '%s'", raw))
 }
 
-// // (QEMU) query-block
-// func (k kvm) listVolumes() *n0stack.Notification {
+// // // (QEMU) query-block
+// // func (k kvm) listVolumes() *n0stack.Notification {
 
-// 	return lib.MakeNotification("listVolumes", true, "")
-// }
-
-type volumeURL struct {
-	id  []byte
-	url string
-}
+// // 	return lib.MakeNotification("listVolumes", true, "")
+// // }
 
 // (QEMU) blockdev-add options={"driver":"qcow2","id":"drive-virtio-disk0","file":{"driver":"file","filename":"/home/h-otter/wk/test-qemu/ubuntu16.04.qcow2"}}
 // (QEMU) device_add driver=virtio-blk-pci bus=pci.0 scsi=off drive=drive-virtio-disk0 id=virtio-disk0 bootindex=1
@@ -212,15 +193,10 @@ type volumeURL struct {
 // TODO:
 //   - すでにアタッチされていた場合、エラー処理を文字列で判定する必要がある
 //   - bootindexがどうやって更新されるのかがわからない
-func (k *kvm) attachVolume(v *volumeURL, i int) *n0stack.Notification {
-	u, err := url.Parse(v.url)
+func (k *kvm) attachVolume(id, volumeUrl string, index int) *pnotification.Notification {
+	u, err := url.Parse(volumeUrl)
 	if err != nil {
-		return lib.MakeNotification("attachVolume.parseURL", false, fmt.Sprintf("error message '%s', URL '%s', id '%s'", err.Error(), v.url, v.id))
-	}
-
-	id, err := uuid.FromBytes(v.id)
-	if err != nil {
-		return lib.MakeNotification("attachVolume.parseUUID", false, fmt.Sprintf("error message '%s', id '%s'", err.Error(), v.id))
+		return notification.MakeNotification("attachVolume.parseURL", false, fmt.Sprintf("error message '%s', URL '%s', id '%s'", err.Error(), volumeUrl, id))
 	}
 
 	var cmd []byte
@@ -240,12 +216,12 @@ func (k *kvm) attachVolume(v *volumeURL, i int) *n0stack.Notification {
 						}
 					}
 				}
-			`, id.String(), u.Path))
+			`, id, u.Path))
 	}
 
 	raw, err := k.qmp.Run(cmd)
 	if err != nil && false { // already existsが発行されてしまう
-		return lib.MakeNotification("attachVolume.blockdev-add", false, fmt.Sprintf("error message '%s', qmp response '%s'", err.Error(), raw))
+		return notification.MakeNotification("attachVolume.blockdev-add", false, fmt.Sprintf("error message '%s', qmp response '%s'", err.Error(), raw))
 	}
 
 	cmd = []byte(fmt.Sprintf(`
@@ -260,20 +236,14 @@ func (k *kvm) attachVolume(v *volumeURL, i int) *n0stack.Notification {
 						"bootindex": "%d"
 					}
 				}
-			`, id.String(), id.String(), i)) // bootindexはcdのために1を追加する
+			`, id, id, index)) // bootindexはcdのために1を追加する
 
 	raw, err = k.qmp.Run(cmd)
 	if err != nil && false { // already existsが発行されてしまう
-		return lib.MakeNotification("attachVolume.device_add", false, fmt.Sprintf("error message '%s', qmp response '%s'", err.Error(), raw))
+		return notification.MakeNotification("attachVolume.device_add", false, fmt.Sprintf("error message '%s', qmp response '%s'", err.Error(), raw))
 	}
 
-	return lib.MakeNotification("attachVolume", true, "")
-}
-
-type nic struct {
-	id  []byte
-	tap string
-	mac string
+	return notification.MakeNotification("attachVolume", true, "")
 }
 
 // (QEMU) netdev_add id=tap0 type=tap vhost=true ifname=tap0 script=no downscript=no
@@ -282,15 +252,10 @@ type nic struct {
 // TODO:
 //   - すでにアタッチされていた場合、エラー処理を文字列で判定する必要がある
 //   - MACアドレスを変更する
-func (k *kvm) attachNIC(n *nic) *n0stack.Notification {
-	hw, err := net.ParseMAC(n.mac)
+func (k *kvm) attachNIC(id, tap, mac string) *pnotification.Notification {
+	hw, err := net.ParseMAC(mac)
 	if err != nil {
-		return lib.MakeNotification("attachNICs.ParseMAC", false, fmt.Sprintf("error message '%s', HWAddr '%s', id '%s'", err.Error(), n.mac, n.id))
-	}
-
-	id, err := uuid.FromBytes(n.id)
-	if err != nil {
-		return lib.MakeNotification("attachNICs.parseUUID", false, fmt.Sprintf("error message '%s', id '%s'", err.Error(), n.id))
+		return notification.MakeNotification("attachNICs.ParseMAC", false, fmt.Sprintf("error message '%s', HWAddr '%s', id '%s'", err.Error(), mac, id))
 	}
 
 	cmd := []byte(fmt.Sprintf(`
@@ -305,10 +270,10 @@ func (k *kvm) attachNIC(n *nic) *n0stack.Notification {
 					"downscript": "no"
 				}
 			}
-		`, id.String(), n.tap))
+		`, id, tap))
 	raw, err := k.qmp.Run(cmd)
 	if err != nil { // already existsが発行されてしまう
-		return lib.MakeNotification("attachNICs.netdev_add", false, fmt.Sprintf("error message '%s', qmp response '%s'", err.Error(), raw))
+		return notification.MakeNotification("attachNICs.netdev_add", false, fmt.Sprintf("error message '%s', qmp response '%s'", err.Error(), raw))
 	}
 
 	cmd = []byte(fmt.Sprintf(`
@@ -322,22 +287,22 @@ func (k *kvm) attachNIC(n *nic) *n0stack.Notification {
 						"mac": "%s"
 					}
 				}
-			`, id.String(), id.String(), hw.String()))
+			`, id, id, hw.String()))
 
 	raw, err = k.qmp.Run(cmd)
 	if err != nil { // already existsが発行されてしまう
-		return lib.MakeNotification("attachNICs.device_add", false, fmt.Sprintf("error message '%s', qmp response '%s'", err.Error(), raw))
+		return notification.MakeNotification("attachNICs.device_add", false, fmt.Sprintf("error message '%s', qmp response '%s'", err.Error(), raw))
 	}
 
-	return lib.MakeNotification("attachNICs", true, fmt.Sprintf("id:%s", id.String()))
+	return notification.MakeNotification("attachNICs", true, fmt.Sprintf("id:%s", id))
 }
 
 // kill $qemu
-func (k kvm) kill() *n0stack.Notification {
+func (k kvm) kill() *pnotification.Notification {
 	p, _ := os.FindProcess(k.pid)
 	if err := p.Kill(); err != nil {
-		return lib.MakeNotification("kill", false, fmt.Sprintf("error message '%s'", err.Error()))
+		return notification.MakeNotification("kill", false, fmt.Sprintf("error message '%s'", err.Error()))
 	}
 
-	return lib.MakeNotification("kill", true, "")
+	return notification.MakeNotification("kill", true, "")
 }

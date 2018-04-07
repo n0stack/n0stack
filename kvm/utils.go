@@ -10,6 +10,11 @@ import (
 	"github.com/satori/go.uuid"
 )
 
+func (k kvm) getInstanceName() string {
+	i := strings.Split(k.id.String(), "-")
+	return fmt.Sprintf("n0core-%s", i)
+}
+
 func (k kvm) getQMPPath() string {
 	chardev := map[string]string{}
 	chardevID := ""

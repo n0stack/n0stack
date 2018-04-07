@@ -3,14 +3,15 @@ package main
 import (
 	"net"
 
-	tap "github.com/n0stack/go-proto/device/tap/v0"
-	"github.com/n0stack/go-proto/device/volume"
+	"github.com/n0stack/go.proto/kvm/v0"
+
+	pqcow2 "github.com/n0stack/go.proto/qcow2/v0"
+	ptap "github.com/n0stack/go.proto/tap/v0"
+	"github.com/n0stack/n0core/kvm"
+	"github.com/n0stack/n0core/tap"
+	"github.com/n0stack/n0core/volume/qcow2"
 
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/n0stack/go-proto/device/vm"
-	"github.com/n0stack/n0core/device/tap/flat"
-	"github.com/n0stack/n0core/device/vm/kvm"
-	"github.com/n0stack/n0core/device/volume/qcow2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -31,9 +32,9 @@ func main() {
 	// )
 	s := grpc.NewServer()
 
-	vm.RegisterStandardServer(s, &kvm.Agent{})
-	volume.RegisterStandardServer(s, &qcow2.Agent{})
-	tap.RegisterStandardServer(s, &flat.Agent{InterfaceName: "enp0s25"}) // 環境変数から取る
+	pkvm.RegisterKVMServiceServer(s, &kvm.Agent{})
+	pqcow2.RegisterQcow2ServiceServer(s, &qcow2.Agent{})
+	ptap.RegisterTapServiceServer(s, &tap.Agent{InterfaceName: "enp0s25"}) // 環境変数から取る
 
 	reflection.Register(s)
 	if err := s.Serve(lis); err != nil {
