@@ -15,6 +15,11 @@
 
 - 本リポジトリは他のコンポーネントを開発するためのフレームワークを作成していくための雛形である
 
+## Environment
+
+- Ubuntu 16.04 LTS (Xenial Xerus)
+- Golang 1.9
+
 ## Dependencies
 
 ### kvm
@@ -41,6 +46,8 @@ sudo apt install -y \
 ```
 
 ### Install libraries
+
+- `proto.go` の更新が早いため定期的にやってほしい
 
 ```sh
 dep ensure

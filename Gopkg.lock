@@ -136,7 +136,7 @@
     "qcow2/v0",
     "tap/v0"
   ]
-  revision = "ef78c059d7895316b46dc1cdd7c8d7abb255e5bc"
+  revision = "5d57b9a596d3672a53aaefe31fe8fe5de06e3952"
 
 [[projects]]
   name = "github.com/satori/go.uuid"
@@ -170,13 +170,13 @@
   revision = "bb4de0191aa41b5507caa14b0650cdbddcd9280b"
 
 [[projects]]
-  branch = "master"
   name = "github.com/vishvananda/netlink"
   packages = [
     ".",
     "nl"
   ]
-  revision = "1882fa99fc5adc217f354c6f37a172876877f77d"
+  revision = "a2ad57a690f3caf3015351d2d6e1c0b95c349752"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
@@ -219,7 +219,7 @@
     "unix",
     "windows"
   ]
-  revision = "810d7000345868fc619eb81f46307107118f4ae1"
+  revision = "3b87a42e500a6dc65dae1a55d0b641295971163e"
 
 [[projects]]
   name = "golang.org/x/text"
