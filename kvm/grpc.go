@@ -50,7 +50,7 @@ func (a *Agent) Apply(ctx context.Context, req *pkvm.ApplyRequest) (r *pkvm.KVM,
 	}
 
 	notification.Notify(k.connectQMP())
-	// 気持ち悪い
+	// 気持ち悪いが、どこでQMPをCloseするかがわかりにくいのでこうしている。要リファクタリング
 	k.qmp.Connect()
 	defer k.qmp.Disconnect()
 
