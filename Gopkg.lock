@@ -65,6 +65,15 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/grpc-ecosystem/go-grpc-middleware"
+  packages = [
+    ".",
+    "recovery"
+  ]
+  revision = "bc372cc64f55abd91995ba3f219b380ffbc59e9d"
+
+[[projects]]
+  branch = "master"
   name = "github.com/hashicorp/errwrap"
   packages = ["."]
   revision = "7554cd9344cec97297fa6649b055a8c98c2a1e55"
@@ -112,12 +121,6 @@
   version = "v1.3.0"
 
 [[projects]]
-  name = "github.com/mattn/go-sqlite3"
-  packages = ["."]
-  revision = "6c771bb9887719704b210e87e934f08be014bdb1"
-  version = "v1.6.0"
-
-[[projects]]
   name = "github.com/miekg/dns"
   packages = ["."]
   revision = "83c435cc65d2862736428b9b4d07d0ab10ad3e4d"
@@ -128,6 +131,7 @@
   name = "github.com/n0stack/proto.go"
   packages = [
     "kvm/v0",
+    "node/v0",
     "notification/v0",
     "qcow2/v0",
     "tap/v0"
@@ -279,6 +283,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9414c0bbb822fe93d989494f62f7f05203b4c1a660462d75c9d6b8d3ee64215d"
+  inputs-digest = "990de52e4b9fd033158d3a1bb915d960a31c6da7a28f36a2a45e51874eab7085"
   solver-name = "gps-cdcl"
   solver-version = 1
