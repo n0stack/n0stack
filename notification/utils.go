@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/ptypes"
-	notification "github.com/n0stack/go.proto/notification/v0"
+	notification "github.com/n0stack/proto.go/notification/v0"
 )
 
 func Notify(n *notification.Notification) {

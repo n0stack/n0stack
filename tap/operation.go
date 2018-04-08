@@ -1,9 +1,9 @@
 package tap
 
 import (
-	pnotification "github.com/n0stack/go.proto/notification/v0"
-	tap "github.com/n0stack/go.proto/tap/v0"
 	"github.com/n0stack/n0core/notification"
+	pnotification "github.com/n0stack/proto.go/notification/v0"
+	tap "github.com/n0stack/proto.go/tap/v0"
 	"github.com/satori/go.uuid"
 	"github.com/vishvananda/netlink"
 )

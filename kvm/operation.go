@@ -12,10 +12,10 @@ import (
 
 	"code.cloudfoundry.org/bytefmt"
 	"github.com/digitalocean/go-qemu/qmp"
-	pkvm "github.com/n0stack/go.proto/kvm/v0"
-	pnotification "github.com/n0stack/go.proto/notification/v0"
 	"github.com/n0stack/n0core/lib"
 	"github.com/n0stack/n0core/notification"
+	pkvm "github.com/n0stack/proto.go/kvm/v0"
+	pnotification "github.com/n0stack/proto.go/notification/v0"
 	uuid "github.com/satori/go.uuid"
 	"github.com/shirou/gopsutil/process"
 )

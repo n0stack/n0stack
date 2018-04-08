@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	tap "github.com/n0stack/go.proto/tap/v0"
+	tap "github.com/n0stack/proto.go/tap/v0"
 
 	uuid "github.com/satori/go.uuid"
 	"golang.org/x/net/context"

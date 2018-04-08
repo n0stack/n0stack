@@ -14,9 +14,9 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
-	pkvm "github.com/n0stack/go.proto/kvm/v0"
-	pqcow2 "github.com/n0stack/go.proto/qcow2/v0"
-	ptap "github.com/n0stack/go.proto/tap/v0"
+	pkvm "github.com/n0stack/proto.go/kvm/v0"
+	pqcow2 "github.com/n0stack/proto.go/qcow2/v0"
+	ptap "github.com/n0stack/proto.go/tap/v0"
 )
 
 func main() {

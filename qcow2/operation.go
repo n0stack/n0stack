@@ -12,8 +12,8 @@ import (
 	"github.com/n0stack/n0core/notification"
 
 	"code.cloudfoundry.org/bytefmt"
-	pnotification "github.com/n0stack/go.proto/notification/v0"
-	qcow2 "github.com/n0stack/go.proto/qcow2/v0"
+	pnotification "github.com/n0stack/proto.go/notification/v0"
+	qcow2 "github.com/n0stack/proto.go/qcow2/v0"
 	uuid "github.com/satori/go.uuid"
 )
 
