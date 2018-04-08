@@ -95,7 +95,7 @@ func (k *kvm) runVM(vcpus uint32, memory uint64) *pnotification.Notification {
 
 	// VNC
 	k.args = append(k.args, "-vnc")
-	k.args = append(k.args, ":0,websocket=5700") // ぶつからないようにポートを設定する必要がある, unix socketでも可 unix:$workdir/vnc.sock,websocket
+	k.args = append(k.args, ":0,websocket=5700") // TODO: ぶつからないようにポートを設定する必要がある、現状一台しか立たない
 
 	// clock
 	k.args = append(k.args, "-rtc")

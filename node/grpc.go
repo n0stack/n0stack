@@ -34,7 +34,7 @@ func GetAgent(addr string, port int, starter string) (*Agent, error) {
 	c.Name = a.id.String()
 	c.AdvertisePort = port
 
-	if c.AdvertiseAddr == "" || c.AdvertiseAddr == "0.0.0.0" {
+	if addr == "" || addr == "0.0.0.0" {
 		ip, err := sockaddr.GetPrivateIP()
 		if err != nil {
 			return nil, fmt.Errorf("Failed to get interface addresses: %v", err)
