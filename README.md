@@ -40,6 +40,12 @@ sudo apt install -y \
   qemu-utils
 ```
 
+### Install libraries
+
+```sh
+dep ensure
+```
+
 ### Run n0core
 
 - `sudo go run main.go`
