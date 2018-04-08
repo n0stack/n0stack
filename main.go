@@ -4,21 +4,20 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/n0stack/proto.go/node/v0"
-
+	"github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/n0stack/proto.go/kvm/v0"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 
 	"github.com/n0stack/n0core/kvm"
 	"github.com/n0stack/n0core/node"
 	"github.com/n0stack/n0core/qcow2"
 	"github.com/n0stack/n0core/tap"
+	pkvm "github.com/n0stack/proto.go/kvm/v0"
+	pnode "github.com/n0stack/proto.go/node/v0"
 	pqcow2 "github.com/n0stack/proto.go/qcow2/v0"
 	ptap "github.com/n0stack/proto.go/tap/v0"
-
-	_ "github.com/mattn/go-sqlite3"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 )
 
 type Environment struct {
@@ -38,15 +37,14 @@ func main() {
 		panic(err)
 	}
 
-	// s := grpc.NewServer(
-	// 	grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
-	// 		grpc_recovery.StreamServerInterceptor(),
-	// 	)),
-	// 	grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-	// 		grpc_recovery.UnaryServerInterceptor(),
-	// 	)),
-	// )
-	s := grpc.NewServer()
+	s := grpc.NewServer(
+		grpc_middleware.WithUnaryServerChain(
+			grpc_recovery.UnaryServerInterceptor(),
+		),
+		grpc_middleware.WithStreamServerChain(
+			grpc_recovery.StreamServerInterceptor(),
+		),
+	)
 
 	pkvm.RegisterKVMServiceServer(s, &kvm.Agent{})
 	pqcow2.RegisterQcow2ServiceServer(s, &qcow2.Agent{})
