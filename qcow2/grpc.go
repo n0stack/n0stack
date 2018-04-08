@@ -5,8 +5,8 @@ import (
 
 	"github.com/golang/protobuf/ptypes/empty"
 
-	qcow2 "github.com/n0stack/go.proto/qcow2/v0"
 	"github.com/n0stack/n0core/notification"
+	qcow2 "github.com/n0stack/proto.go/qcow2/v0"
 
 	uuid "github.com/satori/go.uuid"
 	"google.golang.org/grpc"

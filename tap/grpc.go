@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	tap "github.com/n0stack/go.proto/tap/v0"
 	"github.com/n0stack/n0core/notification"
+	tap "github.com/n0stack/proto.go/tap/v0"
 	"github.com/satori/go.uuid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
