@@ -26,6 +26,7 @@ type volume struct {
 
 	id      uuid.UUID
 	workDir string
+	Exists  bool
 }
 
 // qemu-img info $url
@@ -47,21 +48,6 @@ func (v *volume) getQcow2(SoueceUrl string) *pnotification.Notification {
 		return notification.MakeNotification("getQcow2", true, fmt.Sprintf("Not exists disk image: error message '%s'", err.Error()))
 	}
 
-	p := pget.New()
-	p.TargetDir = strings.TrimSuffix(u.Path, "/")
-	p.URLs = append(p.URLs, SoueceUrl)
-	p.Utils = &pget.Data{}
-	p.Utils.SetFileName("iso.img")
-	if err := p.Checking(); err != nil {
-		return notification.MakeNotification("getQcow2.Check", false, fmt.Sprintf("error message '%s'", err.Error()))
-	}
-	if err := p.Download(); err != nil {
-		return notification.MakeNotification("getQcow2.Download", false, fmt.Sprintf("error message '%s'", err.Error()))
-	}
-	if err := p.Utils.BindwithFiles(p.Procs); err != nil {
-		return notification.MakeNotification("getQcow2.BindwithFiles", false, fmt.Sprintf("error message '%s'", err.Error()))
-	}
-
 	a := []string{"qemu-img", "info", "--output=json", v.Url}
 	cmd := exec.Command(a[0], a[1:]...)
 
@@ -81,6 +67,7 @@ func (v *volume) getQcow2(SoueceUrl string) *pnotification.Notification {
 	}
 
 	v.Bytes = info.Size
+	v.Exists = true
 
 	return notification.MakeNotification("getQcow2", true, "Already exists disk image")
 }
@@ -94,6 +81,24 @@ func (v *volume) createImage(size uint64) *pnotification.Notification {
 	}
 
 	return notification.MakeNotification("createImage", true, "")
+}
+
+func (v *volume) downloadQcow2(SoueceUrl string) *pnotification.Notification {
+	p := pget.New()
+	p.TargetDir = strings.TrimSuffix(v.workDir, "/")
+	p.URLs = append(p.URLs, SoueceUrl)
+	p.Utils = &pget.Data{}
+	p.Utils.SetFileName(v.url)
+	if err := p.Checking(); err != nil {
+		return notification.MakeNotification("getQcow2.Check", false, fmt.Sprintf("error message '%s'", err.Error()))
+	}
+	if err := p.Download(); err != nil {
+		return notification.MakeNotification("getQcow2.Download", false, fmt.Sprintf("error message '%s'", err.Error()))
+	}
+	if err := p.Utils.BindwithFiles(p.Procs); err != nil {
+		return notification.MakeNotification("getQcow2.BindwithFiles", false, fmt.Sprintf("error message '%s'", err.Error()))
+	}
+	return notification.MakeNotification("downloadImage", true, "")
 }
 
 // qemu-img resize $image $size

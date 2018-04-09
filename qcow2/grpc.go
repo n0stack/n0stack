@@ -54,9 +54,13 @@ func (a Agent) Apply(ctx context.Context, req *qcow2.ApplyRequest) (q *qcow2.Qco
 
 	notification.Notify(v.getQcow2())
 
-	if v.Bytes == 0 {
-		notification.Notify(v.createImage(req.Spec.Bytes))
-		notification.Notify(v.getQcow2(req.Spec.SoueceUrl))
+	if v.Exists == false {
+		if req.Spec.SoueceUrl == "" {
+			notification.Notify(v.createImage(req.Spec.Bytes))
+		} else {
+			notification.Notify(v.downloadImage(req.Spec.Bytes, req.Spec.SoueceUrl))
+		}
+		notification.Notify(v.getQcow2())
 	} else {
 		notification.Notify(v.resizeImage(req.Spec.Bytes))
 	}
