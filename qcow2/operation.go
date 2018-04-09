@@ -12,6 +12,7 @@ import (
 	"github.com/n0stack/n0core/notification"
 
 	"code.cloudfoundry.org/bytefmt"
+	"github.com/Code-Hex/pget"
 	pnotification "github.com/n0stack/proto.go/notification/v0"
 	qcow2 "github.com/n0stack/proto.go/qcow2/v0"
 	uuid "github.com/satori/go.uuid"
@@ -29,7 +30,7 @@ type volume struct {
 
 // qemu-img info $url
 // TODO: なんかぐちゃぐちゃなので処理を分けたい
-func (v *volume) getQcow2() *pnotification.Notification {
+func (v *volume) getQcow2(SoueceUrl string) *pnotification.Notification {
 	var err error
 	v.workDir, err = lib.GetWorkDir(modelType, v.id)
 	if err != nil {
@@ -44,6 +45,21 @@ func (v *volume) getQcow2() *pnotification.Notification {
 	v.Url = u.String()
 	if _, err := os.Stat(u.Path); err != nil {
 		return notification.MakeNotification("getQcow2", true, fmt.Sprintf("Not exists disk image: error message '%s'", err.Error()))
+	}
+
+	p := pget.New()
+	p.TargetDir = strings.TrimSuffix(u.Path, "/")
+	p.URLs = append(p.URLs, SoueceUrl)
+	p.Utils = &pget.Data{}
+	p.Utils.SetFileName("iso.img")
+	if err := p.Checking(); err != nil {
+		return notification.MakeNotification("getQcow2.Check", false, fmt.Sprintf("error message '%s'", err.Error()))
+	}
+	if err := p.Download(); err != nil {
+		return notification.MakeNotification("getQcow2.Download", false, fmt.Sprintf("error message '%s'", err.Error()))
+	}
+	if err := p.Utils.BindwithFiles(p.Procs); err != nil {
+		return notification.MakeNotification("getQcow2.BindwithFiles", false, fmt.Sprintf("error message '%s'", err.Error()))
 	}
 
 	a := []string{"qemu-img", "info", "--output=json", v.Url}

@@ -56,7 +56,7 @@ func (a Agent) Apply(ctx context.Context, req *qcow2.ApplyRequest) (q *qcow2.Qco
 
 	if v.Bytes == 0 {
 		notification.Notify(v.createImage(req.Spec.Bytes))
-		notification.Notify(v.getQcow2())
+		notification.Notify(v.getQcow2(req.Spec.SoueceUrl))
 	} else {
 		notification.Notify(v.resizeImage(req.Spec.Bytes))
 	}
