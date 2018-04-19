@@ -31,6 +31,7 @@ func (a *Agent) Apply(ctx context.Context, req *pkvm.ApplyRequest) (r *pkvm.KVM,
 		Spec:   &k.Spec,
 		Status: &k.Status,
 	}
+	starting := false
 
 	var err error
 	k.id, err = uuid.FromString(req.Id)
@@ -47,6 +48,7 @@ func (a *Agent) Apply(ctx context.Context, req *pkvm.ApplyRequest) (r *pkvm.KVM,
 		// check Memory usage
 
 		notification.Notify(k.runVM(req.Spec.Vcpus, req.Spec.MemoryBytes))
+		starting = true
 	}
 
 	notification.Notify(k.connectQMP())
@@ -82,9 +84,9 @@ func (a *Agent) Apply(ctx context.Context, req *pkvm.ApplyRequest) (r *pkvm.KVM,
 		notification.Notify(k.attachNIC(r.Id, r.Status.Tap, n.Hwaddr))
 	}
 
-	// Applyした時に毎回ブートしなければいけないわけではない
-	// TODO: プロセスを始めたらbootする
-	notification.Notify(k.bootVM())
+	if starting {
+		notification.Notify(k.bootVM())
+	}
 
 	return
 }
