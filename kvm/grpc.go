@@ -14,7 +14,10 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-type Agent struct{}
+type Agent struct {
+	VNCPortMax uint
+	VNCPortMin uint
+}
 
 const (
 	modelType = "kvm"
@@ -47,6 +50,7 @@ func (a *Agent) Apply(ctx context.Context, req *pkvm.ApplyRequest) (r *pkvm.KVM,
 		// check CPU usage
 		// check Memory usage
 
+		notification.Notify(k.getVNCPort(a.VNCPortMin, a.VNCPortMax))
 		notification.Notify(k.runVM(req.Spec.Vcpus, req.Spec.MemoryBytes))
 		starting = true
 	}
