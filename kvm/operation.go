@@ -159,6 +159,16 @@ func (k *kvm) runVM(vcpus uint32, memory uint64) *pnotification.Notification {
 	k.args = append(k.args, "-device")
 	k.args = append(k.args, "lsi53c895a,bus=pci.0,id=scsi0")
 
+	// Serial
+	k.args = append(k.args, "-chardev")
+	k.args = append(k.args, "stdio,id=charserial0")
+	k.args = append(k.args, "-device")
+	k.args = append(k.args, "isa-serial,chardev=charserial0,id=serial0")
+
+	// usbと多分GUI操作のために必要なHIDデバイス
+	// -device piix3-usb-uhci,id=usb,bus=pci.0,addr=0x1.0x2
+	// -device usb-tablet,id=input0,bus=usb.0,port=1
+
 	cmd := exec.Command(k.args[0], k.args[1:]...)
 	if err := cmd.Start(); err != nil {
 		return notification.MakeNotification("startQEMUProcess.startProcess", false, fmt.Sprintf("error message '%s', args '%s'", err.Error(), k.args))
