@@ -2,6 +2,8 @@ package kvm
 
 import (
 	"fmt"
+	"log"
+	"math/rand"
 	"net"
 	"net/url"
 	"os"
@@ -58,6 +60,32 @@ func (k *kvm) getKVM() *pnotification.Notification {
 	return notification.MakeNotification("getVM", true, "Not running QEMU process")
 }
 
+// netstat -antp
+func (k *kvm) getVNCPort(min uint, max uint) *pnotification.Notification {
+	r := int(max - min)
+
+	// 無限ループしてしまう可能性がある
+	for {
+		var p uint
+		if r > 0 {
+			p = uint(rand.Intn(r)) + min
+		} else {
+			p = min
+		}
+
+		log.Printf("Trying port: %d", p)
+		l, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", p))
+		if err == nil {
+			defer l.Close()
+			k.VncPort = uint32(p)
+
+			break
+		}
+	}
+
+	return notification.MakeNotification("getVNCPort", true, fmt.Sprintf("Listening VNC on %d", k.VncPort))
+}
+
 // qemu-system...
 func (k *kvm) runVM(vcpus uint32, memory uint64) *pnotification.Notification {
 	k.args = []string{"qemu-system-x86_64"}
@@ -95,7 +123,7 @@ func (k *kvm) runVM(vcpus uint32, memory uint64) *pnotification.Notification {
 
 	// VNC
 	k.args = append(k.args, "-vnc")
-	k.args = append(k.args, ":0,websocket=5700") // TODO: ぶつからないようにポートを設定する必要がある、現状一台しか立たない
+	k.args = append(k.args, fmt.Sprintf(":%d,websocket=%d", k.VncPort-5900, k.VncPort-200))
 
 	// clock
 	k.args = append(k.args, "-rtc")

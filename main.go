@@ -24,6 +24,8 @@ type Environment struct {
 	Starter               string `default:""`
 	BindAddr              string `default:"" envconfig:"BIND_ADDR"`
 	BindPort              int    `default:"20180" envconfig:"BIND_PORT"`
+	VNCPortMin            uint   `default:"5900" envconfig:"VNC_PORT_MIN"`
+	VNCPortMax            uint   `default:"5999" envconfig:"VNC_PORT_MAX"`
 	OutboundInterfaceName string `required:"true" envconfig:"OUTBOUND_INTERFACE_NAME"`
 }
 
@@ -46,7 +48,7 @@ func main() {
 		),
 	)
 
-	pkvm.RegisterKVMServiceServer(s, &kvm.Agent{})
+	pkvm.RegisterKVMServiceServer(s, &kvm.Agent{VNCPortMin: env.VNCPortMin, VNCPortMax: env.VNCPortMax})
 	pqcow2.RegisterQcow2ServiceServer(s, &qcow2.Agent{})
 	ptap.RegisterTapServiceServer(s, &tap.Agent{InterfaceName: env.OutboundInterfaceName})
 
