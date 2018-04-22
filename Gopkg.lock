@@ -137,7 +137,7 @@
     "qcow2/v0",
     "tap/v0"
   ]
-  revision = "1167842e6f502f1b13efd7c147f0b28b65db991b"
+  revision = "1961150b40571e2fe4379a40769cfc327dd84f2f"
 
 [[projects]]
   name = "github.com/satori/go.uuid"
@@ -192,7 +192,7 @@
     "ed25519",
     "ed25519/internal/edwards25519"
   ]
-  revision = "d6449816ce06963d9d136eee5a56fca5b0616e7e"
+  revision = "e73bf333ef8920dbb52ad18d4bd38ad9d9bc76d7"
 
 [[projects]]
   branch = "master"
@@ -212,7 +212,7 @@
     "lex/httplex",
     "trace"
   ]
-  revision = "d41e8174641f662c5a2d1c7a5f9e828788eb8706"
+  revision = "5f9ae10d9af5b1c89ae6904293b14b064d4ada23"
 
 [[projects]]
   branch = "master"
@@ -221,7 +221,7 @@
     "unix",
     "windows"
   ]
-  revision = "3ccc7e5779793fd54564baf60c51bf017955e0ba"
+  revision = "79b0c6888797020a994db17c8510466c72fe75d9"
 
 [[projects]]
   name = "golang.org/x/text"

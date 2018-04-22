@@ -20,17 +20,19 @@ import (
 	ptap "github.com/n0stack/proto.go/tap/v0"
 )
 
-type Environment struct {
-	Starter               string `default:""`
-	BindAddr              string `default:"" envconfig:"BIND_ADDR"`
-	BindPort              int    `default:"20180" envconfig:"BIND_PORT"`
-	VNCPortMin            uint   `default:"5900" envconfig:"VNC_PORT_MIN"`
-	VNCPortMax            uint   `default:"5999" envconfig:"VNC_PORT_MAX"`
-	OutboundInterfaceName string `required:"true" envconfig:"OUTBOUND_INTERFACE_NAME"`
+type environment struct {
+	BindAddr              string            `default:"" envconfig:"BIND_ADDR"`
+	BindPort              int               `default:"20180" envconfig:"BIND_PORT"`
+	VNCPortMin            uint              `default:"5900" envconfig:"VNC_PORT_MIN"`
+	VNCPortMax            uint              `default:"5999" envconfig:"VNC_PORT_MAX"`
+	OutboundInterfaceName string            `required:"true" envconfig:"OUTBOUND_INTERFACE_NAME"`
+	NodeSwimStarter       string            `default:"" envconfig:"NODE_SWIM_STARTER"`
+	NodeName              string            `default:"" envconfig:"NODE_NAME"`
+	NodeLabels            map[string]string `envconfig:"NODE_LABELS"`
 }
 
 var (
-	env Environment
+	env environment
 )
 
 func main() {
@@ -52,7 +54,7 @@ func main() {
 	pqcow2.RegisterQcow2ServiceServer(s, &qcow2.Agent{})
 	ptap.RegisterTapServiceServer(s, &tap.Agent{InterfaceName: env.OutboundInterfaceName})
 
-	n, err := node.GetAgent(env.BindAddr, env.BindPort, env.Starter)
+	n, err := node.GetAgent(env.BindAddr, env.BindPort, env.NodeSwimStarter, env.NodeName, env.NodeLabels)
 	if err != nil {
 		panic(err)
 	}
