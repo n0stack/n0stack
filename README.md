@@ -50,7 +50,7 @@ sudo apt install -y \
 - `proto.go` の更新が早いため定期的にやってほしい
 
 ```sh
-dep ensure
+dep ensure -update
 ```
 
 ### Run n0core
