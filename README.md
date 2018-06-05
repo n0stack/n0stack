@@ -4,15 +4,7 @@
 
 ## Motivation
 
-### n0stack
-
-- クラウドクラスタ全体をマネージできるものを構築する
-- Simple and small system
-  - 設定を四苦八苦するよりもわかりやすくて短いソースを読んだほうが理解できるし、何なら自分で書いたほうがいい
-- 新しい技術や論文を積極的に取り入れて楽しい物を作る
-
-### n0core
-
+- 物理的なリソースを仮想的に使うようにするためのものである
 - 本リポジトリは他のコンポーネントを開発するためのフレームワークを作成していくための雛形である
 
 ## Environment
@@ -57,3 +49,10 @@ dep ensure -update
 
 - `sudo go run main.go`
 - build and run binary with `sudo`.
+
+## 構成
+
+- Agent
+- API
+
+#### 各実装は各ディレクトリの `README.md` を参照のこと
