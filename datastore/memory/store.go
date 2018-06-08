@@ -30,7 +30,13 @@ func (m MemoryDatastore) List(f func(length int) []proto.Message) error {
 }
 
 func (m MemoryDatastore) Get(name string, pb proto.Message) error {
-	err := proto.Unmarshal(m.Data[name], pb)
+	v, ok := m.Data[name]
+	if !ok {
+		pb = nil
+		return nil
+	}
+
+	err := proto.Unmarshal(v, pb)
 	if err != nil {
 		return err
 	}
