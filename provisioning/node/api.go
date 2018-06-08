@@ -43,8 +43,8 @@ func CreateNodeAPI(ds datastore.Datastore, starter string) (*NodeAPI, error) {
 	return a, nil
 }
 
-func (a *NodeAPI) ListNodes(ctx context.Context, req *pprovisioning.ListNodesRequest) (res *pprovisioning.ListNodesResponse, errRes error) {
-	res = &pprovisioning.ListNodesResponse{}
+func (a *NodeAPI) ListNodes(ctx context.Context, req *pprovisioning.ListNodesRequest) (*pprovisioning.ListNodesResponse, error) {
+	res := &pprovisioning.ListNodesResponse{}
 	f := func(s int) []proto.Message {
 		res.Nodes = make([]*pprovisioning.Node, s)
 		for i := range res.Nodes {
@@ -60,29 +60,26 @@ func (a *NodeAPI) ListNodes(ctx context.Context, req *pprovisioning.ListNodesReq
 	}
 
 	if err := a.ds.List(f); err != nil {
-		errRes = grpc.Errorf(codes.Internal, "message:Failed to get from db\tgot:%v", err.Error())
-		return
+		return nil, grpc.Errorf(codes.Internal, "message:Failed to get from db\tgot:%v", err.Error())
 	}
 	if len(res.Nodes) == 0 {
-		errRes = grpc.Errorf(codes.NotFound, "")
-		return
+		return nil, grpc.Errorf(codes.NotFound, "")
 	}
 
-	return
+	return res, nil
 }
 
-func (a *NodeAPI) GetNode(ctx context.Context, req *pprovisioning.GetNodeRequest) (res *pprovisioning.Node, errRes error) {
-	res = &pprovisioning.Node{}
+func (a *NodeAPI) GetNode(ctx context.Context, req *pprovisioning.GetNodeRequest) (*pprovisioning.Node, error) {
+	res := &pprovisioning.Node{}
 	if err := a.ds.Get(req.Name, res); err != nil {
-		errRes = grpc.Errorf(codes.Internal, "message:Failed to get from db\tgot:%v", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "message:Failed to get from db\tgot:%v", err.Error())
 	}
 
 	if res.Metadata == nil {
-		errRes = grpc.Errorf(codes.NotFound, "")
-		return
+		return nil, grpc.Errorf(codes.NotFound, "")
 	}
 
-	return
+	return res, nil
 }
 
 func (a *NodeAPI) ApplyNode(ctx context.Context, req *pprovisioning.ApplyNodeRequest) (*pprovisioning.Node, error) {
@@ -120,16 +117,14 @@ func (a *NodeAPI) ApplyNode(ctx context.Context, req *pprovisioning.ApplyNodeReq
 	return res, nil
 }
 
-func (a *NodeAPI) DeleteNode(ctx context.Context, req *pprovisioning.DeleteNodeRequest) (res *empty.Empty, errRes error) {
+func (a *NodeAPI) DeleteNode(ctx context.Context, req *pprovisioning.DeleteNodeRequest) (*empty.Empty, error) {
 	d, err := a.ds.Delete(req.Name)
 	if err != nil {
-		errRes = grpc.Errorf(codes.Internal, "message:Failed to delete from db.\tgot:%v", err.Error())
-		return
+		return nil, grpc.Errorf(codes.Internal, "message:Failed to delete from db.\tgot:%v", err.Error())
 	}
 	if d > 0 {
-		errRes = grpc.Errorf(codes.NotFound, "")
-		return
+		return nil, grpc.Errorf(codes.NotFound, "")
 	}
 
-	return
+	return nil, nil
 }
