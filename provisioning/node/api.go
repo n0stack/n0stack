@@ -85,8 +85,8 @@ func (a *NodeAPI) GetNode(ctx context.Context, req *pprovisioning.GetNodeRequest
 	return
 }
 
-func (a *NodeAPI) ApplyNode(ctx context.Context, req *pprovisioning.ApplyNodeRequest) (res *pprovisioning.Node, errRes error) {
-	res = &pprovisioning.Node{
+func (a *NodeAPI) ApplyNode(ctx context.Context, req *pprovisioning.ApplyNodeRequest) (*pprovisioning.Node, error) {
+	res := &pprovisioning.Node{
 		Metadata: req.Metadata,
 		Spec:     req.Spec,
 		Status:   &pprovisioning.NodeStatus{},
@@ -102,25 +102,22 @@ func (a *NodeAPI) ApplyNode(ctx context.Context, req *pprovisioning.ApplyNodeReq
 	prev := &pprovisioning.Node{}
 	err := a.ds.Get(req.Metadata.Name, prev)
 	if err != nil {
-		errRes = grpc.Errorf(codes.Internal, "Failed to get db, got:%v.", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Failed to get db, got:%v.", err.Error())
 	}
 	if prev.Metadata == nil && req.Metadata.Version != 0 {
-		errRes = grpc.Errorf(codes.InvalidArgument, "Failed to check version, have:%d, want:0.", req.Metadata.Version)
-		return
+		return nil, grpc.Errorf(codes.InvalidArgument, "Failed to check version, have:%d, want:0.", req.Metadata.Version)
 	}
 	if prev.Metadata != nil && req.Metadata.Version != prev.Metadata.Version {
-		errRes = grpc.Errorf(codes.InvalidArgument, "Failed to check version, have:%d, want:%d.", req.Metadata.Version, prev.Metadata.Version)
-		return
+		return nil, grpc.Errorf(codes.InvalidArgument, "Failed to check version, have:%d, want:%d.", req.Metadata.Version, prev.Metadata.Version)
 	}
 
 	res.Metadata.Version++
 
 	if err := a.ds.Apply(req.Metadata.Name, res); err != nil {
-		errRes = grpc.Errorf(codes.Internal, "Failed to apply for db, got:%v.", err.Error())
-		return
+		return nil, grpc.Errorf(codes.Internal, "Failed to apply for db, got:%v.", err.Error())
 	}
 
-	return
+	return res, nil
 }
 
 func (a *NodeAPI) DeleteNode(ctx context.Context, req *pprovisioning.DeleteNodeRequest) (res *empty.Empty, errRes error) {
