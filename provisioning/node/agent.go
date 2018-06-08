@@ -2,6 +2,8 @@ package node
 
 import (
 	"context"
+	"log"
+	"net"
 	"os/exec"
 	"strings"
 
@@ -48,8 +50,7 @@ func GetSerial() string {
 	return ""
 }
 
-func JoinNode(name, advertiseAddress, api string) error {
-	// register to API
+func registerNodeToAPI(name, advertiseAddress, api string) error {
 	conn, err := grpc.Dial(api, grpc.WithInsecure())
 	if err != nil {
 		return err
@@ -65,8 +66,10 @@ func JoinNode(name, advertiseAddress, api string) error {
 			return err
 		}
 		ar = &pprovisioning.ApplyNodeRequest{
-			Metadata: &pn0stack.Metadata{},
-			Spec:     &pprovisioning.NodeSpec{},
+			Metadata: &pn0stack.Metadata{
+				Name: name,
+			},
+			Spec: &pprovisioning.NodeSpec{},
 		}
 	} else {
 		ar = &pprovisioning.ApplyNodeRequest{
@@ -85,7 +88,12 @@ func JoinNode(name, advertiseAddress, api string) error {
 		return err
 	}
 
-	// join to memberlist
+	log.Printf("[INFO] %v", n)
+
+	return nil
+}
+
+func joinNodeToMemberlist(name, advertiseAddress, api string) error {
 	c := memberlist.DefaultLANConfig()
 	c.Name = name
 	c.AdvertiseAddr = advertiseAddress
@@ -98,6 +106,23 @@ func JoinNode(name, advertiseAddress, api string) error {
 
 	_, err = list.Join([]string{api})
 	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func JoinNode(name, advertiseAddress, api string) error {
+	addr, err := net.ResolveIPAddr("ip", advertiseAddress)
+	if err != nil {
+		return err
+	}
+
+	if err := registerNodeToAPI(name, addr.String(), api); err != nil {
+		return err
+	}
+
+	if err := joinNodeToMemberlist(name, addr.String(), api); err != nil {
 		return err
 	}
 
