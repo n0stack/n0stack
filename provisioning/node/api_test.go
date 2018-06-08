@@ -2,6 +2,7 @@ package node
 
 import (
 	"context"
+	"reflect"
 	"testing"
 
 	"github.com/hashicorp/memberlist"
@@ -11,8 +12,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
-
-type MockMemberlist struct{}
 
 func TestApplyCompute(t *testing.T) {
 	c := memberlist.DefaultLANConfig()
@@ -58,6 +57,9 @@ func TestApplyCompute(t *testing.T) {
 					Version: 1,
 				},
 				Spec: &pprovisioning.NodeSpec{},
+				Status: &pprovisioning.NodeStatus{
+					State: pprovisioning.NodeStatus_NotReady,
+				},
 			},
 			code: codes.OK,
 		},
@@ -75,6 +77,9 @@ func TestApplyCompute(t *testing.T) {
 					Version: 4,
 				},
 				Spec: &pprovisioning.NodeSpec{},
+				Status: &pprovisioning.NodeStatus{
+					State: pprovisioning.NodeStatus_NotReady,
+				},
 			},
 			code: codes.OK,
 		},
@@ -103,7 +108,11 @@ func TestApplyCompute(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		_, err := a.ApplyNode(context.Background(), tc.req)
+		n, err := a.ApplyNode(context.Background(), tc.req)
+
+		if !reflect.DeepEqual(n, tc.node) {
+			t.Errorf("Wrong status value.\n\thave:%v\n\twant:%v", n, tc.node)
+		}
 
 		if status.Code(err) != tc.code {
 			t.Errorf("Wrong status code.\n\thave:%v\n\twant:%v", status.Code(err), tc.code)
