@@ -77,7 +77,7 @@ func (a *NodeAPI) GetNode(ctx context.Context, req *pprovisioning.GetNodeRequest
 		errRes = grpc.Errorf(codes.Internal, "message:Failed to get from db\tgot:%v", err.Error())
 	}
 
-	if res == nil {
+	if res.Metadata == nil {
 		errRes = grpc.Errorf(codes.NotFound, "")
 		return
 	}
@@ -99,8 +99,24 @@ func (a *NodeAPI) ApplyNode(ctx context.Context, req *pprovisioning.ApplyNodeReq
 		}
 	}
 
+	prev := &pprovisioning.Node{}
+	err := a.ds.Get(req.Metadata.Name, prev)
+	if err != nil {
+		errRes = grpc.Errorf(codes.Internal, "Failed to get db, got:%v.", err.Error())
+	}
+	if prev.Metadata == nil && req.Metadata.Version != 0 {
+		errRes = grpc.Errorf(codes.InvalidArgument, "Failed to check version, have:%d, want:0.", req.Metadata.Version)
+		return
+	}
+	if prev.Metadata != nil && req.Metadata.Version != prev.Metadata.Version {
+		errRes = grpc.Errorf(codes.InvalidArgument, "Failed to check version, have:%d, want:%d.", req.Metadata.Version, prev.Metadata.Version)
+		return
+	}
+
+	res.Metadata.Version++
+
 	if err := a.ds.Apply(req.Metadata.Name, res); err != nil {
-		errRes = grpc.Errorf(codes.Internal, "message:Failed to apply for db.\tgot:%v", err.Error())
+		errRes = grpc.Errorf(codes.Internal, "Failed to apply for db, got:%v.", err.Error())
 		return
 	}
 
