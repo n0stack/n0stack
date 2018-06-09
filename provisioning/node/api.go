@@ -122,11 +122,11 @@ func (a *NodeAPI) ApplyNode(ctx context.Context, req *pprovisioning.ApplyNodeReq
 func (a *NodeAPI) DeleteNode(ctx context.Context, req *pprovisioning.DeleteNodeRequest) (*empty.Empty, error) {
 	d, err := a.ds.Delete(req.Name)
 	if err != nil {
-		return nil, grpc.Errorf(codes.Internal, "message:Failed to delete from db.\tgot:%v", err.Error())
+		return &empty.Empty{}, grpc.Errorf(codes.Internal, "message:Failed to delete from db.\tgot:%v", err.Error())
 	}
 	if d < 1 {
-		return nil, grpc.Errorf(codes.NotFound, "")
+		return &empty.Empty{}, grpc.Errorf(codes.NotFound, "")
 	}
 
-	return nil, nil
+	return &empty.Empty{}, nil
 }
