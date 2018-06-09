@@ -2,12 +2,6 @@
 
 
 [[projects]]
-  name = "github.com/StackExchange/wmi"
-  packages = ["."]
-  revision = "5d049714c4a64225c3c79a7cf7d02f7fb5b96338"
-  version = "1.0.0"
-
-[[projects]]
   branch = "master"
   name = "github.com/armon/go-metrics"
   packages = ["."]
@@ -26,15 +20,6 @@
   ]
   revision = "56536de5511128d0c7997aa2b792a4de575da536"
   version = "v3.3.7"
-
-[[projects]]
-  name = "github.com/go-ole/go-ole"
-  packages = [
-    ".",
-    "oleutil"
-  ]
-  revision = "a41e3c4b706f6ae8dfbff342b06e40fa4d2d0506"
-  version = "v1.2.1"
 
 [[projects]]
   name = "github.com/gogo/protobuf"
@@ -115,22 +100,13 @@
     "provisioning/v0",
     "v0"
   ]
-  revision = "a96048f834d8f7c3418e351d8f869c2ba6461ccf"
+  revision = "a723b9a08467ae959fac54f792c1d28e1eecb954"
 
 [[projects]]
   branch = "master"
   name = "github.com/sean-/seed"
   packages = ["."]
   revision = "e2103e2c35297fb7e17febb81e49b312087a2372"
-
-[[projects]]
-  name = "github.com/shirou/gopsutil"
-  packages = [
-    "internal/common",
-    "net"
-  ]
-  revision = "eeb1d38d69593f121e060d24d17f7b1f0936b203"
-  version = "v2.18.05"
 
 [[projects]]
   name = "github.com/urfave/cli"
@@ -165,15 +141,6 @@
     "trace"
   ]
   revision = "1e491301e022f8f977054da4c2d852decd59571f"
-
-[[projects]]
-  branch = "master"
-  name = "golang.org/x/sys"
-  packages = [
-    "unix",
-    "windows"
-  ]
-  revision = "9527bec2660bd847c050fda93a0f0c6dee0800bb"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -239,6 +206,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "f1949b508f3a46cfcc52823cd4c7252cf593adc13e60463f3cbf8f99783979fc"
+  inputs-digest = "d906a443d43b1bd5f9e3022ae6f8252f028bb3a06eba0fd53f79beb38b076412"
   solver-name = "gps-cdcl"
   solver-version = 1

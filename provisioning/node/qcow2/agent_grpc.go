@@ -1,0 +1,82 @@
+package qcow2
+
+import (
+	fmt "fmt"
+	"net/url"
+	"os"
+	"os/exec"
+
+	"code.cloudfoundry.org/bytefmt"
+	"github.com/golang/protobuf/ptypes/empty"
+	context "golang.org/x/net/context"
+	grpc "google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+)
+
+// Qcow2Agent is for developer and administrator service.
+// Make attention about logs!!
+//
+// refs: https://github.com/n0stack/n0core/blob/7793ac93917f4dc3f524e6d716174e1dee490173/qcow2/operation.go
+type Qcow2Agent struct{}
+
+func (a Qcow2Agent) qcow2IsExist(path *url.URL) bool {
+	_, err := os.Stat(path.Path)
+
+	return err == nil
+}
+
+func (a Qcow2Agent) createQcow2(size uint64, path *url.URL) error {
+	if err := os.MkdirAll(path.Path, os.ModePerm); err != nil {
+		return err
+	}
+
+	args := []string{"qemu-img", "create", "-f", "qcow2", path.String(), bytefmt.ByteSize(size)}
+	cmd := exec.Command(args[0], args[1:]...)
+	if o, err := cmd.CombinedOutput(); err != nil {
+		return fmt.Errorf("error message '%s', args '%s', output '%s'", err.Error(), a, o)
+	}
+
+	return nil
+}
+
+func (a Qcow2Agent) deleteQcow2(path *url.URL) error {
+	if err := os.Remove(path.Path); err != nil {
+		return fmt.Errorf("error message '%s'", err.Error())
+	}
+
+	return nil
+}
+
+func (a Qcow2Agent) ApplyQcow2(ctx context.Context, req *ApplyQcow2Request) (*Qcow2, error) {
+	u, err := url.Parse(req.Qcow2.Url)
+	if err != nil {
+		return nil, grpc.Errorf(codes.InvalidArgument, "Failed to parse url, err:%v.", err.Error())
+	}
+
+	if a.qcow2IsExist(u) {
+		if err := a.createQcow2(req.Qcow2.Bytes, u); err != nil {
+			return nil, grpc.Errorf(codes.Internal, "Failed to create qcow2, err:%v.", err.Error())
+		}
+	} else {
+		// need to implement resizing.
+
+		return nil, grpc.Errorf(codes.AlreadyExists, "")
+	}
+
+	return req.Qcow2, nil
+}
+
+func (a Qcow2Agent) DeleteQcow2(ctx context.Context, req *DeleteQcow2Request) (*empty.Empty, error) {
+	u, err := url.Parse(req.Qcow2.Url)
+	if err != nil {
+		return nil, grpc.Errorf(codes.InvalidArgument, "Failed to parse url, err:%v.", err.Error())
+	}
+
+	if !a.qcow2IsExist(u) {
+		return nil, grpc.Errorf(codes.NotFound, "")
+	}
+
+	a.deleteQcow2(u)
+
+	return &empty.Empty{}, nil
+}

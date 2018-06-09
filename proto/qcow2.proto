@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+option go_package = "github.com/n0stack/n0core/provisioning/node/qcow2";
+
+package n0stack.n0core;
+
+import "google/protobuf/empty.proto";
+
+service Qcow2Service {
+  rpc ApplyQcow2(ApplyQcow2Request) returns (Qcow2) {}
+
+  rpc DownloadQcow2(DownloadQcow2Request) returns (Qcow2) {}
+
+  rpc BuildQcow2WithPacker(BuildQcow2WithPackerRequest) returns (Qcow2) {}
+
+  rpc DeleteQcow2(DeleteQcow2Request) returns (google.protobuf.Empty) {}
+}
+
+message Qcow2 {
+  // 保存先
+  string url = 1;
+
+  // サイズを指定する
+  uint64 bytes = 2;
+}
+
+message ApplyQcow2Request {
+  Qcow2 qcow2 = 1;
+}
+
+message DownloadQcow2Request {
+  Qcow2 qcow2 = 1;
+
+  // URLからイメージファイルをダウンロードすることができる
+  string source_url = 2;
+}
+
+message BuildQcow2WithPackerRequest {
+  Qcow2 qcow2 = 1;
+
+  string repository = 2;
+  string work_directory = 3;
+  string template_file = 4;
+}
+
+message DeleteQcow2Request {
+  Qcow2 qcow2 = 1;
+}

@@ -3,11 +3,14 @@ package main
 import (
 	"fmt"
 	"log"
+	"net"
 	"os"
-	"time"
 
 	"github.com/n0stack/n0core/provisioning/node"
+	"github.com/n0stack/n0core/provisioning/node/qcow2"
 	"github.com/urfave/cli"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 func main() {
@@ -16,7 +19,6 @@ func main() {
 	// app.Usage = ""
 	app.Version = "0.1.0" // CIで取るようにする
 
-	// command action
 	app.Commands = []cli.Command{
 		{
 			Name:  "serve",
@@ -26,7 +28,19 @@ func main() {
 					return err
 				}
 
-				time.Sleep(30 * time.Second)
+				lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", c.String("bind-address"), c.Int("bind-port")))
+				if err != nil {
+					return err
+				}
+
+				s := grpc.NewServer()
+				qcow2.RegisterQcow2ServiceServer(s, &qcow2.Qcow2Agent{})
+				reflection.Register(s)
+
+				log.Printf("[INFO] Starting API")
+				if err := s.Serve(lis); err != nil {
+					return err
+				}
 
 				if err := node.LeaveNode(c.String("name"), fmt.Sprintf("%s:%d", c.String("api-address"), c.Int("api-port"))); err != nil {
 					return err
@@ -47,6 +61,15 @@ func main() {
 				},
 				cli.IntFlag{
 					Name: "api-port",
+				},
+				cli.StringFlag{
+					// interfaceからも取れるようにしたい
+					Name:  "bind-address",
+					Value: "0.0.0.0",
+				},
+				cli.IntFlag{
+					Name:  "bind-port",
+					Value: 20181,
 				},
 			},
 		},
