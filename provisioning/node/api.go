@@ -124,7 +124,7 @@ func (a *NodeAPI) DeleteNode(ctx context.Context, req *pprovisioning.DeleteNodeR
 	if err != nil {
 		return nil, grpc.Errorf(codes.Internal, "message:Failed to delete from db.\tgot:%v", err.Error())
 	}
-	if d > 0 {
+	if d < 1 {
 		return nil, grpc.Errorf(codes.NotFound, "")
 	}
 
