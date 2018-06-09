@@ -150,5 +150,7 @@ func LeaveNode(name, api string) error {
 
 	log.Printf("[INFO] Deleted Node from API")
 
+	// leave from memberlist
+
 	return nil
 }
