@@ -17,7 +17,8 @@ service Qcow2Service {
 }
 
 message Qcow2 {
-  // 保存先
+  // url is id for Qcow2.
+  // Location of qcow2 file.
   string url = 1;
 
   // サイズを指定する

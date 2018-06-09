@@ -3,6 +3,12 @@
 
 [[projects]]
   branch = "master"
+  name = "code.cloudfoundry.org/bytefmt"
+  packages = ["."]
+  revision = "b31f603f5e1e047fdb38584e1a922dcc5c4de5c8"
+
+[[projects]]
+  branch = "master"
   name = "github.com/armon/go-metrics"
   packages = ["."]
   revision = "783273d703149aaeb9897cf58613d5af48861c25"
@@ -206,6 +212,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d906a443d43b1bd5f9e3022ae6f8252f028bb3a06eba0fd53f79beb38b076412"
+  inputs-digest = "21ebe78a1c1504ad5b7244da599652f2b5ccc98c41e4fe1ee493ae5d3a3e7ebd"
   solver-name = "gps-cdcl"
   solver-version = 1
