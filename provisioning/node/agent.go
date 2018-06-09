@@ -89,7 +89,7 @@ func registerNodeToAPI(name, advertiseAddress, api string) error {
 		return err
 	}
 
-	log.Printf("[INFO] %v", n)
+	log.Printf("[INFO] Applied Node to APi on registerNodeToAPI, Node:%v", n)
 
 	return nil
 }
@@ -110,6 +110,8 @@ func joinNodeToMemberlist(name, advertiseAddress, api string) error {
 		return err
 	}
 
+	log.Printf("[INFO] Join Node to memberlist on joinNodeToMemberlist, LocalNode:%v", list.LocalNode())
+
 	return nil
 }
 
@@ -126,6 +128,27 @@ func JoinNode(name, advertiseAddress, apiAddress string, apiPort int) error {
 	if err := joinNodeToMemberlist(name, addr.String(), apiAddress); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func LeaveNode(name, api string) error {
+	conn, err := grpc.Dial(api, grpc.WithInsecure())
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	cli := pprovisioning.NewNodeServiceClient(conn)
+
+	_, err = cli.DeleteNode(context.Background(), &pprovisioning.DeleteNodeRequest{
+		Name: name,
+	})
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[INFO] Deleted Node from API")
 
 	return nil
 }

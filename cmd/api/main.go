@@ -77,6 +77,6 @@ func main() {
 	}
 
 	if err := app.Run(os.Args); err != nil {
-		log.Fatalf("%v", err.Error())
+		log.Fatalf("Failed to start process, err:%v", err.Error())
 	}
 }
