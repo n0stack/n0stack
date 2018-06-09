@@ -3,6 +3,7 @@
 ## Discovery / Alive monitoring
 
 - With [memberlist](https://github.com/hashicorp/memberlist).
+- データの優先度は `memberlist > Node model`
 
 ### Agentが正常開始 (Node作成 -> memberlist参加)
 
@@ -32,3 +33,8 @@
 
 - TODO: AgentとAPIどちらがどちらのmemberlistにジョインするか
   - Agentからな気がする
+
+### TODO: memberlistとNodeの値が一致しない
+
+- APIへのリクエスト失敗が考えられる
+- `NotReady` or 情報の確実性は `memberlist > Node` なのでNodeを更新 or `Invalid`
