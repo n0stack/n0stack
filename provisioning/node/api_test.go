@@ -13,7 +13,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func TestApplyCompute(t *testing.T) {
+func TestApplyNode(t *testing.T) {
 	c := memberlist.DefaultLANConfig()
 
 	l, err := memberlist.Create(c)
@@ -120,7 +120,7 @@ func TestApplyCompute(t *testing.T) {
 	}
 }
 
-func TestDeleteCompute(t *testing.T) {
+func TestDeleteNode(t *testing.T) {
 	c := memberlist.DefaultLANConfig()
 
 	l, err := memberlist.Create(c)
