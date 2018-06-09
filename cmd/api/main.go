@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"os"
 	"strings"
 
 	"github.com/n0stack/n0core/datastore/etcd"
+	"github.com/n0stack/n0core/provisioning/node"
 	pprovisioning "github.com/n0stack/proto.go/provisioning/v0"
 
-	"github.com/n0stack/n0core/provisioning/node"
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -27,6 +28,12 @@ func main() {
 			Name:  "serve",
 			Usage: "Join to API and serve some daemons.",
 			Action: func(c *cli.Context) error {
+				var err error
+				e, err := etcd.NewEtcdDatastore("node", strings.Split(c.String("etcd-endpoints"), ","))
+				if err != nil {
+					return err
+				}
+
 				lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", c.String("bind-address"), c.Int("bind-port")))
 				if err != nil {
 					return err
@@ -34,20 +41,18 @@ func main() {
 
 				s := grpc.NewServer()
 
-				e, err := etcd.NewEtcdDatastore("node", strings.Split(c.String("etcd-endpoints"), ","))
-				if err != nil {
-					return err
-				}
-
 				// starterをsliceでとったほうがいいかもしれない
 				n, err := node.CreateNodeAPI(e, c.String("memberlist-starter"))
 				if err != nil {
 					return err
+					fmt.Printf("%v", err.Error())
+
 				}
 
 				pprovisioning.RegisterNodeServiceServer(s, n)
 				reflection.Register(s)
 
+				log.Printf("[INFO] Starting API")
 				if err := s.Serve(lis); err != nil {
 					return err
 				}
@@ -55,6 +60,9 @@ func main() {
 				return nil
 			},
 			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name: "etcd-endpoints",
+				},
 				cli.StringFlag{
 					// interfaceからも取れるようにしたい
 					Name:  "bind-address",
@@ -67,5 +75,8 @@ func main() {
 			},
 		},
 	}
-	app.Run(os.Args)
+
+	if err := app.Run(os.Args); err != nil {
+		log.Fatalf("%v", err.Error())
+	}
 }

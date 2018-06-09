@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 	"time"
 
@@ -24,6 +25,7 @@ func main() {
 					c.String("name"),
 					c.String("advertise-address"),
 					c.String("api-address"),
+					c.Int("api-port"),
 				); err != nil {
 					return err
 				}
@@ -43,8 +45,14 @@ func main() {
 				cli.StringFlag{
 					Name: "api-address",
 				},
+				cli.IntFlag{
+					Name: "api-port",
+				},
 			},
 		},
 	}
-	app.Run(os.Args)
+
+	if err := app.Run(os.Args); err != nil {
+		log.Fatalf("%v", err.Error())
+	}
 }

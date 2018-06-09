@@ -2,6 +2,7 @@ package node
 
 import (
 	"context"
+	"log"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/hashicorp/memberlist"
@@ -113,6 +114,7 @@ func (a *NodeAPI) ApplyNode(ctx context.Context, req *pprovisioning.ApplyNodeReq
 	if err := a.ds.Apply(req.Metadata.Name, res); err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Failed to apply for db, got:%v.", err.Error())
 	}
+	log.Printf("[INFO] On Applly, applied Node:%v", res)
 
 	return res, nil
 }

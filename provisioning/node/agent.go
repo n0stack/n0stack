@@ -2,6 +2,7 @@ package node
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 	"os/exec"
@@ -112,17 +113,17 @@ func joinNodeToMemberlist(name, advertiseAddress, api string) error {
 	return nil
 }
 
-func JoinNode(name, advertiseAddress, api string) error {
+func JoinNode(name, advertiseAddress, apiAddress string, apiPort int) error {
 	addr, err := net.ResolveIPAddr("ip", advertiseAddress)
 	if err != nil {
 		return err
 	}
 
-	if err := registerNodeToAPI(name, addr.String(), api); err != nil {
+	if err := registerNodeToAPI(name, addr.String(), fmt.Sprintf("%s:%d", apiAddress, apiPort)); err != nil {
 		return err
 	}
 
-	if err := joinNodeToMemberlist(name, addr.String(), api); err != nil {
+	if err := joinNodeToMemberlist(name, addr.String(), apiAddress); err != nil {
 		return err
 	}
 
