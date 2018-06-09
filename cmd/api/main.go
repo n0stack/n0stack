@@ -22,7 +22,6 @@ func main() {
 	// app.Usage = ""
 	app.Version = "0.1.0" // CIで取るようにする
 
-	// command action
 	app.Commands = []cli.Command{
 		{
 			Name:  "serve",
@@ -33,6 +32,7 @@ func main() {
 				if err != nil {
 					return err
 				}
+				defer e.Close()
 
 				lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", c.String("bind-address"), c.Int("bind-port")))
 				if err != nil {
@@ -45,19 +45,13 @@ func main() {
 				n, err := node.CreateNodeAPI(e, c.String("memberlist-starter"))
 				if err != nil {
 					return err
-					fmt.Printf("%v", err.Error())
-
 				}
 
 				pprovisioning.RegisterNodeServiceServer(s, n)
 				reflection.Register(s)
 
 				log.Printf("[INFO] Starting API")
-				if err := s.Serve(lis); err != nil {
-					return err
-				}
-
-				return nil
+				return s.Serve(lis)
 			},
 			Flags: []cli.Flag{
 				cli.StringFlag{
