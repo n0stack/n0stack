@@ -119,3 +119,50 @@ func TestApplyCompute(t *testing.T) {
 		}
 	}
 }
+
+func TestDeleteCompute(t *testing.T) {
+	c := memberlist.DefaultLANConfig()
+
+	l, err := memberlist.Create(c)
+	if err != nil {
+		t.Errorf("Failed to prepare memberlist, err:%v", err.Error())
+	}
+
+	a := NodeAPI{
+		ds:   memory.NewMemoryDatastore(),
+		list: l,
+	}
+	a.ds.Apply("OK", &pprovisioning.Node{
+		Metadata: &pn0stack.Metadata{
+			Name:    "OK",
+			Version: 3,
+		},
+		Spec: &pprovisioning.NodeSpec{},
+	})
+
+	testCases := []struct {
+		req  *pprovisioning.DeleteNodeRequest
+		code codes.Code
+	}{
+		{
+			req: &pprovisioning.DeleteNodeRequest{
+				Name: "OK",
+			},
+			code: codes.OK,
+		},
+		{
+			req: &pprovisioning.DeleteNodeRequest{
+				Name: "NotFound",
+			},
+			code: codes.NotFound,
+		},
+	}
+
+	for _, tc := range testCases {
+		_, err := a.DeleteNode(context.Background(), tc.req)
+
+		if status.Code(err) != tc.code {
+			t.Errorf("Wrong status code.\n\thave:%v\n\twant:%v", status.Code(err), tc.code)
+		}
+	}
+}
