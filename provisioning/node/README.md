@@ -1,5 +1,16 @@
 # Node
 
+## 方針
+
+- 行いたいことは以下のとおりである
+  - bare metal provisioning (本来の目的であるが実装予定)
+  - サーバインベントリ管理
+  - n0coreのサービスディスカバリ
+  - 死活監視
+- nodeやユーザーがサーバインベントリを登録する
+- memberlistでサービスの死活監視を行う
+- Nodeとmemberlistの両方があることでサービスとして利用できると考える
+
 ## Discovery / Alive monitoring
 
 - With [memberlist](https://github.com/hashicorp/memberlist).
