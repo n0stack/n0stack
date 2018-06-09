@@ -44,7 +44,7 @@ func CreateNodeAPI(ds datastore.Datastore, starter string) (*NodeAPI, error) {
 	return a, nil
 }
 
-func (a *NodeAPI) ListNodes(ctx context.Context, req *pprovisioning.ListNodesRequest) (*pprovisioning.ListNodesResponse, error) {
+func (a NodeAPI) ListNodes(ctx context.Context, req *pprovisioning.ListNodesRequest) (*pprovisioning.ListNodesResponse, error) {
 	res := &pprovisioning.ListNodesResponse{}
 	f := func(s int) []proto.Message {
 		res.Nodes = make([]*pprovisioning.Node, s)
@@ -70,7 +70,7 @@ func (a *NodeAPI) ListNodes(ctx context.Context, req *pprovisioning.ListNodesReq
 	return res, nil
 }
 
-func (a *NodeAPI) GetNode(ctx context.Context, req *pprovisioning.GetNodeRequest) (*pprovisioning.Node, error) {
+func (a NodeAPI) GetNode(ctx context.Context, req *pprovisioning.GetNodeRequest) (*pprovisioning.Node, error) {
 	res := &pprovisioning.Node{}
 	if err := a.ds.Get(req.Name, res); err != nil {
 		return nil, grpc.Errorf(codes.Internal, "message:Failed to get from db\tgot:%v", err.Error())
@@ -83,7 +83,7 @@ func (a *NodeAPI) GetNode(ctx context.Context, req *pprovisioning.GetNodeRequest
 	return res, nil
 }
 
-func (a *NodeAPI) ApplyNode(ctx context.Context, req *pprovisioning.ApplyNodeRequest) (*pprovisioning.Node, error) {
+func (a NodeAPI) ApplyNode(ctx context.Context, req *pprovisioning.ApplyNodeRequest) (*pprovisioning.Node, error) {
 	res := &pprovisioning.Node{
 		Metadata: req.Metadata,
 		Spec:     req.Spec,
@@ -103,10 +103,10 @@ func (a *NodeAPI) ApplyNode(ctx context.Context, req *pprovisioning.ApplyNodeReq
 		return nil, grpc.Errorf(codes.Internal, "Failed to get db, got:%v.", err.Error())
 	}
 	if prev.Metadata == nil && req.Metadata.Version != 0 {
-		return nil, grpc.Errorf(codes.InvalidArgument, "Failed to check version, have:%d, want:0.", req.Metadata.Version)
+		return nil, grpc.Errorf(codes.InvalidArgument, "Set the same version as GetVolume result, have:%d, want:0.", req.Metadata.Version)
 	}
 	if prev.Metadata != nil && req.Metadata.Version != prev.Metadata.Version {
-		return nil, grpc.Errorf(codes.InvalidArgument, "Failed to check version, have:%d, want:%d.", req.Metadata.Version, prev.Metadata.Version)
+		return nil, grpc.Errorf(codes.InvalidArgument, "Set the same version as GetVolume result, have:%d, want:%d.", req.Metadata.Version, prev.Metadata.Version)
 	}
 
 	res.Metadata.Version++
@@ -119,7 +119,7 @@ func (a *NodeAPI) ApplyNode(ctx context.Context, req *pprovisioning.ApplyNodeReq
 	return res, nil
 }
 
-func (a *NodeAPI) DeleteNode(ctx context.Context, req *pprovisioning.DeleteNodeRequest) (*empty.Empty, error) {
+func (a NodeAPI) DeleteNode(ctx context.Context, req *pprovisioning.DeleteNodeRequest) (*empty.Empty, error) {
 	d, err := a.ds.Delete(req.Name)
 	if err != nil {
 		return &empty.Empty{}, grpc.Errorf(codes.Internal, "message:Failed to delete from db.\tgot:%v", err.Error())

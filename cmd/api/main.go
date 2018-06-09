@@ -9,6 +9,7 @@ import (
 
 	"github.com/n0stack/n0core/datastore/etcd"
 	"github.com/n0stack/n0core/provisioning/node"
+	"github.com/n0stack/n0core/provisioning/volume"
 	pprovisioning "github.com/n0stack/proto.go/provisioning/v0"
 
 	"github.com/urfave/cli"
@@ -27,7 +28,6 @@ func main() {
 			Name:  "serve",
 			Usage: "Join to API and serve some daemons.",
 			Action: func(c *cli.Context) error {
-				var err error
 				e, err := etcd.NewEtcdDatastore("node", strings.Split(c.String("etcd-endpoints"), ","))
 				if err != nil {
 					return err
@@ -39,15 +39,20 @@ func main() {
 					return err
 				}
 
-				s := grpc.NewServer()
-
 				// starterをsliceでとったほうがいいかもしれない
 				n, err := node.CreateNodeAPI(e, c.String("memberlist-starter"))
 				if err != nil {
 					return err
 				}
 
+				v, err := volume.CreateVolumeAPI(e, n)
+				if err != nil {
+					return err
+				}
+
+				s := grpc.NewServer()
 				pprovisioning.RegisterNodeServiceServer(s, n)
+				pprovisioning.RegisterVolumeServiceServer(s, v)
 				reflection.Register(s)
 
 				log.Printf("[INFO] Starting API")
