@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -21,16 +22,15 @@ func main() {
 			Name:  "serve",
 			Usage: "Join to API and serve some daemons.",
 			Action: func(c *cli.Context) error {
-				if err := node.JoinNode(
-					c.String("name"),
-					c.String("advertise-address"),
-					c.String("api-address"),
-					c.Int("api-port"),
-				); err != nil {
+				if err := node.JoinNode(c.String("name"), c.String("advertise-address"), c.String("api-address"), c.Int("api-port")); err != nil {
 					return err
 				}
 
-				time.Sleep(600 * time.Second)
+				time.Sleep(30 * time.Second)
+
+				if err := node.LeaveNode(c.String("name"), fmt.Sprintf("%s:%d", c.String("api-address"), c.Int("api-port"))); err != nil {
+					return err
+				}
 
 				return nil
 			},
@@ -53,6 +53,6 @@ func main() {
 	}
 
 	if err := app.Run(os.Args); err != nil {
-		log.Fatalf("%v", err.Error())
+		log.Fatalf("Failed to start process, err:%v", err.Error())
 	}
 }
