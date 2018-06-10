@@ -20,6 +20,9 @@ import (
 	pprovisioning "github.com/n0stack/proto.go/provisioning/v0"
 )
 
+// Annotations:
+//     n0core/url: Path of qcow2 that is stored on node.
+//     n0core/node_name: Scheduled node. (空の場合は実装していない)
 type VolumeAPI struct {
 	dataStore datastore.Datastore
 	nodeAPI   *node.NodeAPI
@@ -84,9 +87,6 @@ func (a *VolumeAPI) GetVolume(ctx context.Context, req *pprovisioning.GetVolumeR
 	return res, nil
 }
 
-// Annotations:
-//     n0core/url: Path of qcow2 that is stored on node.
-//     n0core/node_name: Scheduled node. (空の場合は実装していない)
 func (a *VolumeAPI) ApplyVolume(ctx context.Context, req *pprovisioning.ApplyVolumeRequest) (*pprovisioning.Volume, error) {
 	res := &pprovisioning.Volume{
 		Metadata: req.Metadata,
