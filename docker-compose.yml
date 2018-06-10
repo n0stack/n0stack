@@ -9,6 +9,8 @@ services:
       - --advertise-address=agent
       - --api-address=api
       - --api-port=20180
+      - --bind-address=0.0.0.0
+      - --bind-port=20181
     links:
       - api
 

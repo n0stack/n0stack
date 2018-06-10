@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"path/filepath"
 
 	"github.com/n0stack/n0core/provisioning/node/qcow2"
 
@@ -20,24 +21,28 @@ import (
 )
 
 type VolumeAPI struct {
-	ds datastore.Datastore
-	na *node.NodeAPI
+	dataStore datastore.Datastore
+	nodeAPI   *node.NodeAPI
+
+	baseDirectory string
 }
 
-func structureURL(name string) *url.URL {
-	return &url.URL{
-		Scheme: "file",
-		Path:   "/var/lib/n0core/qcow2/" + name,
-	}
-}
-
-func CreateVolumeAPI(ds datastore.Datastore, na *node.NodeAPI) (*VolumeAPI, error) {
+func CreateVolumeAPI(ds datastore.Datastore, na *node.NodeAPI, baseDirectory string) (*VolumeAPI, error) {
 	a := &VolumeAPI{
-		ds: ds,
-		na: na,
+		dataStore: ds,
+		nodeAPI:   na,
+
+		baseDirectory: baseDirectory,
 	}
 
 	return a, nil
+}
+
+func (a *VolumeAPI) structureURL(name string) *url.URL {
+	return &url.URL{
+		Scheme: "file",
+		Path:   filepath.Join(a.baseDirectory, name+".qcow2"),
+	}
 }
 
 func (a *VolumeAPI) ListVolumes(ctx context.Context, req *pprovisioning.ListVolumesRequest) (*pprovisioning.ListVolumesResponse, error) {
@@ -56,7 +61,7 @@ func (a *VolumeAPI) ListVolumes(ctx context.Context, req *pprovisioning.ListVolu
 		return m
 	}
 
-	if err := a.ds.List(f); err != nil {
+	if err := a.dataStore.List(f); err != nil {
 		return nil, grpc.Errorf(codes.Internal, "message:Failed to get from db\tgot:%v", err.Error())
 	}
 	if len(res.Volumes) == 0 {
@@ -68,7 +73,7 @@ func (a *VolumeAPI) ListVolumes(ctx context.Context, req *pprovisioning.ListVolu
 
 func (a *VolumeAPI) GetVolume(ctx context.Context, req *pprovisioning.GetVolumeRequest) (*pprovisioning.Volume, error) {
 	res := &pprovisioning.Volume{}
-	if err := a.ds.Get(req.Name, res); err != nil {
+	if err := a.dataStore.Get(req.Name, res); err != nil {
 		return nil, grpc.Errorf(codes.Internal, "message:Failed to get from db\tgot:%v", err.Error())
 	}
 
@@ -79,6 +84,9 @@ func (a *VolumeAPI) GetVolume(ctx context.Context, req *pprovisioning.GetVolumeR
 	return res, nil
 }
 
+// Annotations:
+//     n0core/url: Path of qcow2 that is stored on node.
+//     n0core/node_name: Scheduled node. (空の場合は実装していない)
 func (a *VolumeAPI) ApplyVolume(ctx context.Context, req *pprovisioning.ApplyVolumeRequest) (*pprovisioning.Volume, error) {
 	res := &pprovisioning.Volume{
 		Metadata: req.Metadata,
@@ -87,7 +95,7 @@ func (a *VolumeAPI) ApplyVolume(ctx context.Context, req *pprovisioning.ApplyVol
 	}
 
 	prev := &pprovisioning.Volume{}
-	err := a.ds.Get(req.Metadata.Name, prev)
+	err := a.dataStore.Get(req.Metadata.Name, prev)
 	if err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Failed to get db, got:%v.", err.Error())
 	}
@@ -104,7 +112,7 @@ func (a *VolumeAPI) ApplyVolume(ctx context.Context, req *pprovisioning.ApplyVol
 	}
 
 	// 切り出したい、こっから
-	n, err := a.na.GetNode(context.Background(), &pprovisioning.GetNodeRequest{Name: nn})
+	n, err := a.nodeAPI.GetNode(context.Background(), &pprovisioning.GetNodeRequest{Name: nn})
 	if err != nil {
 		return nil, err
 	}
@@ -118,9 +126,15 @@ func (a *VolumeAPI) ApplyVolume(ctx context.Context, req *pprovisioning.ApplyVol
 	cli := qcow2.NewQcow2ServiceClient(conn)
 	// ここまで
 
+	// urlのパースとInvalidArguments
+	u, ok := res.Metadata.Annotations["n0core/url"]
+	if !ok {
+		u = a.structureURL(res.Metadata.Name).String()
+	}
+
 	q, err := cli.ApplyQcow2(context.Background(), &qcow2.ApplyQcow2Request{Qcow2: &qcow2.Qcow2{
 		Bytes: res.Spec.Bytes,
-		Url:   structureURL(res.Metadata.Name).String(),
+		Url:   u,
 	}})
 	if err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Fail to apply qcow2 on node, err:%v.", err.Error())
@@ -130,7 +144,7 @@ func (a *VolumeAPI) ApplyVolume(ctx context.Context, req *pprovisioning.ApplyVol
 	res.Status.State = pprovisioning.VolumeStatus_AVAILABLE
 
 	res.Metadata.Version++
-	if err := a.ds.Apply(req.Metadata.Name, res); err != nil {
+	if err := a.dataStore.Apply(req.Metadata.Name, res); err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Failed to apply for db, got:%v.", err.Error())
 	}
 	log.Printf("[INFO] On Applly, applied Volume:%v", res)
@@ -141,8 +155,12 @@ func (a *VolumeAPI) ApplyVolume(ctx context.Context, req *pprovisioning.ApplyVol
 func (a *VolumeAPI) DeleteVolume(ctx context.Context, req *pprovisioning.DeleteVolumeRequest) (*empty.Empty, error) {
 	v := &pprovisioning.Volume{}
 
-	if err := a.ds.Get(req.Name, v); err != nil {
+	if err := a.dataStore.Get(req.Name, v); err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Failed to get from db.\tgot:%v", err.Error())
+	}
+
+	if v.Metadata == nil {
+		return &empty.Empty{}, grpc.Errorf(codes.NotFound, "")
 	}
 
 	nn, ok := v.Metadata.Annotations["n0core/node_name"]
@@ -151,7 +169,7 @@ func (a *VolumeAPI) DeleteVolume(ctx context.Context, req *pprovisioning.DeleteV
 	}
 
 	// 切り出したい、こっから
-	n, err := a.na.GetNode(context.Background(), &pprovisioning.GetNodeRequest{Name: nn})
+	n, err := a.nodeAPI.GetNode(context.Background(), &pprovisioning.GetNodeRequest{Name: nn})
 	if err != nil {
 		return nil, err
 	}
@@ -165,15 +183,24 @@ func (a *VolumeAPI) DeleteVolume(ctx context.Context, req *pprovisioning.DeleteV
 	cli := qcow2.NewQcow2ServiceClient(conn)
 	// ここまで
 
+	u, ok := v.Metadata.Annotations["n0core/url"]
+	if !ok {
+		return nil, grpc.Errorf(codes.InvalidArgument, "Set n0core/url in annotations.")
+	}
+	pu, err := url.Parse(u)
+	if err != nil {
+		return nil, grpc.Errorf(codes.InvalidArgument, "Invalid n0core/url in annotations.")
+	}
+
 	_, err = cli.DeleteQcow2(context.Background(), &qcow2.DeleteQcow2Request{Qcow2: &qcow2.Qcow2{
 		Bytes: v.Spec.Bytes,
-		Url:   structureURL(v.Metadata.Name).String(),
+		Url:   pu.String(),
 	}})
 	if err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Fail to apply qcow2 on node, err:%v.", err.Error())
 	}
 
-	d, err := a.ds.Delete(req.Name)
+	d, err := a.dataStore.Delete(req.Name)
 	if err != nil {
 		return &empty.Empty{}, grpc.Errorf(codes.Internal, "message:Failed to delete from db.\tgot:%v", err.Error())
 	}

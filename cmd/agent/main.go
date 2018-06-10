@@ -37,7 +37,7 @@ func main() {
 				qcow2.RegisterQcow2ServiceServer(s, &qcow2.Qcow2Agent{})
 				reflection.Register(s)
 
-				log.Printf("[INFO] Starting API")
+				log.Printf("[INFO] Starting Agent")
 				if err := s.Serve(lis); err != nil {
 					return err
 				}
