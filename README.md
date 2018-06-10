@@ -10,7 +10,7 @@
 ## Environment
 
 - Ubuntu 16.04 LTS (Xenial Xerus)
-- Golang 1.9
+- Golang 1.10
 
 ## Dependencies
 
@@ -43,12 +43,16 @@ sudo apt install -y \
 
 ```sh
 dep ensure -update
+dep ensure
+dep prune
 ```
 
-### Run n0core
+### Run on local
 
-- `sudo go run main.go`
-- build and run binary with `sudo`.
+```sh
+docker-compose up --build etcd api
+sudo go run cmd/agent/main.go serve --name=test-node --advertise-address=.. --api-address=`docker inspect -f '{{.NetworkSettings.Networks.n0core_default.IPAddress}}' n0core_api_1` --api-port=20180
+```
 
 ## 構成
 

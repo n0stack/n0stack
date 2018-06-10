@@ -2,9 +2,11 @@ package qcow2
 
 import (
 	fmt "fmt"
+	"log"
 	"net/url"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	"code.cloudfoundry.org/bytefmt"
 	"github.com/golang/protobuf/ptypes/empty"
@@ -26,7 +28,7 @@ func (a Qcow2Agent) qcow2IsExist(path *url.URL) bool {
 }
 
 func (a Qcow2Agent) createQcow2(size uint64, path *url.URL) error {
-	if err := os.MkdirAll(path.Path, os.ModePerm); err != nil {
+	if err := os.MkdirAll(filepath.Dir(path.Path), os.ModePerm); err != nil {
 		return err
 	}
 
@@ -54,16 +56,24 @@ func (a Qcow2Agent) ApplyQcow2(ctx context.Context, req *ApplyQcow2Request) (*Qc
 	}
 
 	if a.qcow2IsExist(u) {
-		if err := a.createQcow2(req.Qcow2.Bytes, u); err != nil {
-			return nil, grpc.Errorf(codes.Internal, "Failed to create qcow2, err:%v.", err.Error())
-		}
-	} else {
 		// need to implement resizing.
-
 		return nil, grpc.Errorf(codes.AlreadyExists, "")
 	}
 
+	if err := a.createQcow2(req.Qcow2.Bytes, u); err != nil {
+		return nil, grpc.Errorf(codes.Internal, "Failed to create qcow2, err:%v.", err.Error())
+	}
+	log.Printf("[INFO] Created qcow2 file on %s", req.Qcow2.Url)
+
 	return req.Qcow2, nil
+}
+
+func (a Qcow2Agent) DownloadQcow2(context.Context, *DownloadQcow2Request) (*Qcow2, error) {
+	return nil, nil
+}
+
+func (a Qcow2Agent) BuildQcow2WithPacker(context.Context, *BuildQcow2WithPackerRequest) (*Qcow2, error) {
+	return nil, nil
 }
 
 func (a Qcow2Agent) DeleteQcow2(ctx context.Context, req *DeleteQcow2Request) (*empty.Empty, error) {
@@ -77,6 +87,7 @@ func (a Qcow2Agent) DeleteQcow2(ctx context.Context, req *DeleteQcow2Request) (*
 	}
 
 	a.deleteQcow2(u)
+	log.Printf("[INFO] Deleted qcow2 file on %s", req.Qcow2.Url)
 
 	return &empty.Empty{}, nil
 }

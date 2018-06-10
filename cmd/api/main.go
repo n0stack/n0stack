@@ -45,7 +45,7 @@ func main() {
 					return err
 				}
 
-				v, err := volume.CreateVolumeAPI(e, n)
+				v, err := volume.CreateVolumeAPI(e, n, c.String("volume-directory"))
 				if err != nil {
 					return err
 				}
@@ -70,6 +70,10 @@ func main() {
 				cli.IntFlag{
 					Name:  "bind-port",
 					Value: 20180,
+				},
+				cli.StringFlag{
+					Name:  "volume-directory",
+					Value: "/var/lib/n0core/qcow2",
 				},
 			},
 		},
