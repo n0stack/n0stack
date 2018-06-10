@@ -63,7 +63,7 @@ func (a Qcow2Agent) ApplyQcow2(ctx context.Context, req *ApplyQcow2Request) (*Qc
 	if err := a.createQcow2(req.Qcow2.Bytes, u); err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Failed to create qcow2, err:%v.", err.Error())
 	}
-	log.Printf("[INFO] Created qcow2 file on %s", req.Qcow2.Url)
+	log.Printf("[INFO] Applied qcow2, qcow2:%v", req.Qcow2)
 
 	return req.Qcow2, nil
 }
@@ -87,7 +87,7 @@ func (a Qcow2Agent) DeleteQcow2(ctx context.Context, req *DeleteQcow2Request) (*
 	}
 
 	a.deleteQcow2(u)
-	log.Printf("[INFO] Deleted qcow2 file on %s", req.Qcow2.Url)
+	log.Printf("[INFO] Deleted qcow2, qcow2:%v", req.Qcow2)
 
 	return &empty.Empty{}, nil
 }
