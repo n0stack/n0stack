@@ -45,7 +45,7 @@ func main() {
 					return err
 				}
 
-				v, err := volume.CreateVolumeAPI(e, n, c.String("volume-directory"))
+				v, err := volume.CreateVolumeAPI(e, n, c.String("volume-default-base-directory"))
 				if err != nil {
 					return err
 				}
@@ -72,7 +72,7 @@ func main() {
 					Value: 20180,
 				},
 				cli.StringFlag{
-					Name:  "volume-directory",
+					Name:  "volume-default-base-directory",
 					Value: "/var/lib/n0core/qcow2",
 				},
 			},
