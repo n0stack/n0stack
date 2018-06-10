@@ -127,6 +127,7 @@ func (a NodeAPI) DeleteNode(ctx context.Context, req *pprovisioning.DeleteNodeRe
 	if d < 1 {
 		return &empty.Empty{}, grpc.Errorf(codes.NotFound, "")
 	}
+	log.Printf("[INFO] On Delete, deleted Node:%v", req.Name)
 
 	return &empty.Empty{}, nil
 }

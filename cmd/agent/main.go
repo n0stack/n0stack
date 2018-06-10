@@ -24,7 +24,8 @@ func main() {
 			Name:  "serve",
 			Usage: "Join to API and serve some daemons.",
 			Action: func(c *cli.Context) error {
-				if err := node.JoinNode(c.String("name"), c.String("advertise-address"), c.String("api-address"), c.Int("api-port")); err != nil {
+				err := node.JoinNode(c.String("name"), c.String("advertise-address"), c.String("api-address"), c.Int("api-port"))
+				if err != nil {
 					return err
 				}
 
@@ -39,10 +40,6 @@ func main() {
 
 				log.Printf("[INFO] Starting Agent")
 				if err := s.Serve(lis); err != nil {
-					return err
-				}
-
-				if err := node.LeaveNode(c.String("name"), fmt.Sprintf("%s:%d", c.String("api-address"), c.Int("api-port"))); err != nil {
 					return err
 				}
 

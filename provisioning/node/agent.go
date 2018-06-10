@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 	"os/exec"
+	"os/signal"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/memberlist"
 
@@ -129,6 +132,17 @@ func JoinNode(name, advertiseAddress, apiAddress string, apiPort int) error {
 		return err
 	}
 
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func() {
+		for _ = range c {
+			if err := LeaveNode(name, fmt.Sprintf("%s:%d", apiAddress, apiPort)); err != nil {
+				log.Fatalf("Failed to LeaveNode, err:%s", err.Error())
+			}
+			os.Exit(0)
+		}
+	}()
+
 	return nil
 }
 
@@ -141,13 +155,14 @@ func LeaveNode(name, api string) error {
 
 	cli := pprovisioning.NewNodeServiceClient(conn)
 
-	_, err = cli.DeleteNode(context.Background(), &pprovisioning.DeleteNodeRequest{
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	_, err = cli.DeleteNode(ctx, &pprovisioning.DeleteNodeRequest{
 		Name: name,
 	})
 	if err != nil {
 		return err
 	}
-
 	log.Printf("[INFO] Deleted Node from API")
 
 	// leave from memberlist
