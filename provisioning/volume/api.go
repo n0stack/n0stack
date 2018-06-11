@@ -14,6 +14,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/n0stack/n0core/datastore"
@@ -123,6 +124,8 @@ func (a *VolumeAPI) ApplyVolume(ctx context.Context, req *pprovisioning.ApplyVol
 		return nil, err
 	}
 
+	// nodeがreadyか
+
 	// portはendpointから取る
 	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", n.Spec.Address, 20181), grpc.WithInsecure())
 	if err != nil {
@@ -138,15 +141,15 @@ func (a *VolumeAPI) ApplyVolume(ctx context.Context, req *pprovisioning.ApplyVol
 		u = a.structureURL(res.Metadata.Name).String()
 	}
 
-	q, err := cli.ApplyQcow2(context.Background(), &qcow2.ApplyQcow2Request{Qcow2: &qcow2.Qcow2{
+	_, err = cli.ApplyQcow2(context.Background(), &qcow2.ApplyQcow2Request{Qcow2: &qcow2.Qcow2{
 		Bytes: res.Spec.Bytes,
 		Url:   u,
 	}})
-	if err != nil {
+	if err != nil && status.Code(err) != codes.AlreadyExists {
 		return nil, grpc.Errorf(codes.Internal, "Fail to apply qcow2 on node, err:%v.", err.Error())
 	}
 
-	res.Metadata.Annotations["n0core/url"] = q.Url
+	res.Metadata.Annotations["n0core/url"] = u
 	res.Status.State = pprovisioning.VolumeStatus_AVAILABLE
 
 	res.Metadata.Version++
