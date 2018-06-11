@@ -57,7 +57,7 @@ func (a Qcow2Agent) ApplyQcow2(ctx context.Context, req *ApplyQcow2Request) (*Qc
 
 	if a.qcow2IsExist(u) {
 		// need to implement resizing.
-		return nil, grpc.Errorf(codes.AlreadyExists, "")
+		return req.Qcow2, grpc.Errorf(codes.AlreadyExists, "")
 	}
 
 	if err := a.createQcow2(req.Qcow2.Bytes, u); err != nil {
