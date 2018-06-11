@@ -9,7 +9,6 @@ import (
 	"os/exec"
 	"os/signal"
 	"strings"
-	"time"
 
 	"github.com/hashicorp/memberlist"
 
@@ -147,23 +146,23 @@ func JoinNode(name, advertiseAddress, apiAddress string, apiPort int) error {
 }
 
 func LeaveNode(name, api string) error {
-	conn, err := grpc.Dial(api, grpc.WithInsecure())
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
+	// conn, err := grpc.Dial(api, grpc.WithInsecure())
+	// if err != nil {
+	// 	return err
+	// }
+	// defer conn.Close()
 
-	cli := pprovisioning.NewNodeServiceClient(conn)
+	// cli := pprovisioning.NewNodeServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	_, err = cli.DeleteNode(ctx, &pprovisioning.DeleteNodeRequest{
-		Name: name,
-	})
-	if err != nil {
-		return err
-	}
-	log.Printf("[INFO] Deleted Node from API")
+	// ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	// defer cancel()
+	// _, err = cli.DeleteNode(ctx, &pprovisioning.DeleteNodeRequest{
+	// 	Name: name,
+	// })
+	// if err != nil {
+	// 	return err
+	// }
+	// log.Printf("[INFO] Deleted Node from API")
 
 	// leave from memberlist
 

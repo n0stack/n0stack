@@ -28,24 +28,28 @@ func main() {
 			Name:  "serve",
 			Usage: "Join to API and serve some daemons.",
 			Action: func(c *cli.Context) error {
-				e, err := etcd.NewEtcdDatastore("node", strings.Split(c.String("etcd-endpoints"), ","))
-				if err != nil {
-					return err
-				}
-				defer e.Close()
-
 				lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", c.String("bind-address"), c.Int("bind-port")))
 				if err != nil {
 					return err
 				}
 
+				ne, err := etcd.NewEtcdDatastore("node", strings.Split(c.String("etcd-endpoints"), ","))
+				if err != nil {
+					return err
+				}
+				defer ne.Close()
 				// starterをsliceでとったほうがいいかもしれない
-				n, err := node.CreateNodeAPI(e, c.String("memberlist-starter"))
+				n, err := node.CreateNodeAPI(ne, c.String("memberlist-starter"))
 				if err != nil {
 					return err
 				}
 
-				v, err := volume.CreateVolumeAPI(e, n, c.String("volume-default-base-directory"))
+				ve, err := etcd.NewEtcdDatastore("volume", strings.Split(c.String("etcd-endpoints"), ","))
+				if err != nil {
+					return err
+				}
+				defer ve.Close()
+				v, err := volume.CreateVolumeAPI(ve, n, c.String("volume-default-base-directory"))
 				if err != nil {
 					return err
 				}
