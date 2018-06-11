@@ -1,6 +1,6 @@
 # Node
 
-## 方針
+## Principle
 
 - 行いたいことは以下のとおりである
   - bare metal provisioning (本来の目的であるが実装予定)
