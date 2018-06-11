@@ -30,31 +30,31 @@ type NetworkStatus_NetworkState int32
 const (
 	// not scheduled
 	NetworkStatus_PENDING   NetworkStatus_NetworkState = 0
-	NetworkStatus_AVAILABLE NetworkStatus_NetworkState = 1
+	NetworkStatus_AVAILABLE NetworkStatus_NetworkState = 3
+	// falied state because failed some process on API.
+	NetworkStatus_FAILED NetworkStatus_NetworkState = 1
 	// unknown state because failed to connect for scheduled node after RUNNING.
-	NetworkStatus_FAILED NetworkStatus_NetworkState = 2
-	// unknown state because failed to connect for scheduled node after RUNNING.
-	NetworkStatus_UNKNOWN NetworkStatus_NetworkState = 3
+	NetworkStatus_UNKNOWN NetworkStatus_NetworkState = 2
 )
 
 var NetworkStatus_NetworkState_name = map[int32]string{
 	0: "PENDING",
-	1: "AVAILABLE",
-	2: "FAILED",
-	3: "UNKNOWN",
+	3: "AVAILABLE",
+	1: "FAILED",
+	2: "UNKNOWN",
 }
 var NetworkStatus_NetworkState_value = map[string]int32{
 	"PENDING":   0,
-	"AVAILABLE": 1,
-	"FAILED":    2,
-	"UNKNOWN":   3,
+	"AVAILABLE": 3,
+	"FAILED":    1,
+	"UNKNOWN":   2,
 }
 
 func (x NetworkStatus_NetworkState) String() string {
 	return proto.EnumName(NetworkStatus_NetworkState_name, int32(x))
 }
 func (NetworkStatus_NetworkState) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_network_afe57bf9bbda6062, []int{2, 0}
+	return fileDescriptor_network_5b3db8aa1272f7ff, []int{2, 0}
 }
 
 type WatchNetworksResponse_NetworkEvents int32
@@ -77,7 +77,7 @@ func (x WatchNetworksResponse_NetworkEvents) String() string {
 	return proto.EnumName(WatchNetworksResponse_NetworkEvents_name, int32(x))
 }
 func (WatchNetworksResponse_NetworkEvents) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_network_afe57bf9bbda6062, []int{9, 0}
+	return fileDescriptor_network_5b3db8aa1272f7ff, []int{9, 0}
 }
 
 type Network struct {
@@ -94,7 +94,7 @@ func (m *Network) Reset()         { *m = Network{} }
 func (m *Network) String() string { return proto.CompactTextString(m) }
 func (*Network) ProtoMessage()    {}
 func (*Network) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_afe57bf9bbda6062, []int{0}
+	return fileDescriptor_network_5b3db8aa1272f7ff, []int{0}
 }
 func (m *Network) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Network.Unmarshal(m, b)
@@ -158,7 +158,7 @@ func (m *NetworkSpec) Reset()         { *m = NetworkSpec{} }
 func (m *NetworkSpec) String() string { return proto.CompactTextString(m) }
 func (*NetworkSpec) ProtoMessage()    {}
 func (*NetworkSpec) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_afe57bf9bbda6062, []int{1}
+	return fileDescriptor_network_5b3db8aa1272f7ff, []int{1}
 }
 func (m *NetworkSpec) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_NetworkSpec.Unmarshal(m, b)
@@ -231,7 +231,7 @@ func (m *NetworkStatus) Reset()         { *m = NetworkStatus{} }
 func (m *NetworkStatus) String() string { return proto.CompactTextString(m) }
 func (*NetworkStatus) ProtoMessage()    {}
 func (*NetworkStatus) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_afe57bf9bbda6062, []int{2}
+	return fileDescriptor_network_5b3db8aa1272f7ff, []int{2}
 }
 func (m *NetworkStatus) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_NetworkStatus.Unmarshal(m, b)
@@ -268,7 +268,7 @@ func (m *ListNetworksRequest) Reset()         { *m = ListNetworksRequest{} }
 func (m *ListNetworksRequest) String() string { return proto.CompactTextString(m) }
 func (*ListNetworksRequest) ProtoMessage()    {}
 func (*ListNetworksRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_afe57bf9bbda6062, []int{3}
+	return fileDescriptor_network_5b3db8aa1272f7ff, []int{3}
 }
 func (m *ListNetworksRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNetworksRequest.Unmarshal(m, b)
@@ -299,7 +299,7 @@ func (m *ListNetworksResponse) Reset()         { *m = ListNetworksResponse{} }
 func (m *ListNetworksResponse) String() string { return proto.CompactTextString(m) }
 func (*ListNetworksResponse) ProtoMessage()    {}
 func (*ListNetworksResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_afe57bf9bbda6062, []int{4}
+	return fileDescriptor_network_5b3db8aa1272f7ff, []int{4}
 }
 func (m *ListNetworksResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNetworksResponse.Unmarshal(m, b)
@@ -337,7 +337,7 @@ func (m *GetNetworkRequest) Reset()         { *m = GetNetworkRequest{} }
 func (m *GetNetworkRequest) String() string { return proto.CompactTextString(m) }
 func (*GetNetworkRequest) ProtoMessage()    {}
 func (*GetNetworkRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_afe57bf9bbda6062, []int{5}
+	return fileDescriptor_network_5b3db8aa1272f7ff, []int{5}
 }
 func (m *GetNetworkRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetNetworkRequest.Unmarshal(m, b)
@@ -376,7 +376,7 @@ func (m *ApplyNetworkRequest) Reset()         { *m = ApplyNetworkRequest{} }
 func (m *ApplyNetworkRequest) String() string { return proto.CompactTextString(m) }
 func (*ApplyNetworkRequest) ProtoMessage()    {}
 func (*ApplyNetworkRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_afe57bf9bbda6062, []int{6}
+	return fileDescriptor_network_5b3db8aa1272f7ff, []int{6}
 }
 func (m *ApplyNetworkRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ApplyNetworkRequest.Unmarshal(m, b)
@@ -421,7 +421,7 @@ func (m *DeleteNetworkRequest) Reset()         { *m = DeleteNetworkRequest{} }
 func (m *DeleteNetworkRequest) String() string { return proto.CompactTextString(m) }
 func (*DeleteNetworkRequest) ProtoMessage()    {}
 func (*DeleteNetworkRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_afe57bf9bbda6062, []int{7}
+	return fileDescriptor_network_5b3db8aa1272f7ff, []int{7}
 }
 func (m *DeleteNetworkRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteNetworkRequest.Unmarshal(m, b)
@@ -458,7 +458,7 @@ func (m *WatchNetworksRequest) Reset()         { *m = WatchNetworksRequest{} }
 func (m *WatchNetworksRequest) String() string { return proto.CompactTextString(m) }
 func (*WatchNetworksRequest) ProtoMessage()    {}
 func (*WatchNetworksRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_afe57bf9bbda6062, []int{8}
+	return fileDescriptor_network_5b3db8aa1272f7ff, []int{8}
 }
 func (m *WatchNetworksRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_WatchNetworksRequest.Unmarshal(m, b)
@@ -490,7 +490,7 @@ func (m *WatchNetworksResponse) Reset()         { *m = WatchNetworksResponse{} }
 func (m *WatchNetworksResponse) String() string { return proto.CompactTextString(m) }
 func (*WatchNetworksResponse) ProtoMessage()    {}
 func (*WatchNetworksResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_afe57bf9bbda6062, []int{9}
+	return fileDescriptor_network_5b3db8aa1272f7ff, []int{9}
 }
 func (m *WatchNetworksResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_WatchNetworksResponse.Unmarshal(m, b)
@@ -772,10 +772,10 @@ var _NetworkService_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("provisioning/v0/network.proto", fileDescriptor_network_afe57bf9bbda6062)
+	proto.RegisterFile("provisioning/v0/network.proto", fileDescriptor_network_5b3db8aa1272f7ff)
 }
 
-var fileDescriptor_network_afe57bf9bbda6062 = []byte{
+var fileDescriptor_network_5b3db8aa1272f7ff = []byte{
 	// 703 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xbc, 0x55, 0x5d, 0x4e, 0xdb, 0x4c,
 	0x14, 0x8d, 0xc9, 0x0f, 0xe4, 0x26, 0x41, 0x61, 0x08, 0x28, 0x0a, 0x42, 0x1f, 0xcc, 0x27, 0x15,
@@ -801,8 +801,8 @@ var fileDescriptor_network_afe57bf9bbda6062 = []byte{
 	0x1f, 0xfe, 0x2a, 0x41, 0x65, 0xc2, 0x16, 0xb4, 0x0f, 0xf9, 0xc0, 0x18, 0xc2, 0xd7, 0x98, 0x6f,
 	0x35, 0x1f, 0x61, 0x65, 0xf2, 0x8f, 0x68, 0xa1, 0x1c, 0xef, 0x41, 0x39, 0x09, 0xa3, 0x12, 0xcc,
 	0x1e, 0xab, 0xfd, 0xee, 0x61, 0xff, 0xa0, 0x9a, 0x41, 0x15, 0x28, 0x76, 0xce, 0x3a, 0x87, 0xbd,
-	0xce, 0x6e, 0x4f, 0xad, 0x4a, 0x08, 0xa0, 0xb0, 0xdf, 0x39, 0xec, 0xa9, 0xdd, 0xea, 0x4c, 0xc0,
-	0x3b, 0xed, 0xbf, 0xe9, 0x1f, 0x9d, 0xf7, 0xab, 0x59, 0xbc, 0x04, 0x8b, 0x3d, 0x8b, 0x32, 0xd1,
+	0xce, 0x6e, 0x4f, 0xad, 0x66, 0x11, 0x40, 0x61, 0xbf, 0x73, 0xd8, 0x53, 0xbb, 0x55, 0x29, 0xe0,
+	0x9d, 0xf6, 0xdf, 0xf4, 0x8f, 0xce, 0xfb, 0xd5, 0x19, 0xbc, 0x04, 0x8b, 0x3d, 0x8b, 0x32, 0xd1,
 	0x88, 0x6a, 0xe4, 0xf3, 0x98, 0x50, 0x86, 0xdf, 0x41, 0x6d, 0x12, 0xa6, 0xae, 0x63, 0x53, 0x82,
 	0xb6, 0x61, 0x4e, 0x84, 0x9c, 0xd6, 0x25, 0x7e, 0x91, 0xab, 0xf7, 0x8e, 0xaf, 0xc5, 0x74, 0xbc,
 	0x01, 0x0b, 0x07, 0x24, 0xea, 0x28, 0xce, 0x41, 0x08, 0x72, 0x81, 0x87, 0xe2, 0x46, 0xf9, 0x37,
@@ -820,5 +820,5 @@ var fileDescriptor_network_afe57bf9bbda6062 = []byte{
 	0x41, 0x43, 0xa8, 0x4c, 0xa4, 0xe2, 0xae, 0xb6, 0x69, 0x79, 0x6c, 0x3c, 0xfb, 0x8b, 0x98, 0xe1,
 	0x4c, 0x53, 0xda, 0xdd, 0xb9, 0xd8, 0x36, 0x2d, 0x76, 0x3d, 0xbe, 0x92, 0x0d, 0x67, 0xa4, 0x08,
 	0x71, 0xf8, 0x62, 0xc9, 0xa6, 0xa3, 0x4c, 0x3d, 0x7b, 0x3b, 0x6e, 0x12, 0xb8, 0x2a, 0x70, 0xde,
-	0x8b, 0x5f, 0x01, 0x00, 0x00, 0xff, 0xff, 0x6c, 0xdf, 0xd9, 0xae, 0x1e, 0x07, 0x00, 0x00,
+	0x8b, 0x5f, 0x01, 0x00, 0x00, 0xff, 0xff, 0x9e, 0xdf, 0x3f, 0x6f, 0x1e, 0x07, 0x00, 0x00,
 }

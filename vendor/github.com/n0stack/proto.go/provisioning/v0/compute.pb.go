@@ -31,70 +31,54 @@ const (
 	// not scheduled
 	ComputeStatus_PENDING ComputeStatus_ComputeState = 0
 	// running vm
-	ComputeStatus_RUNNING ComputeStatus_ComputeState = 1
+	ComputeStatus_RUNNING  ComputeStatus_ComputeState = 3
+	ComputeStatus_SHUTDOWN ComputeStatus_ComputeState = 4
+	ComputeStatus_PAUSED   ComputeStatus_ComputeState = 5
+	// falied state because failed some process on API.
+	ComputeStatus_FAILED ComputeStatus_ComputeState = 1
 	// unknown state because failed to connect for scheduled node after RUNNING.
-	ComputeStatus_FAILED ComputeStatus_ComputeState = 2
-	// unknown state because failed to connect for scheduled node after RUNNING.
-	ComputeStatus_UNKNOWN ComputeStatus_ComputeState = 3
+	ComputeStatus_UNKNOWN ComputeStatus_ComputeState = 2
 )
 
 var ComputeStatus_ComputeState_name = map[int32]string{
 	0: "PENDING",
-	1: "RUNNING",
-	2: "FAILED",
-	3: "UNKNOWN",
+	3: "RUNNING",
+	4: "SHUTDOWN",
+	5: "PAUSED",
+	1: "FAILED",
+	2: "UNKNOWN",
 }
 var ComputeStatus_ComputeState_value = map[string]int32{
-	"PENDING": 0,
-	"RUNNING": 1,
-	"FAILED":  2,
-	"UNKNOWN": 3,
+	"PENDING":  0,
+	"RUNNING":  3,
+	"SHUTDOWN": 4,
+	"PAUSED":   5,
+	"FAILED":   1,
+	"UNKNOWN":  2,
 }
 
 func (x ComputeStatus_ComputeState) String() string {
 	return proto.EnumName(ComputeStatus_ComputeState_name, int32(x))
 }
 func (ComputeStatus_ComputeState) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_compute_599d9aed8b328c51, []int{2, 0}
-}
-
-type WatchComputesResponse_ComputeEvents int32
-
-const (
-	WatchComputesResponse_APPLY  WatchComputesResponse_ComputeEvents = 0
-	WatchComputesResponse_DELETE WatchComputesResponse_ComputeEvents = 1
-)
-
-var WatchComputesResponse_ComputeEvents_name = map[int32]string{
-	0: "APPLY",
-	1: "DELETE",
-}
-var WatchComputesResponse_ComputeEvents_value = map[string]int32{
-	"APPLY":  0,
-	"DELETE": 1,
-}
-
-func (x WatchComputesResponse_ComputeEvents) String() string {
-	return proto.EnumName(WatchComputesResponse_ComputeEvents_name, int32(x))
-}
-func (WatchComputesResponse_ComputeEvents) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_compute_599d9aed8b328c51, []int{9, 0}
+	return fileDescriptor_compute_bd493b64d3131b8c, []int{2, 0}
 }
 
 type Compute struct {
-	Metadata             *v0.Metadata   `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	Spec                 *ComputeSpec   `protobuf:"bytes,2,opt,name=spec,proto3" json:"spec,omitempty"`
-	Status               *ComputeStatus `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
-	XXX_unrecognized     []byte         `json:"-"`
-	XXX_sizecache        int32          `json:"-"`
+	Metadata             *v0.Metadata    `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	Spec                 *ComputeSpec    `protobuf:"bytes,2,opt,name=spec,proto3" json:"spec,omitempty"`
+	Status               *ComputeStatus  `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
+	Components           []*v0.Component `protobuf:"bytes,4,rep,name=components,proto3" json:"components,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}        `json:"-"`
+	XXX_unrecognized     []byte          `json:"-"`
+	XXX_sizecache        int32           `json:"-"`
 }
 
 func (m *Compute) Reset()         { *m = Compute{} }
 func (m *Compute) String() string { return proto.CompactTextString(m) }
 func (*Compute) ProtoMessage()    {}
 func (*Compute) Descriptor() ([]byte, []int) {
-	return fileDescriptor_compute_599d9aed8b328c51, []int{0}
+	return fileDescriptor_compute_bd493b64d3131b8c, []int{0}
 }
 func (m *Compute) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Compute.Unmarshal(m, b)
@@ -135,24 +119,32 @@ func (m *Compute) GetStatus() *ComputeStatus {
 	return nil
 }
 
+func (m *Compute) GetComponents() []*v0.Component {
+	if m != nil {
+		return m.Components
+	}
+	return nil
+}
+
 type ComputeSpec struct {
 	// CPU
 	Vcpus uint32 `protobuf:"varint,1,opt,name=vcpus,proto3" json:"vcpus,omitempty"`
 	// Memory
 	MemoryBytes uint64 `protobuf:"varint,2,opt,name=memory_bytes,json=memoryBytes,proto3" json:"memory_bytes,omitempty"`
 	// Volume
-	VolumeNames          []string           `protobuf:"bytes,3,rep,name=volume_names,json=volumeNames,proto3" json:"volume_names,omitempty"`
-	Nics                 []*ComputeSpec_NIC `protobuf:"bytes,4,rep,name=nics,proto3" json:"nics,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
-	XXX_unrecognized     []byte             `json:"-"`
-	XXX_sizecache        int32              `json:"-"`
+	// definition: (label, volume_name)
+	Volumes              map[string]string           `protobuf:"bytes,3,rep,name=volumes,proto3" json:"volumes,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	Nics                 map[string]*ComputeSpec_NIC `protobuf:"bytes,4,rep,name=nics,proto3" json:"nics,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	XXX_NoUnkeyedLiteral struct{}                    `json:"-"`
+	XXX_unrecognized     []byte                      `json:"-"`
+	XXX_sizecache        int32                       `json:"-"`
 }
 
 func (m *ComputeSpec) Reset()         { *m = ComputeSpec{} }
 func (m *ComputeSpec) String() string { return proto.CompactTextString(m) }
 func (*ComputeSpec) ProtoMessage()    {}
 func (*ComputeSpec) Descriptor() ([]byte, []int) {
-	return fileDescriptor_compute_599d9aed8b328c51, []int{1}
+	return fileDescriptor_compute_bd493b64d3131b8c, []int{1}
 }
 func (m *ComputeSpec) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ComputeSpec.Unmarshal(m, b)
@@ -186,14 +178,14 @@ func (m *ComputeSpec) GetMemoryBytes() uint64 {
 	return 0
 }
 
-func (m *ComputeSpec) GetVolumeNames() []string {
+func (m *ComputeSpec) GetVolumes() map[string]string {
 	if m != nil {
-		return m.VolumeNames
+		return m.Volumes
 	}
 	return nil
 }
 
-func (m *ComputeSpec) GetNics() []*ComputeSpec_NIC {
+func (m *ComputeSpec) GetNics() map[string]*ComputeSpec_NIC {
 	if m != nil {
 		return m.Nics
 	}
@@ -201,21 +193,21 @@ func (m *ComputeSpec) GetNics() []*ComputeSpec_NIC {
 }
 
 // Network
-// エンドポイントを分けたほうがいいと思うが、実装する内容もないし、ユーザーのリクエストが煩雑になるので保留
-// ただし、DHCPなどのためやNICの順番が入れ替わったりするときのためにmetadataやidはあったほうが便利だと考えている
+// definition: (label, NIC)
 type ComputeSpec_NIC struct {
-	Metadata             *v0.Metadata          `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	Spec                 *ComputeSpec_NIC_Spec `protobuf:"bytes,2,opt,name=spec,proto3" json:"spec,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
-	XXX_unrecognized     []byte                `json:"-"`
-	XXX_sizecache        int32                 `json:"-"`
+	NetworkName          string   `protobuf:"bytes,1,opt,name=network_name,json=networkName,proto3" json:"network_name,omitempty"`
+	HardwareAddress      string   `protobuf:"bytes,2,opt,name=hardware_address,json=hardwareAddress,proto3" json:"hardware_address,omitempty"`
+	IpAddresses          []string `protobuf:"bytes,3,rep,name=ip_addresses,json=ipAddresses,proto3" json:"ip_addresses,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ComputeSpec_NIC) Reset()         { *m = ComputeSpec_NIC{} }
 func (m *ComputeSpec_NIC) String() string { return proto.CompactTextString(m) }
 func (*ComputeSpec_NIC) ProtoMessage()    {}
 func (*ComputeSpec_NIC) Descriptor() ([]byte, []int) {
-	return fileDescriptor_compute_599d9aed8b328c51, []int{1, 0}
+	return fileDescriptor_compute_bd493b64d3131b8c, []int{1, 1}
 }
 func (m *ComputeSpec_NIC) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ComputeSpec_NIC.Unmarshal(m, b)
@@ -235,65 +227,23 @@ func (m *ComputeSpec_NIC) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ComputeSpec_NIC proto.InternalMessageInfo
 
-func (m *ComputeSpec_NIC) GetMetadata() *v0.Metadata {
-	if m != nil {
-		return m.Metadata
-	}
-	return nil
-}
-
-func (m *ComputeSpec_NIC) GetSpec() *ComputeSpec_NIC_Spec {
-	if m != nil {
-		return m.Spec
-	}
-	return nil
-}
-
-type ComputeSpec_NIC_Spec struct {
-	NetworkName string `protobuf:"bytes,1,opt,name=network_name,json=networkName,proto3" json:"network_name,omitempty"`
-	// 重複するかは確認しない
-	// かわりに空を許可して、DHCPで自動割り当てを可能にする
-	// TODO: 割り当てられたIPをどうやって確認するか
-	Ipaddrs              []string `protobuf:"bytes,2,rep,name=ipaddrs,proto3" json:"ipaddrs,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *ComputeSpec_NIC_Spec) Reset()         { *m = ComputeSpec_NIC_Spec{} }
-func (m *ComputeSpec_NIC_Spec) String() string { return proto.CompactTextString(m) }
-func (*ComputeSpec_NIC_Spec) ProtoMessage()    {}
-func (*ComputeSpec_NIC_Spec) Descriptor() ([]byte, []int) {
-	return fileDescriptor_compute_599d9aed8b328c51, []int{1, 0, 0}
-}
-func (m *ComputeSpec_NIC_Spec) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ComputeSpec_NIC_Spec.Unmarshal(m, b)
-}
-func (m *ComputeSpec_NIC_Spec) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ComputeSpec_NIC_Spec.Marshal(b, m, deterministic)
-}
-func (dst *ComputeSpec_NIC_Spec) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ComputeSpec_NIC_Spec.Merge(dst, src)
-}
-func (m *ComputeSpec_NIC_Spec) XXX_Size() int {
-	return xxx_messageInfo_ComputeSpec_NIC_Spec.Size(m)
-}
-func (m *ComputeSpec_NIC_Spec) XXX_DiscardUnknown() {
-	xxx_messageInfo_ComputeSpec_NIC_Spec.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_ComputeSpec_NIC_Spec proto.InternalMessageInfo
-
-func (m *ComputeSpec_NIC_Spec) GetNetworkName() string {
+func (m *ComputeSpec_NIC) GetNetworkName() string {
 	if m != nil {
 		return m.NetworkName
 	}
 	return ""
 }
 
-func (m *ComputeSpec_NIC_Spec) GetIpaddrs() []string {
+func (m *ComputeSpec_NIC) GetHardwareAddress() string {
 	if m != nil {
-		return m.Ipaddrs
+		return m.HardwareAddress
+	}
+	return ""
+}
+
+func (m *ComputeSpec_NIC) GetIpAddresses() []string {
+	if m != nil {
+		return m.IpAddresses
 	}
 	return nil
 }
@@ -309,7 +259,7 @@ func (m *ComputeStatus) Reset()         { *m = ComputeStatus{} }
 func (m *ComputeStatus) String() string { return proto.CompactTextString(m) }
 func (*ComputeStatus) ProtoMessage()    {}
 func (*ComputeStatus) Descriptor() ([]byte, []int) {
-	return fileDescriptor_compute_599d9aed8b328c51, []int{2}
+	return fileDescriptor_compute_bd493b64d3131b8c, []int{2}
 }
 func (m *ComputeStatus) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ComputeStatus.Unmarshal(m, b)
@@ -346,7 +296,7 @@ func (m *ListComputesRequest) Reset()         { *m = ListComputesRequest{} }
 func (m *ListComputesRequest) String() string { return proto.CompactTextString(m) }
 func (*ListComputesRequest) ProtoMessage()    {}
 func (*ListComputesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_compute_599d9aed8b328c51, []int{3}
+	return fileDescriptor_compute_bd493b64d3131b8c, []int{3}
 }
 func (m *ListComputesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListComputesRequest.Unmarshal(m, b)
@@ -377,7 +327,7 @@ func (m *ListComputesResponse) Reset()         { *m = ListComputesResponse{} }
 func (m *ListComputesResponse) String() string { return proto.CompactTextString(m) }
 func (*ListComputesResponse) ProtoMessage()    {}
 func (*ListComputesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_compute_599d9aed8b328c51, []int{4}
+	return fileDescriptor_compute_bd493b64d3131b8c, []int{4}
 }
 func (m *ListComputesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListComputesResponse.Unmarshal(m, b)
@@ -415,7 +365,7 @@ func (m *GetComputeRequest) Reset()         { *m = GetComputeRequest{} }
 func (m *GetComputeRequest) String() string { return proto.CompactTextString(m) }
 func (*GetComputeRequest) ProtoMessage()    {}
 func (*GetComputeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_compute_599d9aed8b328c51, []int{5}
+	return fileDescriptor_compute_bd493b64d3131b8c, []int{5}
 }
 func (m *GetComputeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetComputeRequest.Unmarshal(m, b)
@@ -454,7 +404,7 @@ func (m *ApplyComputeRequest) Reset()         { *m = ApplyComputeRequest{} }
 func (m *ApplyComputeRequest) String() string { return proto.CompactTextString(m) }
 func (*ApplyComputeRequest) ProtoMessage()    {}
 func (*ApplyComputeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_compute_599d9aed8b328c51, []int{6}
+	return fileDescriptor_compute_bd493b64d3131b8c, []int{6}
 }
 func (m *ApplyComputeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ApplyComputeRequest.Unmarshal(m, b)
@@ -499,7 +449,7 @@ func (m *DeleteComputeRequest) Reset()         { *m = DeleteComputeRequest{} }
 func (m *DeleteComputeRequest) String() string { return proto.CompactTextString(m) }
 func (*DeleteComputeRequest) ProtoMessage()    {}
 func (*DeleteComputeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_compute_599d9aed8b328c51, []int{7}
+	return fileDescriptor_compute_bd493b64d3131b8c, []int{7}
 }
 func (m *DeleteComputeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteComputeRequest.Unmarshal(m, b)
@@ -536,7 +486,7 @@ func (m *WatchComputesRequest) Reset()         { *m = WatchComputesRequest{} }
 func (m *WatchComputesRequest) String() string { return proto.CompactTextString(m) }
 func (*WatchComputesRequest) ProtoMessage()    {}
 func (*WatchComputesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_compute_599d9aed8b328c51, []int{8}
+	return fileDescriptor_compute_bd493b64d3131b8c, []int{8}
 }
 func (m *WatchComputesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_WatchComputesRequest.Unmarshal(m, b)
@@ -557,18 +507,16 @@ func (m *WatchComputesRequest) XXX_DiscardUnknown() {
 var xxx_messageInfo_WatchComputesRequest proto.InternalMessageInfo
 
 type WatchComputesResponse struct {
-	Event                WatchComputesResponse_ComputeEvents `protobuf:"varint,1,opt,name=event,proto3,enum=n0stack.provisioning.WatchComputesResponse_ComputeEvents" json:"event,omitempty"`
-	Compute              *Compute                            `protobuf:"bytes,2,opt,name=compute,proto3" json:"compute,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}                            `json:"-"`
-	XXX_unrecognized     []byte                              `json:"-"`
-	XXX_sizecache        int32                               `json:"-"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *WatchComputesResponse) Reset()         { *m = WatchComputesResponse{} }
 func (m *WatchComputesResponse) String() string { return proto.CompactTextString(m) }
 func (*WatchComputesResponse) ProtoMessage()    {}
 func (*WatchComputesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_compute_599d9aed8b328c51, []int{9}
+	return fileDescriptor_compute_bd493b64d3131b8c, []int{9}
 }
 func (m *WatchComputesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_WatchComputesResponse.Unmarshal(m, b)
@@ -588,25 +536,50 @@ func (m *WatchComputesResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_WatchComputesResponse proto.InternalMessageInfo
 
-func (m *WatchComputesResponse) GetEvent() WatchComputesResponse_ComputeEvents {
-	if m != nil {
-		return m.Event
-	}
-	return WatchComputesResponse_APPLY
+type ActionComputeRequest struct {
+	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *WatchComputesResponse) GetCompute() *Compute {
+func (m *ActionComputeRequest) Reset()         { *m = ActionComputeRequest{} }
+func (m *ActionComputeRequest) String() string { return proto.CompactTextString(m) }
+func (*ActionComputeRequest) ProtoMessage()    {}
+func (*ActionComputeRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_compute_bd493b64d3131b8c, []int{10}
+}
+func (m *ActionComputeRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ActionComputeRequest.Unmarshal(m, b)
+}
+func (m *ActionComputeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ActionComputeRequest.Marshal(b, m, deterministic)
+}
+func (dst *ActionComputeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ActionComputeRequest.Merge(dst, src)
+}
+func (m *ActionComputeRequest) XXX_Size() int {
+	return xxx_messageInfo_ActionComputeRequest.Size(m)
+}
+func (m *ActionComputeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ActionComputeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ActionComputeRequest proto.InternalMessageInfo
+
+func (m *ActionComputeRequest) GetName() string {
 	if m != nil {
-		return m.Compute
+		return m.Name
 	}
-	return nil
+	return ""
 }
 
 func init() {
 	proto.RegisterType((*Compute)(nil), "n0stack.provisioning.Compute")
 	proto.RegisterType((*ComputeSpec)(nil), "n0stack.provisioning.ComputeSpec")
+	proto.RegisterMapType((map[string]*ComputeSpec_NIC)(nil), "n0stack.provisioning.ComputeSpec.NicsEntry")
+	proto.RegisterMapType((map[string]string)(nil), "n0stack.provisioning.ComputeSpec.VolumesEntry")
 	proto.RegisterType((*ComputeSpec_NIC)(nil), "n0stack.provisioning.ComputeSpec.NIC")
-	proto.RegisterType((*ComputeSpec_NIC_Spec)(nil), "n0stack.provisioning.ComputeSpec.NIC.Spec")
 	proto.RegisterType((*ComputeStatus)(nil), "n0stack.provisioning.ComputeStatus")
 	proto.RegisterType((*ListComputesRequest)(nil), "n0stack.provisioning.ListComputesRequest")
 	proto.RegisterType((*ListComputesResponse)(nil), "n0stack.provisioning.ListComputesResponse")
@@ -615,8 +588,8 @@ func init() {
 	proto.RegisterType((*DeleteComputeRequest)(nil), "n0stack.provisioning.DeleteComputeRequest")
 	proto.RegisterType((*WatchComputesRequest)(nil), "n0stack.provisioning.WatchComputesRequest")
 	proto.RegisterType((*WatchComputesResponse)(nil), "n0stack.provisioning.WatchComputesResponse")
+	proto.RegisterType((*ActionComputeRequest)(nil), "n0stack.provisioning.ActionComputeRequest")
 	proto.RegisterEnum("n0stack.provisioning.ComputeStatus_ComputeState", ComputeStatus_ComputeState_name, ComputeStatus_ComputeState_value)
-	proto.RegisterEnum("n0stack.provisioning.WatchComputesResponse_ComputeEvents", WatchComputesResponse_ComputeEvents_name, WatchComputesResponse_ComputeEvents_value)
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -636,6 +609,19 @@ type ComputeServiceClient interface {
 	ApplyCompute(ctx context.Context, in *ApplyComputeRequest, opts ...grpc.CallOption) (*Compute, error)
 	DeleteCompute(ctx context.Context, in *DeleteComputeRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	WatchCompute(ctx context.Context, in *WatchComputesRequest, opts ...grpc.CallOption) (ComputeService_WatchComputeClient, error)
+	// VM actions
+	// -> RUNNING
+	Boot(ctx context.Context, in *ActionComputeRequest, opts ...grpc.CallOption) (*Compute, error)
+	// RUNNING -> RUNNING
+	Reboot(ctx context.Context, in *ActionComputeRequest, opts ...grpc.CallOption) (*Compute, error)
+	// RUNNING -> RUNNING
+	HardReboot(ctx context.Context, in *ActionComputeRequest, opts ...grpc.CallOption) (*Compute, error)
+	// RUNNING -> SHUTDOWN
+	Shutdown(ctx context.Context, in *ActionComputeRequest, opts ...grpc.CallOption) (*Compute, error)
+	// RUNNING -> SHUTDOWN
+	HardShutdown(ctx context.Context, in *ActionComputeRequest, opts ...grpc.CallOption) (*Compute, error)
+	// RUNNING -> PAUSED
+	Save(ctx context.Context, in *ActionComputeRequest, opts ...grpc.CallOption) (*Compute, error)
 }
 
 type computeServiceClient struct {
@@ -714,6 +700,60 @@ func (x *computeServiceWatchComputeClient) Recv() (*WatchComputesResponse, error
 	return m, nil
 }
 
+func (c *computeServiceClient) Boot(ctx context.Context, in *ActionComputeRequest, opts ...grpc.CallOption) (*Compute, error) {
+	out := new(Compute)
+	err := c.cc.Invoke(ctx, "/n0stack.provisioning.ComputeService/Boot", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *computeServiceClient) Reboot(ctx context.Context, in *ActionComputeRequest, opts ...grpc.CallOption) (*Compute, error) {
+	out := new(Compute)
+	err := c.cc.Invoke(ctx, "/n0stack.provisioning.ComputeService/Reboot", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *computeServiceClient) HardReboot(ctx context.Context, in *ActionComputeRequest, opts ...grpc.CallOption) (*Compute, error) {
+	out := new(Compute)
+	err := c.cc.Invoke(ctx, "/n0stack.provisioning.ComputeService/HardReboot", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *computeServiceClient) Shutdown(ctx context.Context, in *ActionComputeRequest, opts ...grpc.CallOption) (*Compute, error) {
+	out := new(Compute)
+	err := c.cc.Invoke(ctx, "/n0stack.provisioning.ComputeService/Shutdown", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *computeServiceClient) HardShutdown(ctx context.Context, in *ActionComputeRequest, opts ...grpc.CallOption) (*Compute, error) {
+	out := new(Compute)
+	err := c.cc.Invoke(ctx, "/n0stack.provisioning.ComputeService/HardShutdown", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *computeServiceClient) Save(ctx context.Context, in *ActionComputeRequest, opts ...grpc.CallOption) (*Compute, error) {
+	out := new(Compute)
+	err := c.cc.Invoke(ctx, "/n0stack.provisioning.ComputeService/Save", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ComputeServiceServer is the server API for ComputeService service.
 type ComputeServiceServer interface {
 	ListComputes(context.Context, *ListComputesRequest) (*ListComputesResponse, error)
@@ -721,6 +761,19 @@ type ComputeServiceServer interface {
 	ApplyCompute(context.Context, *ApplyComputeRequest) (*Compute, error)
 	DeleteCompute(context.Context, *DeleteComputeRequest) (*empty.Empty, error)
 	WatchCompute(*WatchComputesRequest, ComputeService_WatchComputeServer) error
+	// VM actions
+	// -> RUNNING
+	Boot(context.Context, *ActionComputeRequest) (*Compute, error)
+	// RUNNING -> RUNNING
+	Reboot(context.Context, *ActionComputeRequest) (*Compute, error)
+	// RUNNING -> RUNNING
+	HardReboot(context.Context, *ActionComputeRequest) (*Compute, error)
+	// RUNNING -> SHUTDOWN
+	Shutdown(context.Context, *ActionComputeRequest) (*Compute, error)
+	// RUNNING -> SHUTDOWN
+	HardShutdown(context.Context, *ActionComputeRequest) (*Compute, error)
+	// RUNNING -> PAUSED
+	Save(context.Context, *ActionComputeRequest) (*Compute, error)
 }
 
 func RegisterComputeServiceServer(s *grpc.Server, srv ComputeServiceServer) {
@@ -820,6 +873,114 @@ func (x *computeServiceWatchComputeServer) Send(m *WatchComputesResponse) error 
 	return x.ServerStream.SendMsg(m)
 }
 
+func _ComputeService_Boot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ActionComputeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ComputeServiceServer).Boot(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/n0stack.provisioning.ComputeService/Boot",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ComputeServiceServer).Boot(ctx, req.(*ActionComputeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ComputeService_Reboot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ActionComputeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ComputeServiceServer).Reboot(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/n0stack.provisioning.ComputeService/Reboot",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ComputeServiceServer).Reboot(ctx, req.(*ActionComputeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ComputeService_HardReboot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ActionComputeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ComputeServiceServer).HardReboot(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/n0stack.provisioning.ComputeService/HardReboot",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ComputeServiceServer).HardReboot(ctx, req.(*ActionComputeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ComputeService_Shutdown_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ActionComputeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ComputeServiceServer).Shutdown(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/n0stack.provisioning.ComputeService/Shutdown",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ComputeServiceServer).Shutdown(ctx, req.(*ActionComputeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ComputeService_HardShutdown_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ActionComputeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ComputeServiceServer).HardShutdown(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/n0stack.provisioning.ComputeService/HardShutdown",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ComputeServiceServer).HardShutdown(ctx, req.(*ActionComputeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ComputeService_Save_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ActionComputeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ComputeServiceServer).Save(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/n0stack.provisioning.ComputeService/Save",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ComputeServiceServer).Save(ctx, req.(*ActionComputeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _ComputeService_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "n0stack.provisioning.ComputeService",
 	HandlerType: (*ComputeServiceServer)(nil),
@@ -840,6 +1001,30 @@ var _ComputeService_serviceDesc = grpc.ServiceDesc{
 			MethodName: "DeleteCompute",
 			Handler:    _ComputeService_DeleteCompute_Handler,
 		},
+		{
+			MethodName: "Boot",
+			Handler:    _ComputeService_Boot_Handler,
+		},
+		{
+			MethodName: "Reboot",
+			Handler:    _ComputeService_Reboot_Handler,
+		},
+		{
+			MethodName: "HardReboot",
+			Handler:    _ComputeService_HardReboot_Handler,
+		},
+		{
+			MethodName: "Shutdown",
+			Handler:    _ComputeService_Shutdown_Handler,
+		},
+		{
+			MethodName: "HardShutdown",
+			Handler:    _ComputeService_HardShutdown_Handler,
+		},
+		{
+			MethodName: "Save",
+			Handler:    _ComputeService_Save_Handler,
+		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
@@ -852,54 +1037,60 @@ var _ComputeService_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("provisioning/v0/compute.proto", fileDescriptor_compute_599d9aed8b328c51)
+	proto.RegisterFile("provisioning/v0/compute.proto", fileDescriptor_compute_bd493b64d3131b8c)
 }
 
-var fileDescriptor_compute_599d9aed8b328c51 = []byte{
-	// 711 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xbc, 0x55, 0x5d, 0x4e, 0xdb, 0x4c,
-	0x14, 0x8d, 0x49, 0x42, 0xe0, 0x3a, 0xa0, 0x30, 0x04, 0x14, 0xf9, 0x13, 0x12, 0xcc, 0xa7, 0x16,
-	0x4a, 0x55, 0x3b, 0x4a, 0x55, 0x55, 0x11, 0x52, 0xa5, 0x90, 0x18, 0x14, 0x35, 0x35, 0xd4, 0x2d,
-	0x45, 0xe5, 0x05, 0x39, 0x66, 0x1a, 0x2c, 0xe2, 0x9f, 0x66, 0xc6, 0xae, 0xa2, 0xee, 0xa4, 0x6b,
-	0xe8, 0x06, 0xba, 0x84, 0xee, 0xa2, 0x5b, 0xe8, 0x0e, 0xaa, 0xf1, 0x0f, 0x38, 0xa9, 0x81, 0xf0,
-	0xd2, 0x37, 0xcf, 0x9d, 0x73, 0xce, 0xdc, 0x7b, 0xe6, 0x58, 0x03, 0x1b, 0xde, 0xc8, 0x0d, 0x2c,
-	0x6a, 0xb9, 0x8e, 0xe5, 0x0c, 0x94, 0xa0, 0xae, 0x98, 0xae, 0xed, 0xf9, 0x8c, 0xc8, 0xde, 0xc8,
-	0x65, 0x2e, 0xaa, 0x3a, 0x75, 0xca, 0x0c, 0xf3, 0x4a, 0x4e, 0xc3, 0xa4, 0xff, 0x06, 0xae, 0x3b,
-	0x18, 0x12, 0x25, 0xc4, 0xf4, 0xfd, 0x4f, 0x0a, 0xb1, 0x3d, 0x36, 0x8e, 0x28, 0xd2, 0x4a, 0x50,
-	0x57, 0x6c, 0xc2, 0x8c, 0x0b, 0x83, 0x19, 0x51, 0x09, 0x7f, 0x17, 0xa0, 0xd4, 0x8e, 0x74, 0xd1,
-	0x33, 0x58, 0x48, 0x76, 0x6b, 0xc2, 0xa6, 0xb0, 0x23, 0x36, 0x56, 0xe4, 0xe4, 0x90, 0x37, 0xf1,
-	0x86, 0x7e, 0x0d, 0x41, 0x2f, 0xa0, 0x40, 0x3d, 0x62, 0xd6, 0xe6, 0x42, 0xe8, 0x96, 0x9c, 0xd5,
-	0x8f, 0x1c, 0x6b, 0xbf, 0xf3, 0x88, 0xa9, 0x87, 0x70, 0xb4, 0x07, 0xf3, 0x94, 0x19, 0xcc, 0xa7,
-	0xb5, 0x7c, 0x48, 0xfc, 0xff, 0x6e, 0x62, 0x08, 0xd5, 0x63, 0x0a, 0xfe, 0x35, 0x07, 0x62, 0x4a,
-	0x12, 0x55, 0xa1, 0x18, 0x98, 0x9e, 0x4f, 0xc3, 0x7e, 0x97, 0xf4, 0x68, 0x81, 0xb6, 0xa0, 0x6c,
-	0x13, 0xdb, 0x1d, 0x8d, 0xcf, 0xfb, 0x63, 0x46, 0x68, 0xd8, 0x61, 0x41, 0x17, 0xa3, 0xda, 0x3e,
-	0x2f, 0x71, 0x48, 0xe0, 0x0e, 0x7d, 0x9b, 0x9c, 0x3b, 0x86, 0x4d, 0x78, 0x2f, 0xf9, 0x9d, 0x45,
-	0x5d, 0x8c, 0x6a, 0x1a, 0x2f, 0xa1, 0x26, 0x14, 0x1c, 0xcb, 0xa4, 0xb5, 0xc2, 0x66, 0x7e, 0x47,
-	0x6c, 0x3c, 0xba, 0x77, 0x3e, 0x59, 0xeb, 0xb6, 0xf5, 0x90, 0x22, 0xfd, 0x10, 0x20, 0xaf, 0x75,
-	0xdb, 0x0f, 0x75, 0xf4, 0xd5, 0x84, 0xa3, 0xbb, 0x33, 0x9d, 0x28, 0xdf, 0x58, 0x2b, 0xb5, 0xa1,
-	0x10, 0xba, 0xb2, 0x05, 0x65, 0x87, 0xb0, 0x2f, 0xee, 0xe8, 0x2a, 0x9c, 0x2e, 0x3c, 0x7a, 0x51,
-	0x17, 0xe3, 0x1a, 0x9f, 0x0e, 0xd5, 0xa0, 0x64, 0x79, 0xc6, 0xc5, 0xc5, 0x88, 0xbb, 0xc3, 0x47,
-	0x4f, 0x96, 0xf8, 0x9b, 0x00, 0x4b, 0x13, 0xe6, 0xa3, 0x03, 0x28, 0x72, 0xfb, 0x23, 0x9d, 0xe5,
-	0x46, 0x7d, 0x86, 0x0b, 0x4b, 0xaf, 0x88, 0x1e, 0xd1, 0x71, 0x0b, 0xca, 0xe9, 0x32, 0x12, 0xa1,
-	0x74, 0xac, 0x6a, 0x9d, 0xae, 0x76, 0x58, 0xc9, 0xf1, 0x85, 0x7e, 0xa2, 0x69, 0x7c, 0x21, 0x20,
-	0x80, 0xf9, 0x83, 0x56, 0xb7, 0xa7, 0x76, 0x2a, 0x73, 0x7c, 0xe3, 0x44, 0x7b, 0xad, 0x1d, 0x9d,
-	0x6a, 0x95, 0x3c, 0x5e, 0x83, 0xd5, 0x9e, 0x45, 0x59, 0x2c, 0x43, 0x75, 0xf2, 0xd9, 0x27, 0x94,
-	0xe1, 0xb7, 0x50, 0x9d, 0x2c, 0x53, 0xcf, 0x75, 0x28, 0x41, 0x4d, 0x58, 0x88, 0x7f, 0x1a, 0x9e,
-	0x10, 0x7e, 0x8d, 0x1b, 0x77, 0x36, 0xaf, 0x5f, 0xc3, 0xf1, 0x36, 0xac, 0x1c, 0x92, 0x44, 0x31,
-	0x3e, 0x07, 0x21, 0x28, 0xa4, 0x0c, 0x0d, 0xbf, 0xf1, 0x57, 0x58, 0x6d, 0x79, 0xde, 0x70, 0x3c,
-	0x05, 0xfd, 0x27, 0x3f, 0x13, 0xde, 0x85, 0x6a, 0x87, 0x0c, 0x09, 0x23, 0x33, 0x34, 0xba, 0x0e,
-	0xd5, 0x53, 0x83, 0x99, 0x97, 0xd3, 0xe6, 0xfd, 0x14, 0x60, 0x6d, 0x6a, 0x23, 0xb6, 0xef, 0x08,
-	0x8a, 0x24, 0x20, 0x0e, 0x8b, 0x2f, 0xbe, 0x99, 0xdd, 0x55, 0x26, 0x37, 0xe9, 0x55, 0xe5, 0x7c,
-	0xaa, 0x47, 0x3a, 0xe8, 0x25, 0x94, 0x62, 0x83, 0xe3, 0x41, 0xef, 0xb9, 0x8e, 0x04, 0x8d, 0x1f,
-	0x5f, 0x67, 0x32, 0x12, 0x44, 0x8b, 0x50, 0x6c, 0x1d, 0x1f, 0xf7, 0x3e, 0x56, 0x72, 0x3c, 0x2c,
-	0x1d, 0xb5, 0xa7, 0xbe, 0x57, 0x2b, 0x42, 0xe3, 0x77, 0x1e, 0x96, 0x13, 0x97, 0xc8, 0x28, 0xb0,
-	0x4c, 0x82, 0x06, 0x50, 0x4e, 0x67, 0x03, 0x3d, 0xc9, 0x3e, 0x32, 0x23, 0x56, 0xd2, 0xee, 0x2c,
-	0xd0, 0x68, 0x5e, 0x9c, 0x43, 0x1f, 0x00, 0x6e, 0x12, 0x83, 0xb6, 0xb3, 0xb9, 0x7f, 0x65, 0x4a,
-	0xba, 0xdb, 0x02, 0x9c, 0x43, 0x67, 0x50, 0x4e, 0x07, 0xec, 0xb6, 0x01, 0x32, 0x42, 0x78, 0xbf,
-	0xf6, 0x09, 0x2c, 0x4d, 0xe4, 0x07, 0xdd, 0x32, 0x72, 0x56, 0xc8, 0xa4, 0x75, 0x39, 0x7a, 0x6c,
-	0xe4, 0xe4, 0xb1, 0x91, 0x55, 0xfe, 0xd8, 0xe0, 0x1c, 0xba, 0x82, 0x72, 0x3a, 0x15, 0xb7, 0xa9,
-	0x66, 0xc5, 0x51, 0x7a, 0xfa, 0x80, 0x94, 0xe1, 0x5c, 0x5d, 0xd8, 0xdf, 0x3b, 0x6b, 0x0e, 0x2c,
-	0x76, 0xe9, 0xf7, 0x65, 0xd3, 0xb5, 0x95, 0x98, 0x1c, 0x3d, 0x80, 0xf2, 0xc0, 0x55, 0xa6, 0x5e,
-	0xd1, 0x3d, 0x2f, 0x5d, 0xe8, 0xcf, 0x87, 0xb8, 0xe7, 0x7f, 0x02, 0x00, 0x00, 0xff, 0xff, 0xdf,
-	0x4a, 0xd2, 0xf8, 0x6d, 0x07, 0x00, 0x00,
+var fileDescriptor_compute_bd493b64d3131b8c = []byte{
+	// 813 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xbc, 0x56, 0x5d, 0x6f, 0xea, 0x46,
+	0x10, 0x85, 0xe0, 0x10, 0x18, 0x3b, 0xb7, 0x64, 0x2f, 0xf7, 0x16, 0xb9, 0x8a, 0x94, 0xb8, 0xaa,
+	0xf2, 0xa5, 0x1a, 0x44, 0x55, 0xa9, 0x09, 0x0f, 0x15, 0x01, 0x92, 0xa0, 0xa6, 0x6e, 0x6a, 0x4a,
+	0xa2, 0x26, 0x52, 0x23, 0x63, 0xb6, 0x60, 0x81, 0xbd, 0xae, 0xbd, 0x76, 0x84, 0xfa, 0xd8, 0xbf,
+	0xd4, 0x1f, 0xd4, 0x97, 0xfe, 0x8f, 0x6a, 0xfd, 0x41, 0x1d, 0x6a, 0x02, 0x0f, 0x49, 0xdf, 0xbc,
+	0xc7, 0x67, 0xce, 0xcc, 0x99, 0x19, 0x79, 0x0d, 0xbb, 0xb6, 0x43, 0x7c, 0xc3, 0x35, 0x88, 0x65,
+	0x58, 0xa3, 0xaa, 0x5f, 0xab, 0xea, 0xc4, 0xb4, 0x3d, 0x8a, 0x65, 0xdb, 0x21, 0x94, 0xa0, 0xb2,
+	0x55, 0x73, 0xa9, 0xa6, 0x4f, 0xe4, 0x24, 0x4d, 0xfc, 0x6c, 0x44, 0xc8, 0x68, 0x8a, 0xab, 0x01,
+	0x67, 0xe0, 0xfd, 0x5a, 0xc5, 0xa6, 0x4d, 0x67, 0x61, 0x88, 0x88, 0x22, 0x11, 0x62, 0x61, 0x8b,
+	0x46, 0xd8, 0x8e, 0x5f, 0xab, 0x9a, 0x98, 0x6a, 0x43, 0x8d, 0x6a, 0x21, 0x24, 0xfd, 0x95, 0x85,
+	0xad, 0x56, 0x98, 0x0b, 0x7d, 0x09, 0x85, 0xf8, 0x6d, 0x25, 0xbb, 0x97, 0x3d, 0xe4, 0xeb, 0x3b,
+	0x72, 0x9c, 0xf8, 0xfb, 0xe8, 0x85, 0x3a, 0xa7, 0xa0, 0xaf, 0x81, 0x73, 0x6d, 0xac, 0x57, 0x36,
+	0x02, 0xea, 0xbe, 0x9c, 0x56, 0xa3, 0x1c, 0x69, 0xf7, 0x6c, 0xac, 0xab, 0x01, 0x1d, 0x35, 0x20,
+	0xef, 0x52, 0x8d, 0x7a, 0x6e, 0x25, 0x17, 0x04, 0x7e, 0xfe, 0x72, 0x60, 0x40, 0x55, 0xa3, 0x10,
+	0x54, 0x07, 0x98, 0x9b, 0x72, 0x2b, 0xdc, 0x5e, 0xee, 0x90, 0xaf, 0xa3, 0xb9, 0x40, 0x2b, 0x7e,
+	0xa5, 0x26, 0x58, 0xd2, 0xdf, 0x39, 0xe0, 0x13, 0x65, 0xa0, 0x32, 0x6c, 0xfa, 0xba, 0xed, 0xb9,
+	0x81, 0xc7, 0x6d, 0x35, 0x3c, 0xa0, 0x7d, 0x10, 0x4c, 0x6c, 0x12, 0x67, 0xf6, 0x38, 0x98, 0x51,
+	0xec, 0x06, 0xae, 0x38, 0x95, 0x0f, 0xb1, 0x73, 0x06, 0xa1, 0x2b, 0xd8, 0xf2, 0xc9, 0xd4, 0x33,
+	0x31, 0x2b, 0x9d, 0x65, 0x96, 0x57, 0x7a, 0x96, 0x6f, 0xc3, 0x80, 0x8e, 0x45, 0x9d, 0x99, 0x1a,
+	0x87, 0xa3, 0x6f, 0x81, 0xb3, 0x0c, 0x3d, 0x36, 0x70, 0xb2, 0x5a, 0x46, 0x31, 0xf4, 0x48, 0x23,
+	0x08, 0x14, 0xcf, 0x40, 0x48, 0x2a, 0xa3, 0x12, 0xe4, 0x26, 0x78, 0x16, 0x38, 0x2a, 0xaa, 0xec,
+	0x31, 0x70, 0xa9, 0x4d, 0x3d, 0x1c, 0x18, 0x29, 0xaa, 0xe1, 0xe1, 0x6c, 0xe3, 0x9b, 0xac, 0xe8,
+	0x43, 0x4e, 0xe9, 0xb6, 0x98, 0x61, 0x0b, 0xd3, 0x27, 0xe2, 0x4c, 0x1e, 0x2d, 0xcd, 0xc4, 0x51,
+	0x2c, 0x1f, 0x61, 0x8a, 0x66, 0x62, 0x74, 0x04, 0xa5, 0xb1, 0xe6, 0x0c, 0x9f, 0x34, 0x07, 0x3f,
+	0x6a, 0xc3, 0xa1, 0x83, 0x5d, 0x37, 0x92, 0xfb, 0x24, 0xc6, 0x9b, 0x21, 0xcc, 0xd4, 0x0c, 0x3b,
+	0x26, 0x45, 0x0d, 0x2a, 0xaa, 0xbc, 0x61, 0x37, 0x63, 0x48, 0xfc, 0x05, 0x8a, 0x73, 0x1b, 0x29,
+	0x05, 0x37, 0x92, 0x05, 0xf3, 0xf5, 0x2f, 0xd6, 0x68, 0x4a, 0xb7, 0x95, 0xf0, 0x25, 0xfd, 0x99,
+	0x85, 0xed, 0x67, 0x5b, 0x83, 0x2e, 0x60, 0x93, 0xed, 0x4d, 0xe8, 0xed, 0x5d, 0xbd, 0xb6, 0xc6,
+	0xa6, 0x25, 0x4f, 0x58, 0x0d, 0xc3, 0xa5, 0x07, 0x10, 0x92, 0x30, 0xe2, 0x61, 0xeb, 0xa6, 0xa3,
+	0xb4, 0xbb, 0xca, 0x65, 0x29, 0xc3, 0x0e, 0x6a, 0x5f, 0x51, 0xd8, 0x21, 0x87, 0x04, 0x28, 0xf4,
+	0xae, 0xfa, 0x3f, 0xb5, 0x7f, 0xb8, 0x53, 0x4a, 0x1c, 0x02, 0xc8, 0xdf, 0x34, 0xfb, 0xbd, 0x4e,
+	0xbb, 0xb4, 0xc9, 0x9e, 0x2f, 0x9a, 0xdd, 0xeb, 0x4e, 0xbb, 0x94, 0x65, 0x21, 0x7d, 0xe5, 0x3b,
+	0x85, 0x91, 0x36, 0xa4, 0x0f, 0xf0, 0xfe, 0xda, 0x70, 0x69, 0x94, 0xc0, 0x55, 0xf1, 0x6f, 0x1e,
+	0x76, 0xa9, 0xf4, 0x23, 0x94, 0x9f, 0xc3, 0xae, 0x4d, 0x2c, 0x17, 0xa3, 0x53, 0x28, 0x44, 0xdf,
+	0x06, 0xb6, 0xc0, 0x6c, 0x7d, 0x76, 0x5f, 0xb4, 0xa5, 0xce, 0xe9, 0xd2, 0x01, 0xec, 0x5c, 0xe2,
+	0x58, 0x31, 0xca, 0x83, 0x10, 0x70, 0x89, 0xf1, 0x07, 0xcf, 0xd2, 0xef, 0xf0, 0xbe, 0x69, 0xdb,
+	0xd3, 0xd9, 0x02, 0xf5, 0x7f, 0xf9, 0x3e, 0x48, 0xc7, 0x50, 0x6e, 0xe3, 0x29, 0xa6, 0x78, 0x8d,
+	0x42, 0x3f, 0x42, 0xf9, 0x4e, 0xa3, 0xfa, 0x78, 0xb1, 0x79, 0x9f, 0xc2, 0x87, 0x05, 0x3c, 0xec,
+	0x1e, 0x13, 0x6f, 0xea, 0xd4, 0x20, 0xd6, 0x6a, 0xf1, 0xfa, 0x1f, 0x05, 0x78, 0x17, 0x97, 0x87,
+	0x1d, 0xdf, 0xd0, 0x31, 0x1a, 0x81, 0x90, 0x1c, 0x0a, 0x3a, 0x4a, 0x37, 0x95, 0x32, 0x4f, 0xf1,
+	0x78, 0x1d, 0x6a, 0x54, 0x65, 0x06, 0xdd, 0x02, 0xfc, 0x3b, 0x2a, 0x74, 0x90, 0x1e, 0xfb, 0x9f,
+	0x61, 0x8a, 0x2f, 0xaf, 0x82, 0x94, 0x41, 0xf7, 0x20, 0x24, 0x27, 0xbb, 0xcc, 0x40, 0xca, 0xf4,
+	0x57, 0x6b, 0xf7, 0x61, 0xfb, 0xd9, 0xe0, 0xd0, 0x12, 0xcb, 0x69, 0xd3, 0x15, 0x3f, 0xca, 0xe1,
+	0x65, 0x26, 0xc7, 0x97, 0x99, 0xdc, 0x61, 0x97, 0x99, 0x94, 0x41, 0x13, 0x10, 0x92, 0xb3, 0x5c,
+	0xa6, 0x9a, 0xb6, 0x07, 0xe2, 0xc9, 0x5a, 0xdc, 0xb8, 0xeb, 0xb5, 0x2c, 0xea, 0x01, 0x77, 0x4e,
+	0x08, 0x5d, 0x96, 0x24, 0x6d, 0x77, 0xd6, 0x69, 0x4c, 0x5e, 0xc5, 0x83, 0x57, 0x97, 0xfd, 0x19,
+	0xe0, 0x4a, 0x73, 0x86, 0x6f, 0x21, 0x7d, 0x07, 0x85, 0xde, 0xd8, 0xa3, 0x43, 0xf2, 0x64, 0xbd,
+	0xae, 0xf0, 0x03, 0x08, 0xac, 0xe6, 0xb7, 0x11, 0xef, 0x01, 0xd7, 0xd3, 0x7c, 0xfc, 0xaa, 0xa2,
+	0xe7, 0x8d, 0xfb, 0xd3, 0x91, 0x41, 0xc7, 0xde, 0x40, 0xd6, 0x89, 0x59, 0x8d, 0xc8, 0xe1, 0x2f,
+	0x97, 0x3c, 0x22, 0xd5, 0x85, 0xff, 0xb6, 0x86, 0x9d, 0x04, 0x06, 0xf9, 0x80, 0xf7, 0xd5, 0x3f,
+	0x01, 0x00, 0x00, 0xff, 0xff, 0x4a, 0xa0, 0x4e, 0x05, 0xdf, 0x09, 0x00, 0x00,
 }

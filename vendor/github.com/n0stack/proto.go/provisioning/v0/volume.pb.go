@@ -30,31 +30,31 @@ type VolumeStatus_VolumeState int32
 const (
 	// not scheduled
 	VolumeStatus_PENDING   VolumeStatus_VolumeState = 0
-	VolumeStatus_AVAILABLE VolumeStatus_VolumeState = 1
+	VolumeStatus_AVAILABLE VolumeStatus_VolumeState = 3
+	// falied state because failed some process on API.
+	VolumeStatus_FAILED VolumeStatus_VolumeState = 1
 	// unknown state because failed to connect for scheduled node after RUNNING.
-	VolumeStatus_FAILED VolumeStatus_VolumeState = 2
-	// unknown state because failed to connect for scheduled node after RUNNING.
-	VolumeStatus_UNKNOWN VolumeStatus_VolumeState = 3
+	VolumeStatus_UNKNOWN VolumeStatus_VolumeState = 2
 )
 
 var VolumeStatus_VolumeState_name = map[int32]string{
 	0: "PENDING",
-	1: "AVAILABLE",
-	2: "FAILED",
-	3: "UNKNOWN",
+	3: "AVAILABLE",
+	1: "FAILED",
+	2: "UNKNOWN",
 }
 var VolumeStatus_VolumeState_value = map[string]int32{
 	"PENDING":   0,
-	"AVAILABLE": 1,
-	"FAILED":    2,
-	"UNKNOWN":   3,
+	"AVAILABLE": 3,
+	"FAILED":    1,
+	"UNKNOWN":   2,
 }
 
 func (x VolumeStatus_VolumeState) String() string {
 	return proto.EnumName(VolumeStatus_VolumeState_name, int32(x))
 }
 func (VolumeStatus_VolumeState) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_volume_18c1d9bb414a6f7a, []int{2, 0}
+	return fileDescriptor_volume_c6f9c0daf1fbb1ff, []int{2, 0}
 }
 
 type Volume struct {
@@ -71,7 +71,7 @@ func (m *Volume) Reset()         { *m = Volume{} }
 func (m *Volume) String() string { return proto.CompactTextString(m) }
 func (*Volume) ProtoMessage()    {}
 func (*Volume) Descriptor() ([]byte, []int) {
-	return fileDescriptor_volume_18c1d9bb414a6f7a, []int{0}
+	return fileDescriptor_volume_c6f9c0daf1fbb1ff, []int{0}
 }
 func (m *Volume) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Volume.Unmarshal(m, b)
@@ -130,7 +130,7 @@ func (m *VolumeSpec) Reset()         { *m = VolumeSpec{} }
 func (m *VolumeSpec) String() string { return proto.CompactTextString(m) }
 func (*VolumeSpec) ProtoMessage()    {}
 func (*VolumeSpec) Descriptor() ([]byte, []int) {
-	return fileDescriptor_volume_18c1d9bb414a6f7a, []int{1}
+	return fileDescriptor_volume_c6f9c0daf1fbb1ff, []int{1}
 }
 func (m *VolumeSpec) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_VolumeSpec.Unmarshal(m, b)
@@ -168,7 +168,7 @@ func (m *VolumeStatus) Reset()         { *m = VolumeStatus{} }
 func (m *VolumeStatus) String() string { return proto.CompactTextString(m) }
 func (*VolumeStatus) ProtoMessage()    {}
 func (*VolumeStatus) Descriptor() ([]byte, []int) {
-	return fileDescriptor_volume_18c1d9bb414a6f7a, []int{2}
+	return fileDescriptor_volume_c6f9c0daf1fbb1ff, []int{2}
 }
 func (m *VolumeStatus) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_VolumeStatus.Unmarshal(m, b)
@@ -205,7 +205,7 @@ func (m *ListVolumesRequest) Reset()         { *m = ListVolumesRequest{} }
 func (m *ListVolumesRequest) String() string { return proto.CompactTextString(m) }
 func (*ListVolumesRequest) ProtoMessage()    {}
 func (*ListVolumesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_volume_18c1d9bb414a6f7a, []int{3}
+	return fileDescriptor_volume_c6f9c0daf1fbb1ff, []int{3}
 }
 func (m *ListVolumesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListVolumesRequest.Unmarshal(m, b)
@@ -236,7 +236,7 @@ func (m *ListVolumesResponse) Reset()         { *m = ListVolumesResponse{} }
 func (m *ListVolumesResponse) String() string { return proto.CompactTextString(m) }
 func (*ListVolumesResponse) ProtoMessage()    {}
 func (*ListVolumesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_volume_18c1d9bb414a6f7a, []int{4}
+	return fileDescriptor_volume_c6f9c0daf1fbb1ff, []int{4}
 }
 func (m *ListVolumesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListVolumesResponse.Unmarshal(m, b)
@@ -274,7 +274,7 @@ func (m *GetVolumeRequest) Reset()         { *m = GetVolumeRequest{} }
 func (m *GetVolumeRequest) String() string { return proto.CompactTextString(m) }
 func (*GetVolumeRequest) ProtoMessage()    {}
 func (*GetVolumeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_volume_18c1d9bb414a6f7a, []int{5}
+	return fileDescriptor_volume_c6f9c0daf1fbb1ff, []int{5}
 }
 func (m *GetVolumeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetVolumeRequest.Unmarshal(m, b)
@@ -313,7 +313,7 @@ func (m *ApplyVolumeRequest) Reset()         { *m = ApplyVolumeRequest{} }
 func (m *ApplyVolumeRequest) String() string { return proto.CompactTextString(m) }
 func (*ApplyVolumeRequest) ProtoMessage()    {}
 func (*ApplyVolumeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_volume_18c1d9bb414a6f7a, []int{6}
+	return fileDescriptor_volume_c6f9c0daf1fbb1ff, []int{6}
 }
 func (m *ApplyVolumeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ApplyVolumeRequest.Unmarshal(m, b)
@@ -358,7 +358,7 @@ func (m *DeleteVolumeRequest) Reset()         { *m = DeleteVolumeRequest{} }
 func (m *DeleteVolumeRequest) String() string { return proto.CompactTextString(m) }
 func (*DeleteVolumeRequest) ProtoMessage()    {}
 func (*DeleteVolumeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_volume_18c1d9bb414a6f7a, []int{7}
+	return fileDescriptor_volume_c6f9c0daf1fbb1ff, []int{7}
 }
 func (m *DeleteVolumeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteVolumeRequest.Unmarshal(m, b)
@@ -569,10 +569,10 @@ var _VolumeService_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("provisioning/v0/volume.proto", fileDescriptor_volume_18c1d9bb414a6f7a)
+	proto.RegisterFile("provisioning/v0/volume.proto", fileDescriptor_volume_c6f9c0daf1fbb1ff)
 }
 
-var fileDescriptor_volume_18c1d9bb414a6f7a = []byte{
+var fileDescriptor_volume_c6f9c0daf1fbb1ff = []byte{
 	// 520 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xbc, 0x94, 0xcf, 0x6e, 0xda, 0x40,
 	0x10, 0xc6, 0x21, 0x10, 0x52, 0xc6, 0x49, 0x45, 0x26, 0xa8, 0x42, 0x34, 0x07, 0xb4, 0x87, 0x88,
@@ -592,8 +592,8 @@ var fileDescriptor_volume_18c1d9bb414a6f7a = []byte{
 	0xfe, 0x6c, 0xa5, 0x98, 0xd4, 0xf3, 0x95, 0x1d, 0xf3, 0x43, 0x7e, 0x16, 0xe1, 0x30, 0x5f, 0x10,
 	0x07, 0xb0, 0x9f, 0x94, 0x64, 0x1a, 0x7b, 0xda, 0xa5, 0xbb, 0x7b, 0xcc, 0xfd, 0x30, 0xc7, 0x88,
 	0x49, 0x1f, 0xac, 0x5c, 0x14, 0x2d, 0x38, 0xf8, 0x34, 0x9c, 0x0c, 0x46, 0x93, 0xcb, 0x5a, 0x01,
-	0x8f, 0xa0, 0xda, 0xbb, 0xee, 0x8d, 0xc6, 0xbd, 0xfe, 0x78, 0x58, 0x2b, 0x22, 0x40, 0xe5, 0x7d,
-	0x6f, 0x34, 0x1e, 0x0e, 0x6a, 0x7b, 0x09, 0xf7, 0x79, 0xf2, 0x61, 0xf2, 0xf1, 0x66, 0x52, 0x2b,
+	0x8f, 0xa0, 0xda, 0xbb, 0xee, 0x8d, 0xc6, 0xbd, 0xfe, 0x78, 0x58, 0x2b, 0x21, 0x40, 0xe5, 0x7d,
+	0x6f, 0x34, 0x1e, 0x0e, 0x6a, 0xc5, 0x84, 0xfb, 0x3c, 0xf9, 0x30, 0xf9, 0x78, 0x33, 0xa9, 0xed,
 	0x91, 0x3a, 0xe0, 0xd8, 0x97, 0xca, 0xe4, 0x91, 0x0e, 0xfb, 0x11, 0x31, 0xa9, 0xc8, 0x15, 0x9c,
 	0xdc, 0x89, 0x4a, 0xc1, 0x43, 0xc9, 0xf0, 0x35, 0x1c, 0x98, 0x57, 0x93, 0xcc, 0x97, 0x98, 0x73,
 	0xba, 0xad, 0x71, 0x27, 0x83, 0xc9, 0x19, 0xd4, 0x2e, 0x59, 0x9a, 0x2d, 0x2d, 0x81, 0x08, 0xe5,
@@ -606,5 +606,5 @@ var fileDescriptor_volume_18c1d9bb414a6f7a = []byte{
 	0x9f, 0x51, 0xb3, 0x77, 0x68, 0xb6, 0x77, 0xe8, 0x30, 0xd9, 0x3b, 0xa4, 0xd0, 0xbf, 0xf8, 0xf2,
 	0x66, 0xee, 0xab, 0x6f, 0xd1, 0x8c, 0x7a, 0x3c, 0xb0, 0xd3, 0x84, 0x66, 0x3d, 0xd1, 0x39, 0xb7,
 	0xef, 0xad, 0xb8, 0x0b, 0x91, 0x0f, 0xcc, 0x2a, 0x9a, 0x7b, 0xf9, 0x27, 0x00, 0x00, 0xff, 0xff,
-	0x23, 0x04, 0x12, 0x01, 0x0a, 0x05, 0x00, 0x00,
+	0x02, 0x7e, 0x08, 0x8d, 0x0a, 0x05, 0x00, 0x00,
 }
