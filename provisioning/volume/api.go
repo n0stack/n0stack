@@ -108,7 +108,13 @@ func (a *VolumeAPI) ApplyVolume(ctx context.Context, req *pprovisioning.ApplyVol
 
 	nn, ok := res.Metadata.Annotations["n0core/node_name"]
 	if !ok {
-		return nil, grpc.Errorf(codes.InvalidArgument, "Set n0core/node_name in annotations.")
+		if res.Status == nil {
+			res.Status = &pprovisioning.VolumeStatus{}
+		}
+
+		res.Status.State = pprovisioning.VolumeStatus_PENDING
+
+		return res, nil
 	}
 
 	// 切り出したい、こっから
@@ -156,7 +162,7 @@ func (a *VolumeAPI) DeleteVolume(ctx context.Context, req *pprovisioning.DeleteV
 	v := &pprovisioning.Volume{}
 
 	if err := a.dataStore.Get(req.Name, v); err != nil {
-		return nil, grpc.Errorf(codes.Internal, "Failed to get from db.\tgot:%v", err.Error())
+		return &empty.Empty{}, grpc.Errorf(codes.Internal, "Failed to get from db.\tgot:%v", err.Error())
 	}
 
 	if v.Metadata == nil {
@@ -165,19 +171,19 @@ func (a *VolumeAPI) DeleteVolume(ctx context.Context, req *pprovisioning.DeleteV
 
 	nn, ok := v.Metadata.Annotations["n0core/node_name"]
 	if !ok {
-		return nil, grpc.Errorf(codes.InvalidArgument, "Set n0core/node_name in annotations.")
+		return &empty.Empty{}, grpc.Errorf(codes.InvalidArgument, "Set n0core/node_name in annotations.")
 	}
 
 	// 切り出したい、こっから
 	n, err := a.nodeAPI.GetNode(context.Background(), &pprovisioning.GetNodeRequest{Name: nn})
 	if err != nil {
-		return nil, err
+		return &empty.Empty{}, err
 	}
 
 	// portはendpointから取る
 	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", n.Spec.Address, 20181), grpc.WithInsecure())
 	if err != nil {
-		return nil, grpc.Errorf(codes.Internal, "Fail to dial to node, err:%v.", err.Error())
+		return &empty.Empty{}, grpc.Errorf(codes.Internal, "Fail to dial to node, err:%v.", err.Error())
 	}
 	defer conn.Close()
 	cli := qcow2.NewQcow2ServiceClient(conn)
@@ -185,11 +191,11 @@ func (a *VolumeAPI) DeleteVolume(ctx context.Context, req *pprovisioning.DeleteV
 
 	u, ok := v.Metadata.Annotations["n0core/url"]
 	if !ok {
-		return nil, grpc.Errorf(codes.InvalidArgument, "Set n0core/url in annotations.")
+		return &empty.Empty{}, grpc.Errorf(codes.InvalidArgument, "Set n0core/url in annotations.")
 	}
 	pu, err := url.Parse(u)
 	if err != nil {
-		return nil, grpc.Errorf(codes.InvalidArgument, "Invalid n0core/url in annotations.")
+		return &empty.Empty{}, grpc.Errorf(codes.InvalidArgument, "Invalid n0core/url in annotations.")
 	}
 
 	_, err = cli.DeleteQcow2(context.Background(), &qcow2.DeleteQcow2Request{Qcow2: &qcow2.Qcow2{
@@ -197,7 +203,7 @@ func (a *VolumeAPI) DeleteVolume(ctx context.Context, req *pprovisioning.DeleteV
 		Url:   pu.String(),
 	}})
 	if err != nil {
-		return nil, grpc.Errorf(codes.Internal, "Fail to apply qcow2 on node, err:%v.", err.Error())
+		return &empty.Empty{}, grpc.Errorf(codes.Internal, "Fail to apply qcow2 on node, err:%v.", err.Error())
 	}
 
 	d, err := a.dataStore.Delete(req.Name)

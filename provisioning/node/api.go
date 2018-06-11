@@ -15,13 +15,13 @@ import (
 )
 
 type NodeAPI struct {
-	ds   datastore.Datastore
-	list *memberlist.Memberlist
+	dataStore datastore.Datastore
+	list      *memberlist.Memberlist
 }
 
 func CreateNodeAPI(ds datastore.Datastore, starter string) (*NodeAPI, error) {
 	a := &NodeAPI{
-		ds: ds,
+		dataStore: ds,
 	}
 
 	c := memberlist.DefaultLANConfig()
@@ -60,7 +60,7 @@ func (a NodeAPI) ListNodes(ctx context.Context, req *pprovisioning.ListNodesRequ
 		return m
 	}
 
-	if err := a.ds.List(f); err != nil {
+	if err := a.dataStore.List(f); err != nil {
 		return nil, grpc.Errorf(codes.Internal, "message:Failed to get from db\tgot:%v", err.Error())
 	}
 	if len(res.Nodes) == 0 {
@@ -72,7 +72,7 @@ func (a NodeAPI) ListNodes(ctx context.Context, req *pprovisioning.ListNodesRequ
 
 func (a NodeAPI) GetNode(ctx context.Context, req *pprovisioning.GetNodeRequest) (*pprovisioning.Node, error) {
 	res := &pprovisioning.Node{}
-	if err := a.ds.Get(req.Name, res); err != nil {
+	if err := a.dataStore.Get(req.Name, res); err != nil {
 		return nil, grpc.Errorf(codes.Internal, "message:Failed to get from db\tgot:%v", err.Error())
 	}
 
@@ -98,7 +98,7 @@ func (a NodeAPI) ApplyNode(ctx context.Context, req *pprovisioning.ApplyNodeRequ
 	}
 
 	prev := &pprovisioning.Node{}
-	err := a.ds.Get(req.Metadata.Name, prev)
+	err := a.dataStore.Get(req.Metadata.Name, prev)
 	if err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Failed to get db, got:%v.", err.Error())
 	}
@@ -111,7 +111,7 @@ func (a NodeAPI) ApplyNode(ctx context.Context, req *pprovisioning.ApplyNodeRequ
 
 	res.Metadata.Version++
 
-	if err := a.ds.Apply(req.Metadata.Name, res); err != nil {
+	if err := a.dataStore.Apply(req.Metadata.Name, res); err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Failed to apply for db, got:%v.", err.Error())
 	}
 	log.Printf("[INFO] On Applly, applied Node:%v", res)
@@ -120,7 +120,7 @@ func (a NodeAPI) ApplyNode(ctx context.Context, req *pprovisioning.ApplyNodeRequ
 }
 
 func (a NodeAPI) DeleteNode(ctx context.Context, req *pprovisioning.DeleteNodeRequest) (*empty.Empty, error) {
-	d, err := a.ds.Delete(req.Name)
+	d, err := a.dataStore.Delete(req.Name)
 	if err != nil {
 		return &empty.Empty{}, grpc.Errorf(codes.Internal, "message:Failed to delete from db.\tgot:%v", err.Error())
 	}
