@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option go_package = "github.com/n0stack/n0core/provisioning/node/qcow2";
 
-package n0stack.n0core.agent.qcow2;
+package n0stack.n0core.qcow2;
 
 import "google/protobuf/empty.proto";
 
