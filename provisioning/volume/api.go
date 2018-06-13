@@ -2,7 +2,6 @@ package volume
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/url"
 	"path/filepath"
@@ -25,16 +24,16 @@ import (
 //     n0core/url: Path of qcow2 that is stored on node.
 //     n0core/node_name: Scheduled node. (空の場合は実装していない)
 type VolumeAPI struct {
-	dataStore datastore.Datastore
-	nodeAPI   *node.NodeAPI
+	dataStore       datastore.Datastore
+	nodeConnections *node.NodeConnections
 
 	baseDirectory string
 }
 
-func CreateVolumeAPI(ds datastore.Datastore, na *node.NodeAPI, baseDirectory string) (*VolumeAPI, error) {
+func CreateVolumeAPI(ds datastore.Datastore, nc *node.NodeConnections, baseDirectory string) (*VolumeAPI, error) {
 	a := &VolumeAPI{
-		dataStore: ds,
-		nodeAPI:   na,
+		dataStore:       ds,
+		nodeConnections: nc,
 
 		baseDirectory: baseDirectory,
 	}
@@ -107,7 +106,7 @@ func (a *VolumeAPI) ApplyVolume(ctx context.Context, req *pprovisioning.ApplyVol
 		return nil, grpc.Errorf(codes.InvalidArgument, "Set the same version as GetVolume result, have:%d, want:%d.", req.Metadata.Version, prev.Metadata.Version)
 	}
 
-	nn, ok := res.Metadata.Annotations["n0core/node_name"]
+	_, ok := res.Metadata.Annotations["n0core/node_name"]
 	if !ok {
 		if res.Status == nil {
 			res.Status = &pprovisioning.VolumeStatus{}
@@ -118,22 +117,20 @@ func (a *VolumeAPI) ApplyVolume(ctx context.Context, req *pprovisioning.ApplyVol
 		return res, nil
 	}
 
-	// 切り出したい、こっから
-	n, err := a.nodeAPI.GetNode(context.Background(), &pprovisioning.GetNodeRequest{Name: nn})
-	if err != nil {
-		return nil, err
-	}
-
-	// nodeがreadyか
-
 	// portはendpointから取る
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", n.Spec.Address, 20181), grpc.WithInsecure())
+	conn, err := a.nodeConnections.GetConnection(res.Metadata.Annotations["n0core/node_name"])
 	if err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Fail to dial to node, err:%v.", err.Error())
 	}
+	if conn == nil {
+		res.Status.State = pprovisioning.VolumeStatus_PENDING
+
+		// save
+
+		return res, nil
+	}
 	defer conn.Close()
 	cli := qcow2.NewQcow2ServiceClient(conn)
-	// ここまで
 
 	// urlのパースとInvalidArguments
 	u, ok := res.Metadata.Annotations["n0core/url"]
@@ -172,25 +169,20 @@ func (a *VolumeAPI) DeleteVolume(ctx context.Context, req *pprovisioning.DeleteV
 		return &empty.Empty{}, grpc.Errorf(codes.NotFound, "")
 	}
 
-	nn, ok := v.Metadata.Annotations["n0core/node_name"]
+	_, ok := v.Metadata.Annotations["n0core/node_name"]
 	if !ok {
 		return &empty.Empty{}, grpc.Errorf(codes.InvalidArgument, "Set n0core/node_name in annotations.")
 	}
 
-	// 切り出したい、こっから
-	n, err := a.nodeAPI.GetNode(context.Background(), &pprovisioning.GetNodeRequest{Name: nn})
-	if err != nil {
-		return &empty.Empty{}, err
-	}
-
-	// portはendpointから取る
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", n.Spec.Address, 20181), grpc.WithInsecure())
+	conn, err := a.nodeConnections.GetConnection(v.Metadata.Annotations["n0core/node_name"])
 	if err != nil {
 		return &empty.Empty{}, grpc.Errorf(codes.Internal, "Fail to dial to node, err:%v.", err.Error())
 	}
+	if conn == nil {
+		return &empty.Empty{}, grpc.Errorf(codes.FailedPrecondition, "Failed to delete because Node is not available")
+	}
 	defer conn.Close()
 	cli := qcow2.NewQcow2ServiceClient(conn)
-	// ここまで
 
 	u, ok := v.Metadata.Annotations["n0core/url"]
 	if !ok {
