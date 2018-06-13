@@ -277,6 +277,10 @@ func (a KVMAgent) ApplyKVM(ctx context.Context, req *ApplyKVMRequest) (*KVM, err
 		return nil, grpc.Errorf(codes.Internal, "Failed to connectQMP, err:'%s'", err.Error())
 	}
 
+	// if started {
+	// 	a.startCheckEvents()
+	// }
+
 	// Volume
 	for label, v := range req.Kvm.Volumes {
 		index := v.BootIndex
@@ -334,43 +338,37 @@ func (a KVMAgent) DeleteKVM(ctx context.Context, req *DeleteKVMRequest) (*google
 }
 
 // (QEMU) cont
-func (a KVMAgent) Boot(ctx context.Context, req *ActionKVMRequest) (*KVM, error) {
-	res := &KVM{}
-
+func (a KVMAgent) Boot(ctx context.Context, req *ActionKVMRequest) (*google_protobuf.Empty, error) {
 	q, err := a.connectQMP(req.QmpPath)
 	if err != nil {
-		return res, grpc.Errorf(codes.Internal, "Failed to connect QMP, err:'%s'", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Failed to connect QMP, err:'%s'", err.Error())
 	}
 
 	cmd := []byte(`{ "execute": "cont" }`)
 	_, err = q.Run(cmd) // TODO: responseの結果で動作をちゃんと分ける
 	if err != nil {
-		res.RunLevel = KVM_SHUTDOWN // これが正しいのかはわからない
-
-		return res, nil
+		return nil, grpc.Errorf(codes.Internal, "Failed to run qmp command 'cont', err:'%s'", err.Error())
 	}
 
-	res.RunLevel = KVM_RUNNING
-
-	return res, nil
+	return &google_protobuf.Empty{}, nil
 }
 
-func (a KVMAgent) Reboot(context.Context, *ActionKVMRequest) (*KVM, error) {
-	return nil, nil
+func (a KVMAgent) Reboot(context.Context, *ActionKVMRequest) (*google_protobuf.Empty, error) {
+	return &google_protobuf.Empty{}, nil
 }
 
-func (a KVMAgent) HardReboot(context.Context, *ActionKVMRequest) (*KVM, error) {
-	return nil, nil
+func (a KVMAgent) HardReboot(context.Context, *ActionKVMRequest) (*google_protobuf.Empty, error) {
+	return &google_protobuf.Empty{}, nil
 }
 
-func (a KVMAgent) Shutdown(context.Context, *ActionKVMRequest) (*KVM, error) {
-	return nil, nil
+func (a KVMAgent) Shutdown(context.Context, *ActionKVMRequest) (*google_protobuf.Empty, error) {
+	return &google_protobuf.Empty{}, nil
 }
 
-func (a KVMAgent) HardShutdown(context.Context, *ActionKVMRequest) (*KVM, error) {
-	return nil, nil
+func (a KVMAgent) HardShutdown(context.Context, *ActionKVMRequest) (*google_protobuf.Empty, error) {
+	return &google_protobuf.Empty{}, nil
 }
 
-func (a KVMAgent) Save(context.Context, *ActionKVMRequest) (*KVM, error) {
-	return nil, nil
+func (a KVMAgent) Save(context.Context, *ActionKVMRequest) (*google_protobuf.Empty, error) {
+	return &google_protobuf.Empty{}, nil
 }

@@ -12,12 +12,12 @@ service KVMService {
   rpc DeleteKVM(DeleteKVMRequest) returns (google.protobuf.Empty) {}
 
   // VM actions
-  rpc Boot(ActionKVMRequest)         returns (KVM) {}
-  rpc Reboot(ActionKVMRequest)       returns (KVM) {}
-  rpc HardReboot(ActionKVMRequest)   returns (KVM) {}
-  rpc Shutdown(ActionKVMRequest)     returns (KVM) {}
-  rpc HardShutdown(ActionKVMRequest) returns (KVM) {}
-  rpc Save(ActionKVMRequest)         returns (KVM) {}
+  rpc Boot(ActionKVMRequest)         returns (google.protobuf.Empty) {}
+  rpc Reboot(ActionKVMRequest)       returns (google.protobuf.Empty) {}
+  rpc HardReboot(ActionKVMRequest)   returns (google.protobuf.Empty) {}
+  rpc Shutdown(ActionKVMRequest)     returns (google.protobuf.Empty) {}
+  rpc HardShutdown(ActionKVMRequest) returns (google.protobuf.Empty) {}
+  rpc Save(ActionKVMRequest)         returns (google.protobuf.Empty) {}
 }
 
 message KVM {
@@ -45,17 +45,10 @@ message KVM {
     string hw_addr = 2;
   }
   map<string, NIC> nics = 6;
-
-  enum RunLevel {
-    SHUTDOWN = 0;
-    RUNNING = 1;
-    PAUSED = 2;
-  }
-  RunLevel run_level = 7;
   
   // TCP port of websocket vnc which is opened by qemu
-  int32 vnc_port = 8;
-  string qmp_path = 9;
+  int32 vnc_port = 7;
+  string qmp_path = 8;
 }
 
 message ApplyKVMRequest {
@@ -68,5 +61,5 @@ message DeleteKVMRequest {
 
 message ActionKVMRequest {
   string name = 1;
-  string qmp_path = 9;
+  string qmp_path = 7;
 }
