@@ -28,6 +28,7 @@ func NewIproute2Agent(uplink string) (*Iproute2Agent, error) {
 	return i, nil
 }
 
+// ip link list $bridge_name
 func (a Iproute2Agent) getBridge(name string) (*netlink.Bridge, error) {
 	l, err := netlink.LinkByName(name)
 	if err != nil {
@@ -43,6 +44,8 @@ func (a Iproute2Agent) getBridge(name string) (*netlink.Bridge, error) {
 	return b, nil
 }
 
+// ip link add type bridge name $name
+// ip link set dev $bridge_name master $uplink promisc on up
 func (a Iproute2Agent) createBridge(name string, uplink netlink.Link) error {
 	l := netlink.NewLinkAttrs()
 	l.Name = name
@@ -67,6 +70,7 @@ func (a Iproute2Agent) createBridge(name string, uplink netlink.Link) error {
 	return nil
 }
 
+// ip link list $tap_name
 func (a Iproute2Agent) getTap(name string) (netlink.Link, error) {
 	l, err := netlink.LinkByName(name)
 	if err != nil {
@@ -91,6 +95,8 @@ func (a Iproute2Agent) getTap(name string) (netlink.Link, error) {
 	return l, nil
 }
 
+// ip tuntap add name $tap_name mode tap
+// ip link set dev $tap_name master $bridge_name
 func (a Iproute2Agent) createTap(name string, master *netlink.Bridge) error {
 	l := netlink.NewLinkAttrs()
 	l.Name = name

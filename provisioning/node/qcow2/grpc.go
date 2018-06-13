@@ -27,6 +27,7 @@ func (a Qcow2Agent) qcow2IsExist(path *url.URL) bool {
 	return err == nil
 }
 
+// qemu-img create -f qcow2 $image $size
 func (a Qcow2Agent) createQcow2(size uint64, path *url.URL) error {
 	if err := os.MkdirAll(filepath.Dir(path.Path), os.ModePerm); err != nil {
 		return err
@@ -41,6 +42,7 @@ func (a Qcow2Agent) createQcow2(size uint64, path *url.URL) error {
 	return nil
 }
 
+// rm $image
 func (a Qcow2Agent) deleteQcow2(path *url.URL) error {
 	if err := os.Remove(path.Path); err != nil {
 		return fmt.Errorf("error message '%s'", err.Error())
