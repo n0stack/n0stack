@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/n0stack/n0core/provisioning/node"
+	"github.com/n0stack/n0core/provisioning/node/iproute2"
 	"github.com/n0stack/n0core/provisioning/node/qcow2"
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
@@ -36,14 +37,17 @@ func main() {
 
 				s := grpc.NewServer()
 				qcow2.RegisterQcow2ServiceServer(s, &qcow2.Qcow2Agent{})
+
+				i, err := iproute2.NewIproute2Agent(c.String("uplink-interface"))
+				if err != nil {
+					return err
+				}
+				iproute2.RegisterIproute2ServiceServer(s, i)
+
 				reflection.Register(s)
 
 				log.Printf("[INFO] Starting Agent")
-				if err := s.Serve(lis); err != nil {
-					return err
-				}
-
-				return nil
+				return s.Serve(lis)
 			},
 			Flags: []cli.Flag{
 				cli.StringFlag{
@@ -67,6 +71,9 @@ func main() {
 				cli.IntFlag{
 					Name:  "bind-port",
 					Value: 20181,
+				},
+				cli.StringFlag{
+					Name: "uplink-interface",
 				},
 			},
 		},

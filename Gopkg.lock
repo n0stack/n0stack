@@ -121,6 +121,21 @@
   version = "v1.20.0"
 
 [[projects]]
+  name = "github.com/vishvananda/netlink"
+  packages = [
+    ".",
+    "nl"
+  ]
+  revision = "a2ad57a690f3caf3015351d2d6e1c0b95c349752"
+  version = "v1.0.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/vishvananda/netns"
+  packages = ["."]
+  revision = "be1fbeda19366dea804f00efff2dd73a1642fdcc"
+
+[[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
   packages = [
@@ -146,7 +161,13 @@
     "ipv6",
     "trace"
   ]
-  revision = "1e491301e022f8f977054da4c2d852decd59571f"
+  revision = "db08ff08e8622530d9ed3a0e8ac279f6d4c02196"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/sys"
+  packages = ["unix"]
+  revision = "8ee9f3e146b708d082f4bab861e5759d1edf8c00"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -212,6 +233,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "21ebe78a1c1504ad5b7244da599652f2b5ccc98c41e4fe1ee493ae5d3a3e7ebd"
+  inputs-digest = "46c4d21856df1c02798258e23fc612711f59a7cd0e7dd324da6a3302e37e8e83"
   solver-name = "gps-cdcl"
   solver-version = 1
