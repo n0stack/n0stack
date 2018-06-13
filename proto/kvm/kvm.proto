@@ -34,6 +34,7 @@ message KVM {
   // definition(label, url)
   message Storage {
     string url = 1;
+    int32 boot_index = 2;
   }
   map<string, Storage> volumes = 5;
   
@@ -54,6 +55,7 @@ message KVM {
   
   // TCP port of websocket vnc which is opened by qemu
   int32 vnc_port = 8;
+  string qmp_path = 9;
 }
 
 message ApplyKVMRequest {
@@ -66,4 +68,5 @@ message DeleteKVMRequest {
 
 message ActionKVMRequest {
   string name = 1;
+  string qmp_path = 9;
 }
