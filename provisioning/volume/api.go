@@ -117,7 +117,6 @@ func (a *VolumeAPI) ApplyVolume(ctx context.Context, req *pprovisioning.ApplyVol
 		return res, nil
 	}
 
-	// portはendpointから取る
 	conn, err := a.nodeConnections.GetConnection(res.Metadata.Annotations["n0core/node_name"])
 	if err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Fail to dial to node, err:%v.", err.Error())
