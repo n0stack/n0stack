@@ -44,12 +44,17 @@ func main() {
 					return err
 				}
 
+				nc, err := node.NewNodeConnections(fmt.Sprintf("%s:%d", c.String("bind-address"), c.Int("bind-port")))
+				if err != nil {
+					return err
+				}
+
 				ve, err := etcd.NewEtcdDatastore("volume", strings.Split(c.String("etcd-endpoints"), ","))
 				if err != nil {
 					return err
 				}
 				defer ve.Close()
-				v, err := volume.CreateVolumeAPI(ve, n, c.String("volume-default-base-directory"))
+				v, err := volume.CreateVolumeAPI(ve, nc, c.String("volume-default-base-directory"))
 				if err != nil {
 					return err
 				}
