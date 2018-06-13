@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/memberlist"
 
@@ -96,7 +97,7 @@ func registerNodeToAPI(name, advertiseAddress, api string) error {
 	return nil
 }
 
-func joinNodeToMemberlist(name, advertiseAddress, api string) error {
+func joinNodeToMemberlist(name, advertiseAddress, api string) (*memberlist.Memberlist, error) {
 	c := memberlist.DefaultLANConfig()
 	c.Name = name
 	c.AdvertiseAddr = advertiseAddress
@@ -104,17 +105,17 @@ func joinNodeToMemberlist(name, advertiseAddress, api string) error {
 
 	list, err := memberlist.Create(c)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	_, err = list.Join([]string{api})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	log.Printf("[INFO] Join Node to memberlist on joinNodeToMemberlist, LocalNode:%v", list.LocalNode())
 
-	return nil
+	return list, nil
 }
 
 func JoinNode(name, advertiseAddress, apiAddress string, apiPort int) error {
@@ -127,7 +128,8 @@ func JoinNode(name, advertiseAddress, apiAddress string, apiPort int) error {
 		return err
 	}
 
-	if err := joinNodeToMemberlist(name, addr.String(), apiAddress); err != nil {
+	list, err := joinNodeToMemberlist(name, addr.String(), apiAddress)
+	if err != nil {
 		return err
 	}
 
@@ -135,7 +137,7 @@ func JoinNode(name, advertiseAddress, apiAddress string, apiPort int) error {
 	signal.Notify(c, os.Interrupt)
 	go func() {
 		for _ = range c {
-			if err := LeaveNode(name, fmt.Sprintf("%s:%d", apiAddress, apiPort)); err != nil {
+			if err := LeaveNode(list); err != nil {
 				log.Fatalf("Failed to LeaveNode, err:%s", err.Error())
 			}
 			os.Exit(0)
@@ -145,26 +147,8 @@ func JoinNode(name, advertiseAddress, apiAddress string, apiPort int) error {
 	return nil
 }
 
-func LeaveNode(name, api string) error {
-	// conn, err := grpc.Dial(api, grpc.WithInsecure())
-	// if err != nil {
-	// 	return err
-	// }
-	// defer conn.Close()
-
-	// cli := pprovisioning.NewNodeServiceClient(conn)
-
-	// ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	// defer cancel()
-	// _, err = cli.DeleteNode(ctx, &pprovisioning.DeleteNodeRequest{
-	// 	Name: name,
-	// })
-	// if err != nil {
-	// 	return err
-	// }
-	// log.Printf("[INFO] Deleted Node from API")
-
-	// leave from memberlist
+func LeaveNode(list *memberlist.Memberlist) error {
+	list.Leave(3 * time.Second)
 
 	return nil
 }
