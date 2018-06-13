@@ -13,12 +13,13 @@ service Iproute2Service {
 }
 
 message Tap {
-  string tap_name = 1;
+  string name = 1;
   string bridge_name = 2;
 
   enum NetworkType {
     FLAT = 0;
     VLAN = 1;
+    VXLAN = 2;
   }
   NetworkType type = 3;
   
@@ -31,5 +32,5 @@ message ApplyTapRequest {
 }
 
 message DeleteTapRequest {
-  string tap_name = 1;
+  string name = 1;
 }
