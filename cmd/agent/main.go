@@ -8,6 +8,7 @@ import (
 
 	"github.com/n0stack/n0core/provisioning/node"
 	"github.com/n0stack/n0core/provisioning/node/iproute2"
+	"github.com/n0stack/n0core/provisioning/node/kvm"
 	"github.com/n0stack/n0core/provisioning/node/qcow2"
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
@@ -43,6 +44,8 @@ func main() {
 					return err
 				}
 				iproute2.RegisterIproute2ServiceServer(s, i)
+
+				kvm.RegisterKVMServiceServer(s, &kvm.KVMAgent{})
 
 				reflection.Register(s)
 
