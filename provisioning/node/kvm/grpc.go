@@ -40,75 +40,76 @@ func (a KVMAgent) getProcess(name string) (*process.Process, error) {
 
 // qemu-system ...
 func (a KVMAgent) startProcess(uuid uuid.UUID, name, qmpPath string, vcpus uint32, memory uint64) error {
-	args := []string{"qemu-system-x86_64"}
+	args := []string{
+		"qemu-system-x86_64",
 
-	// -- QEMU metadata --
-	args = append(args, "-uuid")
-	args = append(args, uuid.String())
-	args = append(args, "-name")
-	args = append(args, fmt.Sprintf("guest=%s,debug-threads=on", name))
-	args = append(args, "-msg")
-	args = append(args, "timestamp=on")
+		// -- QEMU metadata --
+		"-uuid",
+		uuid.String(),
+		"-name",
+		fmt.Sprintf("guest=%s,debug-threads=on", name),
+		"-msg",
+		"timestamp=on",
 
-	args = append(args, "-daemonize")
-	args = append(args, "-nodefaults")     // Don't create default devices
-	args = append(args, "-no-user-config") // The "-no-user-config" option makes QEMU not load any of the user-provided config files on sysconfdir
-	args = append(args, "-S")              // Do not start CPU at startup
-	args = append(args, "-no-shutdown")    // Don't exit QEMU on guest shutdown
+		// Config
+		"-daemonize",
+		"-nodefaults",     // Don't create default devices
+		"-no-user-config", // The "-no-user-config" option makes QEMU not load any of the user-provided config files on sysconfdir
+		"-S",              // Do not start CPU at startup
+		"-no-shutdown",    // Don't exit QEMU on guest shutdown
 
-	// QMP
-	const monitorFile = "monitor.sock"
-	args = append(args, "-chardev")
-	args = append(args, fmt.Sprintf("socket,id=charmonitor,path=%s,server,nowait", qmpPath))
-	args = append(args, "-mon")
-	args = append(args, "chardev=charmonitor,id=monitor,mode=control")
+		// QMP
+		"-chardev",
+		fmt.Sprintf("socket,id=charmonitor,path=%s,server,nowait", qmpPath),
+		"-mon",
+		"chardev=charmonitor,id=monitor,mode=control",
 
-	// -- BIOS --
-	// boot priority
-	args = append(args, "-boot")
-	args = append(args, "menu=on,strict=on")
+		// -- BIOS --
+		// boot priority
+		"-boot",
+		"menu=on,strict=on",
 
-	// keyboard
-	args = append(args, "-k")
-	args = append(args, "en-us") // vm.Spec.Keymapみたいなので取得できるようにする
+		// keyboard
+		"-k",
+		"en-us", // vm.Spec.Keymapみたいなので取得できるようにする
 
-	// VNC
-	args = append(args, "-vnc")
-	args = append(args, ":0,websocket=5700") // TODO: ぶつからないようにポートを設定する必要がある、現状一台しか立たない
+		// VNC
+		"-vnc",
+		":0,websocket=5700", // TODO: ぶつからないようにポートを設定する必要がある、現状一台しか立たない
 
-	// clock
-	args = append(args, "-rtc")
-	args = append(args, "base=utc,driftfix=slew")
-	args = append(args, "-global")
-	args = append(args, "kvm-pit.lost_tick_policy=delay")
-	args = append(args, "-no-hpet")
+		// clock
+		"-rtc",
+		"base=utc,driftfix=slew",
+		"-global",
+		"kvm-pit.lost_tick_policy=delay",
+		"-no-hpet",
 
-	// CPU
-	// TODO: 必要があればmonitorを操作してhotaddできるようにする
-	// TODO: スケジューリングが可能かどうか調べる
-	args = append(args, "-cpu")
-	args = append(args, "host")
-	args = append(args, "-smp")
-	args = append(args, fmt.Sprintf("%d,sockets=1,cores=%d,threads=1", vcpus, vcpus))
-	args = append(args, "-enable-kvm")
-	// return true, "Succeeded to check cpu configurations"
+		// CPU
+		// TODO: 必要があればmonitorを操作してhotaddできるようにする
+		// TODO: スケジューリングが可能かどうか調べる
+		"-cpu",
+		"host",
+		"-smp",
+		fmt.Sprintf("%d,sockets=1,cores=%d,threads=1", vcpus, vcpus),
+		"-enable-kvm",
 
-	// Memory
-	// TODO: スケジューリングが可能かどうか調べる
-	args = append(args, "-m")
-	args = append(args, fmt.Sprintf("%s", bytefmt.ByteSize(memory)))
-	args = append(args, "-device")
-	args = append(args, "virtio-balloon-pci,id=balloon0,bus=pci.0") // dynamic configurations
-	args = append(args, "-realtime")
-	args = append(args, "mlock=off")
+		// Memory
+		// TODO: スケジューリングが可能かどうか調べる
+		"-m",
+		fmt.Sprintf("%s", bytefmt.ByteSize(memory)),
+		"-device",
+		"virtio-balloon-pci,id=balloon0,bus=pci.0", // dynamic configurations
+		"-realtime",
+		"mlock=off",
 
-	// VGA controller
-	args = append(args, "-device")
-	args = append(args, "VGA,id=video0,bus=pci.0")
+		// VGA controller
+		"-device",
+		"VGA,id=video0,bus=pci.0",
 
-	// SCSI controller
-	args = append(args, "-device")
-	args = append(args, "lsi53c895a,bus=pci.0,id=scsi0")
+		// SCSI controller
+		"-device",
+		"lsi53c895a,bus=pci.0,id=scsi0",
+	}
 
 	cmd := exec.Command(args[0], args[1:]...)
 	if err := cmd.Start(); err != nil {
@@ -284,10 +285,6 @@ func (a KVMAgent) ApplyKVM(ctx context.Context, req *ApplyKVMRequest) (*KVM, err
 	// Volume
 	for label, v := range req.Kvm.Volumes {
 		index := v.BootIndex
-		// if index == 0 {
-		// 	index = i + 10 // prefix is 10
-		// }
-
 		u, err := url.Parse(v.Url)
 		if err != nil {
 			return nil, grpc.Errorf(codes.InvalidArgument, "Failed to parse url, err:'%s', url:'%s'", err.Error(), v.Url)
@@ -300,7 +297,6 @@ func (a KVMAgent) ApplyKVM(ctx context.Context, req *ApplyKVMRequest) (*KVM, err
 
 	// Network
 	for label, v := range req.Kvm.Nics {
-
 		m, err := net.ParseMAC(v.HwAddr)
 		if err != nil {
 			return nil, grpc.Errorf(codes.InvalidArgument, "Failed to parse hardware address, err:'%s', hwaddr:'%s'", err.Error(), v.HwAddr)
