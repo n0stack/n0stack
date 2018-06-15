@@ -61,7 +61,6 @@ func (a KVMAgent) ApplyKVM(ctx context.Context, req *ApplyKVMRequest) (*KVM, err
 	if err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Failed to connectQMP, err:'%s'", err.Error())
 	}
-	defer q.Disconnect()
 
 	log.Printf("[DEBUG] after connectQMP")
 
@@ -102,9 +101,8 @@ func (a KVMAgent) ApplyKVM(ctx context.Context, req *ApplyKVMRequest) (*KVM, err
 		if err := a.boot(q); err != nil {
 			return nil, grpc.Errorf(codes.Internal, "Failed to Boot, err:'%s'", err.Error())
 		}
+		log.Printf("[DEBUG] after Boot")
 	}
-
-	log.Printf("[DEBUG] after Boot")
 
 	return req.Kvm, nil
 }
@@ -112,6 +110,7 @@ func (a KVMAgent) ApplyKVM(ctx context.Context, req *ApplyKVMRequest) (*KVM, err
 func (a KVMAgent) DeleteKVM(ctx context.Context, req *DeleteKVMRequest) (*google_protobuf.Empty, error) {
 	if v, ok := a.qmp[req.Name]; ok {
 		defer v.Disconnect()
+		delete(a.qmp, req.Name)
 	}
 
 	p, err := a.getProcess(req.Name)
@@ -132,7 +131,6 @@ func (a KVMAgent) Boot(ctx context.Context, req *ActionKVMRequest) (*google_prot
 	if err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Failed to connectQMP, err:'%s'", err.Error())
 	}
-	defer q.Disconnect()
 
 	if err := a.boot(q); err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Failed to boot, err:'%s'", err.Error())
