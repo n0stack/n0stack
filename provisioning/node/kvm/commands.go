@@ -172,7 +172,7 @@ func (a KVMAgent) connectQMP(name, qmpPath string) (*qmp.SocketMonitor, error) {
 // TODO:
 //   - すでにアタッチされていた場合、エラー処理を文字列で判定する必要がある
 //   - bootindexがどうやって更新されるのかがわからない
-func (a KVMAgent) attachVolume(q *qmp.SocketMonitor, label string, u *url.URL, index uint32) error {
+func (a KVMAgent) attachStorage(q *qmp.SocketMonitor, label string, u *url.URL, index uint32) error {
 	var cmd []byte
 	switch {
 	case u.Scheme == "file":
