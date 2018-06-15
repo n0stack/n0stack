@@ -34,20 +34,18 @@ func (a KVMAgent) getProcess(name string) (*process.Process, error) {
 	return nil, nil
 }
 
-func (a KVMAgent) getVNCPort() (uint32, error) {
-	const MAX = 6500
-
-	for p := 5900; p < MAX; p++ {
+func (a KVMAgent) getVNCPort() uint32 {
+	for p := 5900; ; p++ {
 		log.Printf("[DEBUG] Trying port: %d", p)
 		l, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", p))
 		if err == nil {
 			defer l.Close()
 
-			return uint32(p), nil
+			return uint32(p)
 		}
 	}
 
-	return 0, fmt.Errorf("Failed to allocate port until max, MAX:%d", MAX)
+	return 0
 }
 
 // qemu-system ...
@@ -83,11 +81,11 @@ func (a KVMAgent) startProcess(uuid uuid.UUID, name, qmpPath string, vncWebsocke
 
 		// keyboard
 		"-k",
-		"en-us", // vm.Spec.Keymapみたいなので取得できるようにする
+		"en-us",
 
 		// VNC
 		"-vnc",
-		fmt.Sprintf(":10,websocket=%d", vncWebsocketPort), // TODO: ぶつからないようにポートを設定する必要がある、現状一台しか立たない
+		fmt.Sprintf("127.0.0.1:%d,websocket=%d", a.getVNCPort(), vncWebsocketPort), // TODO: ぶつからないようにポートを設定する必要がある、現状一台しか立たない
 
 		// clock
 		"-rtc",
@@ -149,6 +147,8 @@ func (a KVMAgent) startProcess(uuid uuid.UUID, name, qmpPath string, vncWebsocke
 // TODO: 他のプロセスがソケットにつなげていた場合、何故か無制限にロックされてしまう
 func (a KVMAgent) connectQMP(name, qmpPath string) (*qmp.SocketMonitor, error) {
 	if v, ok := a.qmp[name]; ok {
+		// TODO: check qmp is not closed!!
+
 		return v, nil
 	}
 
@@ -194,7 +194,7 @@ func (a KVMAgent) attachVolume(q *qmp.SocketMonitor, label string, u *url.URL, i
 	}
 
 	raw, err := q.Run(cmd)
-	if err != nil && !strings.Contains(string(raw), "Already exists") { // TODO: contains周りの動作確認
+	if err != nil && !strings.Contains(err.Error(), "already exists") { // TODO: contains周りの動作確認
 		return fmt.Errorf("Failed to run blockdev-add, err:'%s', raw:'%s'", err.Error(), raw)
 	}
 
@@ -213,7 +213,7 @@ func (a KVMAgent) attachVolume(q *qmp.SocketMonitor, label string, u *url.URL, i
 			`, label, label, index)) // bootindexはcdのために1を追加する
 
 	raw, err = q.Run(cmd)
-	if err != nil && !strings.Contains(string(raw), "Already exists") { // TODO: contains周りの動作確認
+	if err != nil && false { // TODO: Failed to attachVolume, err:'Failed to run device_add, err:'Duplicate ID 'virtio-blk-test-volume' for device', raw:''' が出てしまい適用できないのでとりあえず
 		return fmt.Errorf("Failed to run device_add, err:'%s', raw:'%s'", err.Error(), raw)
 	}
 
@@ -241,7 +241,7 @@ func (a KVMAgent) attachNIC(q *qmp.SocketMonitor, label, tap string, mac net.Har
 			}
 		`, label, tap))
 	raw, err := q.Run(cmd)
-	if err != nil && !strings.Contains(string(raw), "Already exists") { // TODO: contains周りの動作確認
+	if err != nil && false { // TODO: Failed to attachNIC, err:'Failed to run netdev_add, err:'Duplicate ID 'netdev-test-nic' for netdev', raw:'''
 		return fmt.Errorf("Failed to run netdev_add, err:'%s', raw:'%s'", err.Error(), raw)
 	}
 
@@ -259,7 +259,7 @@ func (a KVMAgent) attachNIC(q *qmp.SocketMonitor, label, tap string, mac net.Har
 			`, label, label, mac.String()))
 
 	raw, err = q.Run(cmd)
-	if err != nil && !strings.Contains(string(raw), "Already exists") { // TODO: contains周りの動作確認
+	if err != nil && false { // TODO: Failed to attachNIC, err:'Failed to run netdev_add, err:'Duplicate ID 'netdev-test-nic' for netdev', raw:'''
 		return fmt.Errorf("Failed to run device_add, err:'%s', raw:'%s'", err.Error(), raw)
 	}
 
