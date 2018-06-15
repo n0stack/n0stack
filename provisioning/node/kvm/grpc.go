@@ -68,16 +68,16 @@ func (a KVMAgent) ApplyKVM(ctx context.Context, req *ApplyKVMRequest) (*KVM, err
 	// 	a.startCheckEvents()
 	// }
 
-	// Volume
-	for label, v := range req.Kvm.Volumes {
+	// Storage
+	for label, v := range req.Kvm.Storages {
 		index := v.BootIndex
 		u, err := url.Parse(v.Url)
 		if err != nil {
 			return nil, grpc.Errorf(codes.InvalidArgument, "Failed to parse url, err:'%s', url:'%s'", err.Error(), v.Url)
 		}
 
-		if err := a.attachVolume(q, label, u, index); err != nil {
-			return nil, grpc.Errorf(codes.Internal, "Failed to attachVolume, err:'%s'", err.Error())
+		if err := a.attachStorage(q, label, u, index); err != nil {
+			return nil, grpc.Errorf(codes.Internal, "Failed to attachStorage, err:'%s'", err.Error())
 		}
 	}
 
