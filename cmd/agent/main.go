@@ -45,7 +45,11 @@ func main() {
 				}
 				iproute2.RegisterIproute2ServiceServer(s, i)
 
-				kvm.RegisterKVMServiceServer(s, &kvm.KVMAgent{})
+				k, err := kvm.NewKVMAgent()
+				if err != nil {
+					return err
+				}
+				kvm.RegisterKVMServiceServer(s, k)
 
 				reflection.Register(s)
 

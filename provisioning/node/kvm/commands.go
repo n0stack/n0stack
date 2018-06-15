@@ -2,6 +2,7 @@ package kvm
 
 import (
 	fmt "fmt"
+	"log"
 	"net"
 	"net/url"
 	"os/exec"
@@ -12,6 +13,8 @@ import (
 	"github.com/digitalocean/go-qemu/qmp"
 	uuid "github.com/satori/go.uuid"
 	"github.com/shirou/gopsutil/process"
+	grpc "google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 )
 
 // ps auxfww | grep $name | grep qemu
@@ -31,8 +34,24 @@ func (a KVMAgent) getProcess(name string) (*process.Process, error) {
 	return nil, nil
 }
 
+func (a KVMAgent) getVNCPort() (uint32, error) {
+	const MAX = 6500
+
+	for p := 5900; p < MAX; p++ {
+		log.Printf("[DEBUG] Trying port: %d", p)
+		l, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", p))
+		if err == nil {
+			defer l.Close()
+
+			return uint32(p), nil
+		}
+	}
+
+	return 0, fmt.Errorf("Failed to allocate port until max, MAX:%d", MAX)
+}
+
 // qemu-system ...
-func (a KVMAgent) startProcess(uuid uuid.UUID, name, qmpPath string, vcpus uint32, memory uint64) error {
+func (a KVMAgent) startProcess(uuid uuid.UUID, name, qmpPath string, vncWebsocketPort, vcpus uint32, memory uint64) error {
 	args := []string{
 		"qemu-system-x86_64",
 
@@ -68,7 +87,7 @@ func (a KVMAgent) startProcess(uuid uuid.UUID, name, qmpPath string, vcpus uint3
 
 		// VNC
 		"-vnc",
-		":10,websocket=5710", // TODO: ぶつからないようにポートを設定する必要がある、現状一台しか立たない
+		fmt.Sprintf(":10,websocket=%d", vncWebsocketPort), // TODO: ぶつからないようにポートを設定する必要がある、現状一台しか立たない
 
 		// clock
 		"-rtc",
@@ -128,13 +147,23 @@ func (a KVMAgent) startProcess(uuid uuid.UUID, name, qmpPath string, vcpus uint3
 
 // qmp-shell .../monitor.sock
 // TODO: 他のプロセスがソケットにつなげていた場合、何故か無制限にロックされてしまう
-func (a KVMAgent) connectQMP(qmpPath string) (*qmp.SocketMonitor, error) {
-	qmp, err := qmp.NewSocketMonitor("unix", qmpPath, 2*time.Second)
+func (a KVMAgent) connectQMP(name, qmpPath string) (*qmp.SocketMonitor, error) {
+	if v, ok := a.qmp[name]; ok {
+		return v, nil
+	}
+
+	q, err := qmp.NewSocketMonitor("unix", qmpPath, 2*time.Second)
 	if err != nil {
 		return nil, err
 	}
 
-	return qmp, nil
+	if err := q.Connect(); err != nil {
+		return nil, grpc.Errorf(codes.Internal, "Failed to connect QMP, err:'%s'", err.Error())
+	}
+
+	a.qmp[name] = q
+
+	return q, nil
 }
 
 // (QEMU) blockdev-add options={"driver":"qcow2","id":"drive-virtio-disk0","file":{"driver":"file","filename":"/home/h-otter/wk/test-qemu/ubuntu16.04.qcow2"}}
@@ -143,7 +172,7 @@ func (a KVMAgent) connectQMP(qmpPath string) (*qmp.SocketMonitor, error) {
 // TODO:
 //   - すでにアタッチされていた場合、エラー処理を文字列で判定する必要がある
 //   - bootindexがどうやって更新されるのかがわからない
-func (a KVMAgent) attachVolume(q *qmp.SocketMonitor, label string, u *url.URL, index int32) error {
+func (a KVMAgent) attachVolume(q *qmp.SocketMonitor, label string, u *url.URL, index uint32) error {
 	var cmd []byte
 	switch {
 	case u.Scheme == "file":
@@ -232,6 +261,18 @@ func (a KVMAgent) attachNIC(q *qmp.SocketMonitor, label, tap string, mac net.Har
 	raw, err = q.Run(cmd)
 	if err != nil && !strings.Contains(string(raw), "Already exists") { // TODO: contains周りの動作確認
 		return fmt.Errorf("Failed to run device_add, err:'%s', raw:'%s'", err.Error(), raw)
+	}
+
+	return nil
+}
+
+func (a KVMAgent) boot(q *qmp.SocketMonitor) error {
+	cmd := []byte(`{ "execute": "cont" }`)
+
+	var err error
+	if _, err = q.Run(cmd); err != nil { // TODO: responseの結果で動作をちゃんと分ける
+		log.Printf("Failed to run qmp command 'cont', err:'%s'", err.Error())
+		return err
 	}
 
 	return nil
