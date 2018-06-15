@@ -1,8 +1,11 @@
 package kvm
 
 import (
+	"log"
 	"net"
 	"net/url"
+
+	"github.com/digitalocean/go-qemu/qmp"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -12,7 +15,15 @@ import (
 	context "golang.org/x/net/context"
 )
 
-type KVMAgent struct{}
+type KVMAgent struct {
+	qmp map[string]*qmp.SocketMonitor
+}
+
+func NewKVMAgent() (*KVMAgent, error) {
+	return &KVMAgent{
+		qmp: map[string]*qmp.SocketMonitor{},
+	}, nil
+}
 
 func (a KVMAgent) ApplyKVM(ctx context.Context, req *ApplyKVMRequest) (*KVM, error) {
 	// validation
@@ -33,6 +44,7 @@ func (a KVMAgent) ApplyKVM(ctx context.Context, req *ApplyKVMRequest) (*KVM, err
 			u,
 			req.Kvm.Name,
 			req.Kvm.QmpPath,
+			req.Kvm.VncWebsocketPort,
 			req.Kvm.CpuCores,
 			req.Kvm.MemoryBytes,
 		)
@@ -43,10 +55,15 @@ func (a KVMAgent) ApplyKVM(ctx context.Context, req *ApplyKVMRequest) (*KVM, err
 		started = true
 	}
 
-	q, err := a.connectQMP(req.Kvm.QmpPath)
+	log.Printf("[DEBUG] before connectQMP")
+
+	q, err := a.connectQMP(req.Kvm.Name, req.Kvm.QmpPath)
 	if err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Failed to connectQMP, err:'%s'", err.Error())
 	}
+	defer q.Disconnect()
+
+	log.Printf("[DEBUG] after connectQMP")
 
 	// if started {
 	// 	a.startCheckEvents()
@@ -65,6 +82,8 @@ func (a KVMAgent) ApplyKVM(ctx context.Context, req *ApplyKVMRequest) (*KVM, err
 		}
 	}
 
+	log.Printf("[DEBUG] before NIC")
+
 	// Network
 	for label, v := range req.Kvm.Nics {
 		m, err := net.ParseMAC(v.HwAddr)
@@ -77,20 +96,24 @@ func (a KVMAgent) ApplyKVM(ctx context.Context, req *ApplyKVMRequest) (*KVM, err
 		}
 	}
 
+	log.Printf("[DEBUG] after NIC")
+
 	if started {
-		_, err := a.Boot(context.Background(), &ActionKVMRequest{
-			Name:    req.Kvm.Name,
-			QmpPath: req.Kvm.QmpPath,
-		})
-		if err != nil {
+		if err := a.boot(q); err != nil {
 			return nil, grpc.Errorf(codes.Internal, "Failed to Boot, err:'%s'", err.Error())
 		}
 	}
+
+	log.Printf("[DEBUG] after Boot")
 
 	return req.Kvm, nil
 }
 
 func (a KVMAgent) DeleteKVM(ctx context.Context, req *DeleteKVMRequest) (*google_protobuf.Empty, error) {
+	if v, ok := a.qmp[req.Name]; ok {
+		defer v.Disconnect()
+	}
+
 	p, err := a.getProcess(req.Name)
 	if err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Failed to getProcess, err:'%s'", err.Error())
@@ -105,15 +128,14 @@ func (a KVMAgent) DeleteKVM(ctx context.Context, req *DeleteKVMRequest) (*google
 
 // (QEMU) cont
 func (a KVMAgent) Boot(ctx context.Context, req *ActionKVMRequest) (*google_protobuf.Empty, error) {
-	q, err := a.connectQMP(req.QmpPath)
+	q, err := a.connectQMP(req.Name, req.QmpPath)
 	if err != nil {
-		return nil, grpc.Errorf(codes.Internal, "Failed to connect QMP, err:'%s'", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Failed to connectQMP, err:'%s'", err.Error())
 	}
+	defer q.Disconnect()
 
-	cmd := []byte(`{ "execute": "cont" }`)
-	_, err = q.Run(cmd) // TODO: responseの結果で動作をちゃんと分ける
-	if err != nil {
-		return nil, grpc.Errorf(codes.Internal, "Failed to run qmp command 'cont', err:'%s'", err.Error())
+	if err := a.boot(q); err != nil {
+		return nil, grpc.Errorf(codes.Internal, "Failed to boot, err:'%s'", err.Error())
 	}
 
 	return &google_protobuf.Empty{}, nil

@@ -5,12 +5,25 @@
 ## Example
 
 ```sh
-grpc_cli call localhost:20181 n0stack.n0core.iproute2.Iproute2Service/ApplyTap \
+grpc_cli call localhost:20181 n0stack.n0core.kvm.KVMService/ApplyKVM \
 'kvm {
   uuid: "9f8f7a4e-d314-4135-bebc-e0a44e7bcbe9"
-  name: "test-tap"
+  name: "test-vm"
   cpu_cores: 1
   memory_bytes: 1073741824
+  nics: {
+    key: "test-nic"
+    value: {
+      tap_name: "test-tap"
+      hw_addr: "52:54:00:00:00:01"
+    }
+  }
+  vnc_websocket_port: 5000
   qmp_path: "/tmp/monitor.sock"
 }'
+```
+
+```sh
+grpc_cli call localhost:20181 n0stack.n0core.kvm.KVMService/DeleteKVM \
+'name: "test-vm"'
 ```
