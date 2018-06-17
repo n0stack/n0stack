@@ -30,8 +30,8 @@
     "mvcc/mvccpb",
     "pkg/types"
   ]
-  revision = "56536de5511128d0c7997aa2b792a4de575da536"
-  version = "v3.3.7"
+  revision = "33245c6b5b49130ca99280408fadfab01aac0e48"
+  version = "v3.3.8"
 
 [[projects]]
   branch = "master"
@@ -142,7 +142,7 @@
     "provisioning/v0",
     "v0"
   ]
-  revision = "ea86c32dddc3ebae6efe537ec2a1491cef0de92b"
+  revision = "56318bfd3f85da91f531b2e3b8c3200aeabf4aa2"
 
 [[projects]]
   name = "github.com/satori/go.uuid"
@@ -203,7 +203,7 @@
     "ed25519",
     "ed25519/internal/edwards25519"
   ]
-  revision = "8ac0e0d97ce45cd83d1d7243c060cb8461dda5e9"
+  revision = "027cca12c2d63e3d62b670d901e8a2c95854feec"
 
 [[projects]]
   branch = "master"
@@ -231,7 +231,7 @@
     "unix",
     "windows"
   ]
-  revision = "56ede360ec1c541828fb88741b3f1049406d28f5"
+  revision = "6c888cc515d3ed83fc103cf1d84468aad274b0a7"
 
 [[projects]]
   name = "golang.org/x/text"

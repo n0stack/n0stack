@@ -7,6 +7,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/n0stack/n0core/provisioning/compute"
+
 	"github.com/n0stack/n0core/datastore/etcd"
 	"github.com/n0stack/n0core/provisioning/node"
 	"github.com/n0stack/n0core/provisioning/volume"
@@ -27,34 +29,44 @@ func main() {
 		{
 			Name:  "serve",
 			Usage: "Join to API and serve some daemons.",
-			Action: func(c *cli.Context) error {
-				lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", c.String("bind-address"), c.Int("bind-port")))
+			Action: func(ctx *cli.Context) error {
+				lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", ctx.String("bind-address"), ctx.Int("bind-port")))
 				if err != nil {
 					return err
 				}
 
-				ne, err := etcd.NewEtcdDatastore("node", strings.Split(c.String("etcd-endpoints"), ","))
+				ne, err := etcd.NewEtcdDatastore("node", strings.Split(ctx.String("etcd-endpoints"), ","))
 				if err != nil {
 					return err
 				}
 				defer ne.Close()
 				// starterをsliceでとったほうがいいかもしれない
-				n, err := node.CreateNodeAPI(ne, c.String("memberlist-starter"))
+				n, err := node.CreateNodeAPI(ne, ctx.String("memberlist-starter"))
 				if err != nil {
 					return err
 				}
 
-				nc, err := node.NewNodeConnections(fmt.Sprintf("%s:%d", c.String("bind-address"), c.Int("bind-port")))
+				nc, err := node.NewNodeConnections(fmt.Sprintf("%s:%d", ctx.String("bind-address"), ctx.Int("bind-port")))
 				if err != nil {
 					return err
 				}
 
-				ve, err := etcd.NewEtcdDatastore("volume", strings.Split(c.String("etcd-endpoints"), ","))
+				ve, err := etcd.NewEtcdDatastore("volume", strings.Split(ctx.String("etcd-endpoints"), ","))
 				if err != nil {
 					return err
 				}
 				defer ve.Close()
-				v, err := volume.CreateVolumeAPI(ve, nc, c.String("volume-default-base-directory"))
+				v, err := volume.CreateVolumeAPI(ve, nc, ctx.String("volume-default-base-directory"))
+				if err != nil {
+					return err
+				}
+
+				ce, err := etcd.NewEtcdDatastore("compute", strings.Split(ctx.String("etcd-endpoints"), ","))
+				if err != nil {
+					return err
+				}
+				defer ce.Close()
+				c, err := compute.CreateComputeAPI(ce)
 				if err != nil {
 					return err
 				}
@@ -62,6 +74,7 @@ func main() {
 				s := grpc.NewServer()
 				pprovisioning.RegisterNodeServiceServer(s, n)
 				pprovisioning.RegisterVolumeServiceServer(s, v)
+				pprovisioning.RegisterComputeServiceServer(s, c)
 				reflection.Register(s)
 
 				log.Printf("[INFO] Starting API")
