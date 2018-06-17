@@ -94,17 +94,13 @@ func (a Qcow2Agent) DownloadQcow2(ctx context.Context, req *DownloadQcow2Request
 		return nil, grpc.Errorf(codes.InvalidArgument, "Failed to download img, err:%v.", err.Error())
 	}
 	bytes := len(body)
-	_, filename := path.Split(req.SourceUrl)
-	file, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, 0666)
+	file, err := os.OpenFile(req.Qcow2.Url, os.O_CREATE|os.O_WRONLY, 0666)
 	defer file.Close()
 	if err != nil {
 		return nil, grpc.Errorf(codes.InvalidArgument, "Failed to save img, err:%v.", err.Error())
 	}
 	file.Write(body)
-	if err := a.createQcow2(bytes, u); err != nil {
-		return nil, grpc.Errorf(codes.Internal, "Failed to create qcow2, err:%v.", err.Error())
-	}
-	log.Printf("[INFO] Applied qcow2, qcow2:%v", req.Qcow2)
+	log.Printf("[INFO] Download qcow2, qcow2:%v", req.Qcow2)
 	return req.Qcow2, nil
 }
 
