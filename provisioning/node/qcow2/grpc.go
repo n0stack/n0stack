@@ -92,7 +92,6 @@ func (a Qcow2Agent) DownloadQcow2(ctx context.Context, req *DownloadQcow2Request
 	if err != nil {
 		return nil, grpc.Errorf(codes.InvalidArgument, "Failed to download img, err:%v.", err.Error())
 	}
-	bytes := len(body)
 	file, err := os.OpenFile(req.Qcow2.Url, os.O_CREATE|os.O_WRONLY, 0666)
 	defer file.Close()
 	if err != nil {
