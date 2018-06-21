@@ -8,15 +8,15 @@
 ```sh
 grpc_cli call localhost:20181 n0stack.n0core.kvm.KVMService/ApplyKVM \
 'kvm {
-  uuid: "9f8f7a4e-d314-4135-bebc-e0a44e7bcbe9"
-  name: "test-vm"
+  uuid: "a425dede-b6b3-5572-a3e2-7de689a6d8a5"
+  name: "test-compute"
   vnc_websocket_port: 5000
   qmp_path: "/tmp/monitor.sock"
 
   cpu_cores: 1
   memory_bytes: 1073741824
 
-  volumes: {
+  storages: {
     key: "test-volume"
     value: {
       url: "file:///tmp/ubuntu.qcow2"
