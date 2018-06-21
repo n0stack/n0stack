@@ -57,7 +57,6 @@ message ApplyKVMRequest {
 
 message DeleteKVMRequest {
   string name = 1;
-  string qmp_path = 8;
 }
 
 message ActionKVMRequest {

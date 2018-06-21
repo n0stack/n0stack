@@ -13,6 +13,18 @@
 grpc_cli call localhost:20180 n0stack.provisioning.ComputeService/ApplyCompute \
 'metadata {
   name: "test-compute"
+  annotations {
+    key: "n0core/node_name"
+    value: "test-node"
+  }
+  annotations {
+    key: "n0core/qmp_path"
+    value: "/var/lib/n0core/kvm/test-compute/monitor.sock"
+  }
+  annotations {
+    key: "n0core/vnc_websocket_port"
+    value: "59802"
+  }
   version: 0
 }
 spec {

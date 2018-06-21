@@ -5,7 +5,9 @@ import (
 	"log"
 	"net"
 	"net/url"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -46,6 +48,10 @@ func (a KVMAgent) getVNCPort() uint32 {
 	}
 
 	return 0
+}
+
+func (a KVMAgent) MkdirAllQmpPath(qmpPath string) error {
+	return os.MkdirAll(filepath.Dir(qmpPath), os.ModePerm)
 }
 
 // qemu-system ...
@@ -146,12 +152,6 @@ func (a KVMAgent) startProcess(uuid uuid.UUID, name, qmpPath string, vncWebsocke
 // qmp-shell .../monitor.sock
 // TODO: 他のプロセスがソケットにつなげていた場合、何故か無制限にロックされてしまう
 func (a KVMAgent) connectQMP(name, qmpPath string) (*qmp.SocketMonitor, error) {
-	if v, ok := a.qmp[name]; ok {
-		// TODO: check qmp is not closed!!
-
-		return v, nil
-	}
-
 	q, err := qmp.NewSocketMonitor("unix", qmpPath, 2*time.Second)
 	if err != nil {
 		return nil, err
@@ -160,8 +160,6 @@ func (a KVMAgent) connectQMP(name, qmpPath string) (*qmp.SocketMonitor, error) {
 	if err := q.Connect(); err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Failed to connect QMP, err:'%s'", err.Error())
 	}
-
-	a.qmp[name] = q
 
 	return q, nil
 }

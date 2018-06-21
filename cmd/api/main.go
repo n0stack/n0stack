@@ -66,7 +66,7 @@ func main() {
 					return err
 				}
 				defer ce.Close()
-				c, err := compute.CreateComputeAPI(ce)
+				c, err := compute.CreateComputeAPI(ce, nc, ctx.String("compute-default-base-directory"))
 				if err != nil {
 					return err
 				}
@@ -96,6 +96,10 @@ func main() {
 				cli.StringFlag{
 					Name:  "volume-default-base-directory",
 					Value: "/var/lib/n0core/qcow2",
+				},
+				cli.StringFlag{
+					Name:  "compute-default-base-directory",
+					Value: "/var/lib/n0core/kvm",
 				},
 			},
 		},

@@ -5,8 +5,6 @@ import (
 	"net"
 	"net/url"
 
-	"github.com/digitalocean/go-qemu/qmp"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 
@@ -15,14 +13,10 @@ import (
 	context "golang.org/x/net/context"
 )
 
-type KVMAgent struct {
-	qmp map[string]*qmp.SocketMonitor
-}
+type KVMAgent struct{}
 
 func NewKVMAgent() (*KVMAgent, error) {
-	return &KVMAgent{
-		qmp: map[string]*qmp.SocketMonitor{},
-	}, nil
+	return &KVMAgent{}, nil
 }
 
 func (a KVMAgent) ApplyKVM(ctx context.Context, req *ApplyKVMRequest) (*KVM, error) {
@@ -38,6 +32,10 @@ func (a KVMAgent) ApplyKVM(ctx context.Context, req *ApplyKVMRequest) (*KVM, err
 		u, err := uuid.FromString(req.Kvm.Uuid)
 		if err != nil {
 			return nil, grpc.Errorf(codes.InvalidArgument, "Failed to parse uuid, err:'%s', uuid:'%s'", err.Error(), req.Kvm.Uuid)
+		}
+
+		if err := a.MkdirAllQmpPath(req.Kvm.QmpPath); err != nil {
+			return nil, grpc.Errorf(codes.Internal, "Failed to MkdirAllQmpPath, err:'%s'", err.Error())
 		}
 
 		err = a.startProcess(
@@ -61,6 +59,7 @@ func (a KVMAgent) ApplyKVM(ctx context.Context, req *ApplyKVMRequest) (*KVM, err
 	if err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Failed to connectQMP, err:'%s'", err.Error())
 	}
+	defer q.Disconnect()
 
 	log.Printf("[DEBUG] after connectQMP")
 
@@ -69,6 +68,7 @@ func (a KVMAgent) ApplyKVM(ctx context.Context, req *ApplyKVMRequest) (*KVM, err
 	// }
 
 	// Storage
+	// TODO: 存在しないものを加えようとするとずっと待ち続けてしまうっぽい
 	for label, v := range req.Kvm.Storages {
 		index := v.BootIndex
 		u, err := url.Parse(v.Url)
@@ -108,18 +108,15 @@ func (a KVMAgent) ApplyKVM(ctx context.Context, req *ApplyKVMRequest) (*KVM, err
 }
 
 func (a KVMAgent) DeleteKVM(ctx context.Context, req *DeleteKVMRequest) (*google_protobuf.Empty, error) {
-	if v, ok := a.qmp[req.Name]; ok {
-		defer v.Disconnect()
-		delete(a.qmp, req.Name)
-	}
-
 	p, err := a.getProcess(req.Name)
 	if err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Failed to getProcess, err:'%s'", err.Error())
 	}
 
-	if err := p.Kill(); err != nil {
-		return nil, grpc.Errorf(codes.Internal, "Failed to kill process, err:'%s', pid:'%d'", err.Error(), p.Pid)
+	if p != nil {
+		if err := p.Kill(); err != nil {
+			return nil, grpc.Errorf(codes.Internal, "Failed to kill process, err:'%s', pid:'%d'", err.Error(), p.Pid)
+		}
 	}
 
 	return &google_protobuf.Empty{}, nil
