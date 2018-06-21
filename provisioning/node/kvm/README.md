@@ -1,6 +1,7 @@
 # KVM
 
 - runlevelについてはgoroutineからAPIに通知を行う
+- 変数にデフォルト値はセットしない
 
 ## Example
 
