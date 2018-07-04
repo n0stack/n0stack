@@ -2,33 +2,28 @@
 GOOS=linux
 GOARCH=amd64
 GOCMD=go
-GOFMT=$(GOOS) fmt
-GOBUILD=$(GOOS) $(GOARCH) $(GOCMD) build
-GOCLEAN=$(GOCMD) clean
-GOTEST=$(GOCMD) test
-GOGET=$(GOCMD) get
 
 
-AGENT_BINARY_NAME=agent
-AGGREGATER_BINARY_NAME=aggregater
-API_BINARY_NAME=api
-DISTRIBUTER_BINARY_NAME=distributer
+run_local_agent:
+	docker-compose up --build api etcd
+	go run cmd/agent/main.go
 
-
-all: test fmt build
-dep:
-	go get -u github.com/golang/dep/cmd/dep
-deps:
-	dep init
-	dep ensure
-	dep status
-fmt:
-	$(GOFMT)
 build:
-	$(GOBUILD) -o bin/$(AGENT_BINARY_NAME) -v -x 
+	go build cmd/agent/*.go -o bin/agent -v -x
+
+dep:
+	dep ensure -update
+	dep prune
+	dep status
+
+analysis:
+	gofmt -d -s `find ./ -name "*.go" | grep -v vendor`
+	golint ./... | grep -v vendor # https://github.com/golang/lint/issues/320
+
 test:
-	$(GOTEST) -v ./...
+	go vet
+	go test -v ./...
+
 clean:
-	$(GOCLEAN)
+	go clean
 	rm -rf bin
-	rm -rf vender
