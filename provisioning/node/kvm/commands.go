@@ -46,8 +46,6 @@ func (a KVMAgent) getVNCPort() uint32 {
 			return uint32(p)
 		}
 	}
-
-	return 0
 }
 
 func (a KVMAgent) MkdirAllQmpPath(qmpPath string) error {

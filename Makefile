@@ -21,7 +21,7 @@ analysis:
 	golint ./... | grep -v vendor # https://github.com/golang/lint/issues/320
 
 test:
-	go vet
+	go vet ./...
 	go test -v ./...
 
 clean:
