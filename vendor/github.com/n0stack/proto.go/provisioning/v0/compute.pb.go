@@ -61,14 +61,14 @@ func (x ComputeStatus_ComputeState) String() string {
 	return proto.EnumName(ComputeStatus_ComputeState_name, int32(x))
 }
 func (ComputeStatus_ComputeState) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_compute_a15c17b94de2d380, []int{2, 0}
+	return fileDescriptor_compute_37d30e99052dd4fe, []int{2, 0}
 }
 
 type Compute struct {
-	Metadata             *v0.Metadata    `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	Spec                 *ComputeSpec    `protobuf:"bytes,2,opt,name=spec,proto3" json:"spec,omitempty"`
-	Status               *ComputeStatus  `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
-	Components           []*v0.Component `protobuf:"bytes,4,rep,name=components,proto3" json:"components,omitempty"`
+	Metadata             *v0.Metadata    `protobuf:"bytes,1,opt,name=metadata" json:"metadata,omitempty"`
+	Spec                 *ComputeSpec    `protobuf:"bytes,2,opt,name=spec" json:"spec,omitempty"`
+	Status               *ComputeStatus  `protobuf:"bytes,3,opt,name=status" json:"status,omitempty"`
+	Components           []*v0.Component `protobuf:"bytes,4,rep,name=components" json:"components,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}        `json:"-"`
 	XXX_unrecognized     []byte          `json:"-"`
 	XXX_sizecache        int32           `json:"-"`
@@ -78,7 +78,7 @@ func (m *Compute) Reset()         { *m = Compute{} }
 func (m *Compute) String() string { return proto.CompactTextString(m) }
 func (*Compute) ProtoMessage()    {}
 func (*Compute) Descriptor() ([]byte, []int) {
-	return fileDescriptor_compute_a15c17b94de2d380, []int{0}
+	return fileDescriptor_compute_37d30e99052dd4fe, []int{0}
 }
 func (m *Compute) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Compute.Unmarshal(m, b)
@@ -128,13 +128,13 @@ func (m *Compute) GetComponents() []*v0.Component {
 
 type ComputeSpec struct {
 	// CPU
-	Vcpus uint32 `protobuf:"varint,1,opt,name=vcpus,proto3" json:"vcpus,omitempty"`
+	Vcpus uint32 `protobuf:"varint,1,opt,name=vcpus" json:"vcpus,omitempty"`
 	// Memory
 	// request_memory_bytes
 	// limit_memory_bytes
-	MemoryBytes          uint64                         `protobuf:"varint,2,opt,name=memory_bytes,json=memoryBytes,proto3" json:"memory_bytes,omitempty"`
-	Volumes              map[string]*ComputeSpec_Volume `protobuf:"bytes,3,rep,name=volumes,proto3" json:"volumes,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	Nics                 map[string]*ComputeSpec_NIC    `protobuf:"bytes,4,rep,name=nics,proto3" json:"nics,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	MemoryBytes          uint64                         `protobuf:"varint,2,opt,name=memory_bytes,json=memoryBytes" json:"memory_bytes,omitempty"`
+	Volumes              map[string]*ComputeSpec_Volume `protobuf:"bytes,3,rep,name=volumes" json:"volumes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Nics                 map[string]*ComputeSpec_NIC    `protobuf:"bytes,4,rep,name=nics" json:"nics,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	XXX_NoUnkeyedLiteral struct{}                       `json:"-"`
 	XXX_unrecognized     []byte                         `json:"-"`
 	XXX_sizecache        int32                          `json:"-"`
@@ -144,7 +144,7 @@ func (m *ComputeSpec) Reset()         { *m = ComputeSpec{} }
 func (m *ComputeSpec) String() string { return proto.CompactTextString(m) }
 func (*ComputeSpec) ProtoMessage()    {}
 func (*ComputeSpec) Descriptor() ([]byte, []int) {
-	return fileDescriptor_compute_a15c17b94de2d380, []int{1}
+	return fileDescriptor_compute_37d30e99052dd4fe, []int{1}
 }
 func (m *ComputeSpec) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ComputeSpec.Unmarshal(m, b)
@@ -195,7 +195,7 @@ func (m *ComputeSpec) GetNics() map[string]*ComputeSpec_NIC {
 // Volume
 // definition: (label, volume_name)
 type ComputeSpec_Volume struct {
-	VolumeName           string   `protobuf:"bytes,1,opt,name=volume_name,json=volumeName,proto3" json:"volume_name,omitempty"`
+	VolumeName           string   `protobuf:"bytes,1,opt,name=volume_name,json=volumeName" json:"volume_name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -205,7 +205,7 @@ func (m *ComputeSpec_Volume) Reset()         { *m = ComputeSpec_Volume{} }
 func (m *ComputeSpec_Volume) String() string { return proto.CompactTextString(m) }
 func (*ComputeSpec_Volume) ProtoMessage()    {}
 func (*ComputeSpec_Volume) Descriptor() ([]byte, []int) {
-	return fileDescriptor_compute_a15c17b94de2d380, []int{1, 0}
+	return fileDescriptor_compute_37d30e99052dd4fe, []int{1, 0}
 }
 func (m *ComputeSpec_Volume) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ComputeSpec_Volume.Unmarshal(m, b)
@@ -235,9 +235,9 @@ func (m *ComputeSpec_Volume) GetVolumeName() string {
 // Network
 // definition: (label, NIC)
 type ComputeSpec_NIC struct {
-	NetworkName          string   `protobuf:"bytes,1,opt,name=network_name,json=networkName,proto3" json:"network_name,omitempty"`
-	HardwareAddress      string   `protobuf:"bytes,2,opt,name=hardware_address,json=hardwareAddress,proto3" json:"hardware_address,omitempty"`
-	IpAddresses          []string `protobuf:"bytes,3,rep,name=ip_addresses,json=ipAddresses,proto3" json:"ip_addresses,omitempty"`
+	NetworkName          string   `protobuf:"bytes,1,opt,name=network_name,json=networkName" json:"network_name,omitempty"`
+	HardwareAddress      string   `protobuf:"bytes,2,opt,name=hardware_address,json=hardwareAddress" json:"hardware_address,omitempty"`
+	IpAddresses          []string `protobuf:"bytes,3,rep,name=ip_addresses,json=ipAddresses" json:"ip_addresses,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -247,7 +247,7 @@ func (m *ComputeSpec_NIC) Reset()         { *m = ComputeSpec_NIC{} }
 func (m *ComputeSpec_NIC) String() string { return proto.CompactTextString(m) }
 func (*ComputeSpec_NIC) ProtoMessage()    {}
 func (*ComputeSpec_NIC) Descriptor() ([]byte, []int) {
-	return fileDescriptor_compute_a15c17b94de2d380, []int{1, 2}
+	return fileDescriptor_compute_37d30e99052dd4fe, []int{1, 2}
 }
 func (m *ComputeSpec_NIC) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ComputeSpec_NIC.Unmarshal(m, b)
@@ -289,7 +289,7 @@ func (m *ComputeSpec_NIC) GetIpAddresses() []string {
 }
 
 type ComputeStatus struct {
-	State                ComputeStatus_ComputeState `protobuf:"varint,1,opt,name=state,proto3,enum=n0stack.provisioning.ComputeStatus_ComputeState" json:"state,omitempty"`
+	State                ComputeStatus_ComputeState `protobuf:"varint,1,opt,name=state,enum=n0stack.provisioning.ComputeStatus_ComputeState" json:"state,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}                   `json:"-"`
 	XXX_unrecognized     []byte                     `json:"-"`
 	XXX_sizecache        int32                      `json:"-"`
@@ -299,7 +299,7 @@ func (m *ComputeStatus) Reset()         { *m = ComputeStatus{} }
 func (m *ComputeStatus) String() string { return proto.CompactTextString(m) }
 func (*ComputeStatus) ProtoMessage()    {}
 func (*ComputeStatus) Descriptor() ([]byte, []int) {
-	return fileDescriptor_compute_a15c17b94de2d380, []int{2}
+	return fileDescriptor_compute_37d30e99052dd4fe, []int{2}
 }
 func (m *ComputeStatus) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ComputeStatus.Unmarshal(m, b)
@@ -336,7 +336,7 @@ func (m *ListComputesRequest) Reset()         { *m = ListComputesRequest{} }
 func (m *ListComputesRequest) String() string { return proto.CompactTextString(m) }
 func (*ListComputesRequest) ProtoMessage()    {}
 func (*ListComputesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_compute_a15c17b94de2d380, []int{3}
+	return fileDescriptor_compute_37d30e99052dd4fe, []int{3}
 }
 func (m *ListComputesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListComputesRequest.Unmarshal(m, b)
@@ -357,7 +357,7 @@ func (m *ListComputesRequest) XXX_DiscardUnknown() {
 var xxx_messageInfo_ListComputesRequest proto.InternalMessageInfo
 
 type ListComputesResponse struct {
-	Computes             []*Compute `protobuf:"bytes,1,rep,name=computes,proto3" json:"computes,omitempty"`
+	Computes             []*Compute `protobuf:"bytes,1,rep,name=computes" json:"computes,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
 	XXX_unrecognized     []byte     `json:"-"`
 	XXX_sizecache        int32      `json:"-"`
@@ -367,7 +367,7 @@ func (m *ListComputesResponse) Reset()         { *m = ListComputesResponse{} }
 func (m *ListComputesResponse) String() string { return proto.CompactTextString(m) }
 func (*ListComputesResponse) ProtoMessage()    {}
 func (*ListComputesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_compute_a15c17b94de2d380, []int{4}
+	return fileDescriptor_compute_37d30e99052dd4fe, []int{4}
 }
 func (m *ListComputesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListComputesResponse.Unmarshal(m, b)
@@ -395,7 +395,7 @@ func (m *ListComputesResponse) GetComputes() []*Compute {
 }
 
 type GetComputeRequest struct {
-	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Name                 string   `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -405,7 +405,7 @@ func (m *GetComputeRequest) Reset()         { *m = GetComputeRequest{} }
 func (m *GetComputeRequest) String() string { return proto.CompactTextString(m) }
 func (*GetComputeRequest) ProtoMessage()    {}
 func (*GetComputeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_compute_a15c17b94de2d380, []int{5}
+	return fileDescriptor_compute_37d30e99052dd4fe, []int{5}
 }
 func (m *GetComputeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetComputeRequest.Unmarshal(m, b)
@@ -433,8 +433,8 @@ func (m *GetComputeRequest) GetName() string {
 }
 
 type ApplyComputeRequest struct {
-	Metadata             *v0.Metadata `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	Spec                 *ComputeSpec `protobuf:"bytes,2,opt,name=spec,proto3" json:"spec,omitempty"`
+	Metadata             *v0.Metadata `protobuf:"bytes,1,opt,name=metadata" json:"metadata,omitempty"`
+	Spec                 *ComputeSpec `protobuf:"bytes,2,opt,name=spec" json:"spec,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
 	XXX_unrecognized     []byte       `json:"-"`
 	XXX_sizecache        int32        `json:"-"`
@@ -444,7 +444,7 @@ func (m *ApplyComputeRequest) Reset()         { *m = ApplyComputeRequest{} }
 func (m *ApplyComputeRequest) String() string { return proto.CompactTextString(m) }
 func (*ApplyComputeRequest) ProtoMessage()    {}
 func (*ApplyComputeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_compute_a15c17b94de2d380, []int{6}
+	return fileDescriptor_compute_37d30e99052dd4fe, []int{6}
 }
 func (m *ApplyComputeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ApplyComputeRequest.Unmarshal(m, b)
@@ -479,7 +479,7 @@ func (m *ApplyComputeRequest) GetSpec() *ComputeSpec {
 }
 
 type DeleteComputeRequest struct {
-	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Name                 string   `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -489,7 +489,7 @@ func (m *DeleteComputeRequest) Reset()         { *m = DeleteComputeRequest{} }
 func (m *DeleteComputeRequest) String() string { return proto.CompactTextString(m) }
 func (*DeleteComputeRequest) ProtoMessage()    {}
 func (*DeleteComputeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_compute_a15c17b94de2d380, []int{7}
+	return fileDescriptor_compute_37d30e99052dd4fe, []int{7}
 }
 func (m *DeleteComputeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteComputeRequest.Unmarshal(m, b)
@@ -526,7 +526,7 @@ func (m *WatchComputesRequest) Reset()         { *m = WatchComputesRequest{} }
 func (m *WatchComputesRequest) String() string { return proto.CompactTextString(m) }
 func (*WatchComputesRequest) ProtoMessage()    {}
 func (*WatchComputesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_compute_a15c17b94de2d380, []int{8}
+	return fileDescriptor_compute_37d30e99052dd4fe, []int{8}
 }
 func (m *WatchComputesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_WatchComputesRequest.Unmarshal(m, b)
@@ -556,7 +556,7 @@ func (m *WatchComputesResponse) Reset()         { *m = WatchComputesResponse{} }
 func (m *WatchComputesResponse) String() string { return proto.CompactTextString(m) }
 func (*WatchComputesResponse) ProtoMessage()    {}
 func (*WatchComputesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_compute_a15c17b94de2d380, []int{9}
+	return fileDescriptor_compute_37d30e99052dd4fe, []int{9}
 }
 func (m *WatchComputesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_WatchComputesResponse.Unmarshal(m, b)
@@ -577,7 +577,7 @@ func (m *WatchComputesResponse) XXX_DiscardUnknown() {
 var xxx_messageInfo_WatchComputesResponse proto.InternalMessageInfo
 
 type ActionComputeRequest struct {
-	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Name                 string   `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -587,7 +587,7 @@ func (m *ActionComputeRequest) Reset()         { *m = ActionComputeRequest{} }
 func (m *ActionComputeRequest) String() string { return proto.CompactTextString(m) }
 func (*ActionComputeRequest) ProtoMessage()    {}
 func (*ActionComputeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_compute_a15c17b94de2d380, []int{10}
+	return fileDescriptor_compute_37d30e99052dd4fe, []int{10}
 }
 func (m *ActionComputeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ActionComputeRequest.Unmarshal(m, b)
@@ -641,9 +641,8 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// ComputeServiceClient is the client API for ComputeService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+// Client API for ComputeService service
+
 type ComputeServiceClient interface {
 	ListComputes(ctx context.Context, in *ListComputesRequest, opts ...grpc.CallOption) (*ListComputesResponse, error)
 	GetCompute(ctx context.Context, in *GetComputeRequest, opts ...grpc.CallOption) (*Compute, error)
@@ -675,7 +674,7 @@ func NewComputeServiceClient(cc *grpc.ClientConn) ComputeServiceClient {
 
 func (c *computeServiceClient) ListComputes(ctx context.Context, in *ListComputesRequest, opts ...grpc.CallOption) (*ListComputesResponse, error) {
 	out := new(ListComputesResponse)
-	err := c.cc.Invoke(ctx, "/n0stack.provisioning.ComputeService/ListComputes", in, out, opts...)
+	err := grpc.Invoke(ctx, "/n0stack.provisioning.ComputeService/ListComputes", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -684,7 +683,7 @@ func (c *computeServiceClient) ListComputes(ctx context.Context, in *ListCompute
 
 func (c *computeServiceClient) GetCompute(ctx context.Context, in *GetComputeRequest, opts ...grpc.CallOption) (*Compute, error) {
 	out := new(Compute)
-	err := c.cc.Invoke(ctx, "/n0stack.provisioning.ComputeService/GetCompute", in, out, opts...)
+	err := grpc.Invoke(ctx, "/n0stack.provisioning.ComputeService/GetCompute", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -693,7 +692,7 @@ func (c *computeServiceClient) GetCompute(ctx context.Context, in *GetComputeReq
 
 func (c *computeServiceClient) ApplyCompute(ctx context.Context, in *ApplyComputeRequest, opts ...grpc.CallOption) (*Compute, error) {
 	out := new(Compute)
-	err := c.cc.Invoke(ctx, "/n0stack.provisioning.ComputeService/ApplyCompute", in, out, opts...)
+	err := grpc.Invoke(ctx, "/n0stack.provisioning.ComputeService/ApplyCompute", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -702,7 +701,7 @@ func (c *computeServiceClient) ApplyCompute(ctx context.Context, in *ApplyComput
 
 func (c *computeServiceClient) DeleteCompute(ctx context.Context, in *DeleteComputeRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
 	out := new(empty.Empty)
-	err := c.cc.Invoke(ctx, "/n0stack.provisioning.ComputeService/DeleteCompute", in, out, opts...)
+	err := grpc.Invoke(ctx, "/n0stack.provisioning.ComputeService/DeleteCompute", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -710,7 +709,7 @@ func (c *computeServiceClient) DeleteCompute(ctx context.Context, in *DeleteComp
 }
 
 func (c *computeServiceClient) WatchCompute(ctx context.Context, in *WatchComputesRequest, opts ...grpc.CallOption) (ComputeService_WatchComputeClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_ComputeService_serviceDesc.Streams[0], "/n0stack.provisioning.ComputeService/WatchCompute", opts...)
+	stream, err := grpc.NewClientStream(ctx, &_ComputeService_serviceDesc.Streams[0], c.cc, "/n0stack.provisioning.ComputeService/WatchCompute", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -743,7 +742,7 @@ func (x *computeServiceWatchComputeClient) Recv() (*WatchComputesResponse, error
 
 func (c *computeServiceClient) Boot(ctx context.Context, in *ActionComputeRequest, opts ...grpc.CallOption) (*Compute, error) {
 	out := new(Compute)
-	err := c.cc.Invoke(ctx, "/n0stack.provisioning.ComputeService/Boot", in, out, opts...)
+	err := grpc.Invoke(ctx, "/n0stack.provisioning.ComputeService/Boot", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -752,7 +751,7 @@ func (c *computeServiceClient) Boot(ctx context.Context, in *ActionComputeReques
 
 func (c *computeServiceClient) Reboot(ctx context.Context, in *ActionComputeRequest, opts ...grpc.CallOption) (*Compute, error) {
 	out := new(Compute)
-	err := c.cc.Invoke(ctx, "/n0stack.provisioning.ComputeService/Reboot", in, out, opts...)
+	err := grpc.Invoke(ctx, "/n0stack.provisioning.ComputeService/Reboot", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -761,7 +760,7 @@ func (c *computeServiceClient) Reboot(ctx context.Context, in *ActionComputeRequ
 
 func (c *computeServiceClient) HardReboot(ctx context.Context, in *ActionComputeRequest, opts ...grpc.CallOption) (*Compute, error) {
 	out := new(Compute)
-	err := c.cc.Invoke(ctx, "/n0stack.provisioning.ComputeService/HardReboot", in, out, opts...)
+	err := grpc.Invoke(ctx, "/n0stack.provisioning.ComputeService/HardReboot", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -770,7 +769,7 @@ func (c *computeServiceClient) HardReboot(ctx context.Context, in *ActionCompute
 
 func (c *computeServiceClient) Shutdown(ctx context.Context, in *ActionComputeRequest, opts ...grpc.CallOption) (*Compute, error) {
 	out := new(Compute)
-	err := c.cc.Invoke(ctx, "/n0stack.provisioning.ComputeService/Shutdown", in, out, opts...)
+	err := grpc.Invoke(ctx, "/n0stack.provisioning.ComputeService/Shutdown", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -779,7 +778,7 @@ func (c *computeServiceClient) Shutdown(ctx context.Context, in *ActionComputeRe
 
 func (c *computeServiceClient) HardShutdown(ctx context.Context, in *ActionComputeRequest, opts ...grpc.CallOption) (*Compute, error) {
 	out := new(Compute)
-	err := c.cc.Invoke(ctx, "/n0stack.provisioning.ComputeService/HardShutdown", in, out, opts...)
+	err := grpc.Invoke(ctx, "/n0stack.provisioning.ComputeService/HardShutdown", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -788,14 +787,15 @@ func (c *computeServiceClient) HardShutdown(ctx context.Context, in *ActionCompu
 
 func (c *computeServiceClient) Save(ctx context.Context, in *ActionComputeRequest, opts ...grpc.CallOption) (*Compute, error) {
 	out := new(Compute)
-	err := c.cc.Invoke(ctx, "/n0stack.provisioning.ComputeService/Save", in, out, opts...)
+	err := grpc.Invoke(ctx, "/n0stack.provisioning.ComputeService/Save", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ComputeServiceServer is the server API for ComputeService service.
+// Server API for ComputeService service
+
 type ComputeServiceServer interface {
 	ListComputes(context.Context, *ListComputesRequest) (*ListComputesResponse, error)
 	GetCompute(context.Context, *GetComputeRequest) (*Compute, error)
@@ -1078,12 +1078,12 @@ var _ComputeService_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("provisioning/v0/compute.proto", fileDescriptor_compute_a15c17b94de2d380)
+	proto.RegisterFile("provisioning/v0/compute.proto", fileDescriptor_compute_37d30e99052dd4fe)
 }
 
-var fileDescriptor_compute_a15c17b94de2d380 = []byte{
+var fileDescriptor_compute_37d30e99052dd4fe = []byte{
 	// 837 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xbc, 0x56, 0x51, 0x6f, 0xda, 0x56,
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x56, 0x51, 0x6f, 0xda, 0x56,
 	0x14, 0x0e, 0xc1, 0x21, 0xe4, 0xd8, 0xe9, 0xc8, 0x2d, 0xed, 0x90, 0xa7, 0x6a, 0xad, 0xa7, 0xa9,
 	0x49, 0xab, 0x19, 0xc4, 0x34, 0x69, 0x1d, 0xd2, 0x26, 0x02, 0xb4, 0x41, 0xeb, 0xbc, 0xee, 0x32,
 	0x1a, 0xad, 0x95, 0x16, 0x19, 0x73, 0x07, 0x16, 0xd8, 0xd7, 0xb3, 0xaf, 0x1d, 0xa1, 0x3d, 0xee,

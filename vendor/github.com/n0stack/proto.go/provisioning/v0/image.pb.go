@@ -26,9 +26,9 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type Image struct {
-	Metadata             *v0.Metadata `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	Spec                 *ImageSpec   `protobuf:"bytes,2,opt,name=spec,proto3" json:"spec,omitempty"`
-	Status               *ImageStatus `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
+	Metadata             *v0.Metadata `protobuf:"bytes,1,opt,name=metadata" json:"metadata,omitempty"`
+	Spec                 *ImageSpec   `protobuf:"bytes,2,opt,name=spec" json:"spec,omitempty"`
+	Status               *ImageStatus `protobuf:"bytes,3,opt,name=status" json:"status,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
 	XXX_unrecognized     []byte       `json:"-"`
 	XXX_sizecache        int32        `json:"-"`
@@ -38,7 +38,7 @@ func (m *Image) Reset()         { *m = Image{} }
 func (m *Image) String() string { return proto.CompactTextString(m) }
 func (*Image) ProtoMessage()    {}
 func (*Image) Descriptor() ([]byte, []int) {
-	return fileDescriptor_image_7088450ac06f9d8c, []int{0}
+	return fileDescriptor_image_ec488839fae0cb5a, []int{0}
 }
 func (m *Image) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Image.Unmarshal(m, b)
@@ -90,7 +90,7 @@ func (m *ImageSpec) Reset()         { *m = ImageSpec{} }
 func (m *ImageSpec) String() string { return proto.CompactTextString(m) }
 func (*ImageSpec) ProtoMessage()    {}
 func (*ImageSpec) Descriptor() ([]byte, []int) {
-	return fileDescriptor_image_7088450ac06f9d8c, []int{1}
+	return fileDescriptor_image_ec488839fae0cb5a, []int{1}
 }
 func (m *ImageSpec) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ImageSpec.Unmarshal(m, b)
@@ -111,7 +111,7 @@ func (m *ImageSpec) XXX_DiscardUnknown() {
 var xxx_messageInfo_ImageSpec proto.InternalMessageInfo
 
 type ImageStatus struct {
-	Revisions            map[string]string `protobuf:"bytes,1,rep,name=revisions,proto3" json:"revisions,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	Revisions            map[string]string `protobuf:"bytes,1,rep,name=revisions" json:"revisions,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
 	XXX_sizecache        int32             `json:"-"`
@@ -121,7 +121,7 @@ func (m *ImageStatus) Reset()         { *m = ImageStatus{} }
 func (m *ImageStatus) String() string { return proto.CompactTextString(m) }
 func (*ImageStatus) ProtoMessage()    {}
 func (*ImageStatus) Descriptor() ([]byte, []int) {
-	return fileDescriptor_image_7088450ac06f9d8c, []int{2}
+	return fileDescriptor_image_ec488839fae0cb5a, []int{2}
 }
 func (m *ImageStatus) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ImageStatus.Unmarshal(m, b)
@@ -158,7 +158,7 @@ func (m *ListImagesRequest) Reset()         { *m = ListImagesRequest{} }
 func (m *ListImagesRequest) String() string { return proto.CompactTextString(m) }
 func (*ListImagesRequest) ProtoMessage()    {}
 func (*ListImagesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_image_7088450ac06f9d8c, []int{3}
+	return fileDescriptor_image_ec488839fae0cb5a, []int{3}
 }
 func (m *ListImagesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListImagesRequest.Unmarshal(m, b)
@@ -179,7 +179,7 @@ func (m *ListImagesRequest) XXX_DiscardUnknown() {
 var xxx_messageInfo_ListImagesRequest proto.InternalMessageInfo
 
 type ListImagesResponse struct {
-	Images               []*Image `protobuf:"bytes,1,rep,name=images,proto3" json:"images,omitempty"`
+	Images               []*Image `protobuf:"bytes,1,rep,name=images" json:"images,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -189,7 +189,7 @@ func (m *ListImagesResponse) Reset()         { *m = ListImagesResponse{} }
 func (m *ListImagesResponse) String() string { return proto.CompactTextString(m) }
 func (*ListImagesResponse) ProtoMessage()    {}
 func (*ListImagesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_image_7088450ac06f9d8c, []int{4}
+	return fileDescriptor_image_ec488839fae0cb5a, []int{4}
 }
 func (m *ListImagesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListImagesResponse.Unmarshal(m, b)
@@ -217,7 +217,7 @@ func (m *ListImagesResponse) GetImages() []*Image {
 }
 
 type GetImageRequest struct {
-	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Name                 string   `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -227,7 +227,7 @@ func (m *GetImageRequest) Reset()         { *m = GetImageRequest{} }
 func (m *GetImageRequest) String() string { return proto.CompactTextString(m) }
 func (*GetImageRequest) ProtoMessage()    {}
 func (*GetImageRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_image_7088450ac06f9d8c, []int{5}
+	return fileDescriptor_image_ec488839fae0cb5a, []int{5}
 }
 func (m *GetImageRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetImageRequest.Unmarshal(m, b)
@@ -255,8 +255,8 @@ func (m *GetImageRequest) GetName() string {
 }
 
 type ApplyImageRequest struct {
-	Metadata             *v0.Metadata `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	Spec                 *ImageSpec   `protobuf:"bytes,2,opt,name=spec,proto3" json:"spec,omitempty"`
+	Metadata             *v0.Metadata `protobuf:"bytes,1,opt,name=metadata" json:"metadata,omitempty"`
+	Spec                 *ImageSpec   `protobuf:"bytes,2,opt,name=spec" json:"spec,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
 	XXX_unrecognized     []byte       `json:"-"`
 	XXX_sizecache        int32        `json:"-"`
@@ -266,7 +266,7 @@ func (m *ApplyImageRequest) Reset()         { *m = ApplyImageRequest{} }
 func (m *ApplyImageRequest) String() string { return proto.CompactTextString(m) }
 func (*ApplyImageRequest) ProtoMessage()    {}
 func (*ApplyImageRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_image_7088450ac06f9d8c, []int{6}
+	return fileDescriptor_image_ec488839fae0cb5a, []int{6}
 }
 func (m *ApplyImageRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ApplyImageRequest.Unmarshal(m, b)
@@ -301,7 +301,7 @@ func (m *ApplyImageRequest) GetSpec() *ImageSpec {
 }
 
 type DeleteImageRequest struct {
-	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Name                 string   `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -311,7 +311,7 @@ func (m *DeleteImageRequest) Reset()         { *m = DeleteImageRequest{} }
 func (m *DeleteImageRequest) String() string { return proto.CompactTextString(m) }
 func (*DeleteImageRequest) ProtoMessage()    {}
 func (*DeleteImageRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_image_7088450ac06f9d8c, []int{7}
+	return fileDescriptor_image_ec488839fae0cb5a, []int{7}
 }
 func (m *DeleteImageRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteImageRequest.Unmarshal(m, b)
@@ -358,9 +358,8 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// ImageServiceClient is the client API for ImageService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+// Client API for ImageService service
+
 type ImageServiceClient interface {
 	ListImages(ctx context.Context, in *ListImagesRequest, opts ...grpc.CallOption) (*ListImagesResponse, error)
 	GetImage(ctx context.Context, in *GetImageRequest, opts ...grpc.CallOption) (*Image, error)
@@ -378,7 +377,7 @@ func NewImageServiceClient(cc *grpc.ClientConn) ImageServiceClient {
 
 func (c *imageServiceClient) ListImages(ctx context.Context, in *ListImagesRequest, opts ...grpc.CallOption) (*ListImagesResponse, error) {
 	out := new(ListImagesResponse)
-	err := c.cc.Invoke(ctx, "/n0stack.provisioning.ImageService/ListImages", in, out, opts...)
+	err := grpc.Invoke(ctx, "/n0stack.provisioning.ImageService/ListImages", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -387,7 +386,7 @@ func (c *imageServiceClient) ListImages(ctx context.Context, in *ListImagesReque
 
 func (c *imageServiceClient) GetImage(ctx context.Context, in *GetImageRequest, opts ...grpc.CallOption) (*Image, error) {
 	out := new(Image)
-	err := c.cc.Invoke(ctx, "/n0stack.provisioning.ImageService/GetImage", in, out, opts...)
+	err := grpc.Invoke(ctx, "/n0stack.provisioning.ImageService/GetImage", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -396,7 +395,7 @@ func (c *imageServiceClient) GetImage(ctx context.Context, in *GetImageRequest, 
 
 func (c *imageServiceClient) ApplyImage(ctx context.Context, in *ApplyImageRequest, opts ...grpc.CallOption) (*Image, error) {
 	out := new(Image)
-	err := c.cc.Invoke(ctx, "/n0stack.provisioning.ImageService/ApplyImage", in, out, opts...)
+	err := grpc.Invoke(ctx, "/n0stack.provisioning.ImageService/ApplyImage", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -405,14 +404,15 @@ func (c *imageServiceClient) ApplyImage(ctx context.Context, in *ApplyImageReque
 
 func (c *imageServiceClient) DeleteImage(ctx context.Context, in *DeleteImageRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
 	out := new(empty.Empty)
-	err := c.cc.Invoke(ctx, "/n0stack.provisioning.ImageService/DeleteImage", in, out, opts...)
+	err := grpc.Invoke(ctx, "/n0stack.provisioning.ImageService/DeleteImage", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ImageServiceServer is the server API for ImageService service.
+// Server API for ImageService service
+
 type ImageServiceServer interface {
 	ListImages(context.Context, *ListImagesRequest) (*ListImagesResponse, error)
 	GetImage(context.Context, *GetImageRequest) (*Image, error)
@@ -521,11 +521,11 @@ var _ImageService_serviceDesc = grpc.ServiceDesc{
 	Metadata: "provisioning/v0/image.proto",
 }
 
-func init() { proto.RegisterFile("provisioning/v0/image.proto", fileDescriptor_image_7088450ac06f9d8c) }
+func init() { proto.RegisterFile("provisioning/v0/image.proto", fileDescriptor_image_ec488839fae0cb5a) }
 
-var fileDescriptor_image_7088450ac06f9d8c = []byte{
+var fileDescriptor_image_ec488839fae0cb5a = []byte{
 	// 459 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xbc, 0x54, 0x4d, 0x6f, 0xd3, 0x40,
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x54, 0x4d, 0x6f, 0xd3, 0x40,
 	0x10, 0x8d, 0x93, 0x36, 0x6a, 0xc6, 0x08, 0xc8, 0x50, 0xa1, 0xc8, 0x39, 0x50, 0x56, 0xaa, 0xc8,
 	0x85, 0x75, 0x94, 0x5c, 0x28, 0xe5, 0x02, 0xa2, 0x42, 0x95, 0x00, 0x81, 0xe1, 0xc4, 0xcd, 0x31,
 	0x83, 0xb1, 0x1a, 0x7b, 0x17, 0xef, 0xda, 0x28, 0xbf, 0x85, 0x3b, 0xbf, 0x8e, 0x1f, 0x81, 0xb2,

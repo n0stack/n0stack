@@ -39,16 +39,16 @@ func (x Component_ComponentState) String() string {
 	return proto.EnumName(Component_ComponentState_name, int32(x))
 }
 func (Component_ComponentState) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_component_30a356b0e71ef218, []int{0, 0}
+	return fileDescriptor_component_868531a4f0453e78, []int{0, 0}
 }
 
 // ComponentとはモデルをWatchすることで機能を提供するアドオンのようなもの
 // Modelにつき０個以上のComponentが関連づく
 // すべてのComponentがOKの場合、正常に動作していると見ることができる
 type Component struct {
-	Service              string                   `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty"`
-	Annotations          map[string]string        `protobuf:"bytes,2,rep,name=annotations,proto3" json:"annotations,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	State                Component_ComponentState `protobuf:"varint,3,opt,name=state,proto3,enum=n0stack.Component_ComponentState" json:"state,omitempty"`
+	Service              string                   `protobuf:"bytes,1,opt,name=service" json:"service,omitempty"`
+	Annotations          map[string]string        `protobuf:"bytes,2,rep,name=annotations" json:"annotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	State                Component_ComponentState `protobuf:"varint,3,opt,name=state,enum=n0stack.Component_ComponentState" json:"state,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}                 `json:"-"`
 	XXX_unrecognized     []byte                   `json:"-"`
 	XXX_sizecache        int32                    `json:"-"`
@@ -58,7 +58,7 @@ func (m *Component) Reset()         { *m = Component{} }
 func (m *Component) String() string { return proto.CompactTextString(m) }
 func (*Component) ProtoMessage()    {}
 func (*Component) Descriptor() ([]byte, []int) {
-	return fileDescriptor_component_30a356b0e71ef218, []int{0}
+	return fileDescriptor_component_868531a4f0453e78, []int{0}
 }
 func (m *Component) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Component.Unmarshal(m, b)
@@ -105,11 +105,11 @@ func init() {
 	proto.RegisterEnum("n0stack.Component_ComponentState", Component_ComponentState_name, Component_ComponentState_value)
 }
 
-func init() { proto.RegisterFile("v0/component.proto", fileDescriptor_component_30a356b0e71ef218) }
+func init() { proto.RegisterFile("v0/component.proto", fileDescriptor_component_868531a4f0453e78) }
 
-var fileDescriptor_component_30a356b0e71ef218 = []byte{
+var fileDescriptor_component_868531a4f0453e78 = []byte{
 	// 245 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xe2, 0x12, 0x2a, 0x33, 0xd0, 0x4f,
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0x2a, 0x33, 0xd0, 0x4f,
 	0xce, 0xcf, 0x2d, 0xc8, 0xcf, 0x4b, 0xcd, 0x2b, 0xd1, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62,
 	0xcf, 0x33, 0x28, 0x2e, 0x49, 0x4c, 0xce, 0x56, 0xea, 0x64, 0xe2, 0xe2, 0x74, 0x86, 0x49, 0x0a,
 	0x49, 0x70, 0xb1, 0x17, 0xa7, 0x16, 0x95, 0x65, 0x26, 0xa7, 0x4a, 0x30, 0x2a, 0x30, 0x6a, 0x70,

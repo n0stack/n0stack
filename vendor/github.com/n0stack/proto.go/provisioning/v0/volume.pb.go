@@ -54,14 +54,14 @@ func (x VolumeStatus_VolumeState) String() string {
 	return proto.EnumName(VolumeStatus_VolumeState_name, int32(x))
 }
 func (VolumeStatus_VolumeState) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_volume_c6f9c0daf1fbb1ff, []int{2, 0}
+	return fileDescriptor_volume_08715afa3ee6a074, []int{2, 0}
 }
 
 type Volume struct {
-	Metadata             *v0.Metadata    `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	Spec                 *VolumeSpec     `protobuf:"bytes,2,opt,name=spec,proto3" json:"spec,omitempty"`
-	Status               *VolumeStatus   `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
-	Components           []*v0.Component `protobuf:"bytes,4,rep,name=components,proto3" json:"components,omitempty"`
+	Metadata             *v0.Metadata    `protobuf:"bytes,1,opt,name=metadata" json:"metadata,omitempty"`
+	Spec                 *VolumeSpec     `protobuf:"bytes,2,opt,name=spec" json:"spec,omitempty"`
+	Status               *VolumeStatus   `protobuf:"bytes,3,opt,name=status" json:"status,omitempty"`
+	Components           []*v0.Component `protobuf:"bytes,4,rep,name=components" json:"components,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}        `json:"-"`
 	XXX_unrecognized     []byte          `json:"-"`
 	XXX_sizecache        int32           `json:"-"`
@@ -71,7 +71,7 @@ func (m *Volume) Reset()         { *m = Volume{} }
 func (m *Volume) String() string { return proto.CompactTextString(m) }
 func (*Volume) ProtoMessage()    {}
 func (*Volume) Descriptor() ([]byte, []int) {
-	return fileDescriptor_volume_c6f9c0daf1fbb1ff, []int{0}
+	return fileDescriptor_volume_08715afa3ee6a074, []int{0}
 }
 func (m *Volume) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Volume.Unmarshal(m, b)
@@ -120,7 +120,7 @@ func (m *Volume) GetComponents() []*v0.Component {
 }
 
 type VolumeSpec struct {
-	Bytes                uint64   `protobuf:"varint,1,opt,name=bytes,proto3" json:"bytes,omitempty"`
+	Bytes                uint64   `protobuf:"varint,1,opt,name=bytes" json:"bytes,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -130,7 +130,7 @@ func (m *VolumeSpec) Reset()         { *m = VolumeSpec{} }
 func (m *VolumeSpec) String() string { return proto.CompactTextString(m) }
 func (*VolumeSpec) ProtoMessage()    {}
 func (*VolumeSpec) Descriptor() ([]byte, []int) {
-	return fileDescriptor_volume_c6f9c0daf1fbb1ff, []int{1}
+	return fileDescriptor_volume_08715afa3ee6a074, []int{1}
 }
 func (m *VolumeSpec) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_VolumeSpec.Unmarshal(m, b)
@@ -158,7 +158,7 @@ func (m *VolumeSpec) GetBytes() uint64 {
 }
 
 type VolumeStatus struct {
-	State                VolumeStatus_VolumeState `protobuf:"varint,1,opt,name=state,proto3,enum=n0stack.provisioning.VolumeStatus_VolumeState" json:"state,omitempty"`
+	State                VolumeStatus_VolumeState `protobuf:"varint,1,opt,name=state,enum=n0stack.provisioning.VolumeStatus_VolumeState" json:"state,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}                 `json:"-"`
 	XXX_unrecognized     []byte                   `json:"-"`
 	XXX_sizecache        int32                    `json:"-"`
@@ -168,7 +168,7 @@ func (m *VolumeStatus) Reset()         { *m = VolumeStatus{} }
 func (m *VolumeStatus) String() string { return proto.CompactTextString(m) }
 func (*VolumeStatus) ProtoMessage()    {}
 func (*VolumeStatus) Descriptor() ([]byte, []int) {
-	return fileDescriptor_volume_c6f9c0daf1fbb1ff, []int{2}
+	return fileDescriptor_volume_08715afa3ee6a074, []int{2}
 }
 func (m *VolumeStatus) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_VolumeStatus.Unmarshal(m, b)
@@ -205,7 +205,7 @@ func (m *ListVolumesRequest) Reset()         { *m = ListVolumesRequest{} }
 func (m *ListVolumesRequest) String() string { return proto.CompactTextString(m) }
 func (*ListVolumesRequest) ProtoMessage()    {}
 func (*ListVolumesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_volume_c6f9c0daf1fbb1ff, []int{3}
+	return fileDescriptor_volume_08715afa3ee6a074, []int{3}
 }
 func (m *ListVolumesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListVolumesRequest.Unmarshal(m, b)
@@ -226,7 +226,7 @@ func (m *ListVolumesRequest) XXX_DiscardUnknown() {
 var xxx_messageInfo_ListVolumesRequest proto.InternalMessageInfo
 
 type ListVolumesResponse struct {
-	Volumes              []*Volume `protobuf:"bytes,1,rep,name=volumes,proto3" json:"volumes,omitempty"`
+	Volumes              []*Volume `protobuf:"bytes,1,rep,name=volumes" json:"volumes,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
 	XXX_unrecognized     []byte    `json:"-"`
 	XXX_sizecache        int32     `json:"-"`
@@ -236,7 +236,7 @@ func (m *ListVolumesResponse) Reset()         { *m = ListVolumesResponse{} }
 func (m *ListVolumesResponse) String() string { return proto.CompactTextString(m) }
 func (*ListVolumesResponse) ProtoMessage()    {}
 func (*ListVolumesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_volume_c6f9c0daf1fbb1ff, []int{4}
+	return fileDescriptor_volume_08715afa3ee6a074, []int{4}
 }
 func (m *ListVolumesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListVolumesResponse.Unmarshal(m, b)
@@ -264,7 +264,7 @@ func (m *ListVolumesResponse) GetVolumes() []*Volume {
 }
 
 type GetVolumeRequest struct {
-	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Name                 string   `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -274,7 +274,7 @@ func (m *GetVolumeRequest) Reset()         { *m = GetVolumeRequest{} }
 func (m *GetVolumeRequest) String() string { return proto.CompactTextString(m) }
 func (*GetVolumeRequest) ProtoMessage()    {}
 func (*GetVolumeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_volume_c6f9c0daf1fbb1ff, []int{5}
+	return fileDescriptor_volume_08715afa3ee6a074, []int{5}
 }
 func (m *GetVolumeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetVolumeRequest.Unmarshal(m, b)
@@ -302,8 +302,8 @@ func (m *GetVolumeRequest) GetName() string {
 }
 
 type ApplyVolumeRequest struct {
-	Metadata             *v0.Metadata `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	Spec                 *VolumeSpec  `protobuf:"bytes,2,opt,name=spec,proto3" json:"spec,omitempty"`
+	Metadata             *v0.Metadata `protobuf:"bytes,1,opt,name=metadata" json:"metadata,omitempty"`
+	Spec                 *VolumeSpec  `protobuf:"bytes,2,opt,name=spec" json:"spec,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
 	XXX_unrecognized     []byte       `json:"-"`
 	XXX_sizecache        int32        `json:"-"`
@@ -313,7 +313,7 @@ func (m *ApplyVolumeRequest) Reset()         { *m = ApplyVolumeRequest{} }
 func (m *ApplyVolumeRequest) String() string { return proto.CompactTextString(m) }
 func (*ApplyVolumeRequest) ProtoMessage()    {}
 func (*ApplyVolumeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_volume_c6f9c0daf1fbb1ff, []int{6}
+	return fileDescriptor_volume_08715afa3ee6a074, []int{6}
 }
 func (m *ApplyVolumeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ApplyVolumeRequest.Unmarshal(m, b)
@@ -348,7 +348,7 @@ func (m *ApplyVolumeRequest) GetSpec() *VolumeSpec {
 }
 
 type DeleteVolumeRequest struct {
-	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Name                 string   `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -358,7 +358,7 @@ func (m *DeleteVolumeRequest) Reset()         { *m = DeleteVolumeRequest{} }
 func (m *DeleteVolumeRequest) String() string { return proto.CompactTextString(m) }
 func (*DeleteVolumeRequest) ProtoMessage()    {}
 func (*DeleteVolumeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_volume_c6f9c0daf1fbb1ff, []int{7}
+	return fileDescriptor_volume_08715afa3ee6a074, []int{7}
 }
 func (m *DeleteVolumeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteVolumeRequest.Unmarshal(m, b)
@@ -405,9 +405,8 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// VolumeServiceClient is the client API for VolumeService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+// Client API for VolumeService service
+
 type VolumeServiceClient interface {
 	ListVolumes(ctx context.Context, in *ListVolumesRequest, opts ...grpc.CallOption) (*ListVolumesResponse, error)
 	GetVolume(ctx context.Context, in *GetVolumeRequest, opts ...grpc.CallOption) (*Volume, error)
@@ -425,7 +424,7 @@ func NewVolumeServiceClient(cc *grpc.ClientConn) VolumeServiceClient {
 
 func (c *volumeServiceClient) ListVolumes(ctx context.Context, in *ListVolumesRequest, opts ...grpc.CallOption) (*ListVolumesResponse, error) {
 	out := new(ListVolumesResponse)
-	err := c.cc.Invoke(ctx, "/n0stack.provisioning.VolumeService/ListVolumes", in, out, opts...)
+	err := grpc.Invoke(ctx, "/n0stack.provisioning.VolumeService/ListVolumes", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -434,7 +433,7 @@ func (c *volumeServiceClient) ListVolumes(ctx context.Context, in *ListVolumesRe
 
 func (c *volumeServiceClient) GetVolume(ctx context.Context, in *GetVolumeRequest, opts ...grpc.CallOption) (*Volume, error) {
 	out := new(Volume)
-	err := c.cc.Invoke(ctx, "/n0stack.provisioning.VolumeService/GetVolume", in, out, opts...)
+	err := grpc.Invoke(ctx, "/n0stack.provisioning.VolumeService/GetVolume", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -443,7 +442,7 @@ func (c *volumeServiceClient) GetVolume(ctx context.Context, in *GetVolumeReques
 
 func (c *volumeServiceClient) ApplyVolume(ctx context.Context, in *ApplyVolumeRequest, opts ...grpc.CallOption) (*Volume, error) {
 	out := new(Volume)
-	err := c.cc.Invoke(ctx, "/n0stack.provisioning.VolumeService/ApplyVolume", in, out, opts...)
+	err := grpc.Invoke(ctx, "/n0stack.provisioning.VolumeService/ApplyVolume", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -452,14 +451,15 @@ func (c *volumeServiceClient) ApplyVolume(ctx context.Context, in *ApplyVolumeRe
 
 func (c *volumeServiceClient) DeleteVolume(ctx context.Context, in *DeleteVolumeRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
 	out := new(empty.Empty)
-	err := c.cc.Invoke(ctx, "/n0stack.provisioning.VolumeService/DeleteVolume", in, out, opts...)
+	err := grpc.Invoke(ctx, "/n0stack.provisioning.VolumeService/DeleteVolume", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// VolumeServiceServer is the server API for VolumeService service.
+// Server API for VolumeService service
+
 type VolumeServiceServer interface {
 	ListVolumes(context.Context, *ListVolumesRequest) (*ListVolumesResponse, error)
 	GetVolume(context.Context, *GetVolumeRequest) (*Volume, error)
@@ -569,12 +569,12 @@ var _VolumeService_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("provisioning/v0/volume.proto", fileDescriptor_volume_c6f9c0daf1fbb1ff)
+	proto.RegisterFile("provisioning/v0/volume.proto", fileDescriptor_volume_08715afa3ee6a074)
 }
 
-var fileDescriptor_volume_c6f9c0daf1fbb1ff = []byte{
+var fileDescriptor_volume_08715afa3ee6a074 = []byte{
 	// 520 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xbc, 0x94, 0xcf, 0x6e, 0xda, 0x40,
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x94, 0xcf, 0x6e, 0xda, 0x40,
 	0x10, 0xc6, 0x21, 0x10, 0x52, 0xc6, 0x49, 0x45, 0x26, 0xa8, 0x42, 0x34, 0x07, 0xb4, 0x87, 0x88,
 	0x1c, 0xba, 0x46, 0xb4, 0xaa, 0xd4, 0xe6, 0x04, 0x85, 0x46, 0xa8, 0x84, 0x56, 0x46, 0x4d, 0xa4,
 	0xde, 0x8c, 0xb3, 0xa5, 0x56, 0xb1, 0x77, 0xcb, 0xae, 0x2d, 0xf1, 0x26, 0x7d, 0xb9, 0xbe, 0x47,

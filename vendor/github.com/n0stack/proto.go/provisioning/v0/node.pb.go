@@ -45,14 +45,14 @@ func (x NodeStatus_NodeState) String() string {
 	return proto.EnumName(NodeStatus_NodeState_name, int32(x))
 }
 func (NodeStatus_NodeState) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_node_2230fc178ce85023, []int{2, 0}
+	return fileDescriptor_node_e75bcb157e49d54f, []int{2, 0}
 }
 
 type Node struct {
-	Metadata             *v0.Metadata    `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	Spec                 *NodeSpec       `protobuf:"bytes,2,opt,name=spec,proto3" json:"spec,omitempty"`
-	Status               *NodeStatus     `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
-	Components           []*v0.Component `protobuf:"bytes,4,rep,name=components,proto3" json:"components,omitempty"`
+	Metadata             *v0.Metadata    `protobuf:"bytes,1,opt,name=metadata" json:"metadata,omitempty"`
+	Spec                 *NodeSpec       `protobuf:"bytes,2,opt,name=spec" json:"spec,omitempty"`
+	Status               *NodeStatus     `protobuf:"bytes,3,opt,name=status" json:"status,omitempty"`
+	Components           []*v0.Component `protobuf:"bytes,4,rep,name=components" json:"components,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}        `json:"-"`
 	XXX_unrecognized     []byte          `json:"-"`
 	XXX_sizecache        int32           `json:"-"`
@@ -62,7 +62,7 @@ func (m *Node) Reset()         { *m = Node{} }
 func (m *Node) String() string { return proto.CompactTextString(m) }
 func (*Node) ProtoMessage()    {}
 func (*Node) Descriptor() ([]byte, []int) {
-	return fileDescriptor_node_2230fc178ce85023, []int{0}
+	return fileDescriptor_node_e75bcb157e49d54f, []int{0}
 }
 func (m *Node) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Node.Unmarshal(m, b)
@@ -111,10 +111,10 @@ func (m *Node) GetComponents() []*v0.Component {
 }
 
 type NodeSpec struct {
-	Address              string                        `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
-	Endpoints            map[uint32]*NodeSpec_Endpoint `protobuf:"bytes,2,rep,name=endpoints,proto3" json:"endpoints,omitempty" protobuf_key:"varint,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	IpmiAddress          string                        `protobuf:"bytes,3,opt,name=ipmi_address,json=ipmiAddress,proto3" json:"ipmi_address,omitempty"`
-	Serial               string                        `protobuf:"bytes,4,opt,name=serial,proto3" json:"serial,omitempty"`
+	Address              string                        `protobuf:"bytes,1,opt,name=address" json:"address,omitempty"`
+	Endpoints            map[uint32]*NodeSpec_Endpoint `protobuf:"bytes,2,rep,name=endpoints" json:"endpoints,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	IpmiAddress          string                        `protobuf:"bytes,3,opt,name=ipmi_address,json=ipmiAddress" json:"ipmi_address,omitempty"`
+	Serial               string                        `protobuf:"bytes,4,opt,name=serial" json:"serial,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}                      `json:"-"`
 	XXX_unrecognized     []byte                        `json:"-"`
 	XXX_sizecache        int32                         `json:"-"`
@@ -124,7 +124,7 @@ func (m *NodeSpec) Reset()         { *m = NodeSpec{} }
 func (m *NodeSpec) String() string { return proto.CompactTextString(m) }
 func (*NodeSpec) ProtoMessage()    {}
 func (*NodeSpec) Descriptor() ([]byte, []int) {
-	return fileDescriptor_node_2230fc178ce85023, []int{1}
+	return fileDescriptor_node_e75bcb157e49d54f, []int{1}
 }
 func (m *NodeSpec) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_NodeSpec.Unmarshal(m, b)
@@ -174,8 +174,8 @@ func (m *NodeSpec) GetSerial() string {
 
 // Map of port and service description
 type NodeSpec_Endpoint struct {
-	Service              string   `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty"`
-	Version              string   `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`
+	Service              string   `protobuf:"bytes,1,opt,name=service" json:"service,omitempty"`
+	Version              string   `protobuf:"bytes,2,opt,name=version" json:"version,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -185,7 +185,7 @@ func (m *NodeSpec_Endpoint) Reset()         { *m = NodeSpec_Endpoint{} }
 func (m *NodeSpec_Endpoint) String() string { return proto.CompactTextString(m) }
 func (*NodeSpec_Endpoint) ProtoMessage()    {}
 func (*NodeSpec_Endpoint) Descriptor() ([]byte, []int) {
-	return fileDescriptor_node_2230fc178ce85023, []int{1, 0}
+	return fileDescriptor_node_e75bcb157e49d54f, []int{1, 0}
 }
 func (m *NodeSpec_Endpoint) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_NodeSpec_Endpoint.Unmarshal(m, b)
@@ -220,7 +220,7 @@ func (m *NodeSpec_Endpoint) GetVersion() string {
 }
 
 type NodeStatus struct {
-	State                NodeStatus_NodeState `protobuf:"varint,1,opt,name=state,proto3,enum=n0stack.provisioning.NodeStatus_NodeState" json:"state,omitempty"`
+	State                NodeStatus_NodeState `protobuf:"varint,1,opt,name=state,enum=n0stack.provisioning.NodeStatus_NodeState" json:"state,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
 	XXX_unrecognized     []byte               `json:"-"`
 	XXX_sizecache        int32                `json:"-"`
@@ -230,7 +230,7 @@ func (m *NodeStatus) Reset()         { *m = NodeStatus{} }
 func (m *NodeStatus) String() string { return proto.CompactTextString(m) }
 func (*NodeStatus) ProtoMessage()    {}
 func (*NodeStatus) Descriptor() ([]byte, []int) {
-	return fileDescriptor_node_2230fc178ce85023, []int{2}
+	return fileDescriptor_node_e75bcb157e49d54f, []int{2}
 }
 func (m *NodeStatus) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_NodeStatus.Unmarshal(m, b)
@@ -267,7 +267,7 @@ func (m *ListNodesRequest) Reset()         { *m = ListNodesRequest{} }
 func (m *ListNodesRequest) String() string { return proto.CompactTextString(m) }
 func (*ListNodesRequest) ProtoMessage()    {}
 func (*ListNodesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_node_2230fc178ce85023, []int{3}
+	return fileDescriptor_node_e75bcb157e49d54f, []int{3}
 }
 func (m *ListNodesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNodesRequest.Unmarshal(m, b)
@@ -288,7 +288,7 @@ func (m *ListNodesRequest) XXX_DiscardUnknown() {
 var xxx_messageInfo_ListNodesRequest proto.InternalMessageInfo
 
 type ListNodesResponse struct {
-	Nodes                []*Node  `protobuf:"bytes,1,rep,name=nodes,proto3" json:"nodes,omitempty"`
+	Nodes                []*Node  `protobuf:"bytes,1,rep,name=nodes" json:"nodes,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -298,7 +298,7 @@ func (m *ListNodesResponse) Reset()         { *m = ListNodesResponse{} }
 func (m *ListNodesResponse) String() string { return proto.CompactTextString(m) }
 func (*ListNodesResponse) ProtoMessage()    {}
 func (*ListNodesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_node_2230fc178ce85023, []int{4}
+	return fileDescriptor_node_e75bcb157e49d54f, []int{4}
 }
 func (m *ListNodesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNodesResponse.Unmarshal(m, b)
@@ -326,7 +326,7 @@ func (m *ListNodesResponse) GetNodes() []*Node {
 }
 
 type GetNodeRequest struct {
-	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Name                 string   `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -336,7 +336,7 @@ func (m *GetNodeRequest) Reset()         { *m = GetNodeRequest{} }
 func (m *GetNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*GetNodeRequest) ProtoMessage()    {}
 func (*GetNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_node_2230fc178ce85023, []int{5}
+	return fileDescriptor_node_e75bcb157e49d54f, []int{5}
 }
 func (m *GetNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetNodeRequest.Unmarshal(m, b)
@@ -364,8 +364,8 @@ func (m *GetNodeRequest) GetName() string {
 }
 
 type ApplyNodeRequest struct {
-	Metadata             *v0.Metadata `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	Spec                 *NodeSpec    `protobuf:"bytes,2,opt,name=spec,proto3" json:"spec,omitempty"`
+	Metadata             *v0.Metadata `protobuf:"bytes,1,opt,name=metadata" json:"metadata,omitempty"`
+	Spec                 *NodeSpec    `protobuf:"bytes,2,opt,name=spec" json:"spec,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
 	XXX_unrecognized     []byte       `json:"-"`
 	XXX_sizecache        int32        `json:"-"`
@@ -375,7 +375,7 @@ func (m *ApplyNodeRequest) Reset()         { *m = ApplyNodeRequest{} }
 func (m *ApplyNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*ApplyNodeRequest) ProtoMessage()    {}
 func (*ApplyNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_node_2230fc178ce85023, []int{6}
+	return fileDescriptor_node_e75bcb157e49d54f, []int{6}
 }
 func (m *ApplyNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ApplyNodeRequest.Unmarshal(m, b)
@@ -410,7 +410,7 @@ func (m *ApplyNodeRequest) GetSpec() *NodeSpec {
 }
 
 type DeleteNodeRequest struct {
-	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Name                 string   `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -420,7 +420,7 @@ func (m *DeleteNodeRequest) Reset()         { *m = DeleteNodeRequest{} }
 func (m *DeleteNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*DeleteNodeRequest) ProtoMessage()    {}
 func (*DeleteNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_node_2230fc178ce85023, []int{7}
+	return fileDescriptor_node_e75bcb157e49d54f, []int{7}
 }
 func (m *DeleteNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteNodeRequest.Unmarshal(m, b)
@@ -469,9 +469,8 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// NodeServiceClient is the client API for NodeService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+// Client API for NodeService service
+
 type NodeServiceClient interface {
 	ListNodes(ctx context.Context, in *ListNodesRequest, opts ...grpc.CallOption) (*ListNodesResponse, error)
 	// 指定したIDのNodeオブジェクトをかえす
@@ -490,7 +489,7 @@ func NewNodeServiceClient(cc *grpc.ClientConn) NodeServiceClient {
 
 func (c *nodeServiceClient) ListNodes(ctx context.Context, in *ListNodesRequest, opts ...grpc.CallOption) (*ListNodesResponse, error) {
 	out := new(ListNodesResponse)
-	err := c.cc.Invoke(ctx, "/n0stack.provisioning.NodeService/ListNodes", in, out, opts...)
+	err := grpc.Invoke(ctx, "/n0stack.provisioning.NodeService/ListNodes", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -499,7 +498,7 @@ func (c *nodeServiceClient) ListNodes(ctx context.Context, in *ListNodesRequest,
 
 func (c *nodeServiceClient) GetNode(ctx context.Context, in *GetNodeRequest, opts ...grpc.CallOption) (*Node, error) {
 	out := new(Node)
-	err := c.cc.Invoke(ctx, "/n0stack.provisioning.NodeService/GetNode", in, out, opts...)
+	err := grpc.Invoke(ctx, "/n0stack.provisioning.NodeService/GetNode", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -508,7 +507,7 @@ func (c *nodeServiceClient) GetNode(ctx context.Context, in *GetNodeRequest, opt
 
 func (c *nodeServiceClient) ApplyNode(ctx context.Context, in *ApplyNodeRequest, opts ...grpc.CallOption) (*Node, error) {
 	out := new(Node)
-	err := c.cc.Invoke(ctx, "/n0stack.provisioning.NodeService/ApplyNode", in, out, opts...)
+	err := grpc.Invoke(ctx, "/n0stack.provisioning.NodeService/ApplyNode", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -517,14 +516,15 @@ func (c *nodeServiceClient) ApplyNode(ctx context.Context, in *ApplyNodeRequest,
 
 func (c *nodeServiceClient) DeleteNode(ctx context.Context, in *DeleteNodeRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
 	out := new(empty.Empty)
-	err := c.cc.Invoke(ctx, "/n0stack.provisioning.NodeService/DeleteNode", in, out, opts...)
+	err := grpc.Invoke(ctx, "/n0stack.provisioning.NodeService/DeleteNode", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// NodeServiceServer is the server API for NodeService service.
+// Server API for NodeService service
+
 type NodeServiceServer interface {
 	ListNodes(context.Context, *ListNodesRequest) (*ListNodesResponse, error)
 	// 指定したIDのNodeオブジェクトをかえす
@@ -634,11 +634,11 @@ var _NodeService_serviceDesc = grpc.ServiceDesc{
 	Metadata: "provisioning/v0/node.proto",
 }
 
-func init() { proto.RegisterFile("provisioning/v0/node.proto", fileDescriptor_node_2230fc178ce85023) }
+func init() { proto.RegisterFile("provisioning/v0/node.proto", fileDescriptor_node_e75bcb157e49d54f) }
 
-var fileDescriptor_node_2230fc178ce85023 = []byte{
+var fileDescriptor_node_e75bcb157e49d54f = []byte{
 	// 598 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xb4, 0x54, 0x4d, 0x6f, 0xd3, 0x40,
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x54, 0x4d, 0x6f, 0xd3, 0x40,
 	0x10, 0xcd, 0x67, 0x5b, 0x4f, 0x4a, 0x95, 0x8c, 0x50, 0x15, 0x19, 0x09, 0x95, 0x55, 0x45, 0x2b,
 	0xa4, 0xda, 0x51, 0xb8, 0x14, 0x2a, 0x10, 0x05, 0x22, 0x0e, 0x50, 0x10, 0xcb, 0x8d, 0x03, 0xc8,
 	0x8d, 0x87, 0x60, 0x35, 0xf1, 0x2e, 0xde, 0x8d, 0xa5, 0xfc, 0x4e, 0x0e, 0x5c, 0xf9, 0x29, 0x68,
