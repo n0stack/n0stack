@@ -93,7 +93,7 @@ func (q *Qemu) virtioBlkPCIAdd(devID, driveID string, bootIndex uint) error {
 		Drive     string `json:"drive"`
 		Bus       string `json:"bus"`
 		Scsi      string `json:"scsi"`
-		bootIndex string `json:"bootindex"`
+		BootIndex string `json:"bootindex"`
 	}{
 		"virtio-blk-pci",
 		devID,
@@ -166,7 +166,7 @@ func (q *Qemu) scsiCDAdd(devID, driveID string, bootIndex uint) error {
 		ID        string `json:"id"`
 		Drive     string `json:"drive"`
 		Bus       string `json:"bus"`
-		bootIndex string `json:"bootindex"`
+		BootIndex string `json:"bootindex"`
 	}{
 		"scsi-cd",
 		devID,
