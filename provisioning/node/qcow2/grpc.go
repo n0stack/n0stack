@@ -2,7 +2,9 @@ package qcow2
 
 import (
 	fmt "fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"net/url"
 	"os"
 	"os/exec"
@@ -70,8 +72,34 @@ func (a Qcow2Agent) ApplyQcow2(ctx context.Context, req *ApplyQcow2Request) (*Qc
 	return req.Qcow2, nil
 }
 
-func (a Qcow2Agent) DownloadQcow2(context.Context, *DownloadQcow2Request) (*Qcow2, error) {
-	return nil, nil
+func (a Qcow2Agent) DownloadQcow2(ctx context.Context, req *DownloadQcow2Request) (*Qcow2, error) {
+	u, err := url.Parse(req.Qcow2.Url)
+	if err != nil {
+		return nil, grpc.Errorf(codes.InvalidArgument, "Failed to parse url, err:%v.", err.Error())
+	}
+
+	if a.qcow2IsExist(u) {
+		// need to implement resizing.
+		return req.Qcow2, grpc.Errorf(codes.AlreadyExists, "")
+	}
+
+	// Download qcow2 img
+	response, err := http.Get(req.SourceUrl)
+	if err != nil {
+		return nil, grpc.Errorf(codes.InvalidArgument, "Failed to parse SourceUrl, err:%v.", err.Error())
+	}
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, grpc.Errorf(codes.InvalidArgument, "Failed to download img, err:%v.", err.Error())
+	}
+	file, err := os.OpenFile(req.Qcow2.Url, os.O_CREATE|os.O_WRONLY, 0666)
+	defer file.Close()
+	if err != nil {
+		return nil, grpc.Errorf(codes.InvalidArgument, "Failed to save img, err:%v.", err.Error())
+	}
+	file.Write(body)
+	log.Printf("[INFO] Download qcow2, qcow2:%v", req.Qcow2)
+	return req.Qcow2, nil
 }
 
 func (a Qcow2Agent) BuildQcow2WithPacker(context.Context, *BuildQcow2WithPackerRequest) (*Qcow2, error) {
