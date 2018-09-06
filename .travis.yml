@@ -7,11 +7,14 @@ git:
   depth: 1
 
 before_install:
-  - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-  - dep ensure
+  - echo
+
+install:
+  - go get -u golang.org/x/lint/golint
 
 script:
-  - go test -v ./...
+  - make analysis
+  - make test
 
 notifications:
   slack:
