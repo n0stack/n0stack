@@ -51,8 +51,18 @@
 [[projects]]
   branch = "master"
   name = "github.com/digitalocean/go-qemu"
-  packages = ["qmp"]
+  packages = [
+    "internal/qmp-gen",
+    "qmp",
+    "qmp/raw"
+  ]
   revision = "d5e8dbfd06fdb6f19c5149c74b79d5b4318dbfa7"
+
+[[projects]]
+  name = "github.com/fatih/camelcase"
+  packages = ["."]
+  revision = "44e46d280b43ec1531bb25252440e34f1b800b65"
+  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/go-ole/go-ole"
@@ -200,10 +210,15 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = [
+    "curve25519",
     "ed25519",
-    "ed25519/internal/edwards25519"
+    "ed25519/internal/edwards25519",
+    "internal/chacha20",
+    "internal/subtle",
+    "poly1305",
+    "ssh"
   ]
-  revision = "614d502a4dac94afa3a6ce146bd1736da82514c6"
+  revision = "0709b304e793a5edb4a2c0145f281ecdc20838a4"
 
 [[projects]]
   branch = "master"
@@ -231,7 +246,7 @@
     "unix",
     "windows"
   ]
-  revision = "d99a578cf41bfccdeaf48b0845c823a4b8b0ad5e"
+  revision = "8cf3aee429924738c56c34bb819c4ea8273fc434"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -258,7 +273,7 @@
   branch = "master"
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
-  revision = "c66870c02cf823ceb633bcd05be3c7cda29976f4"
+  revision = "11092d34479b07829b72e10713b159248caf5dad"
 
 [[projects]]
   name = "google.golang.org/grpc"
@@ -299,6 +314,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "335719a33a35abca5c0a40b8f5b353dc2f0abb02e3b43eb2cd7e2b7edb1c248b"
+  inputs-digest = "bda5bae4d630feeb1f1880952b3ca453b2db154817e4b64ec90cb6443c57d14e"
   solver-name = "gps-cdcl"
   solver-version = 1

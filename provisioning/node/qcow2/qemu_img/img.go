@@ -133,7 +133,7 @@ func (q *QemuImg) Delete() error {
 	return nil
 }
 
-func (q *QemuImg) IsExists() bool {
+func (q QemuImg) IsExists() bool {
 	if q.Info == nil {
 		return false
 	}

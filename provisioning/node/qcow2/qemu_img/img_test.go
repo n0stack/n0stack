@@ -17,7 +17,7 @@ func TestCreateImg(t *testing.T) {
 		t.Fatalf("Cannot open '%s': err='%s'", p, err.Error())
 	}
 	if i.IsExists() {
-		t.Errorf("Test environment is invalid: image is already existing '%s'", p)
+		t.Errorf("Test environment is invalid, image is already existing: path='%s'", p)
 	}
 
 	s, _ := bytefmt.ToBytes("1G")
@@ -44,7 +44,7 @@ func TestDownloadImg(t *testing.T) {
 		t.Fatalf("Cannot open '%s': err='%s'", p, err.Error())
 	}
 	if i.IsExists() {
-		t.Errorf("Test environment is invalid: image is already existing '%s'", p)
+		t.Errorf("Test environment is invalid, image is already existing: path='%s'", p)
 	}
 
 	u, err := url.Parse("http://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img")
@@ -73,7 +73,7 @@ func TestResize(t *testing.T) {
 		t.Fatalf("Cannot open '%s': err='%s'", p, err.Error())
 	}
 	if i.IsExists() {
-		t.Errorf("Test environment is invalid: image is already existing '%s'", p)
+		t.Errorf("Test environment is invalid, image is already existing: path='%s'", p)
 	}
 
 	s, _ := bytefmt.ToBytes(src)
@@ -109,7 +109,7 @@ func TestBackingfile(t *testing.T) {
 		t.Fatalf("Cannot open '%s': err='%s'", p, err.Error())
 	}
 	if i.IsExists() {
-		t.Errorf("Test environment is invalid: image is already existing '%s'", p)
+		t.Errorf("Test environment is invalid, image is already existing: path='%s'", p)
 	}
 
 	s, _ := bytefmt.ToBytes("1G")
