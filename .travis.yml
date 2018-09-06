@@ -7,7 +7,7 @@ git:
   depth: 1
 
 before_install:
-  - echo
+  - make dep
 
 install:
   - go get -u golang.org/x/lint/golint

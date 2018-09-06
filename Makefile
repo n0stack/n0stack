@@ -12,6 +12,10 @@ build:
 	go build cmd/agent/*.go -o bin/agent -v -x
 
 dep:
+	dep ensure
+	dep status
+
+dep_update:
 	dep ensure -update
 	dep prune
 	dep status
