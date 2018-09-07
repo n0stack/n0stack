@@ -1,14 +1,33 @@
-FROM golang:1.10 AS build
+FROM golang:1.11 AS build
+
+RUN apt-get update \
+ && apt-get install -y \
+        qemu-kvm \
+        qemu-utils \
+        iproute2 \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /go/src/github.com/n0stack/n0core
+COPY Gopkg.toml Gopkg.lock ./
+
+RUN go get -u github.com/golang/dep/cmd/dep \
+ && dep ensure -v -vendor-only=true
+
+RUN go get -u golang.org/x/lint/golint
+
 COPY . /go/src/github.com/n0stack/n0core
 
-RUN go build -o /api cmd/api/main.go \
- && go build -o /agent cmd/agent/main.go
+# RUN make analysis \
+#  && make test-small
 
-FROM debian:jessie
 
-COPY --from=build /api /api
-COPY --from=build /agent /agent
+# RUN go build -o /api cmd/api/main.go \
+#  && go build -o /agent cmd/agent/main.go
 
-WORKDIR /
+# FROM debian:jessie
+
+# COPY --from=build /api /api
+# COPY --from=build /agent /agent
+
+# WORKDIR /

@@ -1,21 +1,12 @@
-language: go
-
-go:
-  - "1.10"
-
-git:
-  depth: 1
-
-before_install:
-  - go get -u github.com/golang/dep/cmd/dep
-  - make dep
-
-install:
-  - go get -u golang.org/x/lint/golint
+sudo: required
+services:
+  - docker
 
 script:
-  - make analysis
-  - make test-small
+  - docker build -t n0stack/n0core .
+  - docker run n0stack/n0core make test-small
+  - docker run n0stack/n0core make analysis
+
 
 notifications:
   slack:
