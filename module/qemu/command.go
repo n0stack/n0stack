@@ -90,7 +90,7 @@ func (q Qemu) IsRunning() bool {
 	return true
 }
 
-func (q *Qemu) Kill() error {
+func (q *Qemu) Kill() error { // 統一感を持たせるためにDeleteにしたほうがいいかもしれない
 	// if err := q.Close(); err != nil {
 	// 	return fmt.Errorf("Failed to close ")
 	// }

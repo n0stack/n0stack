@@ -18,16 +18,11 @@ func TestQcow2Volume(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to open qemu: err='%s'", err.Error())
 	}
-	if q.IsRunning() {
-		t.Fatalf("Test environment is invalid, process is already existing: uuid='%s'", id.String())
-	}
+	defer q.Kill()
 
 	b, _ := bytefmt.ToBytes("512M")
 	if err := q.StartProcess("test", "monitor.sock", 10000, 1, b); err != nil {
-		t.Errorf("Failed to start process: err='%s'", err.Error())
-	}
-	if !q.IsRunning() {
-		t.Errorf("Failed to start process, qemu is not running yet")
+		t.Fatalf("Failed to start process: err='%s'", err.Error())
 	}
 
 	f := "cirros.qcow2"
@@ -59,13 +54,6 @@ func TestQcow2Volume(t *testing.T) {
 	if s != StatusRunning {
 		t.Errorf("Status is mismatch: want='%v', have='%v'", StatusRunning, s)
 	}
-
-	if err := q.Kill(); err != nil {
-		t.Errorf("Failed to kill process: err='%s'", err.Error())
-	}
-	if q.IsRunning() {
-		t.Errorf("Failed to kill process, qemu is running yet")
-	}
 }
 
-func TestISOVolume(t *testing.T) {}
+// func TestISOVolume(t *testing.T) {}
