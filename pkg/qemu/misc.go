@@ -7,20 +7,8 @@ import (
 
 	"github.com/digitalocean/go-qemu/qmp"
 	"github.com/digitalocean/go-qemu/qmp/raw"
-	uuid "github.com/satori/go.uuid"
 	"github.com/shirou/gopsutil/process"
 )
-
-type Qemu struct {
-	proc *process.Process
-
-	// args
-	id      *uuid.UUID
-	qmpPath string
-
-	qmp qmp.Monitor
-	m   *raw.Monitor
-}
 
 func (q *Qemu) init() error {
 	if err := q.findProcess(q.id.String()); err != nil {
@@ -64,7 +52,11 @@ func (q *Qemu) findProcess(contain string) error {
 }
 
 func (q *Qemu) initQMP() error {
-	qmp, err := qmp.NewSocketMonitor("unix", q.qmpPath, 2*time.Second)
+	if !q.isKVM {
+		time.Sleep(3 * time.Second) // KVMがないためmonitor.sockが開くのが遅く、failしてしまうため
+	}
+
+	qmp, err := qmp.NewSocketMonitor("unix", q.qmpPath, 3*time.Second)
 	if err != nil {
 		return fmt.Errorf("Failed to open QMP socket: err='%s'", err.Error())
 	}
@@ -80,6 +72,7 @@ func (q *Qemu) initQMP() error {
 }
 
 func (q *Qemu) parseArgs(args []string) error {
+	// TODO
 	q.qmpPath = "monitor.sock"
 
 	return nil

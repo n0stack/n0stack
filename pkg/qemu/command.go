@@ -9,13 +9,28 @@ import (
 	"time"
 
 	"code.cloudfoundry.org/bytefmt"
+	"github.com/digitalocean/go-qemu/qmp"
 	"github.com/digitalocean/go-qemu/qmp/raw"
 	uuid "github.com/satori/go.uuid"
+	"github.com/shirou/gopsutil/process"
 )
+
+type Qemu struct {
+	proc *process.Process
+
+	// args
+	id      *uuid.UUID
+	qmpPath string
+	isKVM   bool
+
+	qmp qmp.Monitor
+	m   *raw.Monitor
+}
 
 func OpenQemu(id *uuid.UUID) (*Qemu, error) {
 	q := &Qemu{
-		id: id,
+		id:    id,
+		isKVM: true,
 	}
 
 	if err := q.init(); err != nil {
@@ -173,10 +188,10 @@ func (q *Qemu) StartProcess(name, qmpPath string, vncWebsocketPort, vcpus uint32
 		// CPU
 		// TODO: 必要があればmonitorを操作してhotaddできるようにする
 		// TODO: スケジューリングが可能かどうか調べる
-		"-cpu",
-		"host",
 		"-smp",
 		fmt.Sprintf("%d,sockets=1,cores=%d,threads=1", vcpus, vcpus),
+		"-cpu",
+		"host",
 		"-enable-kvm",
 
 		// Memory
@@ -196,9 +211,13 @@ func (q *Qemu) StartProcess(name, qmpPath string, vncWebsocketPort, vcpus uint32
 		"lsi53c895a,bus=pci.0,id=scsi0",
 	}
 
+	if !q.isKVM {
+		args = append(args[:29], args[32:]...)
+	}
+
 	cmd := exec.Command(args[0], args[1:]...)
 	if err := cmd.Start(); err != nil { // TODO: combine でもいいかもしれない
-		return fmt.Errorf("Failed to start process: args='%s', err='%s'", err.Error(), args)
+		return fmt.Errorf("Failed to start process: args='%s', err='%s'", args, err.Error())
 	}
 
 	done := make(chan error)
@@ -211,7 +230,7 @@ func (q *Qemu) StartProcess(name, qmpPath string, vncWebsocketPort, vcpus uint32
 		return nil
 	case err := <-done:
 		if err != nil {
-			return fmt.Errorf("Failed to run process: args='%s', err='%s'", err.Error(), args) // stderrを表示できるようにする必要がある
+			return fmt.Errorf("Failed to run process: args='%s', err='%s'", args, err.Error()) // stderrを表示できるようにする必要がある
 		}
 
 		if err := q.init(); err != nil {

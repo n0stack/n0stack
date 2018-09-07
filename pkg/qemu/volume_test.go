@@ -20,6 +20,7 @@ func TestQcow2Volume(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to open qemu: err='%s'", err.Error())
 	}
+	q.isKVM = false
 	defer q.Kill()
 
 	b, _ := bytefmt.ToBytes("512M")
@@ -66,6 +67,7 @@ func TestISOVolume(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to open qemu: err='%s'", err.Error())
 	}
+	q.isKVM = false
 	defer q.Kill()
 
 	b, _ := bytefmt.ToBytes("512M")
