@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"code.cloudfoundry.org/bytefmt"
-	"github.com/n0stack/n0core/module/qemu_img"
+	"github.com/n0stack/n0core/pkg/qemu_img"
 	uuid "github.com/satori/go.uuid"
 )
 

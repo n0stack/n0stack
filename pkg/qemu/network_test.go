@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"code.cloudfoundry.org/bytefmt"
-	"github.com/n0stack/n0core/module/iproute2"
+	"github.com/n0stack/n0core/pkg/iproute2"
 	uuid "github.com/satori/go.uuid"
 )
 
