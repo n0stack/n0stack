@@ -4,6 +4,7 @@ package qemu
 
 import (
 	"net"
+	"os"
 	"testing"
 
 	"code.cloudfoundry.org/bytefmt"
@@ -31,8 +32,11 @@ func TestAttachTap(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to open qemu: err='%s'", err.Error())
 	}
-	q.isKVM = false
 	defer q.Kill()
+
+	if _, ok := os.LookupEnv("DISABLE_KVM"); ok {
+		q.isKVM = false
+	}
 
 	m, _ := bytefmt.ToBytes("512M")
 	if err := q.StartProcess("test", "monitor.sock", 10000, 1, m); err != nil {

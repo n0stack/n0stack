@@ -4,6 +4,7 @@ package qemu
 
 import (
 	"net/url"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -20,8 +21,11 @@ func TestQcow2Volume(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to open qemu: err='%s'", err.Error())
 	}
-	q.isKVM = false
 	defer q.Kill()
+
+	if _, ok := os.LookupEnv("DISABLE_KVM"); ok {
+		q.isKVM = false
+	}
 
 	b, _ := bytefmt.ToBytes("512M")
 	if err := q.StartProcess("test", "monitor.sock", 10000, 1, b); err != nil {
@@ -67,8 +71,11 @@ func TestISOVolume(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to open qemu: err='%s'", err.Error())
 	}
-	q.isKVM = false
 	defer q.Kill()
+
+	if _, ok := os.LookupEnv("DISABLE_KVM"); ok {
+		q.isKVM = false
+	}
 
 	b, _ := bytefmt.ToBytes("512M")
 	if err := q.StartProcess("test", "monitor.sock", 10000, 1, b); err != nil {
