@@ -5,7 +5,7 @@
   branch = "master"
   name = "code.cloudfoundry.org/bytefmt"
   packages = ["."]
-  revision = "b31f603f5e1e047fdb38584e1a922dcc5c4de5c8"
+  revision = "2aa6f33b730c79971cfc3c742f279195b0abc627"
 
 [[projects]]
   name = "github.com/StackExchange/wmi"
@@ -237,7 +237,7 @@
     "ipv6",
     "trace"
   ]
-  revision = "8a410e7b638dca158bf9e766925842f6651ff828"
+  revision = "161cd47e91fd58ac17490ef4d742dc98bb4cf60e"
 
 [[projects]]
   branch = "master"
