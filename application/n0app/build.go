@@ -1,3 +1,5 @@
+// +build ignore
+
 package n0app
 
 import (
