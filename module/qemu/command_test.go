@@ -1,5 +1,3 @@
-// +build small
-
 package qemu
 
 import (

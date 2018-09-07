@@ -24,12 +24,9 @@ analysis:
 	gofmt -d -s `find ./ -name "*.go" | grep -v vendor`
 	golint ./... | grep -v vendor # https://github.com/golang/lint/issues/320
 
-test:
+test-small:
 	go vet ./...
 	go test -v ./...
-
-test-small:
-	go test -tags=small -v ./...
 
 test-medium: # with root, having dependency for outside
 	go test -tags=medium -v ./...
