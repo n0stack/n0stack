@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"code.cloudfoundry.org/bytefmt"
-	"github.com/n0stack/n0core/provisioning/node/qcow2/qemu_img"
+	"github.com/n0stack/n0core/module/qemu_img"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -67,3 +67,5 @@ func TestQcow2Volume(t *testing.T) {
 		t.Errorf("Failed to kill process, qemu is running yet")
 	}
 }
+
+func TestISOVolume(t *testing.T) {}

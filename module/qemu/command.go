@@ -91,6 +91,10 @@ func (q Qemu) IsRunning() bool {
 }
 
 func (q *Qemu) Kill() error {
+	// if err := q.Close(); err != nil {
+	// 	return fmt.Errorf("Failed to close ")
+	// }
+
 	if q.proc != nil {
 		if err := q.proc.Kill(); err != nil {
 			return fmt.Errorf("Failed to kill process: err='%s'", err.Error())
