@@ -25,7 +25,6 @@ analysis:
 	golint ./... | grep -v vendor # https://github.com/golang/lint/issues/320
 
 test-small:
-	go vet ./...
 	go test -v ./...
 
 test-medium: # with root, having dependency for outside
