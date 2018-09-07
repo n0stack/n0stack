@@ -212,6 +212,7 @@ func (q *Qemu) StartProcess(name, qmpPath string, vncWebsocketPort, vcpus uint32
 	}
 
 	if !q.isKVM {
+		// remove "-cpu", "host" and "-enable-kvm", because kvm is disable
 		args = append(args[:29], args[32:]...)
 	}
 
