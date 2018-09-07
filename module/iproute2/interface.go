@@ -25,6 +25,10 @@ func GetInterface(name string) (*Interface, error) {
 	return i, nil
 }
 
+func (i Interface) Name() string {
+	return i.name
+}
+
 func (i Interface) Up() error {
 	if err := netlink.LinkSetUp(i.link); err != nil {
 		return fmt.Errorf("Failed 'ip link set dev %s up': err='%s'", i.name, err.Error())

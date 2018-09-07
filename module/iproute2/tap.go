@@ -46,6 +46,10 @@ func NewTap(name string) (*Tap, error) {
 	return t, nil
 }
 
+func (t Tap) Name() string {
+	return t.name
+}
+
 func (t *Tap) Up() error {
 	if err := netlink.LinkSetUp(t.link); err != nil {
 		return fmt.Errorf("Failed 'ip link set dev %s up': err='%s'", t.name, err.Error())

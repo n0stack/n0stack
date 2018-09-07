@@ -50,6 +50,10 @@ func NewBridge(name string) (*Bridge, error) {
 	return b, nil
 }
 
+func (b Bridge) Name() string {
+	return b.name
+}
+
 func (b *Bridge) Up() error {
 	if err := netlink.LinkSetUp(b.link); err != nil {
 		return fmt.Errorf("Failed 'ip link set dev %s up': err='%s'", b.name, err.Error())
