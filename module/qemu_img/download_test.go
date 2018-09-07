@@ -1,4 +1,4 @@
-// +build !small
+// +build medium
 
 package qemu_img
 
