@@ -15,7 +15,7 @@ install:
 
 script:
   - make analysis
-  - make test
+  - make test-small
 
 notifications:
   slack:
