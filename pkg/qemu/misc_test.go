@@ -40,7 +40,20 @@ func TestGetQemuArgValue(t *testing.T) {
 			},
 		},
 		{
-			"wild card",
+			"wild card option",
+			"*",
+			"monitor",
+			[]string{"-mon", "chardev=charmonitor,id=monitor,mode=control"},
+			&QemuArgValue{
+				kwds: map[string]string{
+					"id":      "monitor",
+					"chardev": "charmonitor",
+					"mode":    "control",
+				},
+			},
+		},
+		{
+			"wild card id",
 			"-mon",
 			"*",
 			[]string{"-mon", "chardev=charmonitor,id=monitor,mode=control"},
