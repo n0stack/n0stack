@@ -72,8 +72,63 @@ func (q *Qemu) initQMP() error {
 }
 
 func (q *Qemu) parseArgs(args []string) error {
-	// TODO
-	q.qmpPath = "monitor.sock"
+	mon := getQemuArgValue("-mon", "*", args)
+	if mon != nil {
+		_, ok := mon.kwds["chardev"]
+		if ok {
+			mc := getQemuArgValue("-chardev", mon.kwds["chardev"], args)
+			q.qmpPath = mc.kwds["path"]
+		}
+	}
+
+	// cwdが `/` になるため相対パスは取れない
+	// if !filepath.IsAbs(qmpPath) {
+	// 	wd, err := q.proc.Cwd()
+	// 	if err != nil {
+	// 		return fmt.Errorf("Failed to get working directory of qemu process: pid='%d', err='%s'", q.proc.Pid, err.Error())
+	// 	}
+
+	// 	qmpPath = filepath.Join(wd, qmpPath)
+	// }
+
+	return nil
+}
+
+type qemuArgValue struct {
+	args []string
+	kwds map[string]string
+}
+
+// Example:
+//   `-mon chardev=charmonitor,id=monitor`
+//
+//   Args: option="-mon", id="monitor"
+//         "*" is wild card
+//   Retrun: {"arg": "", "kwds": {"chardev": "charmonitor", "id": "monitor"}}
+func getQemuArgValue(option, id string, args []string) *qemuArgValue {
+	q := &qemuArgValue{
+		kwds: map[string]string{},
+	}
+
+	for i, a := range args {
+		if option == "*" || option == a {
+			values := strings.Split(args[i+1], ",")
+
+			for _, v := range values {
+				kv := strings.Split(v, "=")
+				if len(kv) == 1 {
+					q.args = append(q.args, v)
+					continue
+				}
+
+				q.kwds[kv[0]] = kv[1]
+			}
+
+			if id == "*" || q.kwds["id"] == id {
+				return q
+			}
+		}
+	}
 
 	return nil
 }
