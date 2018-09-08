@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"code.cloudfoundry.org/bytefmt"
-	"github.com/n0stack/n0core/pkg/qemu_img"
+	img "github.com/n0stack/n0core/pkg/qemu_img"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -33,7 +33,7 @@ func TestQcow2Volume(t *testing.T) {
 	}
 
 	f := "cirros.qcow2"
-	i, err := qemu_img.OpenQemuImg(f)
+	i, err := img.OpenQemuImg(f)
 	if err != nil {
 		t.Fatalf("Failed to open qemu-img, do not relate to this package code: err='%s'", err.Error())
 	}
@@ -83,7 +83,7 @@ func TestISOVolume(t *testing.T) {
 	}
 
 	f := "ubuntu_mini.iso"
-	i, err := qemu_img.OpenQemuImg(f)
+	i, err := img.OpenQemuImg(f)
 	if err != nil {
 		t.Fatalf("Failed to open qemu-img, do not relate to this package code: err='%s'", err.Error())
 	}

@@ -15,7 +15,6 @@ build-docker:
 
 dep:
 	dep ensure
-
 dep-update:
 	dep ensure -update
 	dep prune

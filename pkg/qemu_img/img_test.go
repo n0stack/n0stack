@@ -1,4 +1,4 @@
-package qemu_img
+package img
 
 import (
 	"testing"

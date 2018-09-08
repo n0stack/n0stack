@@ -65,7 +65,7 @@ func (q *Qemu) tapNetdevAdd(id, ifname string) error {
 func (q *Qemu) virtioNetPCIAdd(devID, netdevID string, mac net.HardwareAddr) error {
 	cmd := struct {
 		Driver string `json:"driver"`
-		Id     string `json:"id"`
+		ID     string `json:"id"`
 		Netdev string `json:"netdev"`
 		Bus    string `json:"bus"`
 		Mac    string `json:"mac"`

@@ -1,6 +1,6 @@
 // +build medium
 
-package qemu_img
+package img
 
 import (
 	"net/url"
