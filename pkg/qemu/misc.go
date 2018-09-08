@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/cenkalti/backoff"
 	"github.com/digitalocean/go-qemu/qmp"
 	"github.com/digitalocean/go-qemu/qmp/raw"
 	"github.com/shirou/gopsutil/process"
@@ -52,20 +53,19 @@ func (q *Qemu) findProcess(contain string) error {
 }
 
 func (q *Qemu) initQMP() error {
-	if !q.isKVM {
-		time.Sleep(3 * time.Second) // KVMがないためmonitor.sockが開くのが遅く、failしてしまうため
-	}
-
-	qmp, err := qmp.NewSocketMonitor("unix", q.qmpPath, 3*time.Second)
+	b := backoff.WithMaxRetries(backoff.NewExponentialBackOff(), 7)
+	err := backoff.Retry(func() (err error) {
+		q.qmp, err = qmp.NewSocketMonitor("unix", q.qmpPath, 3*time.Second)
+		return
+	}, b)
 	if err != nil {
 		return fmt.Errorf("Failed to open QMP socket: err='%s'", err.Error())
 	}
 
-	if err := qmp.Connect(); err != nil {
+	if err := q.qmp.Connect(); err != nil {
 		return fmt.Errorf("Failed to connect QMP socket: err='%s'", err.Error())
 	}
 
-	q.qmp = qmp
 	q.m = raw.NewMonitor(q.qmp)
 
 	return nil

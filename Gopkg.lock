@@ -20,6 +20,12 @@
   revision = "3c58d8115a78a6879e5df75ae900846768d36895"
 
 [[projects]]
+  name = "github.com/cenkalti/backoff"
+  packages = ["."]
+  revision = "2ea60e5f094469f9e65adb9cd103795b73ae743e"
+  version = "v2.0.0"
+
+[[projects]]
   name = "github.com/coreos/etcd"
   packages = [
     "auth/authpb",
@@ -246,7 +252,7 @@
     "unix",
     "windows"
   ]
-  revision = "8cf3aee429924738c56c34bb819c4ea8273fc434"
+  revision = "917fdcba135dcbaccd57425db91723541b4427c8"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -314,6 +320,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "bda5bae4d630feeb1f1880952b3ca453b2db154817e4b64ec90cb6443c57d14e"
+  inputs-digest = "92a18cd1556de44123f8331eb909bdc1a9febf3d46591853d236bb9757da2d42"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -105,7 +105,7 @@ func (q Qemu) IsRunning() bool {
 	return true
 }
 
-func (q *Qemu) Delete() error { // 統一感を持たせるためにDeleteにしたほうがいいかもしれない
+func (q *Qemu) Delete() error {
 	// if err := q.Close(); err != nil {
 	// 	return fmt.Errorf("Failed to close ")
 	// }
