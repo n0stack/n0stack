@@ -13,9 +13,8 @@ build:
 
 dep:
 	dep ensure
-	dep status
 
-dep_update:
+dep-update:
 	dep ensure -update
 	dep prune
 	dep status

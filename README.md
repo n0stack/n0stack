@@ -17,51 +17,33 @@
 - Ubuntu 16.04 LTS (Xenial Xerus)
 - Golang 1.10
 
-## Dependencies
-
-### kvm
-
-- qemu-kvm
-
-### tap
-
-- iproute2
-
-### qcow2
-
-- qemu-utils
-
-## How to run
-
-### Install packages
-
-```sh
-sudo apt install -y \
-  iproute2 \
-  qemu-kvm \
-  qemu-utils
-```
+## How to develop
 
 ### Install libraries
 
-- `proto.go` の更新が早いため定期的にやってほしい
-
 ```sh
-dep ensure -update
-dep ensure
-dep prune
+make dep
 ```
 
-### Run on local
+### Tests
+
+#### small
+- only localhost
+- short time
 
 ```sh
-docker-compose up --build etcd api
-sudo go run cmd/agent/main.go serve --name=test-node --advertise-address=.. --api-address=`docker inspect -f '{{.NetworkSettings.Networks.n0core_default.IPAddress}}' n0core_api_1` --api-port=20180
+make test-small
+make test-small-v
 ```
 
-## 構成
+#### medium
 
-- Agent
-- API
+- with root
+- having dependency for outside
+
+```sh
+make test-medium
+make test-medium-v
+```
 
 #### 各実装は各ディレクトリの `README.md` を参照のこと

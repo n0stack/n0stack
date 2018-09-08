@@ -1,6 +1,16 @@
 # QEMU
 
-## test parameters
+## Dependency packages
+
+- qemu-kvm
+<!-- - ovmf -->
+
+```sh
+apt install -y \
+    qemu-kvm
+```
+
+## Test parameters
 
 ### DISABLE_KVM
 
