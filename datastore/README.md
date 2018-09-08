@@ -1,3 +1,5 @@
-# Datastore
+# DEPRECATED!!
 
-標準メソッドとカスタムメソッドのデータの永続化に関する共通部分を抽象化するものである。
+develop `pkg/datastore`
+
+# TODO: 次にAPIを開発するときに削除する

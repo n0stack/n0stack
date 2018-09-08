@@ -1,3 +1,4 @@
+// +build ignore
 // +build medium
 
 package etcd
