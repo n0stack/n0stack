@@ -34,6 +34,7 @@ make dep
 ```sh
 make test-small
 make test-small-v
+make test-small-docker
 ```
 
 #### medium
