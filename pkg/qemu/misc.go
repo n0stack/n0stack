@@ -72,41 +72,34 @@ func (q *Qemu) initQMP() error {
 }
 
 func (q *Qemu) parseArgs(args []string) error {
-	mon := getQemuArgValue("-mon", "*", args)
+	mon := GetQemuArgValue("-mon", "*", args)
 	if mon != nil {
 		_, ok := mon.kwds["chardev"]
 		if ok {
-			mc := getQemuArgValue("-chardev", mon.kwds["chardev"], args)
+			mc := GetQemuArgValue("-chardev", mon.kwds["chardev"], args)
 			q.qmpPath = mc.kwds["path"]
 		}
 	}
 
-	// cwdが `/` になるため相対パスは取れない
-	// if !filepath.IsAbs(qmpPath) {
-	// 	wd, err := q.proc.Cwd()
-	// 	if err != nil {
-	// 		return fmt.Errorf("Failed to get working directory of qemu process: pid='%d', err='%s'", q.proc.Pid, err.Error())
-	// 	}
-
-	// 	qmpPath = filepath.Join(wd, qmpPath)
-	// }
-
 	return nil
 }
 
-type qemuArgValue struct {
+type QemuArgValue struct {
 	args []string
 	kwds map[string]string
 }
 
+// GetQemuArgValue is simple qemu argument parser.
+// Order is O(len(args)).
+//
 // Example:
 //   `-mon chardev=charmonitor,id=monitor`
 //
 //   Args: option="-mon", id="monitor"
-//         "*" is wild card
+//         "*" is wild card, return only first match
 //   Retrun: {"arg": "", "kwds": {"chardev": "charmonitor", "id": "monitor"}}
-func getQemuArgValue(option, id string, args []string) *qemuArgValue {
-	q := &qemuArgValue{
+func GetQemuArgValue(option, id string, args []string) *QemuArgValue {
+	q := &QemuArgValue{
 		kwds: map[string]string{},
 	}
 
