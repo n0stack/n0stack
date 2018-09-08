@@ -1,3 +1,5 @@
+// +build medium
+
 package qemu
 
 import (
