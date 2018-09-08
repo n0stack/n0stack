@@ -32,7 +32,7 @@ func TestAttachTap(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to open qemu: err='%s'", err.Error())
 	}
-	defer q.Kill()
+	defer q.Delete()
 
 	if _, ok := os.LookupEnv("DISABLE_KVM"); ok {
 		q.isKVM = false

@@ -31,7 +31,7 @@ func TestStartProcess(t *testing.T) {
 		t.Errorf("Failed to start process, qemu is not running yet")
 	}
 
-	if err := q.Kill(); err != nil {
+	if err := q.Delete(); err != nil {
 		t.Errorf("Failed to kill process: err='%s'", err.Error())
 	}
 	if q.IsRunning() {
@@ -45,7 +45,7 @@ func TestBoot(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to open qemu: err='%s'", err.Error())
 	}
-	defer q.Kill()
+	defer q.Delete()
 
 	if _, ok := os.LookupEnv("DISABLE_KVM"); ok {
 		q.isKVM = false
@@ -83,7 +83,7 @@ func TestReset(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to open qemu: err='%s'", err.Error())
 	}
-	defer q.Kill()
+	defer q.Delete()
 
 	if _, ok := os.LookupEnv("DISABLE_KVM"); ok {
 		q.isKVM = false
