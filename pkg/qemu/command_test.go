@@ -41,6 +41,32 @@ func TestStartProcess(t *testing.T) {
 	}
 }
 
+func TestExistingQemu(t *testing.T) {
+	id, _ := uuid.FromString("5fd6c569-172f-4b25-84cd-b76cc336cfdd")
+	q, err := OpenQemu(&id)
+	if err != nil {
+		t.Fatalf("Failed to open qemu: err='%s'", err.Error())
+	}
+
+	if _, ok := os.LookupEnv("DISABLE_KVM"); ok {
+		q.isKVM = false
+	}
+	b, _ := bytefmt.ToBytes("512M")
+	if err := q.StartProcess("test", "monitor.sock", 10000, 1, b); err != nil {
+		t.Errorf("Failed to start process: err='%s'", err.Error())
+	}
+	defer q.Delete()
+	q.Close()
+
+	eq, err := OpenQemu(&id)
+	if err != nil {
+		t.Errorf("Failed to open existing qemu: err='%s'", err.Error())
+	}
+	if !eq.IsRunning() {
+		t.Errorf("Failed to find existing qemu process")
+	}
+}
+
 func TestBoot(t *testing.T) {
 	id, _ := uuid.FromString("5fd6c569-172f-4b25-84cd-b76cc336cfdd")
 	q, err := OpenQemu(&id)
