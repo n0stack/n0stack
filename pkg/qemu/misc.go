@@ -53,7 +53,7 @@ func (q *Qemu) findProcess(contain string) error {
 }
 
 func (q *Qemu) initQMP() error {
-	b := backoff.WithMaxRetries(backoff.NewExponentialBackOff(), 7)
+	b := backoff.WithMaxRetries(backoff.NewExponentialBackOff(), 15) // CIがこけてしまうため長くしているが、かなり長時間待つようになっているため普通の処理においてタイムアウトする危険性がある
 	err := backoff.Retry(func() (err error) {
 		q.qmp, err = qmp.NewSocketMonitor("unix", q.qmpPath, 3*time.Second)
 		return
