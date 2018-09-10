@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/vishvananda/netlink"
+	"github.com/vishvananda/netlink/nl"
 )
 
 type Bridge struct {
@@ -51,8 +52,34 @@ func (b *Bridge) createBridge() error {
 	return nil
 }
 
-func (b Bridge) Name() string {
+func (b Bridge) GetName() string {
 	return b.name
+}
+
+func (b Bridge) GetIPv4() (string, error) {
+	a, err := netlink.AddrList(b.link, nl.FAMILY_V4)
+	if err != nil {
+		return "", fmt.Errorf("Failed 'ip addr show': err='%s'", err.Error())
+	}
+
+	if len(a) < 1 {
+		return "", fmt.Errorf("Do not exists IP address")
+	}
+
+	return a[0].String(), nil
+}
+
+func (b Bridge) GetIPv6() (string, error) {
+	a, err := netlink.AddrList(b.link, nl.FAMILY_V6)
+	if err != nil {
+		return "", fmt.Errorf("Failed 'ip addr show': err='%s'", err.Error())
+	}
+
+	if len(a) < 1 {
+		return "", fmt.Errorf("Do not exists IP address")
+	}
+
+	return a[0].String(), nil
 }
 
 // ip link set dev $name up
@@ -71,7 +98,7 @@ func (b *Bridge) SetAddress(addr string) error {
 		return fmt.Errorf("Failed to parse ip address: addr='%s', err='%s'", addr, err.Error())
 	}
 
-	if err := netlink.AddrReplace(b.link, a); err != nil {
+	if err := netlink.AddrReplace(b.link, a); err != nil { // TODO: IPv4, IPv6ひとつずつになるか確認する必要がある
 		return fmt.Errorf("Failed to add address: addr='%s', err='%s'", a.String(), err.Error())
 	}
 
