@@ -28,7 +28,7 @@ func TestQcow2Volume(t *testing.T) {
 	}
 
 	b, _ := bytefmt.ToBytes("512M")
-	if err := q.StartProcess("test", "monitor.sock", 10000, 1, b); err != nil {
+	if err := q.Start("test", "monitor.sock", 10000, 1, b); err != nil {
 		t.Fatalf("Failed to start process: err='%s'", err.Error())
 	}
 
@@ -78,7 +78,7 @@ func TestISOVolume(t *testing.T) {
 	}
 
 	b, _ := bytefmt.ToBytes("512M")
-	if err := q.StartProcess("test", "monitor.sock", 10000, 1, b); err != nil {
+	if err := q.Start("test", "monitor.sock", 10000, 1, b); err != nil {
 		t.Fatalf("Failed to start process: err='%s'", err.Error())
 	}
 

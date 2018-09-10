@@ -39,7 +39,7 @@ func TestAttachTap(t *testing.T) {
 	}
 
 	m, _ := bytefmt.ToBytes("512M")
-	if err := q.StartProcess("test", "monitor.sock", 10000, 1, m); err != nil {
+	if err := q.Start("test", "monitor.sock", 10000, 1, m); err != nil {
 		t.Fatalf("Failed to start process: err='%s'", err.Error())
 	}
 

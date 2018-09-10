@@ -26,7 +26,7 @@ func TestStartProcess(t *testing.T) {
 	}
 
 	b, _ := bytefmt.ToBytes("512M")
-	if err := q.StartProcess("test", "monitor.sock", 10000, 1, b); err != nil {
+	if err := q.Start("test", "monitor.sock", 10000, 1, b); err != nil {
 		t.Errorf("Failed to start process: err='%s'", err.Error())
 	}
 	if !q.IsRunning() {
@@ -52,7 +52,7 @@ func TestExistingQemu(t *testing.T) {
 		q.isKVM = false
 	}
 	b, _ := bytefmt.ToBytes("512M")
-	if err := q.StartProcess("test", "monitor.sock", 10000, 1, b); err != nil {
+	if err := q.Start("test", "monitor.sock", 10000, 1, b); err != nil {
 		t.Errorf("Failed to start process: err='%s'", err.Error())
 	}
 	defer q.Delete()
@@ -80,7 +80,7 @@ func TestBoot(t *testing.T) {
 	}
 
 	b, _ := bytefmt.ToBytes("512M")
-	if err := q.StartProcess("test", "monitor.sock", 10000, 1, b); err != nil {
+	if err := q.Start("test", "monitor.sock", 10000, 1, b); err != nil {
 		t.Fatalf("Failed to start process: err='%s'", err.Error())
 	}
 
@@ -118,7 +118,7 @@ func TestReset(t *testing.T) {
 	}
 
 	b, _ := bytefmt.ToBytes("512M")
-	if err := q.StartProcess("test", "monitor.sock", 10000, 1, b); err != nil {
+	if err := q.Start("test", "monitor.sock", 10000, 1, b); err != nil {
 		t.Fatalf("Failed to start process: err='%s'", err.Error())
 	}
 

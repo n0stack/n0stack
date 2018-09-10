@@ -135,7 +135,7 @@ func (q Qemu) getVNCPort() uint16 {
 	return 0
 }
 
-func (q *Qemu) StartProcess(name, qmpPath string, vncWebsocketPort, vcpus uint32, memory uint64) error {
+func (q *Qemu) Start(name, qmpPath string, vncWebsocketPort, vcpus uint32, memory uint64) error {
 	qmpPath, err := filepath.Abs(qmpPath)
 	if err != nil {
 		return fmt.Errorf("Failed to get absolute path of qmpPath: err='%s'", err.Error())

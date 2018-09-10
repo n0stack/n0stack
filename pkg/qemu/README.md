@@ -1,5 +1,12 @@
 # QEMU
 
+## Features
+
+- CPU は `host` で渡している
+- Ballooning はしない
+- 基本的にはvirtioで接続
+- SCSIコントローラを作成している
+
 ## Dependency packages
 
 - qemu-kvm
