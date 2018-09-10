@@ -119,8 +119,6 @@ func (q *Qemu) Delete() error {
 		return fmt.Errorf("Failed to delete QMP socket: err='%s'", err.Error())
 	}
 
-	// delete monitor.sock
-
 	return nil
 }
 
@@ -155,7 +153,7 @@ func (q *Qemu) StartProcess(name, qmpPath string, vncWebsocketPort, vcpus uint32
 		"timestamp=on",
 
 		// Config
-		"-daemonize",
+		// "-daemonize",
 		"-nodefaults",     // Don't create default devices
 		"-no-user-config", // The "-no-user-config" option makes QEMU not load any of the user-provided config files on sysconfdir
 		"-S",              // Do not start CPU at startup
@@ -230,16 +228,16 @@ func (q *Qemu) StartProcess(name, qmpPath string, vncWebsocketPort, vcpus uint32
 
 	select {
 	case <-time.After(3 * time.Second):
-		return nil
+		break
+
 	case err := <-done:
 		if err != nil {
 			return fmt.Errorf("Failed to run process: args='%s', err='%s'", args, err.Error()) // stderrを表示できるようにする必要がある
 		}
-
-		if err := q.init(); err != nil {
-			return fmt.Errorf("Failed to initialize: args='%s', err='%s'", args, err.Error())
-		}
-
-		return nil
 	}
+
+	if err := q.init(); err != nil {
+		return fmt.Errorf("Failed to initialize: args='%s', err='%s'", args, err.Error())
+	}
+	return nil
 }
