@@ -7,7 +7,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"code.cloudfoundry.org/bytefmt"
 	"github.com/digitalocean/go-qemu/qmp"
@@ -153,7 +152,7 @@ func (q *Qemu) Start(name, qmpPath string, vncWebsocketPort, vcpus uint32, memor
 		"timestamp=on",
 
 		// Config
-		// "-daemonize",
+		"-daemonize",
 		"-nodefaults",     // Don't create default devices
 		"-no-user-config", // The "-no-user-config" option makes QEMU not load any of the user-provided config files on sysconfdir
 		"-S",              // Do not start CPU at startup
@@ -217,27 +216,14 @@ func (q *Qemu) Start(name, qmpPath string, vncWebsocketPort, vcpus uint32, memor
 	}
 
 	cmd := exec.Command(args[0], args[1:]...)
-	if err := cmd.Start(); err != nil { // TODO: combine でもいいかもしれない
-		return fmt.Errorf("Failed to start process: args='%s', err='%s'", args, err.Error())
-	}
-
-	done := make(chan error)
-	go func() {
-		done <- cmd.Wait()
-	}()
-
-	select {
-	case <-time.After(3 * time.Second):
-		break
-
-	case err := <-done:
-		if err != nil {
-			return fmt.Errorf("Failed to run process: args='%s', err='%s'", args, err.Error()) // stderrを表示できるようにする必要がある
-		}
+	out, err := cmd.CombinedOutput()
+	if err != nil { // TODO: combine でもいいかもしれない
+		return fmt.Errorf("Failed to start process: args='%s', out='%s', err='%s'", args, string(out), err.Error())
 	}
 
 	if err := q.init(); err != nil {
 		return fmt.Errorf("Failed to initialize: args='%s', err='%s'", args, err.Error())
 	}
+
 	return nil
 }
