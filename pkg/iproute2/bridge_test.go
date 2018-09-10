@@ -14,6 +14,10 @@ func TestBridge(t *testing.T) {
 		t.Errorf("Failed to up bridge: err='%s'", err.Error())
 	}
 
+	if err := b.SetAddress("10.255.255.1/24"); err != nil {
+		t.Errorf("Failed to set address: err='%s'", err.Error())
+	}
+
 	if err := b.Delete(); err != nil {
 		t.Errorf("Failed to delete bridge: err='%s'", err.Error())
 	}

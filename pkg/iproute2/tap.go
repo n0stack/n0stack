@@ -11,6 +11,22 @@ type Tap struct {
 	link netlink.Link // TODO
 }
 
+func NewTap(name string) (*Tap, error) {
+	t := &Tap{
+		name: name,
+	}
+
+	var err error
+	t.link, err = netlink.LinkByName(name)
+	if err != nil {
+		if err := t.createTap(); err != nil {
+			return nil, err
+		}
+	}
+
+	return t, nil
+}
+
 func (t *Tap) createTap() error {
 	l := netlink.NewLinkAttrs()
 	l.Name = t.name
@@ -28,22 +44,6 @@ func (t *Tap) createTap() error {
 	}
 
 	return nil
-}
-
-func NewTap(name string) (*Tap, error) {
-	t := &Tap{
-		name: name,
-	}
-
-	var err error
-	t.link, err = netlink.LinkByName(name)
-	if err != nil {
-		if err := t.createTap(); err != nil {
-			return nil, err
-		}
-	}
-
-	return t, nil
 }
 
 func (t Tap) Name() string {
