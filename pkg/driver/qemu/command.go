@@ -157,6 +157,8 @@ func (q *Qemu) Start(name, qmpPath string, vncWebsocketPort, vcpus uint32, memor
 		"-no-user-config", // The "-no-user-config" option makes QEMU not load any of the user-provided config files on sysconfdir
 		"-S",              // Do not start CPU at startup
 		"-no-shutdown",    // Don't exit QEMU on guest shutdown
+		// "-pidfile",
+		// "",
 
 		// QMP
 		"-chardev",
