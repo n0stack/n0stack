@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/exec"
 
-	img "github.com/n0stack/n0core/pkg/driver/qemu_img"
 	"golang.org/x/crypto/ssh"
 	"gopkg.in/yaml.v2"
 )
@@ -59,7 +58,7 @@ func (c *CloudConfig) StructConfig(path, user string, key ssh.PublicKey) error {
 	return nil
 }
 
-func (c *CloudConfig) GenerateISO(path string) (*img.QemuImg, error) {
+func (c *CloudConfig) GenerateISO(path string) error {
 	args := []string{
 		"/usr/bin/cloud-localds",
 		path,
@@ -69,16 +68,11 @@ func (c *CloudConfig) GenerateISO(path string) (*img.QemuImg, error) {
 	cmd := exec.Command(args[0], args[1:]...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return nil, fmt.Errorf("Failed to start process: args='%s', out='%s', err='%s'", args, string(out), err.Error())
-	}
-
-	i, err := img.OpenQemuImg(path)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to open created cloud-cfg iso: path='%s', err='%s'", path, err.Error())
+		return fmt.Errorf("Failed to start process: args='%s', out='%s', err='%s'", args, string(out), err.Error())
 	}
 
 	c.isoPath = path
-	return i, err
+	return nil
 }
 
 func (c *CloudConfig) Delete() (err error) {

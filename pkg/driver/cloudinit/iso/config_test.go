@@ -3,6 +3,8 @@ package iso
 import (
 	"testing"
 
+	"github.com/n0stack/n0core/pkg/driver/qemu_img"
+
 	"golang.org/x/crypto/ssh"
 )
 
@@ -14,9 +16,15 @@ func TestGenerateISO(t *testing.T) {
 		t.Fatalf("Failed to struct config: err='%s'", err.Error())
 	}
 
-	i, err := c.GenerateISO("test.iso")
+	f := "test.iso"
+	err := c.GenerateISO(f)
 	if err != nil {
 		t.Errorf("Failed to generate iso: err='%s'", err.Error())
+	}
+
+	i, err := img.OpenQemuImg(f)
+	if err != nil {
+		t.Errorf("Failed to open qemu image, maybe this is not valid image: path='%s', err='%s'", f, err.Error())
 	}
 	defer i.Delete()
 
