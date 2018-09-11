@@ -28,8 +28,8 @@ test-small:
 	go test -cover ./...
 test-small-v:
 	go test -v -cover ./...
-test-small-docker: build-docker
-	docker run -it --rm -e DISABLE_KVM=1 n0stack/n0core make test-small
+test-small-docker:
+	docker run -it --rm -v $(PWD):/go/src/github.com/n0stack/n0core n0stack/n0core make test-small
 
 test-medium: # with root, having dependency for outside
 	go test -tags=medium -cover ./...

@@ -5,7 +5,6 @@ services:
 script:
   - docker build -t n0stack/n0core .
   - docker run n0stack/n0core make analysis
-  - docker run -e DISABLE_KVM=1 n0stack/n0core make test-small
 
 
 notifications:
