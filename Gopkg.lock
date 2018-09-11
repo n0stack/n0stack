@@ -224,7 +224,7 @@
     "poly1305",
     "ssh"
   ]
-  revision = "0709b304e793a5edb4a2c0145f281ecdc20838a4"
+  revision = "0e37d006457bf46f9e6692014ba72ef82c33022c"
 
 [[projects]]
   branch = "master"
@@ -252,7 +252,7 @@
     "unix",
     "windows"
   ]
-  revision = "917fdcba135dcbaccd57425db91723541b4427c8"
+  revision = "d0be0721c37eeb5299f245a996a483160fc36940"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -317,9 +317,15 @@
   revision = "32fb0ac620c32ba40a4626ddf94d90d12cce3455"
   version = "v1.14.0"
 
+[[projects]]
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
+  version = "v2.2.1"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "92a18cd1556de44123f8331eb909bdc1a9febf3d46591853d236bb9757da2d42"
+  inputs-digest = "54361d70f4898a1a1f72ba083ca9085014b7836e69571bf729b59c3c80212957"
   solver-name = "gps-cdcl"
   solver-version = 1
