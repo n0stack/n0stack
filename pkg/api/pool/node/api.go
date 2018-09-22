@@ -134,36 +134,33 @@ func (a NodeAPI) DeleteNode(ctx context.Context, req *ppool.DeleteNodeRequest) (
 	return &empty.Empty{}, nil
 }
 
+func (a NodeAPI) ScheduleCompute(ctx context.Context, req *ppool.ScheduleComputeRequest) (*ppool.ReserveComputeResponse, error) {
+	return nil, grpc.Errorf(codes.Unimplemented, "")
+}
+
 func (a NodeAPI) ReserveCompute(ctx context.Context, req *ppool.ReserveComputeRequest) (*ppool.ReserveComputeResponse, error) {
 	if req.ComputeName == "" {
 		return nil, grpc.Errorf(codes.InvalidArgument, "Do not set field 'compute_name' as blank")
 	}
-	node := ""
-	if req.Name == "" {
-		// TODO: scheduling
-		return nil, grpc.Errorf(codes.Unimplemented, "Not supported to schedule node")
-	} else {
-		node = req.Name
-	}
 
 	n := &ppool.Node{}
-	if err := a.dataStore.Get(node, n); err != nil {
+	if err := a.dataStore.Get(req.Name, n); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", node)
+		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
 	if n == nil {
-		return nil, grpc.Errorf(codes.NotFound, "Node '%s' is not found", node)
+		return nil, grpc.Errorf(codes.NotFound, "Node '%s' is not found", req.Name)
 	}
 	if _, ok := n.Status.ReservedComputes[req.ComputeName]; ok {
-		return nil, grpc.Errorf(codes.AlreadyExists, "Compute '%s' is already exists on node '%s'", req.ComputeName, node)
+		return nil, grpc.Errorf(codes.AlreadyExists, "Compute '%s' is already exists on node '%s'", req.ComputeName, req.Name)
 	}
 
 	if err := CheckCompute(req.Compute.RequestCpuMilliCore, n.Spec.CpuMilliCores, req.Compute.RequestMemoryBytes, n.Spec.MemoryBytes, n.Status.ReservedComputes); err != nil {
-		grpc.Errorf(codes.ResourceExhausted, "Compute resource is exhausted on node '%s': %s", node, err.Error())
+		grpc.Errorf(codes.ResourceExhausted, "Compute resource is exhausted on node '%s': %s", req.Name, err.Error())
 	}
 
 	res := &ppool.ReserveComputeResponse{
-		Name:        node,
+		Name:        req.Name,
 		ComputeName: req.ComputeName,
 		Compute: &pbudget.Compute{
 			Annotations:         req.Compute.Annotations,
@@ -174,7 +171,7 @@ func (a NodeAPI) ReserveCompute(ctx context.Context, req *ppool.ReserveComputeRe
 		},
 	}
 	n.Status.ReservedComputes[req.ComputeName] = res.Compute
-	if err := a.dataStore.Apply(node, n); err != nil {
+	if err := a.dataStore.Apply(req.Name, n); err != nil {
 		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to store '%s' on db, please retry or contact for the administrator of this cluster", req.Name)
 	}
@@ -205,36 +202,33 @@ func (a NodeAPI) ReleaseCompute(ctx context.Context, req *ppool.ReleaseComputeRe
 	return &empty.Empty{}, nil
 }
 
+func (a NodeAPI) ScheduleStorage(ctx context.Context, req *ppool.ScheduleComputeRequest) (*ppool.ReserveStorageResponse, error) {
+	return nil, grpc.Errorf(codes.Unimplemented, "")
+}
+
 func (a NodeAPI) ReserveStorage(ctx context.Context, req *ppool.ReserveStorageRequest) (*ppool.ReserveStorageResponse, error) {
 	if req.StorageName == "" {
 		return nil, grpc.Errorf(codes.InvalidArgument, "Do not set field 'storage_name' as blank")
 	}
-	node := ""
-	if req.Name == "" {
-		// TODO: scheduling
-		return nil, grpc.Errorf(codes.Unimplemented, "Not supported to schedule node")
-	} else {
-		node = req.Name
-	}
 
 	n := &ppool.Node{}
-	if err := a.dataStore.Get(node, n); err != nil {
+	if err := a.dataStore.Get(req.Name, n); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", node)
+		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
 	if n == nil {
-		return nil, grpc.Errorf(codes.NotFound, "Node '%s' is not found", node)
+		return nil, grpc.Errorf(codes.NotFound, "Node '%s' is not found", req.Name)
 	}
 	if _, ok := n.Status.ReservedStorages[req.StorageName]; ok {
-		return nil, grpc.Errorf(codes.AlreadyExists, "Storage '%s' is already exists on node '%s'", req.StorageName, node)
+		return nil, grpc.Errorf(codes.AlreadyExists, "Storage '%s' is already exists on node '%s'", req.StorageName, req.Name)
 	}
 
 	if err := CheckStorage(req.Storage.RequestBytes, n.Spec.StorageBytes, n.Status.ReservedStorages); err != nil {
-		grpc.Errorf(codes.ResourceExhausted, "Storage resource is exhausted on node '%s': %s", node, err.Error())
+		grpc.Errorf(codes.ResourceExhausted, "Storage resource is exhausted on node '%s': %s", req.Name, err.Error())
 	}
 
 	res := &ppool.ReserveStorageResponse{
-		Name:        node,
+		Name:        req.Name,
 		StorageName: req.StorageName,
 		Storage: &pbudget.Storage{
 			Annotations:  req.Storage.Annotations,
@@ -243,7 +237,7 @@ func (a NodeAPI) ReserveStorage(ctx context.Context, req *ppool.ReserveStorageRe
 		},
 	}
 	n.Status.ReservedStorages[req.StorageName] = res.Storage
-	if err := a.dataStore.Apply(node, n); err != nil {
+	if err := a.dataStore.Apply(req.Name, n); err != nil {
 		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to store '%s' for db, please retry or contact for the administrator of this cluster", req.Name)
 	}
