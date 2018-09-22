@@ -112,7 +112,7 @@ func (a NetworkAPI) DeleteNetwork(ctx context.Context, req *ppool.DeleteNetworkR
 }
 
 // とりあえず IPv4 のスケジューリングのみに対応
-func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.ReserveNetworkInterfaceRequest) (*presource.NetworkInterface, error) {
+func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.ReserveNetworkInterfaceRequest) (*ppool.ReserveNetworkInterfaceResponse, error) {
 	if req.NetworkInterfaceName == "" {
 		return nil, grpc.Errorf(codes.InvalidArgument, "Do not set field 'network_interface_name' as blank")
 	}
@@ -162,12 +162,16 @@ func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.Rese
 		}
 	}
 
-	res := &presource.NetworkInterface{
-		Annotations:     req.Annotations,
-		HardwareAddress: reqHW.String(),
-		Ipv4Address:     reqIPv4.String(),
+	res := &ppool.ReserveNetworkInterfaceResponse{
+		Name:                 req.Name,
+		NetworkInterfaceName: req.NetworkInterfaceName,
+		NetworkInterface: &presource.NetworkInterface{
+			Annotations:     req.Annotations,
+			HardwareAddress: reqHW.String(),
+			Ipv4Address:     reqIPv4.String(),
+		},
 	}
-	n.Status.ReservedNetworkInterfaces[req.NetworkInterfaceName] = res
+	n.Status.ReservedNetworkInterfaces[req.NetworkInterfaceName] = res.NetworkInterface
 	if err := a.dataStore.Apply(req.Name, n); err != nil {
 		log.Printf("[WARNING] Failed to store data on db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to store '%s' on db, please retry or contact for the administrator of this cluster", req.Name)

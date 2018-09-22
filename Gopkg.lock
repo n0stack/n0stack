@@ -160,7 +160,7 @@
     "resource/v0",
     "v0"
   ]
-  revision = "1cafdaff45f1c23b05e7edd722c62a48983fe6c7"
+  revision = "2c6773fc81fe861f05977b037d2fe15904b93310"
 
 [[projects]]
   name = "github.com/pkg/errors"
@@ -334,6 +334,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ceb882ccc052524d4d3306ab9a5d47dcce230d2ae420b84b6134e4dfb40b9833"
+  inputs-digest = "7cc6a554f0077ee949e7db505dbf7ff6754c3f6252a1809ddf9993b0a6d3a4cb"
   solver-name = "gps-cdcl"
   solver-version = 1
