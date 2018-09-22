@@ -4,7 +4,7 @@ import (
 	"net"
 	"testing"
 
-	"github.com/n0stack/proto.go/resource/v0"
+	"github.com/n0stack/proto.go/budget/v0"
 )
 
 func TestGenerateHardwareAddress(t *testing.T) {
@@ -20,23 +20,23 @@ func TestScheduleNewIPv4(t *testing.T) {
 
 	cases := []struct {
 		// cidr *net.IPNet
-		reserved map[string]*presource.NetworkInterface
+		reserved map[string]*pbudget.NetworkInterface
 		result   net.IP
 	}{
 		{
-			map[string]*presource.NetworkInterface{
-				"hoge": &presource.NetworkInterface{
+			map[string]*pbudget.NetworkInterface{
+				"hoge": &pbudget.NetworkInterface{
 					Ipv4Address: "192.168.0.1",
 				},
 			},
 			net.ParseIP("192.168.0.2"),
 		},
 		{
-			map[string]*presource.NetworkInterface{
-				"foo": &presource.NetworkInterface{
+			map[string]*pbudget.NetworkInterface{
+				"foo": &pbudget.NetworkInterface{
 					Ipv4Address: "192.168.0.1",
 				},
-				"bar": &presource.NetworkInterface{
+				"bar": &pbudget.NetworkInterface{
 					Ipv4Address: "192.168.0.2",
 				},
 			},

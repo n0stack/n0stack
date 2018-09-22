@@ -6,15 +6,14 @@ import (
 	"log"
 	"net"
 
-	"github.com/n0stack/proto.go/resource/v0"
-
 	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/n0stack/n0core/pkg/datastore"
-	ppool "github.com/n0stack/proto.go/pool/v0"
+	"github.com/n0stack/proto.go/budget/v0"
+	"github.com/n0stack/proto.go/pool/v0"
 )
 
 type NetworkAPI struct {
@@ -133,12 +132,12 @@ func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.Rese
 	_, cidr, _ := net.ParseCIDR(n.Spec.Ipv4Cidr)
 
 	var reqIPv4 net.IP
-	if req.Ipv4Address == "" {
+	if req.NetworkInterface.Ipv4Address == "" {
 		if reqIPv4 = ScheduleNewIPv4(cidr, n.Status.ReservedNetworkInterfaces); reqIPv4 == nil {
 			return nil, grpc.Errorf(codes.ResourceExhausted, "ipv4_address is full on Network '%s'", req.Name)
 		}
 	} else {
-		reqIPv4 = net.ParseIP(req.Ipv4Address)
+		reqIPv4 = net.ParseIP(req.NetworkInterface.Ipv4Address)
 		if reqIPv4 == nil {
 			return nil, grpc.Errorf(codes.InvalidArgument, "ipv4_address field is invalid")
 		}
@@ -152,11 +151,11 @@ func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.Rese
 	}
 
 	var reqHW net.HardwareAddr
-	if req.HardwareAddress == "" {
+	if req.NetworkInterface.HardwareAddress == "" {
 		reqHW = GenerateHardwareAddress(fmt.Sprintf("%s/%s", req.Name, req.NetworkInterfaceName))
 	} else {
 		var err error
-		reqHW, err = net.ParseMAC(req.HardwareAddress)
+		reqHW, err = net.ParseMAC(req.NetworkInterface.HardwareAddress)
 		if err != nil {
 			return nil, grpc.Errorf(codes.InvalidArgument, "hardware_address field is invalid")
 		}
@@ -165,8 +164,8 @@ func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.Rese
 	res := &ppool.ReserveNetworkInterfaceResponse{
 		Name:                 req.Name,
 		NetworkInterfaceName: req.NetworkInterfaceName,
-		NetworkInterface: &presource.NetworkInterface{
-			Annotations:     req.Annotations,
+		NetworkInterface: &pbudget.NetworkInterface{
+			Annotations:     req.NetworkInterface.Annotations,
 			HardwareAddress: reqHW.String(),
 			Ipv4Address:     reqIPv4.String(),
 		},

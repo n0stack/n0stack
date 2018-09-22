@@ -148,19 +148,19 @@
 [[projects]]
   name = "github.com/miekg/dns"
   packages = ["."]
-  revision = "426ea785a99b1dad4755492b923feb327d9251a6"
-  version = "v1.0.9"
+  revision = "f4db2ca6edc3af0ee51bf332099cc480bcf3ef9d"
+  version = "v1.0.10"
 
 [[projects]]
   branch = "master"
   name = "github.com/n0stack/proto.go"
   packages = [
+    "budget/v0",
     "pool/v0",
     "provisioning/v0",
-    "resource/v0",
     "v0"
   ]
-  revision = "2c6773fc81fe861f05977b037d2fe15904b93310"
+  revision = "a022c583254afc3e640ff812158e6630b54b2fc7"
 
 [[projects]]
   name = "github.com/pkg/errors"
@@ -334,6 +334,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7cc6a554f0077ee949e7db505dbf7ff6754c3f6252a1809ddf9993b0a6d3a4cb"
+  inputs-digest = "6e7550a7db87db8897352d9eef835bda688737b00a027f00b7739a265f255045"
   solver-name = "gps-cdcl"
   solver-version = 1

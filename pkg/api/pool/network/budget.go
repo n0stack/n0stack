@@ -6,7 +6,7 @@ import (
 	"hash/crc32"
 	"net"
 
-	"github.com/n0stack/proto.go/resource/v0"
+	"github.com/n0stack/proto.go/budget/v0"
 )
 
 func GenerateHardwareAddress(id string) net.HardwareAddr {
@@ -23,7 +23,7 @@ func CheckIPv4OnCIDR(request net.IP, cidr *net.IPNet) error {
 	return nil
 }
 
-func CheckConflictIPv4(request net.IP, reserved map[string]*presource.NetworkInterface) error {
+func CheckConflictIPv4(request net.IP, reserved map[string]*pbudget.NetworkInterface) error {
 	for k, v := range reserved {
 		if request.String() == v.Ipv4Address {
 			return fmt.Errorf("Network interface '%s' is already have IPv4 address '%s'", k, request.String())
@@ -34,7 +34,7 @@ func CheckConflictIPv4(request net.IP, reserved map[string]*presource.NetworkInt
 }
 
 // O(len(reserved) ^ 2) なので要修正
-func ScheduleNewIPv4(cidr *net.IPNet, reserved map[string]*presource.NetworkInterface) net.IP {
+func ScheduleNewIPv4(cidr *net.IPNet, reserved map[string]*pbudget.NetworkInterface) net.IP {
 	// escape network address and broadcast address
 	for ip := NextIP(cidr.IP); cidr.Contains(NextIP(ip)); ip = NextIP(ip) {
 		if err := CheckConflictIPv4(ip, reserved); err == nil {
