@@ -15,7 +15,7 @@ import (
 
 // TODO: APIを叩く回数を減らす
 type NodeConnections struct {
-	nodeAPI ppool.NodeServiceClient
+	NodeAPI ppool.NodeServiceClient
 }
 
 func NewNodeConnections(api string) (*NodeConnections, error) {
@@ -25,14 +25,14 @@ func NewNodeConnections(api string) (*NodeConnections, error) {
 	}
 
 	nc := &NodeConnections{
-		nodeAPI: ppool.NewNodeServiceClient(conn),
+		NodeAPI: ppool.NewNodeServiceClient(conn),
 	}
 
 	return nc, nil
 }
 
 func (nc NodeConnections) IsExisting(nodeName string) (bool, error) {
-	_, err := nc.nodeAPI.GetNode(context.Background(), &ppool.GetNodeRequest{Name: nodeName})
+	_, err := nc.NodeAPI.GetNode(context.Background(), &ppool.GetNodeRequest{Name: nodeName})
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
 			return false, nil
@@ -46,7 +46,7 @@ func (nc NodeConnections) IsExisting(nodeName string) (bool, error) {
 
 // GetConnection return a connection to Node having name of arguments.
 func (nc NodeConnections) GetConnection(nodeName string) (*grpc.ClientConn, error) {
-	n, err := nc.nodeAPI.GetNode(context.Background(), &ppool.GetNodeRequest{Name: nodeName})
+	n, err := nc.NodeAPI.GetNode(context.Background(), &ppool.GetNodeRequest{Name: nodeName})
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed to get node from API")
 	}
