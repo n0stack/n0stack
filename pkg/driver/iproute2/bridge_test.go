@@ -38,3 +38,29 @@ func TestExistingBridge(t *testing.T) {
 		t.Fatalf("Failed to find existing bridge: err='%s'", err.Error())
 	}
 }
+
+func TestListSlaves(t *testing.T) {
+	b, err := NewBridge("br-test")
+	if err != nil {
+		t.Fatalf("Failed to create bridge: err='%s'", err.Error())
+	}
+	defer b.Delete()
+
+	nt, err := NewTap("tap-test")
+	if err != nil {
+		t.Fatalf("Failed to create tap: err='%s'", err.Error())
+	}
+	defer nt.Delete()
+
+	if err := nt.SetMaster(b); err != nil {
+		t.Errorf("Failed to set master: err='%s'", err.Error())
+	}
+
+	if l, err := b.ListSlaves(); err != nil {
+		t.Errorf("Failed to list slaves: err='%s'", err.Error())
+	} else if len(l) != 1 {
+		t.Errorf("Wrong the number of slaves: want='%d', have='%d'", 1, len(l))
+	} else if l[0].Attrs().Index != nt.link.Attrs().Index {
+		t.Errorf("Got wrong link about index: want='%d', have='%d'", nt.link.Attrs().Index, l[0].Attrs().Index)
+	}
+}

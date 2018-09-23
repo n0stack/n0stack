@@ -3,6 +3,7 @@ package iproute2
 import (
 	"fmt"
 
+	"github.com/pkg/errors"
 	"github.com/vishvananda/netlink"
 	"github.com/vishvananda/netlink/nl"
 )
@@ -103,6 +104,23 @@ func (b *Bridge) SetAddress(addr string) error {
 	}
 
 	return nil
+}
+
+// ip link list
+func (b *Bridge) ListSlaves() ([]netlink.Link, error) {
+	links, err := netlink.LinkList()
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to list links")
+	}
+
+	slaves := []netlink.Link{}
+	for _, l := range links {
+		if l.Attrs().MasterIndex == b.link.Index {
+			slaves = append(slaves, l)
+		}
+	}
+
+	return slaves, nil
 }
 
 // ip link del name $name
