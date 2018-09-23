@@ -5,6 +5,8 @@ import (
 	"log"
 
 	"github.com/n0stack/proto.go/budget/v0"
+	"github.com/n0stack/proto.go/pool/v0"
+	"github.com/n0stack/proto.go/provisioning/v0"
 
 	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
@@ -14,8 +16,6 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/n0stack/n0core/pkg/api/pool/node"
 	"github.com/n0stack/n0core/pkg/datastore"
-	"github.com/n0stack/proto.go/pool/v0"
-	"github.com/n0stack/proto.go/provisioning/v0"
 )
 
 type VolumeAPI struct {
@@ -233,7 +233,8 @@ func (a *VolumeAPI) ListVolumes(ctx context.Context, req *pprovisioning.ListVolu
 	}
 
 	if err := a.dataStore.List(f); err != nil {
-		return nil, grpc.Errorf(codes.Internal, "message:Failed to get from db\tgot:%v", err.Error())
+		log.Printf("[WARNING] Failed to list data from db: err='%s'", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Failed to list from db, please retry or contact for the administrator of this cluster")
 	}
 	if len(res.Volumes) == 0 {
 		return nil, grpc.Errorf(codes.NotFound, "")
@@ -311,11 +312,23 @@ func (a *VolumeAPI) DeleteVolume(ctx context.Context, req *pprovisioning.DeleteV
 	}
 	defer conn.Close()
 	cli := NewVolumeAgentServiceClient(conn)
-
 	_, err = cli.DeleteVolumeAgent(context.Background(), &DeleteVolumeAgentRequest{Path: prev.Metadata.Annotations[AnnotationVolumePath]})
 	if err != nil {
 		log.Printf("Fail to delete volume on node, err:%v.", err.Error())
 		return &empty.Empty{}, grpc.Errorf(codes.Internal, "Fail to delete volume on node") // TODO #89
+	}
+
+	_, err = a.nodeAPI.ReleaseStorage(context.Background(), &ppool.ReleaseStorageRequest{
+		Name:        prev.Status.NodeName,
+		StorageName: prev.Status.StorageName,
+	})
+	if err != nil {
+		log.Printf("[ERROR] Failed to release compute '%s': %s", prev.Status.StorageName, err.Error())
+
+		// Notfound でもとりあえず問題ないため、処理を続ける
+		if status.Code(err) != codes.NotFound {
+			return nil, grpc.Errorf(codes.Internal, "Failed to release compute '%s': please retry", prev.Status.StorageName)
+		}
 	}
 
 	if err := a.dataStore.Delete(req.Name); err != nil {
