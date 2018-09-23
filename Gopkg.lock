@@ -160,7 +160,7 @@
     "provisioning/v0",
     "v0"
   ]
-  revision = "81eec9c92b2f7ccd0716cb8dac9354034a45e99c"
+  revision = "3374ba623f12b67c4deb4d75c96bf7c914c6e56a"
 
 [[projects]]
   name = "github.com/pkg/errors"
