@@ -105,7 +105,7 @@ func TestBoot(t *testing.T) {
 	}
 }
 
-func TestReset(t *testing.T) {
+func TestHardReset(t *testing.T) {
 	id, _ := uuid.FromString("5fd6c569-172f-4b25-84cd-b76cc336cfdd")
 	q, err := OpenQemu(&id)
 	if err != nil {
@@ -133,7 +133,7 @@ func TestReset(t *testing.T) {
 	if err := q.Boot(); err != nil {
 		t.Errorf("Failed to boot: err='%s'", err.Error())
 	}
-	if err := q.Reset(); err != nil {
+	if err := q.HardReset(); err != nil {
 		t.Errorf("Failed to reset: err='%s'", err.Error())
 	}
 
@@ -143,6 +143,47 @@ func TestReset(t *testing.T) {
 	}
 	if s != StatusRunning {
 		t.Errorf("Status is mismatch: want='%v', have='%v'", StatusRunning, s)
+	}
+}
+
+func TestHardShutdown(t *testing.T) {
+	id, _ := uuid.FromString("5fd6c569-172f-4b25-84cd-b76cc336cfdd")
+	q, err := OpenQemu(&id)
+	if err != nil {
+		t.Fatalf("Failed to open qemu: err='%s'", err.Error())
+	}
+	defer q.Delete()
+
+	if _, ok := os.LookupEnv("DISABLE_KVM"); ok {
+		q.isKVM = false
+	}
+
+	b, _ := bytefmt.ToBytes("512M")
+	if err := q.Start("test", "monitor.sock", 10000, 1, b); err != nil {
+		t.Fatalf("Failed to start process: err='%s'", err.Error())
+	}
+
+	s, err := q.Status()
+	if err != nil {
+		t.Errorf("Failed to get status: err='%s'", err.Error())
+	}
+	if s != StatusPreLaunch {
+		t.Errorf("Status is mismatch: want='%v', have='%v'", StatusPreLaunch, s)
+	}
+
+	if err := q.Boot(); err != nil {
+		t.Errorf("Failed to boot: err='%s'", err.Error())
+	}
+	if err := q.HardShutdown(); err != nil {
+		t.Errorf("Failed to reset: err='%s'", err.Error())
+	}
+
+	s, err = q.Status()
+	if err != nil {
+		t.Errorf("Failed to get status: err='%s'", err.Error())
+	}
+	if s != StatusPaused {
+		t.Errorf("Status is mismatch: want='%v', have='%v'", StatusPaused, s)
 	}
 }
 

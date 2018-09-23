@@ -48,15 +48,39 @@ func (q *Qemu) Close() error {
 	return q.qmp.Disconnect()
 }
 
-func (q Qemu) Reset() error {
-	return q.m.SystemReset()
+// func (q Qemu) Reset() error {
+// 	return nil
+// }
+
+func (q Qemu) HardReset() error {
+	if err := q.m.SystemReset(); err != nil {
+		return err
+	}
+
+	return q.Boot()
 }
 
 func (q Qemu) Shutdown() error {
 	return q.m.SystemPowerdown()
 }
 
+func (q Qemu) HardShutdown() error {
+	if err := q.m.Stop(); err != nil {
+		return err
+	}
+
+	return q.m.SystemReset()
+}
+
 func (q Qemu) Boot() error {
+	if s, err := q.Status(); err != nil {
+		return err
+	} else if s == StatusShutdown {
+		if err := q.m.SystemReset(); err != nil {
+			return err
+		}
+	}
+
 	if err := q.m.Cont(); err != nil {
 		return err
 	}
@@ -177,7 +201,7 @@ func (q *Qemu) Start(name, qmpPath string, vncWebsocketPort, vcpus uint32, memor
 
 		// VNC
 		"-vnc",
-		fmt.Sprintf("127.0.0.1:%d,websocket=%d", q.getVNCPort()-5900, vncWebsocketPort), // TODO: ぶつからないようにポートを設定する必要がある、現状一台しか立たない
+		fmt.Sprintf("127.0.0.1:%d,websocket=%d", q.getVNCPort()-5900, vncWebsocketPort),
 
 		// clock
 		"-rtc",
@@ -214,7 +238,7 @@ func (q *Qemu) Start(name, qmpPath string, vncWebsocketPort, vcpus uint32, memor
 
 	if !q.isKVM {
 		// remove "-cpu", "host" and "-enable-kvm", because kvm is disable
-		args = append(args[:29], args[32:]...)
+		args = append(args[:30], args[33:]...)
 	}
 
 	cmd := exec.Command(args[0], args[1:]...)
