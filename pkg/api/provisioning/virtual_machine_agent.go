@@ -8,6 +8,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/n0stack/n0core/pkg/driver/qemu_img"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 
@@ -117,9 +119,23 @@ func (a VirtualMachineAgentAPI) CreateVirtualMachineAgent(ctx context.Context, r
 			return nil, grpc.Errorf(codes.InvalidArgument, "url '%s' is invalid url: '%s'", bd.Url, err.Error())
 		}
 
-		if err := q.AttachQcow2(bd.Name, u, uint(bd.BootIndex)); err != nil {
-			log.Printf("Failed to attach image '%s': err='%s'", u.Path, err.Error())
+		i, err := img.OpenQemuImg(u.Path)
+		if err != nil {
+			log.Printf("Failed to open qemu image: err='%s'", err.Error())
 			return nil, grpc.Errorf(codes.Internal, "") // TODO #89
+		}
+
+		// この条件は雑
+		if i.Info.Format == "raw" {
+			if err := q.AttachISO(bd.Name, u, uint(bd.BootIndex)); err != nil {
+				log.Printf("Failed to attach iso '%s': err='%s'", u.Path, err.Error())
+				return nil, grpc.Errorf(codes.Internal, "") // TODO #89
+			}
+		} else {
+			if err := q.AttachQcow2(bd.Name, u, uint(bd.BootIndex)); err != nil {
+				log.Printf("Failed to attach image '%s': err='%s'", u.Path, err.Error())
+				return nil, grpc.Errorf(codes.Internal, "") // TODO #89
+			}
 		}
 	}
 
