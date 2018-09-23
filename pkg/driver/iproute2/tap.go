@@ -24,6 +24,10 @@ func NewTap(name string) (*Tap, error) {
 		}
 	}
 
+	if t.link.Type() != "tun" && t.link.Type() != "tuntap" {
+		return nil, fmt.Errorf("Interface '%s' is not 'tun', but '%s'", name, t.link.Type())
+	}
+
 	return t, nil
 }
 
