@@ -1,10 +1,22 @@
 package node
 
 import (
+	"context"
+	"log"
 	"os/exec"
+	"runtime"
 	"strings"
+	"syscall"
+
+	"github.com/n0stack/proto.go/pool/v0"
+	"github.com/n0stack/proto.go/v0"
+	"github.com/pkg/errors"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
+// IPMIを持っていない場合が考えられるので、とりあえずエラーハンドリングはしていない
 func GetIpmiAddress() string {
 	out, err := exec.Command("ipmitool", "lan", "print").Output()
 	if err != nil {
@@ -21,6 +33,7 @@ func GetIpmiAddress() string {
 	return ""
 }
 
+// Serialが取得できなくても動作に問題はないため、エラーハンドリングはしていない
 func GetSerial() string {
 	out, err := exec.Command("dmidecode", "-t", "system").Output()
 	if err != nil {
@@ -37,48 +50,70 @@ func GetSerial() string {
 	return ""
 }
 
-// func registerNodeToAPI(name, advertiseAddress, api string) error {
-// 	conn, err := grpc.Dial(api, grpc.WithInsecure())
-// 	if err != nil {
-// 		return err
-// 	}
-// 	defer conn.Close()
+func GetTotalMemory() (uint64, error) {
+	si := &syscall.Sysinfo_t{}
+	err := syscall.Sysinfo(si)
+	if err != nil {
+		return 0, errors.Wrap(err, "Failed to call syscall 'sysinfo'")
+	}
 
-// 	cli := pprovisioning.NewNodeServiceClient(conn)
+	return si.Totalram / uint64(si.Unit), nil
+}
 
-// 	n, err := cli.GetNode(context.Background(), &pprovisioning.GetNodeRequest{Name: name})
-// 	var ar *pprovisioning.ApplyNodeRequest
-// 	if err != nil {
-// 		if status.Code(err) != codes.NotFound {
-// 			return err
-// 		}
-// 		ar = &pprovisioning.ApplyNodeRequest{
-// 			Metadata: &pn0stack.Metadata{
-// 				Name: name,
-// 			},
-// 			Spec: &pprovisioning.NodeSpec{},
-// 		}
-// 	} else {
-// 		ar = &pprovisioning.ApplyNodeRequest{
-// 			Metadata: n.Metadata,
-// 			Spec:     n.Spec,
-// 		}
-// 	}
+func GetTotalCPUMilliCores() uint32 {
+	return uint32(runtime.NumCPU())
+}
 
-// 	ar.Spec.Address = advertiseAddress
-// 	// ar.Spec.Endpoints =
-// 	ar.Spec.IpmiAddress = GetIpmiAddress()
-// 	ar.Spec.Serial = GetSerial()
+// TODO: エラーハンドリング適当
+func RegisterNodeToAPI(name, advertiseAddress, api string) error {
+	conn, err := grpc.Dial(api, grpc.WithInsecure())
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
 
-// 	n, err = cli.ApplyNode(context.Background(), ar)
-// 	if err != nil {
-// 		return err
-// 	}
+	cli := ppool.NewNodeServiceClient(conn)
 
-// 	log.Printf("[INFO] Applied Node to APi on registerNodeToAPI, Node:%v", n)
+	n, err := cli.GetNode(context.Background(), &ppool.GetNodeRequest{Name: name})
+	var ar *ppool.ApplyNodeRequest
+	if err != nil {
+		if status.Code(err) != codes.NotFound {
+			return err
+		}
 
-// 	return nil
-// }
+		ar = &ppool.ApplyNodeRequest{
+			Metadata: &pn0stack.Metadata{
+				Name: name,
+			},
+			Spec: &ppool.NodeSpec{},
+		}
+	} else {
+		ar = &ppool.ApplyNodeRequest{
+			Metadata: n.Metadata,
+			Spec:     n.Spec,
+		}
+	}
+
+	mem, err := GetTotalMemory()
+	if err != nil {
+		return err
+	}
+
+	ar.Spec.Address = advertiseAddress
+	ar.Spec.IpmiAddress = GetIpmiAddress()
+	ar.Spec.Serial = GetSerial()
+	ar.Spec.CpuMilliCores = GetTotalCPUMilliCores()
+	ar.Spec.MemoryBytes = mem
+
+	n, err = cli.ApplyNode(context.Background(), ar)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[INFO] Applied Node to APi on registerNodeToAPI, Node:%v", n)
+
+	return nil
+}
 
 // func joinNodeToMemberlist(name, advertiseAddress, api string) (*memberlist.Memberlist, error) {
 // 	c := memberlist.DefaultLANConfig()

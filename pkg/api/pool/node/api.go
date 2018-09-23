@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/hashicorp/memberlist"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 
@@ -17,7 +16,7 @@ import (
 
 type NodeAPI struct {
 	dataStore datastore.Datastore
-	list      *memberlist.Memberlist
+	// list      *memberlist.Memberlist
 }
 
 func CreateNodeAPI(ds datastore.Datastore, starter string) (*NodeAPI, error) {
@@ -107,6 +106,8 @@ func (a NodeAPI) ApplyNode(ctx context.Context, req *ppool.ApplyNodeRequest) (*p
 	if res.Status == nil { // version == 0 でもあるはず
 		res.Status = &ppool.NodeStatus{}
 
+		// TODO: 何らかの仕組みで死活監視
+		res.Status.State = ppool.NodeStatus_Ready
 		// res.Status.State = ppool.NodeStatus_NotReady
 		// for _, m := range a.list.Members() {
 		// 	if m.Name == res.Metadata.Name {
