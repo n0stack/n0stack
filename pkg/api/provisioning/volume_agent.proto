@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+option go_package = "github.com/n0stack/n0core/pkg/api/provisioning;provisioning";
+
+package n0stack.internal.n0core.provisioning;
+
+import "google/protobuf/empty.proto";
+
+message VolumeAgent {
+  string name = 1;
+  uint64 bytes = 2;
+  string path = 3;
+}
+
+service VolumeAgentService {
+  rpc CreateEmptyVolumeAgent(CreateEmptyVolumeAgentRequest) returns (VolumeAgent) {}
+  rpc CreateVolumeAgentWithDownloading(CreateVolumeAgentWithDownloadingRequest) returns (VolumeAgent) {}
+
+  rpc DeleteVolumeAgent(DeleteVolumeAgentRequest) returns (google.protobuf.Empty) {}
+
+  // rpc ResizeVolumeAgent(ResizeVolumeAgentRequest) returns (VolumeAgent) {}
+  // rpc MigrateVolumeAgent(MigrateVolumeAgentRequest) returns (VolumeAgent) {}
+}
+
+message CreateEmptyVolumeAgentRequest {
+  string name = 1;
+  uint64 bytes = 2;
+}
+
+message CreateVolumeAgentWithDownloadingRequest {
+  string name = 1;
+  uint64 bytes = 2;
+
+  string source_url = 4;
+}
+
+message DeleteVolumeAgentRequest {
+  string path = 3;
+}
