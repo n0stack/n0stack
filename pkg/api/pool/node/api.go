@@ -125,11 +125,9 @@ func (a NodeAPI) ApplyNode(ctx context.Context, req *ppool.ApplyNodeRequest) (*p
 }
 
 func (a NodeAPI) DeleteNode(ctx context.Context, req *ppool.DeleteNodeRequest) (*empty.Empty, error) {
-	if d, err := a.dataStore.Delete(req.Name); err != nil {
+	if err := a.dataStore.Delete(req.Name); err != nil {
 		log.Printf("[WARNING] Failed to delete data from db: err='%s'", err.Error())
 		return &empty.Empty{}, grpc.Errorf(codes.Internal, "Failed to delete '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	} else if d < 1 {
-		return &empty.Empty{}, grpc.Errorf(codes.NotFound, "")
 	}
 
 	return &empty.Empty{}, nil

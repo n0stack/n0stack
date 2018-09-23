@@ -55,14 +55,14 @@ func (m MemoryDatastore) Apply(name string, pb proto.Message) error {
 	return nil
 }
 
-func (m MemoryDatastore) Delete(name string) (int64, error) {
+func (m MemoryDatastore) Delete(name string) error {
 	var ok bool
 	_, ok = m.Data[name]
 
 	if ok {
 		delete(m.Data, name)
-		return 1, nil
+		return nil
 	}
 
-	return 0, nil
+	return nil
 }

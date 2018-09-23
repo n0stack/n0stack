@@ -97,16 +97,16 @@ func (d EtcdDatastore) Apply(name string, pb proto.Message) error {
 	return nil
 }
 
-func (d EtcdDatastore) Delete(name string) (int64, error) {
+func (d EtcdDatastore) Delete(name string) error {
 	c, cancel := context.WithTimeout(context.Background(), etcdRequestTimeout)
 	defer cancel()
 
-	resp, err := d.client.Delete(c, name, clientv3.WithPrefix())
+	_, err := d.client.Delete(c, name, clientv3.WithPrefix())
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	return resp.Deleted, nil
+	return nil
 }
 
 func (d EtcdDatastore) Close() error {

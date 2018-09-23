@@ -13,5 +13,5 @@ type Datastore interface {
 	Apply(name string, pb proto.Message) error
 
 	// Delete returns how many query was deleted and error
-	Delete(name string) (int64, error)
+	Delete(name string) error // TODO: returnをerrorのみにする
 }

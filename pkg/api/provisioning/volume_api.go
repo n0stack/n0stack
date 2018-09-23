@@ -318,12 +318,8 @@ func (a *VolumeAPI) DeleteVolume(ctx context.Context, req *pprovisioning.DeleteV
 		return &empty.Empty{}, grpc.Errorf(codes.Internal, "Fail to delete volume on node") // TODO #89
 	}
 
-	d, err := a.dataStore.Delete(req.Name)
-	if err != nil {
+	if err := a.dataStore.Delete(req.Name); err != nil {
 		return &empty.Empty{}, grpc.Errorf(codes.Internal, "message:Failed to delete from db.\tgot:%v", err.Error())
-	}
-	if d < 1 {
-		return &empty.Empty{}, grpc.Errorf(codes.NotFound, "")
 	}
 
 	return &empty.Empty{}, nil
