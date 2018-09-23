@@ -187,7 +187,7 @@ func (q *Qemu) Start(name, qmpPath string, vncWebsocketPort uint16, vcpus uint32
 
 		// VNC
 		"-vnc",
-		fmt.Sprintf("127.0.0.1:%d,websocket=%d", GetNewListenPort(5900)-5900, vncWebsocketPort),
+		fmt.Sprintf("0.0.0.0:%d,websocket=%d", GetNewListenPort(5900)-5900, vncWebsocketPort),
 
 		// clock
 		"-rtc",
