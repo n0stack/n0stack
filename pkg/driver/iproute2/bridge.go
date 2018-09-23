@@ -107,16 +107,16 @@ func (b *Bridge) SetAddress(addr string) error {
 }
 
 // ip link list
-func (b *Bridge) ListSlaves() ([]netlink.Link, error) {
+func (b *Bridge) ListSlaves() ([]string, error) {
 	links, err := netlink.LinkList()
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed to list links")
 	}
 
-	slaves := []netlink.Link{}
+	slaves := []string{}
 	for _, l := range links {
 		if l.Attrs().MasterIndex == b.link.Index {
-			slaves = append(slaves, l)
+			slaves = append(slaves, l.Attrs().Name)
 		}
 	}
 
