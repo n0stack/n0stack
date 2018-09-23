@@ -3,7 +3,7 @@ services:
   - docker
 
 script:
-  - docker build -t n0stack/n0core .
+  - make build-docker
   - docker run n0stack/n0core make analysis
 
 

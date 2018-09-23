@@ -21,3 +21,5 @@ COPY . /go/src/github.com/n0stack/n0core
 
 ENV DISABLE_KVM=1
 RUN make test-small
+
+RUN make build

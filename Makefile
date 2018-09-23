@@ -9,7 +9,8 @@ run_local_agent:
 	go run cmd/agent/main.go
 
 build:
-	go build cmd/agent/*.go -o bin/agent -v -x
+	go build -o bin/n0core-agent -v cmd/agent/*.go
+	go build -o bin/n0core-api -v cmd/api/*.go
 build-docker:
 	docker build -t n0stack/n0core .
 

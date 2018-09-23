@@ -31,7 +31,7 @@ type VirtualMachineAPI struct {
 	nodeConnections *node.NodeConnections
 }
 
-func NewVirtualMachineAPI(ds datastore.Datastore, noa ppool.NodeServiceClient, nea ppool.NetworkServiceClient, va pprovisioning.VolumeServiceClient) (*VirtualMachineAPI, error) {
+func CreateVirtualMachineAPI(ds datastore.Datastore, noa ppool.NodeServiceClient, nea ppool.NetworkServiceClient, va pprovisioning.VolumeServiceClient) (*VirtualMachineAPI, error) {
 	nc := &node.NodeConnections{
 		NodeAPI: noa,
 	}
@@ -57,7 +57,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 	}
 
 	if req.Spec.LimitCpuMilliCore%1000 != 0 {
-		return nil, grpc.Errorf(codes.InvalidArgument, "Make limit_cpu_milli_core '%s' a multiple of 1000", req.Spec.LimitCpuMilliCore)
+		return nil, grpc.Errorf(codes.InvalidArgument, "Make limit_cpu_milli_core '%d' a multiple of 1000", req.Spec.LimitCpuMilliCore)
 	}
 
 	res := &pprovisioning.VirtualMachine{

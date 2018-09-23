@@ -18,7 +18,7 @@ type VolumeAgentAPI struct {
 	baseDirectory string
 }
 
-func NewVolumeAgentAPI(basedir string) (*VolumeAgentAPI, error) {
+func CreateVolumeAgentAPI(basedir string) (*VolumeAgentAPI, error) {
 	b, err := filepath.Abs(basedir)
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed to get absolute path")

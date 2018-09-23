@@ -33,6 +33,23 @@ type VirtualMachineAgentAPI struct {
 	baseDirectory string
 }
 
+func CreateVirtualMachineAgentAPI(basedir string) (*VirtualMachineAgentAPI, error) {
+	b, err := filepath.Abs(basedir)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to get absolute path")
+	}
+
+	if _, err := os.Stat(b); os.IsNotExist(err) {
+		if err := os.MkdirAll(b, 0644); err != nil { // TODO: check permission
+			return nil, errors.Wrapf(err, "Failed to mkdir '%s'", b)
+		}
+	}
+
+	return &VirtualMachineAgentAPI{
+		baseDirectory: b,
+	}, nil
+}
+
 func (a VirtualMachineAgentAPI) GetWorkDirectory(name string) (string, error) {
 	p := filepath.Join(a.baseDirectory, name)
 

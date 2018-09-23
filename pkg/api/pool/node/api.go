@@ -19,7 +19,7 @@ type NodeAPI struct {
 	// list      *memberlist.Memberlist
 }
 
-func CreateNodeAPI(ds datastore.Datastore, starter string) (*NodeAPI, error) {
+func CreateNodeAPI(ds datastore.Datastore) (*NodeAPI, error) {
 	a := &NodeAPI{
 		dataStore: ds,
 	}
@@ -201,7 +201,7 @@ func (a NodeAPI) ReleaseCompute(ctx context.Context, req *ppool.ReleaseComputeRe
 	return &empty.Empty{}, nil
 }
 
-func (a NodeAPI) ScheduleStorage(ctx context.Context, req *ppool.ScheduleComputeRequest) (*ppool.ReserveStorageResponse, error) {
+func (a NodeAPI) ScheduleStorage(ctx context.Context, req *ppool.ScheduleStorageRequest) (*ppool.ReserveStorageResponse, error) {
 	return nil, grpc.Errorf(codes.Unimplemented, "")
 }
 

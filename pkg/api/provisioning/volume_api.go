@@ -32,7 +32,11 @@ const (
 	AnnotationVolumePath = "n0core/provisioning/volume_url"
 )
 
-func CreateVolumeAPI(ds datastore.Datastore, na ppool.NodeServiceClient, nc *node.NodeConnections) (*VolumeAPI, error) {
+func CreateVolumeAPI(ds datastore.Datastore, na ppool.NodeServiceClient) (*VolumeAPI, error) {
+	nc := &node.NodeConnections{
+		NodeAPI: na,
+	}
+
 	a := &VolumeAPI{
 		dataStore:       ds,
 		nodeAPI:         na,
