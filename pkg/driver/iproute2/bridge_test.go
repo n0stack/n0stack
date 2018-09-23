@@ -60,7 +60,7 @@ func TestListSlaves(t *testing.T) {
 		t.Errorf("Failed to list slaves: err='%s'", err.Error())
 	} else if len(l) != 1 {
 		t.Errorf("Wrong the number of slaves: want='%d', have='%d'", 1, len(l))
-	} else if l[0]. != nt.Name() {
-		t.Errorf("Got wrong link about index: want='%d', have='%d'", nt.Name(), l[0])
+	} else if l[0] != nt.Name() {
+		t.Errorf("Got wrong link about index: want='%s', have='%s'", nt.Name(), l[0])
 	}
 }
