@@ -28,9 +28,6 @@ type VolumeAPI struct {
 }
 
 const (
-	// Create のときに Node を指定したい時に利用
-	AnnotationRequestNodeName = "n0core/provisioning/request_node_name"
-
 	// Create のときに自動生成、消されると困る
 	AnnotationVolumePath = "n0core/provisioning/volume_url"
 )
@@ -299,7 +296,11 @@ func (a *VolumeAPI) DeleteVolume(ctx context.Context, req *pprovisioning.DeleteV
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	} else {
-		return &empty.Empty{}, grpc.Errorf(codes.NotFound, "")
+		return nil, grpc.Errorf(codes.NotFound, "")
+	}
+
+	if prev.Status.State == pprovisioning.VolumeStatus_IN_USE {
+		return nil, grpc.Errorf(codes.FailedPrecondition, "Volume '%s' is in use", req.Name)
 	}
 
 	conn, err := a.nodeConnections.GetConnection(prev.Status.NodeName)
@@ -312,10 +313,11 @@ func (a *VolumeAPI) DeleteVolume(ctx context.Context, req *pprovisioning.DeleteV
 	}
 	defer conn.Close()
 	cli := NewVolumeAgentServiceClient(conn)
+
 	_, err = cli.DeleteVolumeAgent(context.Background(), &DeleteVolumeAgentRequest{Path: prev.Metadata.Annotations[AnnotationVolumePath]})
 	if err != nil {
 		log.Printf("Fail to delete volume on node, err:%v.", err.Error())
-		return &empty.Empty{}, grpc.Errorf(codes.Internal, "Fail to delete volume on node") // TODO #89
+		return nil, grpc.Errorf(codes.Internal, "Fail to delete volume on node") // TODO #89
 	}
 
 	_, err = a.nodeAPI.ReleaseStorage(context.Background(), &ppool.ReleaseStorageRequest{
@@ -332,7 +334,7 @@ func (a *VolumeAPI) DeleteVolume(ctx context.Context, req *pprovisioning.DeleteV
 	}
 
 	if err := a.dataStore.Delete(req.Name); err != nil {
-		return &empty.Empty{}, grpc.Errorf(codes.Internal, "message:Failed to delete from db.\tgot:%v", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "message:Failed to delete from db.\tgot:%v", err.Error())
 	}
 
 	return &empty.Empty{}, nil
