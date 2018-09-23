@@ -52,7 +52,7 @@ func (b *Bridge) createBridge() error {
 	return nil
 }
 
-func (b Bridge) GetName() string {
+func (b Bridge) Name() string {
 	return b.name
 }
 
