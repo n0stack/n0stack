@@ -299,8 +299,8 @@ func (a *VolumeAPI) DeleteVolume(ctx context.Context, req *pprovisioning.DeleteV
 		return nil, grpc.Errorf(codes.NotFound, "")
 	}
 
-	if prev.Status.State == pprovisioning.VolumeStatus_IN_USE {
-		return nil, grpc.Errorf(codes.FailedPrecondition, "Volume '%s' is in use", req.Name)
+	if prev.Status.State != pprovisioning.VolumeStatus_AVAILABLE {
+		return nil, grpc.Errorf(codes.FailedPrecondition, "Volume '%s' is not available", req.Name)
 	}
 
 	conn, err := a.nodeConnections.GetConnection(prev.Status.NodeName)
