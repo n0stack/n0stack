@@ -2,6 +2,7 @@ package qemu
 
 import (
 	"fmt"
+	"net"
 	"strings"
 	"time"
 
@@ -124,4 +125,17 @@ func GetQemuArgValue(option, id string, args []string) *QemuArgValue {
 	}
 
 	return nil
+}
+
+func GetNewListenPort(begin uint16) uint16 {
+	for p := begin; p <= uint16(65535); p++ {
+		l, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", p))
+		if err == nil {
+			defer l.Close()
+
+			return p
+		}
+	}
+
+	return 0
 }

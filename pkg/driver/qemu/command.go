@@ -2,7 +2,6 @@ package qemu
 
 import (
 	"fmt"
-	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -145,19 +144,6 @@ func (q *Qemu) Delete() error {
 	return nil
 }
 
-func (q Qemu) getVNCPort() uint16 {
-	for p := 5900; p < 65536; p++ {
-		l, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", p))
-		if err == nil {
-			defer l.Close()
-
-			return uint16(p)
-		}
-	}
-
-	return 0
-}
-
 func (q *Qemu) Start(name, qmpPath string, vncWebsocketPort, vcpus uint32, memory uint64) error {
 	qmpPath, err := filepath.Abs(qmpPath)
 	if err != nil {
@@ -201,7 +187,7 @@ func (q *Qemu) Start(name, qmpPath string, vncWebsocketPort, vcpus uint32, memor
 
 		// VNC
 		"-vnc",
-		fmt.Sprintf("127.0.0.1:%d,websocket=%d", q.getVNCPort()-5900, vncWebsocketPort),
+		fmt.Sprintf("127.0.0.1:%d,websocket=%d", GetNewListenPort(5900)-5900, vncWebsocketPort),
 
 		// clock
 		"-rtc",
