@@ -65,7 +65,19 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		Status:   &pprovisioning.VirtualMachineStatus{},
 	}
 
-	var err error
+	// errorについて考える
+	conn, err := a.nodeConnections.GetConnection(res.Status.ComputeNodeName)
+	if err != nil {
+		log.Printf("Fail to dial to node: err=%v.", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "")
+	}
+	if conn == nil {
+		return nil, grpc.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", prev.Status.ComputeNodeName)
+	}
+
+	defer conn.Close()
+	cli := NewVirtualMachineAgentServiceClient(conn)
+
 	res.Status.ComputeNodeName, res.Status.ComputeName, err = a.reserveCompute(
 		req.Metadata.Name,
 		req.Metadata.Annotations,
@@ -78,45 +90,64 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		return nil, err
 	}
 
-	res.Spec.Nics, res.Status.NetworkInterfaceNames, err = a.reserveNics(req.Metadata.Name, req.Spec.Nics)
-	if err != nil {
-		return nil, err
-	}
-
 	var blockdev []*BlockDev
 	if blockdev, err = a.reserveVolume(req.Spec.VolumeNames); err != nil {
-		return nil, err
+		log.Printf("Fail to dial to node: err=%v.", err.Error())
+		goto ReleaseVolume
 	}
 
-	conn, err := a.nodeConnections.GetConnection(res.Status.ComputeNodeName) // errorについて考える
+	res.Spec.Nics, res.Status.NetworkInterfaceNames, err = a.reserveNics(req.Metadata.Name, req.Spec.Nics)
 	if err != nil {
 		log.Printf("Fail to dial to node: err=%v.", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "")
+		goto ReleaseNetworkInterface
 	}
-	defer conn.Close()
-	cli := NewVirtualMachineAgentServiceClient(conn)
 
-	vm, err := cli.CreateVirtualMachineAgent(context.Background(), &CreateVirtualMachineAgentRequest{
+	if vm, err := cli.CreateVirtualMachineAgent(context.Background(), &CreateVirtualMachineAgentRequest{
 		Name:        req.Metadata.Name,
 		Vcpus:       req.Spec.LimitCpuMilliCore / 1000,
 		MemoryBytes: req.Spec.LimitMemoryBytes,
 		Netdev:      StructNetDev(req.Spec.Nics, res.Status.NetworkInterfaceNames),
 		Blockdev:    blockdev,
-	})
-	if err != nil && status.Code(err) != codes.AlreadyExists {
+	}); err != nil && status.Code(err) != codes.AlreadyExists {
 		log.Printf("Fail to create volume on node '%s': err='%s'", "", err.Error()) // TODO: #89
-		return nil, grpc.Errorf(codes.Internal, "")
+		goto ReleaseVolume
+	} else {
+		res.Metadata.Annotations[AnnotationVNCWebSocketPort] = strconv.Itoa(int(vm.WebsocketPort))
+		res.Status.State = GetAPIStateFromAgentState(vm.State)
+		res.Status.Uuid = vm.Uuid
 	}
 
-	res.Metadata.Annotations[AnnotationVNCWebSocketPort] = strconv.Itoa(int(vm.WebsocketPort))
-	res.Status.State = GetAPIStateFromAgentState(vm.State)
-	res.Status.Uuid = vm.Uuid
 	if err := a.dataStore.Apply(req.Metadata.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to store '%s' for db, please retry or contact for the administrator of this cluster", req.Metadata.Name)
+		goto DeleteVirtualMachine
 	}
 
 	return res, nil
+
+DeleteVirtualMachine:
+	_, err = cli.DeleteVirtualMachineAgent(context.Background(), &DeleteVirtualMachineAgentRequest{
+		Name:   req.Metadata.Name,
+		Netdev: StructNetDev(prev.Spec.Nics, prev.Status.NetworkInterfaceNames),
+	})
+	if err != nil {
+		log.Printf("Fail to delete virtual machine on node: err=%s.", err.Error())
+	}
+
+ReleaseNetworkInterface:
+	if err := a.releaseNics(prev.Spec.Nics, prev.Status.NetworkInterfaceNames); err != nil {
+		log.Printf("Fail to release network interfaces on API: err=%s.", err.Error())
+	}
+
+ReleaseVolume:
+	if err := a.relaseVolumes(prev.Spec.VolumeNames); err != nil {
+		log.Printf("Fail to release volume on API: err=%s.", err.Error())
+	}
+
+	if err := a.releaseCompute(prev.Status.ComputeNodeName, prev.Status.ComputeName); err != nil {
+		log.Printf("Fail to release compute on API: err=%s.", err.Error())
+	}
+
+	return nil, grpc.Errorf(codes.Internal, "")
 }
 
 func (a *VirtualMachineAPI) ListVirtualMachines(ctx context.Context, req *pprovisioning.ListVirtualMachinesRequest) (*pprovisioning.ListVirtualMachinesResponse, error) {
