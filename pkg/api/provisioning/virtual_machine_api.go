@@ -65,20 +65,9 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		Spec:     req.Spec,
 		Status:   &pprovisioning.VirtualMachineStatus{},
 	}
+	var blockdev []*BlockDev
 
-	// errorについて考える
-	conn, err := a.nodeConnections.GetConnection(res.Status.ComputeNodeName)
-	if err != nil {
-		log.Printf("Fail to dial to node: err=%v.", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "")
-	}
-	if conn == nil {
-		return nil, grpc.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", prev.Status.ComputeNodeName)
-	}
-
-	defer conn.Close()
-	cli := NewVirtualMachineAgentServiceClient(conn)
-
+	var err error
 	res.Status.ComputeNodeName, res.Status.ComputeName, err = a.reserveCompute(
 		req.Metadata.Name,
 		req.Metadata.Annotations,
@@ -91,7 +80,19 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		return nil, err
 	}
 
-	var blockdev []*BlockDev
+	// errorについて考える
+	conn, err := a.nodeConnections.GetConnection(res.Status.ComputeNodeName)
+	cli := NewVirtualMachineAgentServiceClient(conn)
+	if err != nil {
+		log.Printf("Fail to dial to node: err=%v.", err.Error())
+		goto ReleaseCompute
+	}
+	if conn == nil {
+		// TODO: goto ReleaseCompute
+		return nil, grpc.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", prev.Status.ComputeNodeName)
+	}
+	defer conn.Close()
+
 	if blockdev, err = a.reserveVolume(req.Spec.VolumeNames); err != nil {
 		log.Printf("Fail to dial to node: err=%v.", err.Error())
 		goto ReleaseVolume
@@ -144,6 +145,7 @@ ReleaseVolume:
 		log.Printf("Fail to release volume on API: err=%s.", err.Error())
 	}
 
+ReleaseCompute:
 	if err := a.releaseCompute(prev.Status.ComputeNodeName, prev.Status.ComputeName); err != nil {
 		log.Printf("Fail to release compute on API: err=%s.", err.Error())
 	}

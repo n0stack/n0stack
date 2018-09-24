@@ -61,14 +61,7 @@ func (a *VolumeAPI) CreateEmptyVolume(ctx context.Context, req *pprovisioning.Cr
 		Status:   &pprovisioning.VolumeStatus{},
 	}
 
-	conn, err := a.nodeConnections.GetConnection(res.Status.NodeName) // errorについて考える
-	if err != nil {
-		log.Printf("Fail to dial to node: err=%v.", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "")
-	}
-	defer conn.Close()
-	cli := NewVolumeAgentServiceClient(conn)
-
+	var err error
 	if res.Status.NodeName, res.Status.StorageName, err = a.reserveStorage(
 		req.Metadata.Name,
 		req.Metadata.Annotations,
@@ -77,8 +70,17 @@ func (a *VolumeAPI) CreateEmptyVolume(ctx context.Context, req *pprovisioning.Cr
 	); err != nil {
 		return nil, err
 	}
+	var v *VolumeAgent
 
-	v, err := cli.CreateEmptyVolumeAgent(context.Background(), &CreateEmptyVolumeAgentRequest{
+	conn, err := a.nodeConnections.GetConnection(res.Status.NodeName) // errorについて考える
+	cli := NewVolumeAgentServiceClient(conn)
+	if err != nil {
+		log.Printf("Fail to dial to node: err=%v.", err.Error())
+		goto ReleaseStorage
+	}
+	defer conn.Close()
+
+	v, err = cli.CreateEmptyVolumeAgent(context.Background(), &CreateEmptyVolumeAgentRequest{
 		Name:  req.Metadata.Name,
 		Bytes: req.Spec.LimitBytes,
 	})
@@ -135,15 +137,9 @@ func (a *VolumeAPI) CreateVolumeWithDownloading(ctx context.Context, req *pprovi
 		Spec:     req.Spec,
 		Status:   &pprovisioning.VolumeStatus{},
 	}
+	var v *VolumeAgent
 
-	conn, err := a.nodeConnections.GetConnection(res.Status.NodeName) // errorについて考える
-	if err != nil {
-		log.Printf("Fail to dial to node: err=%v.", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "")
-	}
-	defer conn.Close()
-	cli := NewVolumeAgentServiceClient(conn)
-
+	var err error
 	if res.Status.NodeName, res.Status.StorageName, err = a.reserveStorage(
 		req.Metadata.Name,
 		req.Metadata.Annotations,
@@ -153,7 +149,15 @@ func (a *VolumeAPI) CreateVolumeWithDownloading(ctx context.Context, req *pprovi
 		return nil, err
 	}
 
-	v, err := cli.CreateVolumeAgentWithDownloading(context.Background(), &CreateVolumeAgentWithDownloadingRequest{
+	conn, err := a.nodeConnections.GetConnection(res.Status.NodeName) // errorについて考える
+	cli := NewVolumeAgentServiceClient(conn)
+	if err != nil {
+		log.Printf("Fail to dial to node: err=%v.", err.Error())
+		goto ReleaseStorage
+	}
+	defer conn.Close()
+
+	v, err = cli.CreateVolumeAgentWithDownloading(context.Background(), &CreateVolumeAgentWithDownloadingRequest{
 		Name:      req.Metadata.Name,
 		Bytes:     req.Spec.LimitBytes,
 		SourceUrl: req.SourceUrl,
@@ -274,12 +278,10 @@ func (a *VolumeAPI) UpdateVolume(ctx context.Context, req *pprovisioning.UpdateV
 
 func (a *VolumeAPI) DeleteVolume(ctx context.Context, req *pprovisioning.DeleteVolumeRequest) (*empty.Empty, error) {
 	prev := &pprovisioning.Volume{}
-	if err := a.dataStore.Get(req.Name, prev); err == nil {
-		return nil, grpc.Errorf(codes.AlreadyExists, "Volume '%s' is already exists", req.Name)
-	} else if status.Code(err) != codes.NotFound {
+	if err := a.dataStore.Get(req.Name, prev); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	} else {
+	} else if !reflect.ValueOf(prev.Metadata).IsNil() {
 		return nil, grpc.Errorf(codes.NotFound, "")
 	}
 
