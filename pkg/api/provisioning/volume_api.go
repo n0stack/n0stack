@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 
-	"github.com/n0stack/proto.go/budget/v0"
 	"github.com/n0stack/proto.go/pool/v0"
 	"github.com/n0stack/proto.go/provisioning/v0"
 
@@ -61,47 +60,22 @@ func (a *VolumeAPI) CreateEmptyVolume(ctx context.Context, req *pprovisioning.Cr
 		Status:   &pprovisioning.VolumeStatus{},
 	}
 
-	var rcr *ppool.ReserveStorageResponse
-	var err error
-	if node, ok := req.Metadata.Annotations[AnnotationRequestNodeName]; !ok {
-		rcr, err = a.nodeAPI.ScheduleStorage(context.Background(), &ppool.ScheduleStorageRequest{
-			StorageName: req.Metadata.Name,
-			Storage: &pbudget.Storage{
-				RequestBytes: req.Spec.RequestBytes,
-				LimitBytes:   req.Spec.LimitBytes,
-			},
-		})
-	} else {
-		rcr, err = a.nodeAPI.ReserveStorage(context.Background(), &ppool.ReserveStorageRequest{
-			Name:        node,
-			StorageName: req.Metadata.Name,
-			Storage: &pbudget.Storage{
-				RequestBytes: req.Spec.RequestBytes,
-				LimitBytes:   req.Spec.LimitBytes,
-			},
-		})
-	}
-	if err != nil {
-		return nil, err // TODO: #89
-	}
-	res.Status.NodeName = rcr.Name
-	res.Status.StorageName = rcr.StorageName
-
 	conn, err := a.nodeConnections.GetConnection(res.Status.NodeName) // errorについて考える
 	if err != nil {
-		_, err = a.nodeAPI.ReleaseStorage(context.Background(), &ppool.ReleaseStorageRequest{
-			Name:        res.Status.NodeName,
-			StorageName: res.Status.StorageName,
-		})
-		if err != nil {
-			return nil, err // TODO: #89
-		}
-
 		log.Printf("Fail to dial to node: err=%v.", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "")
 	}
 	defer conn.Close()
 	cli := NewVolumeAgentServiceClient(conn)
+
+	if res.Status.NodeName, res.Status.StorageName, err = a.reserveStorage(
+		req.Metadata.Name,
+		req.Metadata.Annotations,
+		req.Spec.RequestBytes,
+		req.Spec.LimitBytes,
+	); err != nil {
+		return nil, err
+	}
 
 	v, err := cli.CreateEmptyVolumeAgent(context.Background(), &CreateEmptyVolumeAgentRequest{
 		Name:  req.Metadata.Name,
@@ -109,26 +83,41 @@ func (a *VolumeAPI) CreateEmptyVolume(ctx context.Context, req *pprovisioning.Cr
 	})
 	if err != nil && status.Code(err) != codes.AlreadyExists {
 		log.Printf("Fail to create volume on node '%s': err='%s'", "", err.Error()) // TODO: #89
-		return nil, grpc.Errorf(codes.Internal, "")
+		goto ReleaseStorage
 	}
 
 	res.Metadata.Annotations[AnnotationVolumePath] = v.Path
 	res.Status.State = pprovisioning.VolumeStatus_AVAILABLE
 
 	if err := a.dataStore.Apply(req.Metadata.Name, res); err != nil {
-		_, err = a.nodeAPI.ReleaseStorage(context.Background(), &ppool.ReleaseStorageRequest{
-			Name:        res.Status.NodeName,
-			StorageName: res.Status.StorageName,
-		})
-		if err != nil {
-			return nil, err // TODO: #89
-		}
-
 		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to store '%s' for db, please retry or contact for the administrator of this cluster", req.Metadata.Name)
+		goto DeleteVolume
 	}
 
 	return res, nil
+
+DeleteVolume:
+	_, err = cli.DeleteVolumeAgent(context.Background(), &DeleteVolumeAgentRequest{Path: prev.Metadata.Annotations[AnnotationVolumePath]})
+	if err != nil {
+		log.Printf("Fail to delete volume on node, err:%v.", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Fail to delete volume on node") // TODO #89
+	}
+
+ReleaseStorage:
+	_, err = a.nodeAPI.ReleaseStorage(context.Background(), &ppool.ReleaseStorageRequest{
+		Name:        prev.Status.NodeName,
+		StorageName: prev.Status.StorageName,
+	})
+	if err != nil {
+		log.Printf("[ERROR] Failed to release compute '%s': %s", prev.Status.StorageName, err.Error())
+
+		// Notfound でもとりあえず問題ないため、処理を続ける
+		if status.Code(err) != codes.NotFound {
+			return nil, grpc.Errorf(codes.Internal, "Failed to release compute '%s': please retry", prev.Status.StorageName)
+		}
+	}
+
+	return nil, grpc.Errorf(codes.Internal, "")
 }
 
 func (a *VolumeAPI) CreateVolumeWithDownloading(ctx context.Context, req *pprovisioning.CreateVolumeWithDownloadingRequest) (*pprovisioning.Volume, error) {
@@ -146,47 +135,22 @@ func (a *VolumeAPI) CreateVolumeWithDownloading(ctx context.Context, req *pprovi
 		Status:   &pprovisioning.VolumeStatus{},
 	}
 
-	var rcr *ppool.ReserveStorageResponse
-	var err error
-	if node, ok := req.Metadata.Annotations[AnnotationRequestNodeName]; !ok {
-		rcr, err = a.nodeAPI.ScheduleStorage(context.Background(), &ppool.ScheduleStorageRequest{
-			StorageName: req.Metadata.Name,
-			Storage: &pbudget.Storage{
-				RequestBytes: req.Spec.RequestBytes,
-				LimitBytes:   req.Spec.LimitBytes,
-			},
-		})
-	} else {
-		rcr, err = a.nodeAPI.ReserveStorage(context.Background(), &ppool.ReserveStorageRequest{
-			Name:        node,
-			StorageName: req.Metadata.Name,
-			Storage: &pbudget.Storage{
-				RequestBytes: req.Spec.RequestBytes,
-				LimitBytes:   req.Spec.LimitBytes,
-			},
-		})
-	}
-	if err != nil {
-		return nil, err // TODO: #89
-	}
-	res.Status.NodeName = rcr.Name
-	res.Status.StorageName = rcr.StorageName
-
 	conn, err := a.nodeConnections.GetConnection(res.Status.NodeName) // errorについて考える
 	if err != nil {
-		_, err = a.nodeAPI.ReleaseStorage(context.Background(), &ppool.ReleaseStorageRequest{
-			Name:        res.Status.NodeName,
-			StorageName: res.Status.StorageName,
-		})
-		if err != nil {
-			return nil, err // TODO: #89
-		}
-
 		log.Printf("Fail to dial to node: err=%v.", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "")
 	}
 	defer conn.Close()
 	cli := NewVolumeAgentServiceClient(conn)
+
+	if res.Status.NodeName, res.Status.StorageName, err = a.reserveStorage(
+		req.Metadata.Name,
+		req.Metadata.Annotations,
+		req.Spec.RequestBytes,
+		req.Spec.LimitBytes,
+	); err != nil {
+		return nil, err
+	}
 
 	v, err := cli.CreateVolumeAgentWithDownloading(context.Background(), &CreateVolumeAgentWithDownloadingRequest{
 		Name:      req.Metadata.Name,
@@ -195,26 +159,41 @@ func (a *VolumeAPI) CreateVolumeWithDownloading(ctx context.Context, req *pprovi
 	})
 	if err != nil && status.Code(err) != codes.AlreadyExists {
 		log.Printf("Fail to create volume on node '%s': err='%s'", "", err.Error()) // TODO: #89
-		return nil, grpc.Errorf(codes.Internal, "")
+		goto ReleaseStorage
 	}
 
 	res.Metadata.Annotations[AnnotationVolumePath] = v.Path
 	res.Status.State = pprovisioning.VolumeStatus_AVAILABLE
 
 	if err := a.dataStore.Apply(req.Metadata.Name, res); err != nil {
-		_, err = a.nodeAPI.ReleaseStorage(context.Background(), &ppool.ReleaseStorageRequest{
-			Name:        res.Status.NodeName,
-			StorageName: res.Status.StorageName,
-		})
-		if err != nil {
-			return nil, err // TODO: #89
-		}
-
 		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to store '%s' for db, please retry or contact for the administrator of this cluster", req.Metadata.Name)
+		goto DeleteVolume
 	}
 
 	return res, nil
+
+DeleteVolume:
+	_, err = cli.DeleteVolumeAgent(context.Background(), &DeleteVolumeAgentRequest{Path: prev.Metadata.Annotations[AnnotationVolumePath]})
+	if err != nil {
+		log.Printf("Fail to delete volume on node, err:%v.", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Fail to delete volume on node") // TODO #89
+	}
+
+ReleaseStorage:
+	_, err = a.nodeAPI.ReleaseStorage(context.Background(), &ppool.ReleaseStorageRequest{
+		Name:        prev.Status.NodeName,
+		StorageName: prev.Status.StorageName,
+	})
+	if err != nil {
+		log.Printf("[ERROR] Failed to release compute '%s': %s", prev.Status.StorageName, err.Error())
+
+		// Notfound でもとりあえず問題ないため、処理を続ける
+		if status.Code(err) != codes.NotFound {
+			return nil, grpc.Errorf(codes.Internal, "Failed to release compute '%s': please retry", prev.Status.StorageName)
+		}
+	}
+
+	return nil, grpc.Errorf(codes.Internal, "")
 }
 
 func (a *VolumeAPI) ListVolumes(ctx context.Context, req *pprovisioning.ListVolumesRequest) (*pprovisioning.ListVolumesResponse, error) {
