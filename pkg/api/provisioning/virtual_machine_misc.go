@@ -58,6 +58,10 @@ func GetAgentStateFromQemuState(s qemu.Status) VirtualMachineAgentState {
 }
 
 func TrimNetdevName(name string) string {
+	if len(name) <= 16 {
+		return name
+	}
+
 	return name[:16]
 }
 
@@ -181,6 +185,7 @@ func (a VirtualMachineAPI) reserveVolume(names []string) ([]*BlockDev, error) {
 			return nil, grpc.Errorf(codes.Internal, "Failed to get volume '%s' from API: %s", n, err.Error())
 		}
 
+		log.Printf("[DEBUG] SetInuseVolume response %+v", v)
 		bd = append(bd, &BlockDev{
 			Name:      names[i],
 			Url:       v.Metadata.Annotations[AnnotationVolumePath],
