@@ -5,7 +5,6 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/n0stack/proto.go/budget/v0"
 	"github.com/n0stack/proto.go/pool/v0"
 	"github.com/n0stack/proto.go/provisioning/v0"
 
@@ -66,62 +65,26 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		Status:   &pprovisioning.VirtualMachineStatus{},
 	}
 
-	// reserve compute
-	var rcr *ppool.ReserveComputeResponse
 	var err error
-	if node, ok := req.Metadata.Annotations[AnnotationRequestNodeName]; !ok {
-		rcr, err = a.nodeAPI.ScheduleCompute(context.Background(), &ppool.ScheduleComputeRequest{
-			ComputeName: req.Metadata.Name,
-			Compute: &pbudget.Compute{
-				RequestCpuMilliCore: req.Spec.RequestCpuMilliCore,
-				LimitCpuMilliCore:   req.Spec.LimitCpuMilliCore,
-				RequestMemoryBytes:  req.Spec.RequestMemoryBytes,
-				LimitMemoryBytes:    req.Spec.LimitMemoryBytes,
-			},
-		})
-	} else {
-		rcr, err = a.nodeAPI.ReserveCompute(context.Background(), &ppool.ReserveComputeRequest{
-			Name:        node,
-			ComputeName: req.Metadata.Name,
-			Compute: &pbudget.Compute{
-				RequestCpuMilliCore: req.Spec.RequestCpuMilliCore,
-				LimitCpuMilliCore:   req.Spec.LimitCpuMilliCore,
-				RequestMemoryBytes:  req.Spec.RequestMemoryBytes,
-				LimitMemoryBytes:    req.Spec.LimitMemoryBytes,
-			},
-		})
-	}
+	res.Status.ComputeNodeName, res.Status.ComputeName, err = a.reserveCompute(
+		req.Metadata.Name,
+		req.Metadata.Annotations,
+		req.Spec.RequestCpuMilliCore,
+		req.Spec.LimitCpuMilliCore,
+		req.Spec.RequestMemoryBytes,
+		req.Spec.LimitMemoryBytes,
+	)
 	if err != nil {
-		return nil, err // TODO: #89
-	}
-	res.Status.ComputeNodeName = rcr.Name
-	res.Status.ComputeName = rcr.ComputeName
-
-	// reserve network
-	res.Status.NetworkInterfaceNames = make([]string, 0, len(req.Spec.Nics))
-	for i, n := range req.Spec.Nics {
-		ni, err := a.networkAPI.ReserveNetworkInterface(context.Background(), &ppool.ReserveNetworkInterfaceRequest{
-			Name:                 n.NetworkName,
-			NetworkInterfaceName: req.Metadata.Name + strconv.Itoa(i),
-			NetworkInterface: &pbudget.NetworkInterface{
-				HardwareAddress: req.Spec.Nics[i].HardwareAddress,
-				Ipv4Address:     req.Spec.Nics[i].Ipv4Address,
-				Ipv6Address:     req.Spec.Nics[i].Ipv6Address,
-			},
-		})
-		if err != nil {
-			return nil, err // TODO: #89
-		}
-
-		res.Spec.Nics[i].HardwareAddress = ni.NetworkInterface.HardwareAddress
-		res.Spec.Nics[i].Ipv4Address = ni.NetworkInterface.Ipv4Address
-		res.Spec.Nics[i].Ipv6Address = ni.NetworkInterface.Ipv6Address
-		res.Status.NetworkInterfaceNames = append(res.Status.NetworkInterfaceNames, ni.NetworkInterfaceName)
+		return nil, err
 	}
 
-	// check blockdev
+	res.Spec.Nics, res.Status.NetworkInterfaceNames, err = a.reserveNics(req.Metadata.Name, req.Spec.Nics)
+	if err != nil {
+		return nil, err
+	}
+
 	var blockdev []*BlockDev
-	if blockdev, err = StructBlockDev(req.Spec.VolumeNames, a.volumeAPI); err != nil {
+	if blockdev, err = a.reserveVolume(req.Spec.VolumeNames); err != nil {
 		return nil, err
 	}
 
@@ -231,32 +194,16 @@ func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprov
 		return nil, grpc.Errorf(codes.Internal, "Fail to delete virtual machine on node") // TODO #89
 	}
 
-	_, err = a.nodeAPI.ReleaseCompute(context.Background(), &ppool.ReleaseComputeRequest{
-		Name:        prev.Status.ComputeNodeName,
-		ComputeName: prev.Status.ComputeName,
-	})
-	if err != nil {
-		log.Printf("[ERROR] Failed to release compute '%s': %s", prev.Status.ComputeName, err.Error())
-
-		// Notfound でもとりあえず問題ないため、処理を続ける
-		if status.Code(err) != codes.NotFound {
-			return nil, grpc.Errorf(codes.Internal, "Failed to release compute '%s': please retry", prev.Status.ComputeName)
-		}
+	if err := a.releaseCompute(prev.Status.ComputeNodeName, prev.Status.ComputeName); err != nil {
+		return nil, err
 	}
 
-	for i, n := range prev.Spec.Nics {
-		_, err := a.networkAPI.ReleaseNetworkInterface(context.Background(), &ppool.ReleaseNetworkInterfaceRequest{
-			Name:                 n.NetworkName,
-			NetworkInterfaceName: prev.Status.NetworkInterfaceNames[i],
-		})
-		if err != nil {
-			log.Printf("[ERROR] Failed to release network interface '%s': %s", prev.Status.NetworkInterfaceNames[i], err.Error())
+	if err := a.relaseVolumes(prev.Spec.VolumeNames); err != nil {
+		return nil, err
+	}
 
-			// Notfound でもとりあえず問題ないため、処理を続ける
-			if status.Code(err) != codes.NotFound {
-				return nil, grpc.Errorf(codes.Internal, "Failed to release network interface '%s': please check network interface on your own", prev.Status.NetworkInterfaceNames[i])
-			}
-		}
+	if err := a.releaseNics(prev.Spec.Nics, prev.Status.NetworkInterfaceNames); err != nil {
+		return nil, err
 	}
 
 	if err := a.dataStore.Delete(req.Name); err != nil {
