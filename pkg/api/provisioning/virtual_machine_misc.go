@@ -3,6 +3,7 @@ package provisioning
 import (
 	"context"
 	"log"
+	"net/url"
 	"strconv"
 
 	"github.com/n0stack/proto.go/budget/v0"
@@ -187,10 +188,14 @@ func (a VirtualMachineAPI) reserveVolume(names []string) ([]*BlockDev, error) {
 			return nil, grpc.Errorf(codes.InvalidArgument, "Volume '%s' is not found", n)
 		}
 
+		u := url.URL{
+			Scheme: "file",
+			Path:   v.Metadata.Annotations[AnnotationVolumePath],
+		}
 		log.Printf("[DEBUG] SetInuseVolume response %+v", v)
 		bd = append(bd, &BlockDev{
 			Name:      names[i],
-			Url:       v.Metadata.Annotations[AnnotationVolumePath],
+			Url:       u.String(),
 			BootIndex: uint32(i),
 		})
 	}
