@@ -158,7 +158,7 @@ func (a VirtualMachineAgentAPI) CreateVirtualMachineAgent(ctx context.Context, r
 	} else {
 		res.State = GetAgentStateFromQemuState(s)
 	}
-	return nil, nil
+	return res, nil
 }
 
 func (a VirtualMachineAgentAPI) DeleteVirtualMachineAgent(ctx context.Context, req *DeleteVirtualMachineAgentRequest) (*empty.Empty, error) {
