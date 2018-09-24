@@ -67,7 +67,7 @@ func (d EtcdDatastore) Get(name string, pb proto.Message) error {
 	if err != nil {
 		return err
 	}
-	if len(resp.Kvs) <= 0 {
+	if resp.Count == 0 {
 		pb = nil
 		return nil
 	}

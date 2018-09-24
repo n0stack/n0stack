@@ -16,6 +16,21 @@ import (
 	"github.com/n0stack/n0core/pkg/driver/qemu"
 )
 
+func GetAPIStateFromAgentState(s VirtualMachineAgentState) pprovisioning.VirtualMachineStatus_VirtualMachineState {
+	switch s {
+	case VirtualMachineAgentState_SHUTDOWN:
+		return pprovisioning.VirtualMachineStatus_SHUTDOWN
+
+	case VirtualMachineAgentState_RUNNING:
+		return pprovisioning.VirtualMachineStatus_RUNNING
+
+	case VirtualMachineAgentState_PAUSED:
+		return pprovisioning.VirtualMachineStatus_PAUSED
+	}
+
+	return pprovisioning.VirtualMachineStatus_SHUTDOWN
+}
+
 func GetAgentStateFromQemuState(s qemu.Status) VirtualMachineAgentState {
 	switch s {
 	case qemu.StatusRunning:

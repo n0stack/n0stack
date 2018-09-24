@@ -49,3 +49,10 @@
 
 - APIへのリクエスト失敗が考えられる
 - `NotReady` or 情報の確実性は `memberlist > Node` なのでNodeを更新 or `Invalid`
+
+## Example
+
+```
+grpc_cli call localhost:20181 n0stack.pool.NodeService/DeleteNode \
+'name: "test"'
+```

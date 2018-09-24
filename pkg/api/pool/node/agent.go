@@ -74,36 +74,38 @@ func RegisterNodeToAPI(name, advertiseAddress, api string) error {
 
 	cli := ppool.NewNodeServiceClient(conn)
 
-	n, err := cli.GetNode(context.Background(), &ppool.GetNodeRequest{Name: name})
-	var ar *ppool.ApplyNodeRequest
-	if err != nil {
-		if status.Code(err) != codes.NotFound {
-			return err
-		}
-
-		ar = &ppool.ApplyNodeRequest{
-			Metadata: &pn0stack.Metadata{
-				Name: name,
-			},
-			Spec: &ppool.NodeSpec{},
-		}
-	} else {
-		ar = &ppool.ApplyNodeRequest{
-			Metadata: n.Metadata,
-			Spec:     n.Spec,
-		}
-	}
-
 	mem, err := GetTotalMemory()
 	if err != nil {
 		return err
 	}
 
-	ar.Spec.Address = advertiseAddress
-	ar.Spec.IpmiAddress = GetIpmiAddress()
-	ar.Spec.Serial = GetSerial()
-	ar.Spec.CpuMilliCores = GetTotalCPUMilliCores()
-	ar.Spec.MemoryBytes = mem
+	ar := &ppool.ApplyNodeRequest{
+		Spec: &ppool.NodeSpec{
+			Address:       advertiseAddress,
+			IpmiAddress:   GetIpmiAddress(),
+			Serial:        GetSerial(),
+			CpuMilliCores: GetTotalCPUMilliCores() * 1000,
+			MemoryBytes:   mem,
+		},
+	}
+	log.Printf("[INFO] Advertise address: '%s'", advertiseAddress)
+	log.Printf("[INFO] Name: '%s'", name)
+
+	n, err := cli.GetNode(context.Background(), &ppool.GetNodeRequest{Name: name})
+	if err != nil {
+		if status.Code(err) != codes.NotFound {
+			return err
+		}
+
+		ar.Metadata = &pn0stack.Metadata{
+			Name: name,
+		}
+	} else {
+		log.Printf("[INFO] Apply req: '%+v'", n)
+		ar.Metadata = n.Metadata
+	}
+
+	log.Printf("[INFO] Apply req: '%+v'", ar)
 
 	n, err = cli.ApplyNode(context.Background(), ar)
 	if err != nil {

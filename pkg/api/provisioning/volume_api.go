@@ -3,6 +3,7 @@ package provisioning
 import (
 	"context"
 	"log"
+	"reflect"
 
 	"github.com/n0stack/proto.go/pool/v0"
 	"github.com/n0stack/proto.go/provisioning/v0"
@@ -229,7 +230,7 @@ func (a *VolumeAPI) GetVolume(ctx context.Context, req *pprovisioning.GetVolumeR
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
-	if res == nil {
+	if reflect.ValueOf(res.Metadata).IsNil() {
 		return nil, grpc.Errorf(codes.NotFound, "")
 	}
 

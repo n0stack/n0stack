@@ -11,16 +11,16 @@ build-docker:
 	docker build -t n0stack/n0core .
 
 up: build-docker
+	mkdir -p sandbox
 	docker-compose up -d
 rm:
 	docker-compose down
 	docker-compose rm
-	docker-compose rmi
 logs: 
 	docker-compose logs -f
 run-agent: up
 	docker run --rm -it -v $(PWD)/bin:/go/src/github.com/n0stack/n0core/bin n0stack/n0core make build
-	./bin/n0core-agent serve \
+	sudo ./bin/n0core-agent serve \
 		--name=test \
 		--advertise-address=10.20.180.1 \
 		--node-api-endpoint=localhost:20181 \

@@ -3,6 +3,7 @@ package node
 import (
 	"context"
 	"log"
+	"reflect"
 
 	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
@@ -72,12 +73,15 @@ func (a NodeAPI) ListNodes(ctx context.Context, req *ppool.ListNodesRequest) (*p
 }
 
 func (a NodeAPI) GetNode(ctx context.Context, req *ppool.GetNodeRequest) (*ppool.Node, error) {
+	log.Printf("[DEBUG] GetNode: req='%+v'", req)
+
 	res := &ppool.Node{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
-	if res == nil {
+	if reflect.ValueOf(res.Metadata).IsNil() {
+		log.Printf("[DEBUG] GetNode: datastore_res='%+v'", res)
 		return nil, grpc.Errorf(codes.NotFound, "")
 	}
 
@@ -85,6 +89,11 @@ func (a NodeAPI) GetNode(ctx context.Context, req *ppool.GetNodeRequest) (*ppool
 }
 
 func (a NodeAPI) ApplyNode(ctx context.Context, req *ppool.ApplyNodeRequest) (*ppool.Node, error) {
+	log.Printf("[DEBUG] ApplyNode: req='%+v'", req)
+	if req.Metadata == nil || req.Spec == nil {
+		return nil, grpc.Errorf(codes.InvalidArgument, "Set metadata and spec")
+	}
+
 	res := &ppool.Node{
 		Metadata: req.Metadata,
 		Spec:     req.Spec,

@@ -37,7 +37,7 @@ func Serve(ctx *cli.Context) error {
 	reflection.Register(s)
 
 	if err := node.RegisterNodeToAPI(ctx.String("name"), ctx.String("advertise-address"), ctx.String("node-api-endpoint")); err != nil {
-		return nil
+		return err
 	}
 
 	log.Printf("[INFO] Started API")

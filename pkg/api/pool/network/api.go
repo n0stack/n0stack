@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"reflect"
 
 	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
@@ -61,7 +62,7 @@ func (a NetworkAPI) GetNetwork(ctx context.Context, req *ppool.GetNetworkRequest
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
-	if res == nil {
+	if reflect.ValueOf(res.Metadata).IsNil() {
 		return nil, grpc.Errorf(codes.NotFound, "")
 	}
 

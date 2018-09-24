@@ -3,6 +3,7 @@ package provisioning
 import (
 	"context"
 	"log"
+	"reflect"
 	"strconv"
 
 	"github.com/n0stack/proto.go/pool/v0"
@@ -183,7 +184,7 @@ func (a *VirtualMachineAPI) GetVirtualMachine(ctx context.Context, req *pprovisi
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
-	if res == nil {
+	if reflect.ValueOf(res.Metadata).IsNil() {
 		return nil, grpc.Errorf(codes.NotFound, "")
 	}
 
@@ -242,21 +243,6 @@ func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprov
 	}
 
 	return &empty.Empty{}, nil
-}
-
-func GetAPIStateFromAgentState(s VirtualMachineAgentState) pprovisioning.VirtualMachineStatus_VirtualMachineState {
-	switch s {
-	case VirtualMachineAgentState_SHUTDOWN:
-		return pprovisioning.VirtualMachineStatus_SHUTDOWN
-
-	case VirtualMachineAgentState_RUNNING:
-		return pprovisioning.VirtualMachineStatus_RUNNING
-
-	case VirtualMachineAgentState_PAUSED:
-		return pprovisioning.VirtualMachineStatus_PAUSED
-	}
-
-	return pprovisioning.VirtualMachineStatus_SHUTDOWN
 }
 
 func (a *VirtualMachineAPI) BootVirtualMachine(ctx context.Context, req *pprovisioning.BootVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
