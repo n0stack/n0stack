@@ -36,7 +36,7 @@ func main() {
 				},
 				cli.IntFlag{
 					Name:  "bind-port",
-					Value: 20181,
+					Value: 20180,
 				},
 				cli.StringFlag{
 					Name: "base-directory",

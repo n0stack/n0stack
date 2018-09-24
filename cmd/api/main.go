@@ -29,7 +29,7 @@ func main() {
 				},
 				cli.IntFlag{
 					Name:  "bind-port",
-					Value: 20180,
+					Value: 20181,
 				},
 			},
 		},
@@ -48,7 +48,7 @@ func main() {
 				},
 				cli.IntFlag{
 					Name:  "bind-port",
-					Value: 20181,
+					Value: 20182,
 				},
 			},
 		},
@@ -67,7 +67,7 @@ func main() {
 				},
 				cli.IntFlag{
 					Name:  "bind-port",
-					Value: 20182,
+					Value: 20183,
 				},
 				cli.StringFlag{
 					Name: "node-api-address",
@@ -89,7 +89,7 @@ func main() {
 				},
 				cli.IntFlag{
 					Name:  "bind-port",
-					Value: 20183,
+					Value: 20184,
 				},
 				cli.StringFlag{
 					Name: "node-api-address",
