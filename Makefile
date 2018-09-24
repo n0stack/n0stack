@@ -18,7 +18,7 @@ rm:
 	docker-compose rm
 logs: 
 	docker-compose logs -f
-run-agent: up
+run-all-in-one: up
 	docker run --rm -it -v $(PWD)/bin:/go/src/github.com/n0stack/n0core/bin n0stack/n0core make build
 	sudo ./bin/n0core-agent serve \
 		--name=test \

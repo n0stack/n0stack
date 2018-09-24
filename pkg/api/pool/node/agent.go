@@ -8,6 +8,7 @@ import (
 	"strings"
 	"syscall"
 
+	"code.cloudfoundry.org/bytefmt"
 	"github.com/n0stack/proto.go/pool/v0"
 	"github.com/n0stack/proto.go/v0"
 	"github.com/pkg/errors"
@@ -86,6 +87,7 @@ func RegisterNodeToAPI(name, advertiseAddress, api string) error {
 			Serial:        GetSerial(),
 			CpuMilliCores: GetTotalCPUMilliCores() * 1000,
 			MemoryBytes:   mem,
+			StorageBytes:  100. * bytefmt.GIGABYTE,
 		},
 	}
 	log.Printf("[INFO] Advertise address: '%s'", advertiseAddress)
