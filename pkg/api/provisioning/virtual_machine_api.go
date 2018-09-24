@@ -80,6 +80,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		req.Spec.LimitMemoryBytes,
 	)
 	if err != nil {
+		log.Printf("Failed to reserve compute: err=%v.", err.Error())
 		return nil, err
 	}
 
@@ -87,7 +88,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 	conn, err := a.nodeConnections.GetConnection(res.Status.ComputeNodeName)
 	cli := NewVirtualMachineAgentServiceClient(conn)
 	if err != nil {
-		log.Printf("Fail to dial to node: err=%v.", err.Error())
+		log.Printf("Failed to dial to node: err=%v.", err.Error())
 		goto ReleaseCompute
 	}
 	if conn == nil {
