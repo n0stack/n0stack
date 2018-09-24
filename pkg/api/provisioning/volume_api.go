@@ -357,5 +357,5 @@ func (a *VolumeAPI) SetAvailableVolume(ctx context.Context, req *pprovisioning.S
 		return nil, grpc.Errorf(codes.Internal, "Failed to store '%s' for db, please retry or contact for the administrator of this cluster", req.Name)
 	}
 
-	return nil, nil
+	return res, nil
 }
