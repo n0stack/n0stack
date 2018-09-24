@@ -85,7 +85,7 @@ func (a *VolumeAPI) CreateEmptyVolume(ctx context.Context, req *pprovisioning.Cr
 		Bytes: req.Spec.LimitBytes,
 	})
 	if err != nil && status.Code(err) != codes.AlreadyExists {
-		log.Printf("Fail to create volume on node '%s': err='%s'", "", res.Status.NodeName, err.Error()) // TODO: #89
+		log.Printf("Failed to create volume on node '%s': err='%s'", res.Status.NodeName, err.Error()) // TODO: #89
 		goto ReleaseStorage
 	}
 

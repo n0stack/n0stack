@@ -94,13 +94,13 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 	defer conn.Close()
 
 	if blockdev, err = a.reserveVolume(req.Spec.VolumeNames); err != nil {
-		log.Printf("Fail to dial to node: err=%v.", err.Error())
+		log.Printf("Failed to reserve volume: err=%v.", err.Error())
 		goto ReleaseVolume
 	}
 
 	res.Spec.Nics, res.Status.NetworkInterfaceNames, err = a.reserveNics(req.Metadata.Name, req.Spec.Nics)
 	if err != nil {
-		log.Printf("Fail to dial to node: err=%v.", err.Error())
+		log.Printf("Failed to reserve nics: err=%v.", err.Error())
 		goto ReleaseNetworkInterface
 	}
 
@@ -111,7 +111,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		Netdev:      StructNetDev(req.Spec.Nics, res.Status.NetworkInterfaceNames),
 		Blockdev:    blockdev,
 	}); err != nil && status.Code(err) != codes.AlreadyExists {
-		log.Printf("Fail to create volume on node '%s': err='%s'", "", err.Error()) // TODO: #89
+		log.Printf("Failed to create volume on node '%s': err='%s'", res.Status.ComputeNodeName, err.Error()) // TODO: #89
 		goto ReleaseVolume
 	} else {
 		res.Metadata.Annotations[AnnotationVNCWebSocketPort] = strconv.Itoa(int(vm.WebsocketPort))
