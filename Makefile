@@ -4,15 +4,14 @@ GOARCH=amd64
 GOCMD=go
 
 
-run_local_agent:
-	docker-compose up --build api etcd
-	go run cmd/agent/main.go
-
 build:
 	go build -o bin/n0core-agent -v cmd/agent/*.go
 	go build -o bin/n0core-api -v cmd/api/*.go
 build-docker:
 	docker build -t n0stack/n0core .
+
+up: build-docker
+	docker-compose up -d
 
 dep:
 	dep ensure

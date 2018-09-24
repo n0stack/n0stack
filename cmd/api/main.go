@@ -70,7 +70,7 @@ func main() {
 					Value: 20183,
 				},
 				cli.StringFlag{
-					Name: "node-api-address",
+					Name: "node-api-endpoint",
 				},
 			},
 		},
@@ -92,13 +92,13 @@ func main() {
 					Value: 20184,
 				},
 				cli.StringFlag{
-					Name: "node-api-address",
+					Name: "node-api-endpoint",
 				},
 				cli.StringFlag{
-					Name: "network-api-address",
+					Name: "network-api-endpoint",
 				},
 				cli.StringFlag{
-					Name: "volume-api-address",
+					Name: "volume-api-endpoint",
 				},
 			},
 		},

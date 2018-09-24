@@ -1,30 +1,66 @@
 version: '3'
 services:
-  agent:
-    build: .
-    command:
-      - /agent
-      - serve
-      - --name=test-node
-      - --advertise-address=agent
-      - --api-address=api
-      - --api-port=20180
-      - --bind-address=0.0.0.0
-      - --bind-port=20181
-    links:
-      - api
+  # agent:
+  #   build: .
+  #   command:
+  #     - /agent
+  #     - serve
+  #     - --name=test-node
+  #     - --advertise-address=agent
+  #     - --api-address=api
+  #     - --api-port=20180
+  #     - --bind-address=0.0.0.0
+  #     - --bind-port=20181
+  #   links:
+  #     - api
 
-  api:
-    build: .
+  node:
+    image: n0stack/n0core
     command:
-      - /api
-      - serve
+      - ./bin/n0core-api
+      - node
       - --etcd-endpoints=etcd:2379
-      - --bind-address=0.0.0.0
-      - --bind-port=20180
     ports:
-      - "20180:20180"
+      - "20181:20181"
     links:
+      - etcd
+  network:
+    image: n0stack/n0core
+    command:
+      - ./bin/n0core-api
+      - network
+      - --etcd-endpoints=etcd:2379
+    ports:
+      - "20182:20182"
+    links:
+      - etcd
+  volume:
+    image: n0stack/n0core
+    command:
+      - ./bin/n0core-api
+      - volume
+      - --etcd-endpoints=etcd:2379
+      - --node-api-endpoint=node:20181
+    ports:
+      - "20183:20183"
+    links:
+      - node
+      - etcd
+  virtual_machine:
+    image: n0stack/n0core
+    command:
+      - ./bin/n0core-api
+      - virtual_machine
+      - --etcd-endpoints=etcd:2379
+      - --node-api-endpoint=node:20181
+      - --network-api-endpoint=network:20182
+      - --volume-api-endpoint=volume:20183
+    ports:
+      - "20184:20184"
+    links:
+      - node
+      - network
+      - volume
       - etcd
 
   etcd:
