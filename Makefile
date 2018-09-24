@@ -15,7 +15,7 @@ up: build-docker
 logs: 
 	docker-compose logs -f
 run-agent: up
-	docker run --rm -it -v $(PWD):/go/src/github.com/n0stack/n0core n0stack/n0core make build
+	docker run --rm -it -v $(PWD)/bin:/go/src/github.com/n0stack/n0core/bin n0stack/n0core make build
 	./bin/n0core-agent serve \
 		--name=test \
 		--advertise-address=10.20.180.1 \
