@@ -12,6 +12,10 @@ build-docker:
 
 up: build-docker
 	docker-compose up -d
+rm:
+	docker-compose down
+	docker-compose rm
+	docker-compose rmi
 logs: 
 	docker-compose logs -f
 run-agent: up
