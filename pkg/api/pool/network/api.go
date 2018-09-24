@@ -132,9 +132,12 @@ func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.Rese
 
 	// 保存する際にパースするのでエラーは発生しない
 	_, cidr, _ := net.ParseCIDR(n.Spec.Ipv4Cidr)
+	if req.NetworkInterface == nil {
+		req.NetworkInterface = &pbudget.NetworkInterface{}
+	}
 
 	var reqIPv4 net.IP
-	if req.NetworkInterface == nil || req.NetworkInterface.Ipv4Address == "" {
+	if req.NetworkInterface.Ipv4Address == "" {
 		if reqIPv4 = ScheduleNewIPv4(cidr, n.Status.ReservedNetworkInterfaces); reqIPv4 == nil {
 			return nil, grpc.Errorf(codes.ResourceExhausted, "ipv4_address is full on Network '%s'", req.Name)
 		}
@@ -153,7 +156,7 @@ func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.Rese
 	}
 
 	var reqHW net.HardwareAddr
-	if req.NetworkInterface == nil || req.NetworkInterface.HardwareAddress == "" {
+	if req.NetworkInterface.HardwareAddress == "" {
 		reqHW = GenerateHardwareAddress(fmt.Sprintf("%s/%s", req.Name, req.NetworkInterfaceName))
 	} else {
 		var err error
