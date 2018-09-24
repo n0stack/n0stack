@@ -66,6 +66,9 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		Status:   &pprovisioning.VirtualMachineStatus{},
 	}
 	var blockdev []*BlockDev
+	if res.Metadata.Annotations == nil {
+		res.Metadata.Annotations = make(map[string]string)
+	}
 
 	var err error
 	res.Status.ComputeNodeName, res.Status.ComputeName, err = a.reserveCompute(
@@ -95,13 +98,13 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 
 	if blockdev, err = a.reserveVolume(req.Spec.VolumeNames); err != nil {
 		log.Printf("Failed to reserve volume: err=%v.", err.Error())
-		goto ReleaseVolume
+		goto ReleaseCompute
 	}
 
 	res.Spec.Nics, res.Status.NetworkInterfaceNames, err = a.reserveNics(req.Metadata.Name, req.Spec.Nics)
 	if err != nil {
 		log.Printf("Failed to reserve nics: err=%v.", err.Error())
-		goto ReleaseNetworkInterface
+		goto ReleaseVolume
 	}
 
 	if vm, err := cli.CreateVirtualMachineAgent(context.Background(), &CreateVirtualMachineAgentRequest{
@@ -112,7 +115,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		Blockdev:    blockdev,
 	}); err != nil && status.Code(err) != codes.AlreadyExists {
 		log.Printf("Failed to create volume on node '%s': err='%s'", res.Status.ComputeNodeName, err.Error()) // TODO: #89
-		goto ReleaseVolume
+		goto ReleaseNetworkInterface
 	} else {
 		res.Metadata.Annotations[AnnotationVNCWebSocketPort] = strconv.Itoa(int(vm.WebsocketPort))
 		res.Status.State = GetAPIStateFromAgentState(vm.State)
