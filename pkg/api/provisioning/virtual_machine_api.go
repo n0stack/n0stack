@@ -114,10 +114,11 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		MemoryBytes: req.Spec.LimitMemoryBytes,
 		Netdev:      StructNetDev(req.Spec.Nics, res.Status.NetworkInterfaceNames),
 		Blockdev:    blockdev,
-	}); err != nil && status.Code(err) != codes.AlreadyExists {
+	}); err != nil {
 		log.Printf("Failed to create volume on node '%s': err='%s'", res.Status.ComputeNodeName, err.Error()) // TODO: #89
 		goto ReleaseNetworkInterface
 	} else {
+		log.Printf("[DEBUG] after CreateVirtualMachineAgent: vm='%+v'", vm)
 		res.Metadata.Annotations[AnnotationVNCWebSocketPort] = strconv.Itoa(int(vm.WebsocketPort))
 		res.Status.State = GetAPIStateFromAgentState(vm.State)
 		res.Status.Uuid = vm.Uuid
