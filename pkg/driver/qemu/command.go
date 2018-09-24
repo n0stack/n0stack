@@ -223,11 +223,11 @@ func (q *Qemu) Start(name, qmpPath string, vncWebsocketPort uint16, vcpus uint32
 
 		// Serial device
 		"-device",
-		" virtio-serial-pci,id=virtio-serial0,bus=pci.0,addr=0x1",
+		"virtio-serial-pci,id=virtio-serial0,bus=pci.0,addr=0x1",
 		"-chardev",
-		" pty,id=charserial0",
+		"pty,id=charserial0",
 		"-device",
-		" isa-serial,chardev=charserial0,id=serial0",
+		"isa-serial,chardev=charserial0,id=serial0",
 	}
 
 	if !q.isKVM {
