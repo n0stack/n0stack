@@ -77,7 +77,7 @@ func main() {
 		{
 			Name:   "virtual_machine",
 			Usage:  "",
-			Action: ServeNetworkAPI,
+			Action: ServeVirtualMachineAPI,
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name: "etcd-endpoints",
