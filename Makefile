@@ -15,12 +15,12 @@ up: build-docker
 logs: 
 	docker-compose logs -f
 run-agent: up
-	docker run --rm -it -v $(PWD):/go/src/github.com/n0stack/n0core n0core/n0stack make build
+	docker run --rm -it -v $(PWD):/go/src/github.com/n0stack/n0core n0stack/n0core make build
 	./bin/n0core-agent serve \
 		--name=test \
 		--advertise-address=10.20.180.1 \
 		--node-api-endpoint=localhost:20181 \
-		--base-directory=.sandbox/workdir
+		--base-directory=./sandbox/workdir
 
 dep:
 	dep ensure
