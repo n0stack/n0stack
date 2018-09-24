@@ -15,7 +15,6 @@ import (
 	"github.com/n0stack/n0core/pkg/datastore"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 const AnnotationVNCWebSocketPort = "n0core/provisioning/virtual_machine_vnc_websocket_port"
@@ -204,12 +203,10 @@ func (a *VirtualMachineAPI) UpdateVirtualMachine(ctx context.Context, req *pprov
 
 func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprovisioning.DeleteVirtualMachineRequest) (*empty.Empty, error) {
 	prev := &pprovisioning.VirtualMachine{}
-	if err := a.dataStore.Get(req.Name, prev); err == nil {
-		return nil, grpc.Errorf(codes.AlreadyExists, "Volume '%s' is already exists", req.Name)
-	} else if status.Code(err) != codes.NotFound {
+	if err := a.dataStore.Get(req.Name, prev); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	} else {
+	} else if reflect.ValueOf(prev.Metadata).IsNil() {
 		return nil, grpc.Errorf(codes.NotFound, "")
 	}
 
@@ -254,12 +251,10 @@ func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprov
 
 func (a *VirtualMachineAPI) BootVirtualMachine(ctx context.Context, req *pprovisioning.BootVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
 	prev := &pprovisioning.VirtualMachine{}
-	if err := a.dataStore.Get(req.Name, prev); err == nil {
-		return nil, grpc.Errorf(codes.AlreadyExists, "Volume '%s' is already exists", req.Name)
-	} else if status.Code(err) != codes.NotFound {
+	if err := a.dataStore.Get(req.Name, prev); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	} else {
+	} else if reflect.ValueOf(prev.Metadata).IsNil() {
 		return nil, grpc.Errorf(codes.NotFound, "")
 	}
 
@@ -297,12 +292,10 @@ func (a *VirtualMachineAPI) BootVirtualMachine(ctx context.Context, req *pprovis
 
 func (a *VirtualMachineAPI) RebootVirtualMachine(ctx context.Context, req *pprovisioning.RebootVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
 	prev := &pprovisioning.VirtualMachine{}
-	if err := a.dataStore.Get(req.Name, prev); err == nil {
-		return nil, grpc.Errorf(codes.AlreadyExists, "Volume '%s' is already exists", req.Name)
-	} else if status.Code(err) != codes.NotFound {
+	if err := a.dataStore.Get(req.Name, prev); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	} else {
+	} else if reflect.ValueOf(prev.Metadata).IsNil() {
 		return nil, grpc.Errorf(codes.NotFound, "")
 	}
 
@@ -343,12 +336,10 @@ func (a *VirtualMachineAPI) RebootVirtualMachine(ctx context.Context, req *pprov
 
 func (a *VirtualMachineAPI) ShutdownVirtualMachine(ctx context.Context, req *pprovisioning.ShutdownVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
 	prev := &pprovisioning.VirtualMachine{}
-	if err := a.dataStore.Get(req.Name, prev); err == nil {
-		return nil, grpc.Errorf(codes.AlreadyExists, "Volume '%s' is already exists", req.Name)
-	} else if status.Code(err) != codes.NotFound {
+	if err := a.dataStore.Get(req.Name, prev); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	} else {
+	} else if reflect.ValueOf(prev.Metadata).IsNil() {
 		return nil, grpc.Errorf(codes.NotFound, "")
 	}
 
