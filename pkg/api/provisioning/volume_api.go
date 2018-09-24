@@ -48,11 +48,11 @@ func CreateVolumeAPI(ds datastore.Datastore, na ppool.NodeServiceClient) (*Volum
 
 func (a *VolumeAPI) CreateEmptyVolume(ctx context.Context, req *pprovisioning.CreateEmptyVolumeRequest) (*pprovisioning.Volume, error) {
 	prev := &pprovisioning.Volume{}
-	if err := a.dataStore.Get(req.Metadata.Name, prev); err == nil {
-		return nil, grpc.Errorf(codes.AlreadyExists, "Volume '%s' is already exists", req.Metadata.Name)
-	} else if status.Code(err) != codes.NotFound {
+	if err := a.dataStore.Get(req.Metadata.Name, prev); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Metadata.Name)
+	} else if !reflect.ValueOf(prev.Metadata).IsNil() {
+		return nil, grpc.Errorf(codes.AlreadyExists, "Volume '%s' is already exists", req.Metadata.Name)
 	}
 
 	res := &pprovisioning.Volume{
@@ -123,11 +123,11 @@ ReleaseStorage:
 
 func (a *VolumeAPI) CreateVolumeWithDownloading(ctx context.Context, req *pprovisioning.CreateVolumeWithDownloadingRequest) (*pprovisioning.Volume, error) {
 	prev := &pprovisioning.Volume{}
-	if err := a.dataStore.Get(req.Metadata.Name, prev); err == nil {
-		return nil, grpc.Errorf(codes.AlreadyExists, "Volume '%s' is already exists", req.Metadata.Name)
-	} else if status.Code(err) != codes.NotFound {
+	if err := a.dataStore.Get(req.Metadata.Name, prev); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Metadata.Name)
+	} else if !reflect.ValueOf(prev.Metadata).IsNil() {
+		return nil, grpc.Errorf(codes.AlreadyExists, "Volume '%s' is already exists", req.Metadata.Name)
 	}
 
 	res := &pprovisioning.Volume{
