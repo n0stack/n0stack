@@ -15,3 +15,6 @@ vendor/
 
 **/debug
 .vscode/
+
+# using in docker-compose file
+sandbox/
