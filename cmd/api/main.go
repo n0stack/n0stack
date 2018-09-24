@@ -104,6 +104,8 @@ func main() {
 		},
 	}
 
+	log.SetFlags(log.Lshortfile)
+
 	if err := app.Run(os.Args); err != nil {
 		log.Fatalf("Failed to start process, err:%v", err.Error())
 	}
