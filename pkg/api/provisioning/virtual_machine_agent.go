@@ -84,6 +84,7 @@ func (a VirtualMachineAgentAPI) CreateVirtualMachineAgent(ctx context.Context, r
 		log.Printf("Failed to start qemu process: err=%s", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to start qemu process")
 	}
+	defer q.Close()
 
 	for _, nd := range req.Netdev {
 		b, err := iproute2.NewBridge(TrimNetdevName(nd.NetworkName))
@@ -223,10 +224,10 @@ func (a VirtualMachineAgentAPI) BootVirtualMachineAgent(ctx context.Context, req
 	if err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Failed to open qemu process: %s", err.Error())
 	}
-
 	if !q.IsRunning() {
 		return nil, grpc.Errorf(codes.NotFound, "")
 	}
+	defer q.Close()
 
 	if err := q.Boot(); err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Failed to boot qemu: %s", err.Error())
@@ -248,10 +249,10 @@ func (a VirtualMachineAgentAPI) RebootVirtualMachineAgent(ctx context.Context, r
 	if err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Failed to open qemu process: %s", err.Error())
 	}
-
 	if !q.IsRunning() {
 		return nil, grpc.Errorf(codes.NotFound, "")
 	}
+	defer q.Close()
 
 	if req.Hard {
 		if err := q.HardReset(); err != nil {
@@ -277,10 +278,10 @@ func (a VirtualMachineAgentAPI) ShutdownVirtualMachineAgent(ctx context.Context,
 	if err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Failed to open qemu process: %s", err.Error())
 	}
-
 	if !q.IsRunning() {
 		return nil, grpc.Errorf(codes.NotFound, "")
 	}
+	defer q.Close()
 
 	if req.Hard {
 		if err := q.HardShutdown(); err != nil {
