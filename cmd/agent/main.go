@@ -39,7 +39,8 @@ func main() {
 					Value: 20180,
 				},
 				cli.StringFlag{
-					Name: "base-directory",
+					Name:  "base-directory",
+					Value: "/var/lib/n0core",
 				},
 			},
 		},
