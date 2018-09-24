@@ -215,11 +215,19 @@ func (q *Qemu) Start(name, qmpPath string, vncWebsocketPort uint16, vcpus uint32
 
 		// VGA controller
 		"-device",
-		"VGA,id=video0,bus=pci.0",
+		"VGA,id=video0,bus=pci.0,addr=0x3",
 
 		// SCSI controller
 		"-device",
-		"lsi53c895a,bus=pci.0,id=scsi0",
+		"lsi53c895a,bus=pci.0,id=scsi0,addr=0x2",
+
+		// Serial device
+		"-device",
+		" virtio-serial-pci,id=virtio-serial0,bus=pci.0,addr=0x1",
+		"-chardev",
+		" pty,id=charserial0",
+		"-device",
+		" isa-serial,chardev=charserial0,id=serial0",
 	}
 
 	if !q.isKVM {
