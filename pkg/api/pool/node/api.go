@@ -156,8 +156,11 @@ func (a NodeAPI) ReserveCompute(ctx context.Context, req *ppool.ReserveComputeRe
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
-	if n == nil {
+	if n.Metadata == nil {
 		return nil, grpc.Errorf(codes.NotFound, "Node '%s' is not found", req.Name)
+	}
+	if n.Status.ReservedComputes == nil {
+		n.Status.ReservedComputes = make(map[string]*pbudget.Compute)
 	}
 	if _, ok := n.Status.ReservedComputes[req.ComputeName]; ok {
 		return nil, grpc.Errorf(codes.AlreadyExists, "Compute '%s' is already exists on node '%s'", req.ComputeName, req.Name)
@@ -193,7 +196,7 @@ func (a NodeAPI) ReleaseCompute(ctx context.Context, req *ppool.ReleaseComputeRe
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
-	if n == nil {
+	if n.Metadata == nil {
 		return nil, grpc.Errorf(codes.NotFound, "Node '%s' is not found", req.Name)
 	}
 
@@ -224,8 +227,11 @@ func (a NodeAPI) ReserveStorage(ctx context.Context, req *ppool.ReserveStorageRe
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
-	if n == nil {
+	if n.Metadata == nil {
 		return nil, grpc.Errorf(codes.NotFound, "Node '%s' is not found", req.Name)
+	}
+	if n.Status.ReservedStorages == nil {
+		n.Status.ReservedStorages = make(map[string]*pbudget.Storage)
 	}
 	if _, ok := n.Status.ReservedStorages[req.StorageName]; ok {
 		return nil, grpc.Errorf(codes.AlreadyExists, "Storage '%s' is already exists on node '%s'", req.StorageName, req.Name)
@@ -259,7 +265,7 @@ func (a NodeAPI) ReleaseStorage(ctx context.Context, req *ppool.ReleaseStorageRe
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
-	if n == nil {
+	if n.Metadata == nil {
 		return nil, grpc.Errorf(codes.NotFound, "Node '%s' is not found", req.Name)
 	}
 

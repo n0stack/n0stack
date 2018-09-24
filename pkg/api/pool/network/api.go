@@ -123,6 +123,9 @@ func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.Rese
 	if n == nil {
 		return nil, grpc.Errorf(codes.NotFound, "Node '%s' is not found", req.Name)
 	}
+	if n.Status.ReservedNetworkInterfaces == nil {
+		n.Status.ReservedNetworkInterfaces = make(map[string]*pbudget.NetworkInterface)
+	}
 	if _, ok := n.Status.ReservedNetworkInterfaces[req.NetworkInterfaceName]; ok {
 		return nil, grpc.Errorf(codes.AlreadyExists, "Network interface '%s' is already exists on Node '%s'", req.NetworkInterfaceName, req.Name)
 	}
