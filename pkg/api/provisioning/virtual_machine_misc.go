@@ -104,7 +104,7 @@ func (a VirtualMachineAPI) reserveCompute(name string, annotations map[string]st
 		})
 	}
 	if err != nil {
-		return "", "", err // TODO: #89
+		return "", "", grpc.Errorf(codes.Internal, "") // TODO: #89
 	}
 
 	return rcr.Name, rcr.ComputeName, nil
@@ -142,6 +142,7 @@ func (a VirtualMachineAPI) reserveNics(name string, nics []*pprovisioning.Virtua
 			},
 		})
 		if err != nil {
+			log.Printf("Failed to relserve network interface '%s' from API: %s", name+strconv.Itoa(i), err.Error())
 			return nil, nil, err // TODO: #89
 		}
 
@@ -178,11 +179,12 @@ func (a VirtualMachineAPI) reserveVolume(names []string) ([]*BlockDev, error) {
 	for i, n := range names {
 		v, err := a.volumeAPI.SetInuseVolume(context.Background(), &pprovisioning.SetInuseVolumeRequest{Name: n})
 		if err != nil {
+			log.Printf("Failed to get volume '%s' from API: %s", n, err.Error())
 			if status.Code(err) != codes.NotFound {
-				return nil, grpc.Errorf(codes.InvalidArgument, "Volume '%s' is not found", n)
+				return nil, grpc.Errorf(codes.Internal, "Failed to set volume '%s' as in use from API", n)
 			}
 
-			return nil, grpc.Errorf(codes.Internal, "Failed to get volume '%s' from API: %s", n, err.Error())
+			return nil, grpc.Errorf(codes.InvalidArgument, "Volume '%s' is not found", n)
 		}
 
 		log.Printf("[DEBUG] SetInuseVolume response %+v", v)
@@ -200,11 +202,11 @@ func (a VirtualMachineAPI) relaseVolumes(names []string) error {
 	for _, n := range names {
 		_, err := a.volumeAPI.SetAvailableVolume(context.Background(), &pprovisioning.SetAvailableVolumeRequest{Name: n})
 		if err != nil {
-			if status.Code(err) != codes.NotFound {
-				return grpc.Errorf(codes.InvalidArgument, "Volume '%s' is not found", n)
-			}
+			log.Printf("Failed to get volume '%s' from API: %s", n, err.Error())
 
-			return grpc.Errorf(codes.Internal, "Failed to get volume '%s' from API: %s", n, err.Error())
+			if status.Code(err) != codes.NotFound {
+				return grpc.Errorf(codes.Internal, "Failed to get volume '%s' as in use from API", n)
+			}
 		}
 	}
 
