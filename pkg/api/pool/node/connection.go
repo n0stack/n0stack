@@ -56,7 +56,7 @@ func (nc NodeConnections) GetConnection(nodeName string) (*grpc.ClientConn, erro
 	}
 
 	// port を何かから取れるようにする
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", n.Spec.Address, 20181), grpc.WithInsecure())
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", n.Spec.Address, 20180), grpc.WithInsecure())
 	if err != nil {
 		return nil, errors.Wrap(err, "Fail to dial to node")
 	}

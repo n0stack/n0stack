@@ -85,7 +85,7 @@ func (a *VolumeAPI) CreateEmptyVolume(ctx context.Context, req *pprovisioning.Cr
 		Bytes: req.Spec.LimitBytes,
 	})
 	if err != nil && status.Code(err) != codes.AlreadyExists {
-		log.Printf("Fail to create volume on node '%s': err='%s'", "", err.Error()) // TODO: #89
+		log.Printf("Fail to create volume on node '%s': err='%s'", "", res.Status.NodeName, err.Error()) // TODO: #89
 		goto ReleaseStorage
 	}
 
@@ -100,7 +100,7 @@ func (a *VolumeAPI) CreateEmptyVolume(ctx context.Context, req *pprovisioning.Cr
 	return res, nil
 
 DeleteVolume:
-	_, err = cli.DeleteVolumeAgent(context.Background(), &DeleteVolumeAgentRequest{Path: prev.Metadata.Annotations[AnnotationVolumePath]})
+	_, err = cli.DeleteVolumeAgent(context.Background(), &DeleteVolumeAgentRequest{Path: res.Metadata.Annotations[AnnotationVolumePath]})
 	if err != nil {
 		log.Printf("Fail to delete volume on node, err:%v.", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Fail to delete volume on node") // TODO #89
@@ -108,15 +108,15 @@ DeleteVolume:
 
 ReleaseStorage:
 	_, err = a.nodeAPI.ReleaseStorage(context.Background(), &ppool.ReleaseStorageRequest{
-		Name:        prev.Status.NodeName,
-		StorageName: prev.Status.StorageName,
+		Name:        res.Status.NodeName,
+		StorageName: res.Status.StorageName,
 	})
 	if err != nil {
-		log.Printf("[ERROR] Failed to release compute '%s': %s", prev.Status.StorageName, err.Error())
+		log.Printf("[ERROR] Failed to release compute '%s': %s", res.Status.StorageName, err.Error())
 
 		// Notfound でもとりあえず問題ないため、処理を続ける
 		if status.Code(err) != codes.NotFound {
-			return nil, grpc.Errorf(codes.Internal, "Failed to release compute '%s': please retry", prev.Status.StorageName)
+			return nil, grpc.Errorf(codes.Internal, "Failed to release compute '%s': please retry", res.Status.StorageName)
 		}
 	}
 
@@ -178,7 +178,7 @@ func (a *VolumeAPI) CreateVolumeWithDownloading(ctx context.Context, req *pprovi
 	return res, nil
 
 DeleteVolume:
-	_, err = cli.DeleteVolumeAgent(context.Background(), &DeleteVolumeAgentRequest{Path: prev.Metadata.Annotations[AnnotationVolumePath]})
+	_, err = cli.DeleteVolumeAgent(context.Background(), &DeleteVolumeAgentRequest{Path: res.Metadata.Annotations[AnnotationVolumePath]})
 	if err != nil {
 		log.Printf("Fail to delete volume on node, err:%v.", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Fail to delete volume on node") // TODO #89
@@ -186,15 +186,15 @@ DeleteVolume:
 
 ReleaseStorage:
 	_, err = a.nodeAPI.ReleaseStorage(context.Background(), &ppool.ReleaseStorageRequest{
-		Name:        prev.Status.NodeName,
-		StorageName: prev.Status.StorageName,
+		Name:        res.Status.NodeName,
+		StorageName: res.Status.StorageName,
 	})
 	if err != nil {
-		log.Printf("[ERROR] Failed to release compute '%s': %s", prev.Status.StorageName, err.Error())
+		log.Printf("[ERROR] Failed to release compute '%s': %s", res.Status.StorageName, err.Error())
 
 		// Notfound でもとりあえず問題ないため、処理を続ける
 		if status.Code(err) != codes.NotFound {
-			return nil, grpc.Errorf(codes.Internal, "Failed to release compute '%s': please retry", prev.Status.StorageName)
+			return nil, grpc.Errorf(codes.Internal, "Failed to release compute '%s': please retry", res.Status.StorageName)
 		}
 	}
 

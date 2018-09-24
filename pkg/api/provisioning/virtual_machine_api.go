@@ -129,24 +129,24 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 DeleteVirtualMachine:
 	_, err = cli.DeleteVirtualMachineAgent(context.Background(), &DeleteVirtualMachineAgentRequest{
 		Name:   req.Metadata.Name,
-		Netdev: StructNetDev(prev.Spec.Nics, prev.Status.NetworkInterfaceNames),
+		Netdev: StructNetDev(res.Spec.Nics, res.Status.NetworkInterfaceNames),
 	})
 	if err != nil {
 		log.Printf("Fail to delete virtual machine on node: err=%s.", err.Error())
 	}
 
 ReleaseNetworkInterface:
-	if err := a.releaseNics(prev.Spec.Nics, prev.Status.NetworkInterfaceNames); err != nil {
+	if err := a.releaseNics(res.Spec.Nics, res.Status.NetworkInterfaceNames); err != nil {
 		log.Printf("Fail to release network interfaces on API: err=%s.", err.Error())
 	}
 
 ReleaseVolume:
-	if err := a.relaseVolumes(prev.Spec.VolumeNames); err != nil {
+	if err := a.relaseVolumes(res.Spec.VolumeNames); err != nil {
 		log.Printf("Fail to release volume on API: err=%s.", err.Error())
 	}
 
 ReleaseCompute:
-	if err := a.releaseCompute(prev.Status.ComputeNodeName, prev.Status.ComputeName); err != nil {
+	if err := a.releaseCompute(res.Status.ComputeNodeName, res.Status.ComputeName); err != nil {
 		log.Printf("Fail to release compute on API: err=%s.", err.Error())
 	}
 
