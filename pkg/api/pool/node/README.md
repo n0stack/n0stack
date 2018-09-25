@@ -53,6 +53,52 @@
 ## Example
 
 ```
+grpc_cli call localhost:20181 n0stack.pool.NodeService/ListNodes ''
+```
+
+```
+grpc_cli call localhost:20181 n0stack.pool.NodeService/GetNode \
+'name: "test"'
+```
+
+```
 grpc_cli call localhost:20181 n0stack.pool.NodeService/DeleteNode \
 'name: "test"'
 ```
+
+```
+grpc_cli call localhost:20181 n0stack.pool.NodeService/ReserveCompute '
+name: "test"
+compute_name: "test-reserve"
+compute: {
+  request_cpu_milli_core: 10
+  limit_cpu_milli_core: 10
+  request_memory_bytes: 10
+  limit_memory_bytes: 10
+}'
+```
+
+```
+grpc_cli call localhost:20181 n0stack.pool.NodeService/ReleaseCompute '
+name: "test"
+compute_name: "test-reserve"
+'
+```
+
+```
+grpc_cli call localhost:20181 n0stack.pool.NodeService/ReserveStorage '
+name: "test"
+storage_name: "test-reserve"
+storage: {
+  request_bytes: 10
+  limit_bytes: 10
+}'
+```
+
+```
+grpc_cli call localhost:20181 n0stack.pool.NodeService/ReleaseStorage '
+name: "test" 
+storage_name: "test-reserve" 
+'
+```
+
