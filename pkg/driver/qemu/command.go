@@ -167,6 +167,8 @@ func (q *Qemu) Start(name, qmpPath string, vncWebsocketPort uint16, vcpus uint32
 		"-no-user-config", // The "-no-user-config" option makes QEMU not load any of the user-provided config files on sysconfdir
 		"-S",              // Do not start CPU at startup
 		"-no-shutdown",    // Don't exit QEMU on guest shutdown
+		"-global",
+		"kvm-pit.lost_tick_policy=discard",
 		// "-pidfile",
 		// "",
 
@@ -232,7 +234,11 @@ func (q *Qemu) Start(name, qmpPath string, vncWebsocketPort uint16, vcpus uint32
 
 	if !q.isKVM {
 		// remove "-cpu", "host" and "-enable-kvm", because kvm is disable
-		args = append(args[:30], args[33:]...)
+		for i, v := range args {
+			if v == "-cpu" {
+				args = append(args[:i], args[i+3:]...)
+			}
+		}
 	}
 
 	cmd := exec.Command(args[0], args[1:]...)
