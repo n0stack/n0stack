@@ -18,7 +18,7 @@ import (
 	"github.com/n0stack/n0core/pkg/datastore"
 )
 
-type VolumeAPI struct {
+type BlockStorageAPI struct {
 	dataStore datastore.Datastore
 
 	// dependency APIs
@@ -29,15 +29,15 @@ type VolumeAPI struct {
 
 const (
 	// Create のときに自動生成、消されると困る
-	AnnotationVolumePath = "n0core/provisioning/volume_url"
+	AnnotationBlockStoragePath = "n0core/provisioning/volume_url"
 )
 
-func CreateVolumeAPI(ds datastore.Datastore, na ppool.NodeServiceClient) (*VolumeAPI, error) {
+func CreateBlockStorageAPI(ds datastore.Datastore, na ppool.NodeServiceClient) (*BlockStorageAPI, error) {
 	nc := &node.NodeConnections{
 		NodeAPI: na,
 	}
 
-	a := &VolumeAPI{
+	a := &BlockStorageAPI{
 		dataStore:       ds,
 		nodeAPI:         na,
 		nodeConnections: nc,
@@ -46,19 +46,19 @@ func CreateVolumeAPI(ds datastore.Datastore, na ppool.NodeServiceClient) (*Volum
 	return a, nil
 }
 
-func (a *VolumeAPI) CreateEmptyVolume(ctx context.Context, req *pprovisioning.CreateEmptyVolumeRequest) (*pprovisioning.Volume, error) {
-	prev := &pprovisioning.Volume{}
+func (a *BlockStorageAPI) CreateEmptyBlockStorage(ctx context.Context, req *pprovisioning.CreateEmptyBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
+	prev := &pprovisioning.BlockStorage{}
 	if err := a.dataStore.Get(req.Metadata.Name, prev); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Metadata.Name)
 	} else if !reflect.ValueOf(prev.Metadata).IsNil() {
-		return nil, grpc.Errorf(codes.AlreadyExists, "Volume '%s' is already exists", req.Metadata.Name)
+		return nil, grpc.Errorf(codes.AlreadyExists, "BlockStorage '%s' is already exists", req.Metadata.Name)
 	}
 
-	res := &pprovisioning.Volume{
+	res := &pprovisioning.BlockStorage{
 		Metadata: req.Metadata,
 		Spec:     req.Spec,
-		Status:   &pprovisioning.VolumeStatus{},
+		Status:   &pprovisioning.BlockStorageStatus{},
 	}
 
 	var err error
@@ -70,17 +70,17 @@ func (a *VolumeAPI) CreateEmptyVolume(ctx context.Context, req *pprovisioning.Cr
 	); err != nil {
 		return nil, err
 	}
-	var v *VolumeAgent
+	var v *BlockStorageAgent
 
 	conn, err := a.nodeConnections.GetConnection(res.Status.NodeName) // errorについて考える
-	cli := NewVolumeAgentServiceClient(conn)
+	cli := NewBlockStorageAgentServiceClient(conn)
 	if err != nil {
 		log.Printf("Fail to dial to node: err=%v.", err.Error())
 		goto ReleaseStorage
 	}
 	defer conn.Close()
 
-	v, err = cli.CreateEmptyVolumeAgent(context.Background(), &CreateEmptyVolumeAgentRequest{
+	v, err = cli.CreateEmptyBlockStorageAgent(context.Background(), &CreateEmptyBlockStorageAgentRequest{
 		Name:  req.Metadata.Name,
 		Bytes: req.Spec.LimitBytes,
 	})
@@ -89,18 +89,18 @@ func (a *VolumeAPI) CreateEmptyVolume(ctx context.Context, req *pprovisioning.Cr
 		goto ReleaseStorage
 	}
 
-	res.Metadata.Annotations[AnnotationVolumePath] = v.Path
-	res.Status.State = pprovisioning.VolumeStatus_AVAILABLE
+	res.Metadata.Annotations[AnnotationBlockStoragePath] = v.Path
+	res.Status.State = pprovisioning.BlockStorageStatus_AVAILABLE
 
 	if err := a.dataStore.Apply(req.Metadata.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
-		goto DeleteVolume
+		goto DeleteBlockStorage
 	}
 
 	return res, nil
 
-DeleteVolume:
-	_, err = cli.DeleteVolumeAgent(context.Background(), &DeleteVolumeAgentRequest{Path: res.Metadata.Annotations[AnnotationVolumePath]})
+DeleteBlockStorage:
+	_, err = cli.DeleteBlockStorageAgent(context.Background(), &DeleteBlockStorageAgentRequest{Path: res.Metadata.Annotations[AnnotationBlockStoragePath]})
 	if err != nil {
 		log.Printf("Fail to delete volume on node, err:%v.", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Fail to delete volume on node") // TODO #89
@@ -123,21 +123,21 @@ ReleaseStorage:
 	return nil, grpc.Errorf(codes.Internal, "")
 }
 
-func (a *VolumeAPI) CreateVolumeWithDownloading(ctx context.Context, req *pprovisioning.CreateVolumeWithDownloadingRequest) (*pprovisioning.Volume, error) {
-	prev := &pprovisioning.Volume{}
+func (a *BlockStorageAPI) CreateBlockStorageWithDownloading(ctx context.Context, req *pprovisioning.CreateBlockStorageWithDownloadingRequest) (*pprovisioning.BlockStorage, error) {
+	prev := &pprovisioning.BlockStorage{}
 	if err := a.dataStore.Get(req.Metadata.Name, prev); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Metadata.Name)
 	} else if !reflect.ValueOf(prev.Metadata).IsNil() {
-		return nil, grpc.Errorf(codes.AlreadyExists, "Volume '%s' is already exists", req.Metadata.Name)
+		return nil, grpc.Errorf(codes.AlreadyExists, "BlockStorage '%s' is already exists", req.Metadata.Name)
 	}
 
-	res := &pprovisioning.Volume{
+	res := &pprovisioning.BlockStorage{
 		Metadata: req.Metadata,
 		Spec:     req.Spec,
-		Status:   &pprovisioning.VolumeStatus{},
+		Status:   &pprovisioning.BlockStorageStatus{},
 	}
-	var v *VolumeAgent
+	var v *BlockStorageAgent
 
 	var err error
 	if res.Status.NodeName, res.Status.StorageName, err = a.reserveStorage(
@@ -150,14 +150,14 @@ func (a *VolumeAPI) CreateVolumeWithDownloading(ctx context.Context, req *pprovi
 	}
 
 	conn, err := a.nodeConnections.GetConnection(res.Status.NodeName) // errorについて考える
-	cli := NewVolumeAgentServiceClient(conn)
+	cli := NewBlockStorageAgentServiceClient(conn)
 	if err != nil {
 		log.Printf("Fail to dial to node: err=%v.", err.Error())
 		goto ReleaseStorage
 	}
 	defer conn.Close()
 
-	v, err = cli.CreateVolumeAgentWithDownloading(context.Background(), &CreateVolumeAgentWithDownloadingRequest{
+	v, err = cli.CreateBlockStorageAgentWithDownloading(context.Background(), &CreateBlockStorageAgentWithDownloadingRequest{
 		Name:      req.Metadata.Name,
 		Bytes:     req.Spec.LimitBytes,
 		SourceUrl: req.SourceUrl,
@@ -167,18 +167,18 @@ func (a *VolumeAPI) CreateVolumeWithDownloading(ctx context.Context, req *pprovi
 		goto ReleaseStorage
 	}
 
-	res.Metadata.Annotations[AnnotationVolumePath] = v.Path
-	res.Status.State = pprovisioning.VolumeStatus_AVAILABLE
+	res.Metadata.Annotations[AnnotationBlockStoragePath] = v.Path
+	res.Status.State = pprovisioning.BlockStorageStatus_AVAILABLE
 
 	if err := a.dataStore.Apply(req.Metadata.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
-		goto DeleteVolume
+		goto DeleteBlockStorage
 	}
 
 	return res, nil
 
-DeleteVolume:
-	_, err = cli.DeleteVolumeAgent(context.Background(), &DeleteVolumeAgentRequest{Path: res.Metadata.Annotations[AnnotationVolumePath]})
+DeleteBlockStorage:
+	_, err = cli.DeleteBlockStorageAgent(context.Background(), &DeleteBlockStorageAgentRequest{Path: res.Metadata.Annotations[AnnotationBlockStoragePath]})
 	if err != nil {
 		log.Printf("Fail to delete volume on node, err:%v.", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Fail to delete volume on node") // TODO #89
@@ -201,16 +201,16 @@ ReleaseStorage:
 	return nil, grpc.Errorf(codes.Internal, "")
 }
 
-func (a *VolumeAPI) ListVolumes(ctx context.Context, req *pprovisioning.ListVolumesRequest) (*pprovisioning.ListVolumesResponse, error) {
-	res := &pprovisioning.ListVolumesResponse{}
+func (a *BlockStorageAPI) ListBlockStorages(ctx context.Context, req *pprovisioning.ListBlockStoragesRequest) (*pprovisioning.ListBlockStoragesResponse, error) {
+	res := &pprovisioning.ListBlockStoragesResponse{}
 	f := func(s int) []proto.Message {
-		res.Volumes = make([]*pprovisioning.Volume, s)
-		for i := range res.Volumes {
-			res.Volumes[i] = &pprovisioning.Volume{}
+		res.BlockStorages = make([]*pprovisioning.BlockStorage, s)
+		for i := range res.BlockStorages {
+			res.BlockStorages[i] = &pprovisioning.BlockStorage{}
 		}
 
 		m := make([]proto.Message, s)
-		for i, v := range res.Volumes {
+		for i, v := range res.BlockStorages {
 			m[i] = v
 		}
 
@@ -221,15 +221,15 @@ func (a *VolumeAPI) ListVolumes(ctx context.Context, req *pprovisioning.ListVolu
 		log.Printf("[WARNING] Failed to list data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to list from db, please retry or contact for the administrator of this cluster")
 	}
-	if len(res.Volumes) == 0 {
+	if len(res.BlockStorages) == 0 {
 		return nil, grpc.Errorf(codes.NotFound, "")
 	}
 
 	return res, nil
 }
 
-func (a *VolumeAPI) GetVolume(ctx context.Context, req *pprovisioning.GetVolumeRequest) (*pprovisioning.Volume, error) {
-	res := &pprovisioning.Volume{}
+func (a *BlockStorageAPI) GetBlockStorage(ctx context.Context, req *pprovisioning.GetBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
+	res := &pprovisioning.BlockStorage{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
@@ -241,16 +241,16 @@ func (a *VolumeAPI) GetVolume(ctx context.Context, req *pprovisioning.GetVolumeR
 	return res, nil
 }
 
-func (a *VolumeAPI) UpdateVolume(ctx context.Context, req *pprovisioning.UpdateVolumeRequest) (*pprovisioning.Volume, error) {
+func (a *BlockStorageAPI) UpdateBlockStorage(ctx context.Context, req *pprovisioning.UpdateBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
 	return nil, grpc.Errorf(codes.Unimplemented, "")
 
-	// res := &pprovisioning.Volume{
+	// res := &pprovisioning.BlockStorage{
 	// 	Metadata: req.Metadata,
 	// 	Spec:     req.Spec,
-	// 	Status:   &pprovisioning.VolumeStatus{},
+	// 	Status:   &pprovisioning.BlockStorageStatus{},
 	// }
 
-	// prev := &pprovisioning.Volume{}
+	// prev := &pprovisioning.BlockStorage{}
 	// if err := a.dataStore.Get(req.Metadata.Name, prev); err != nil {
 	// 	log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 	// 	return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Metadata.Name)
@@ -276,8 +276,8 @@ func (a *VolumeAPI) UpdateVolume(ctx context.Context, req *pprovisioning.UpdateV
 	// return res, nil
 }
 
-func (a *VolumeAPI) DeleteVolume(ctx context.Context, req *pprovisioning.DeleteVolumeRequest) (*empty.Empty, error) {
-	prev := &pprovisioning.Volume{}
+func (a *BlockStorageAPI) DeleteBlockStorage(ctx context.Context, req *pprovisioning.DeleteBlockStorageRequest) (*empty.Empty, error) {
+	prev := &pprovisioning.BlockStorage{}
 	if err := a.dataStore.Get(req.Name, prev); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
@@ -285,8 +285,8 @@ func (a *VolumeAPI) DeleteVolume(ctx context.Context, req *pprovisioning.DeleteV
 		return nil, grpc.Errorf(codes.NotFound, "")
 	}
 
-	if prev.Status.State != pprovisioning.VolumeStatus_AVAILABLE {
-		return nil, grpc.Errorf(codes.FailedPrecondition, "Volume '%s' is not available", req.Name)
+	if prev.Status.State != pprovisioning.BlockStorageStatus_AVAILABLE {
+		return nil, grpc.Errorf(codes.FailedPrecondition, "BlockStorage '%s' is not available", req.Name)
 	}
 
 	conn, err := a.nodeConnections.GetConnection(prev.Status.NodeName)
@@ -298,9 +298,9 @@ func (a *VolumeAPI) DeleteVolume(ctx context.Context, req *pprovisioning.DeleteV
 		return nil, grpc.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", prev.Status.NodeName)
 	}
 	defer conn.Close()
-	cli := NewVolumeAgentServiceClient(conn)
+	cli := NewBlockStorageAgentServiceClient(conn)
 
-	_, err = cli.DeleteVolumeAgent(context.Background(), &DeleteVolumeAgentRequest{Path: prev.Metadata.Annotations[AnnotationVolumePath]})
+	_, err = cli.DeleteBlockStorageAgent(context.Background(), &DeleteBlockStorageAgentRequest{Path: prev.Metadata.Annotations[AnnotationBlockStoragePath]})
 	if err != nil {
 		log.Printf("Fail to delete volume on node, err:%v.", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Fail to delete volume on node") // TODO #89
@@ -326,14 +326,14 @@ func (a *VolumeAPI) DeleteVolume(ctx context.Context, req *pprovisioning.DeleteV
 	return &empty.Empty{}, nil
 }
 
-func (a *VolumeAPI) SetInuseVolume(ctx context.Context, req *pprovisioning.SetInuseVolumeRequest) (*pprovisioning.Volume, error) {
-	res := &pprovisioning.Volume{}
+func (a *BlockStorageAPI) SetInuseBlockStorage(ctx context.Context, req *pprovisioning.SetInuseBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
+	res := &pprovisioning.BlockStorage{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
 
-	res.Status.State = pprovisioning.VolumeStatus_IN_USE
+	res.Status.State = pprovisioning.BlockStorageStatus_IN_USE
 
 	if err := a.dataStore.Apply(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
@@ -343,14 +343,14 @@ func (a *VolumeAPI) SetInuseVolume(ctx context.Context, req *pprovisioning.SetIn
 	return res, nil
 }
 
-func (a *VolumeAPI) SetAvailableVolume(ctx context.Context, req *pprovisioning.SetAvailableVolumeRequest) (*pprovisioning.Volume, error) {
-	res := &pprovisioning.Volume{}
+func (a *BlockStorageAPI) SetAvailableBlockStorage(ctx context.Context, req *pprovisioning.SetAvailableBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
+	res := &pprovisioning.BlockStorage{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
 
-	res.Status.State = pprovisioning.VolumeStatus_AVAILABLE
+	res.Status.State = pprovisioning.BlockStorageStatus_AVAILABLE
 
 	if err := a.dataStore.Apply(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())

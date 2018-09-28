@@ -14,11 +14,11 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 )
 
-type VolumeAgentAPI struct {
+type BlockStorageAgentAPI struct {
 	baseDirectory string
 }
 
-func CreateVolumeAgentAPI(basedir string) (*VolumeAgentAPI, error) {
+func CreateBlockStorageAgentAPI(basedir string) (*BlockStorageAgentAPI, error) {
 	b, err := filepath.Abs(basedir)
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed to get absolute path")
@@ -30,16 +30,16 @@ func CreateVolumeAgentAPI(basedir string) (*VolumeAgentAPI, error) {
 		}
 	}
 
-	return &VolumeAgentAPI{
+	return &BlockStorageAgentAPI{
 		baseDirectory: b,
 	}, nil
 }
 
-func (a *VolumeAgentAPI) structPath(name string) string {
+func (a *BlockStorageAgentAPI) structPath(name string) string {
 	return filepath.Join(a.baseDirectory, name+".qcow2")
 }
 
-func (a *VolumeAgentAPI) CreateEmptyVolumeAgent(ctx context.Context, req *CreateEmptyVolumeAgentRequest) (*VolumeAgent, error) {
+func (a *BlockStorageAgentAPI) CreateEmptyBlockStorageAgent(ctx context.Context, req *CreateEmptyBlockStorageAgentRequest) (*BlockStorageAgent, error) {
 	path := a.structPath(req.Name)
 	i, err := img.OpenQemuImg(path)
 	if err != nil {
@@ -53,7 +53,7 @@ func (a *VolumeAgentAPI) CreateEmptyVolumeAgent(ctx context.Context, req *Create
 		return nil, grpc.Errorf(codes.Internal, "Failed to create image: err='%s'", err.Error())
 	}
 
-	return &VolumeAgent{
+	return &BlockStorageAgent{
 		Name:  req.Name,
 		Path:  path,
 		Bytes: req.Bytes,
@@ -61,7 +61,7 @@ func (a *VolumeAgentAPI) CreateEmptyVolumeAgent(ctx context.Context, req *Create
 }
 
 // タイムアウトが心配
-func (a *VolumeAgentAPI) CreateVolumeAgentWithDownloading(ctx context.Context, req *CreateVolumeAgentWithDownloadingRequest) (*VolumeAgent, error) {
+func (a *BlockStorageAgentAPI) CreateBlockStorageAgentWithDownloading(ctx context.Context, req *CreateBlockStorageAgentWithDownloadingRequest) (*BlockStorageAgent, error) {
 	path := a.structPath(req.Name)
 	i, err := img.OpenQemuImg(path)
 	if err != nil {
@@ -79,14 +79,14 @@ func (a *VolumeAgentAPI) CreateVolumeAgentWithDownloading(ctx context.Context, r
 		return nil, grpc.Errorf(codes.Internal, "Failed to download image: err='%s'", err.Error())
 	}
 
-	return &VolumeAgent{
+	return &BlockStorageAgent{
 		Name:  req.Name,
 		Path:  path,
 		Bytes: req.Bytes,
 	}, nil
 }
 
-func (a *VolumeAgentAPI) DeleteVolumeAgent(ctx context.Context, req *DeleteVolumeAgentRequest) (*empty.Empty, error) {
+func (a *BlockStorageAgentAPI) DeleteBlockStorageAgent(ctx context.Context, req *DeleteBlockStorageAgentRequest) (*empty.Empty, error) {
 	i, err := img.OpenQemuImg(req.Path)
 	if err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Cannot open '%s': err='%s'", req.Path, err.Error())

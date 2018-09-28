@@ -7,7 +7,7 @@ import (
 	"github.com/n0stack/proto.go/pool/v0"
 )
 
-func (a VolumeAPI) reserveStorage(name string, annotations map[string]string, req, limit uint64) (string, string, error) {
+func (a BlockStorageAPI) reserveStorage(name string, annotations map[string]string, req, limit uint64) (string, string, error) {
 	var rcr *ppool.ReserveStorageResponse
 	var err error
 	if node, ok := annotations[AnnotationRequestNodeName]; !ok {

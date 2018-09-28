@@ -6,34 +6,34 @@ package n0stack.internal.n0core.provisioning;
 
 import "google/protobuf/empty.proto";
 
-message VolumeAgent {
+message BlockStorageAgent {
   string name = 1;
   uint64 bytes = 2;
   string path = 3;
 }
 
-service VolumeAgentService {
-  rpc CreateEmptyVolumeAgent(CreateEmptyVolumeAgentRequest) returns (VolumeAgent) {}
-  rpc CreateVolumeAgentWithDownloading(CreateVolumeAgentWithDownloadingRequest) returns (VolumeAgent) {}
+service BlockStorageAgentService {
+  rpc CreateEmptyBlockStorageAgent(CreateEmptyBlockStorageAgentRequest) returns (BlockStorageAgent) {}
+  rpc CreateBlockStorageAgentWithDownloading(CreateBlockStorageAgentWithDownloadingRequest) returns (BlockStorageAgent) {}
 
-  rpc DeleteVolumeAgent(DeleteVolumeAgentRequest) returns (google.protobuf.Empty) {}
+  rpc DeleteBlockStorageAgent(DeleteBlockStorageAgentRequest) returns (google.protobuf.Empty) {}
 
-  // rpc ResizeVolumeAgent(ResizeVolumeAgentRequest) returns (VolumeAgent) {}
-  // rpc MigrateVolumeAgent(MigrateVolumeAgentRequest) returns (VolumeAgent) {}
+  // rpc ResizeBlockStorageAgent(ResizeBlockStorageAgentRequest) returns (BlockStorageAgent) {}
+  // rpc MigrateBlockStorageAgent(MigrateBlockStorageAgentRequest) returns (BlockStorageAgent) {}
 }
 
-message CreateEmptyVolumeAgentRequest {
+message CreateEmptyBlockStorageAgentRequest {
   string name = 1;
   uint64 bytes = 2;
 }
 
-message CreateVolumeAgentWithDownloadingRequest {
+message CreateBlockStorageAgentWithDownloadingRequest {
   string name = 1;
   uint64 bytes = 2;
 
   string source_url = 4;
 }
 
-message DeleteVolumeAgentRequest {
+message DeleteBlockStorageAgentRequest {
   string path = 3;
 }
