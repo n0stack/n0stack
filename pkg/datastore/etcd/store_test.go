@@ -1,31 +1,41 @@
-// +build ignore
 // +build medium
+// +build !without_external
 
 package etcd
 
 import (
 	"os"
 	"testing"
+
+	"github.com/golang/protobuf/proto"
+	"github.com/n0stack/n0core/pkg/datastore"
 )
 
+func getEndpoint() []string {
+	endpoint := make([]string, 1)
+	if value, ok := os.LookupEnv("ETCD_ENDPOINT"); ok {
+		endpoint[0] = value
+	} else {
+		endpoint[0] = "localhost:2379"
+	}
+
+	return endpoint
+}
+
 func TestApplyAndDelete(t *testing.T) {
-	e, err := NewEtcdDatastore("test", []string{os.Getenv("ETCD_ENDPOINT")})
+	e, err := NewEtcdDatastore("test", getEndpoint())
 	if err != nil {
 		t.Fatalf("Failed to connect etcd: err='%s'", err.Error())
 	}
 
 	k := "test"
-	// v :=
-	// if err := e.Apply(k, v); err != nil {
-	// 	t.Errorf("Failed to apply: key='%s', value='%v', err='%s'", k, v, err.Error())
-	// }
-
-	n, err := e.Delete(k)
-	if err != nil {
-		t.Errorf("Failed to delete: key='%s', err='%s'", k, err.Error())
+	v := &datastore.Test{Name: "hoge"}
+	if err := e.Apply(k, v); err != nil {
+		t.Errorf("Failed to apply: key='%s', value='%v', err='%s'", k, v, err.Error())
 	}
-	if n != 1 {
-		t.Errorf("Number of deleted keys is mismatch: have='%d', want='%d'", n, 1)
+
+	if err := e.Delete(k); err != nil {
+		t.Errorf("Failed to delete: key='%s', err='%s'", k, err.Error())
 	}
 
 	if err := e.Close(); err != nil {
@@ -34,61 +44,101 @@ func TestApplyAndDelete(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-	e, err := NewEtcdDatastore("test", []string{os.Getenv("ETCD_ENDPOINT")})
+	e, err := NewEtcdDatastore("test", getEndpoint())
 	if err != nil {
 		t.Fatalf("Failed to connect etcd: err='%s'", err.Error())
 	}
 	defer e.Close()
 
 	k := "test"
-	// v :=
-	// if err := e.Apply(k, v); err != nil {
-	// 	t.Errorf("Failed to apply: key='%s', value='%v', err='%s'", k, v, err.Error())
-	// }
+	v := &datastore.Test{Name: "hoge"}
+	if err := e.Apply(k, v); err != nil {
+		t.Fatalf("Failed to apply: key='%s', value='%v', err='%s'", k, v, err.Error())
+	}
 	defer e.Delete(k) // TODO: 返り値が複数であるため正しく動作するか要確認
 
-	// if err := e.Get(res); err != nil {
-	// 	t.Errorf("Failed to get: key='%s', value='%v', err='%s'", k, v, err.Error())
-	// }
-	// if assert.DeepEqual(v, res)
+	res := &datastore.Test{}
+	if err := e.Get(k, res); err != nil {
+		t.Errorf("Failed to get: key='%s', value='%v', err='%s'", k, v, err.Error())
+	}
+	if res.Name != v.Name {
+		t.Errorf("Get 'Name' is wrong: key='%s', have='%s', want='%s'", k, res.Name, v.Name)
+	}
 }
 
 func TestList(t *testing.T) {
-	e, err := NewEtcdDatastore("test", []string{os.Getenv("ETCD_ENDPOINT")})
+	e, err := NewEtcdDatastore("test", getEndpoint())
 	if err != nil {
 		t.Fatalf("Failed to connect etcd: err='%s'", err.Error())
 	}
 	defer e.Close()
 
 	k := "test"
-	// v :=
-	// if err := e.Apply(k, v); err != nil {
-	// 	t.Errorf("Failed to apply: key='%s', value='%v', err='%s'", k, v, err.Error())
-	// }
-	defer e.Delete(k) // TODO: 返り値が福通であるため正しく動作するか要確認
+	v := &datastore.Test{Name: "hoge"}
+	if err := e.Apply(k, v); err != nil {
+		t.Fatalf("Failed to apply: key='%s', value='%v', err='%s'", k, v, err.Error())
+	}
+	defer e.Delete(k) // TODO: 返り値が複数であるため正しく動作するか要確認
 
-	// if err := e.List(); err != nil {
-	// 	t.Errorf("Failed to list: key='%s', value='%v', err='%s'", k, v, err.Error())
-	// }
-	// if len(res) != 1 {
-	// 	t.Errorf("Number of listed keys is mismatch: have='%d', want='%d'", len(res), 1)
-	// }
-	// if assert.DeepEqual(v, res[0])
+	res := []*datastore.Test{}
+	f := func(s int) []proto.Message {
+		res = make([]*datastore.Test, s)
+		for i := range res {
+			res[i] = &datastore.Test{}
+		}
+
+		m := make([]proto.Message, s)
+		for i, v := range res {
+			m[i] = v
+		}
+
+		return m
+	}
+	if err := e.List(f); err != nil {
+		t.Errorf("Failed to list: key='%s', value='%v', err='%s'", k, v, err.Error())
+	}
+	if len(res) != 1 {
+		t.Errorf("Number of listed keys is mismatch: have='%d', want='%d'", len(res), 1)
+	}
+	if res[0].Name != v.Name {
+		t.Errorf("Get 'Name' is wrong: key='%s', have='%s', want='%s'", k, res[0].Name, v.Name)
+	}
 }
 
-func TestWatch(t *testing.T) {
-	// e, err := NewEtcdDatastore("test", []string{os.Getenv("ETCD_ENDPOINT")})
-	// if err != nil {
-	// 	t.Fatalf("Failed to connect etcd: err='%s'", err.Error())
-	// }
-	// defer e.Close()
+func TestEmpty(t *testing.T) {
+	e, err := NewEtcdDatastore("test", getEndpoint())
+	if err != nil {
+		t.Fatalf("Failed to connect etcd: err='%s'", err.Error())
+	}
+	defer e.Close()
 
-	// watch
+	k := "test"
+	resGet := &datastore.Test{}
+	if err := e.Get(k, resGet); err != nil {
+		t.Errorf("Failed to get: key='%s', err='%s'", k, err.Error())
+	}
+	if resGet.Name != "" {
+		t.Errorf("Response is not nil on Get: key='%s', have='%s'", k, resGet.Name)
+	}
 
-	// k := "test"
-	// v :=
-	// if err := e.Apply(k, v); err != nil {
-	// 	t.Errorf("Failed to apply: key='%s', value='%v', err='%s'", k, v, err.Error())
-	// }
-	// defer e.Delete(k) // TODO: 返り値が福通であるため正しく動作するか要確認
+	resList := []*datastore.Test{}
+	f := func(s int) []proto.Message {
+		resList = make([]*datastore.Test, s)
+		for i := range resList {
+			resList[i] = &datastore.Test{}
+		}
+
+		m := make([]proto.Message, s)
+		for i, v := range resList {
+			m[i] = v
+		}
+
+		return m
+	}
+	if err := e.List(f); err != nil {
+		t.Errorf("Failed to list: key='%s', err='%s'", k, err.Error())
+	}
+	if len(resList) != 0 {
+		t.Errorf("Number of listed keys is mismatch: have='%d', want='%d'", len(resList), 0)
+	}
 }

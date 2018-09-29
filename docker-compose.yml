@@ -84,6 +84,8 @@ services:
       - etcd0=http://127.0.0.1:2380
       # - -initial-cluster-state
       # - new
+    ports:
+      - "2379:2379"
 
 networks:
   default:

@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+option go_package = "github.com/n0stack/n0core/pkg/datastore;datastore";
+
+package n0stack.internal.n0core.datastore;
+
+message Test {
+  string name = 1;
+}

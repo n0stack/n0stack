@@ -24,7 +24,7 @@ up: build-docker
 up-mock: build-docker
 	mkdir -p sandbox
 	docker-compose up -d
-logs: 
+logs:
 	docker-compose logs -f
 rm:
 	docker-compose down
