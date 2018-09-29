@@ -44,6 +44,32 @@ func main() {
 				},
 			},
 		},
+		{
+			Name:   "mock",
+			Usage:  "",
+			Action: Mock,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name: "name",
+				},
+				cli.StringFlag{
+					// interfaceからも取れるようにしたい
+					Name: "advertise-address",
+				},
+				cli.StringFlag{
+					Name: "node-api-endpoint",
+				},
+				cli.StringFlag{
+					// interfaceからも取れるようにしたい
+					Name:  "bind-address",
+					Value: "0.0.0.0",
+				},
+				cli.IntFlag{
+					Name:  "bind-port",
+					Value: 20180,
+				},
+			},
+		},
 	}
 
 	log.SetFlags(log.Lshortfile)

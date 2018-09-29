@@ -371,3 +371,9 @@ func (a *BlockStorageAPI) CopyBlockStorage(ctx context.Context, req *pprovisioni
 func (a *BlockStorageAPI) DownloadBlockStorage(req *pprovisioning.DownloadBlockStorageRequest, stream pprovisioning.BlockStorageService_DownloadBlockStorageServer) error {
 	return grpc.Errorf(codes.Unimplemented, "")
 }
+func (a *BlockStorageAPI) ProtectBlockStorage(ctx context.Context, req *pprovisioning.ProtectBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
+	return nil, grpc.Errorf(codes.Unimplemented, "")
+}
+func (a *BlockStorageAPI) UnprotectBlockStorage(ctx context.Context, req *pprovisioning.UnprotectBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
+	return nil, grpc.Errorf(codes.Unimplemented, "")
+}

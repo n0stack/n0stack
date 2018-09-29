@@ -1,18 +1,15 @@
 version: '3'
 services:
-  # agent:
-  #   build: .
-  #   command:
-  #     - /agent
-  #     - serve
-  #     - --name=test-node
-  #     - --advertise-address=agent
-  #     - --api-address=api
-  #     - --api-port=20180
-  #     - --bind-address=0.0.0.0
-  #     - --bind-port=20181
-  #   links:
-  #     - api
+  mock_agent:
+    image: n0stack/n0core
+    command:
+      - ./bin/n0core-agent
+      - mock
+      - --name=mock-node
+      - --advertise-address=mock_agent
+      - --node-api-endpoint=node:20181
+    links:
+      - node
 
   node:
     image: n0stack/n0core

@@ -4,8 +4,7 @@
 
 ## Motivation
 
-- 物理的なリソースを仮想的に使うようにするためのものである
-- 本リポジトリは他のコンポーネントを開発するためのフレームワークを作成していくための雛形である
+- 本リポジトリは他のコンポーネントを開発するための雛形である
 
 ## Principle
 
@@ -23,6 +22,12 @@
 
 ```sh
 make dep
+```
+
+#### Upgrade libraries
+
+```sh
+make dep-update
 ```
 
 ### Tests
@@ -46,6 +51,14 @@ make test-small-docker
 ```sh
 make test-medium
 make test-medium-v
+make test-medium-without-root
+make test-medium-without-external
+```
+
+### Run all in one
+
+```sh
+make run-all-in-one
 ```
 
 #### 各実装は各ディレクトリの `README.md` を参照のこと
