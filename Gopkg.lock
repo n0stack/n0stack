@@ -104,6 +104,17 @@
   version = "v1.2.0"
 
 [[projects]]
+  name = "github.com/google/go-cmp"
+  packages = [
+    "cmp",
+    "cmp/internal/diff",
+    "cmp/internal/function",
+    "cmp/internal/value"
+  ]
+  revision = "3af367b6b30c263d47e8895973edcca9a49cf029"
+  version = "v0.2.0"
+
+[[projects]]
   name = "github.com/hashicorp/errwrap"
   packages = ["."]
   revision = "8a6fb523712970c966eefc6b39ed2c5e74880354"
@@ -148,8 +159,8 @@
 [[projects]]
   name = "github.com/miekg/dns"
   packages = ["."]
-  revision = "f4db2ca6edc3af0ee51bf332099cc480bcf3ef9d"
-  version = "v1.0.10"
+  revision = "ba6747e8a94115e9dc7738afb87850687611df1b"
+  version = "v1.0.12"
 
 [[projects]]
   branch = "master"
@@ -160,7 +171,7 @@
     "provisioning/v0",
     "v0"
   ]
-  revision = "23b47f9e06812da99b982b603c5945837ec6c14d"
+  revision = "5d13dbe4804a86b5440b88c8459c06e628e8c321"
 
 [[projects]]
   name = "github.com/pkg/errors"
@@ -334,6 +345,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "5f2bc1d61d3670779b6259b2c5f60f35360813478435d2b37bffb760d3364660"
+  inputs-digest = "32cbf2ceeea2c0281905e21b87dd35634c74d2416f9335193c9c26f7b26b1f8b"
   solver-name = "gps-cdcl"
   solver-version = 1
