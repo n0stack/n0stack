@@ -61,4 +61,6 @@ make test-medium-without-external
 make run-all-in-one
 ```
 
-#### 各実装は各ディレクトリの `README.md` を参照のこと
+## Dependency map
+
+![](docs/images/dependency_map.svg)
