@@ -2,10 +2,10 @@
 
 ## Example
 
-### Volume
+### BlockStorage
 
 ```
-grpc_cli call localhost:20183 n0stack.provisioning.VolumeService/CreateEmptyVolume \
+grpc_cli call localhost:20183 n0stack.provisioning.BlockStorageService/CreateEmptyBlockStorage \
 'metadata {
   name: "test-empty-volume"
   annotations {
@@ -20,7 +20,7 @@ spec {
 ```
 
 ```
-grpc_cli call localhost:20183 n0stack.provisioning.VolumeService/CreateVolumeWithDownloading \
+grpc_cli call localhost:20183 n0stack.provisioning.BlockStorageService/CreateBlockStorageWithDownloading \
 'metadata {
   name: "test-ubuntu-volume"
   annotations {
@@ -37,19 +37,19 @@ source_url: "http://cloud-images.ubuntu.com/xenial/current/xenial-server-cloudim
 ```
 
 ```
-grpc_cli call localhost:20183 n0stack.provisioning.VolumeService/ListVolumes ''
+grpc_cli call localhost:20183 n0stack.provisioning.BlockStorageService/ListBlockStorages ''
 ```
 
 ```
-grpc_cli call localhost:20183 n0stack.provisioning.VolumeService/GetVolume 'name: "test-ubuntu-volume"'
+grpc_cli call localhost:20183 n0stack.provisioning.BlockStorageService/GetBlockStorage 'name: "test-ubuntu-volume"'
 ```
 
 ```
-grpc_cli call localhost:20183 n0stack.provisioning.VolumeService/SetAvailableVolume 'name: test-ubuntu-volume"'
+grpc_cli call localhost:20183 n0stack.provisioning.BlockStorageService/SetAvailableBlockStorage 'name: test-ubuntu-volume"'
 ```
 
 ```
-grpc_cli call localhost:20183 n0stack.provisioning.VolumeService/SetInuseVolume 'name: "test-ubuntu-volume"'
+grpc_cli call localhost:20183 n0stack.provisioning.BlockStorageService/SetInuseBlockStorage 'name: "test-ubuntu-volume"'
 ```
 
 
@@ -71,7 +71,7 @@ spec {
   request_memory_bytes: 1073741824
   limit_memory_bytes: 1073741824
 
-  volume_names: "test-ubuntu-volume"
+  block_storage_names: "test-ubuntu-volume"
 
   nics {
     network_name: "test-network"

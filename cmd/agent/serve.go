@@ -25,7 +25,7 @@ func Serve(ctx *cli.Context) error {
 		return err
 	}
 
-	bv := filepath.Join(ctx.String("base-directory"), "volume")
+	bv := filepath.Join(ctx.String("base-directory"), "block_storage")
 	va, err := provisioning.CreateBlockStorageAgentAPI(bv)
 	if err != nil {
 		return err

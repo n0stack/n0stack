@@ -23,14 +23,14 @@ type VirtualMachineAPI struct {
 	dataStore datastore.Datastore
 
 	// dependency APIs
-	nodeAPI    ppool.NodeServiceClient
-	networkAPI ppool.NetworkServiceClient
-	volumeAPI  pprovisioning.BlockStorageServiceClient
+	nodeAPI         ppool.NodeServiceClient
+	networkAPI      ppool.NetworkServiceClient
+	blockstorageAPI pprovisioning.BlockStorageServiceClient
 
 	nodeConnections *node.NodeConnections
 }
 
-func CreateVirtualMachineAPI(ds datastore.Datastore, noa ppool.NodeServiceClient, nea ppool.NetworkServiceClient, va pprovisioning.BlockStorageServiceClient) (*VirtualMachineAPI, error) {
+func CreateVirtualMachineAPI(ds datastore.Datastore, noa ppool.NodeServiceClient, nea ppool.NetworkServiceClient, bsa pprovisioning.BlockStorageServiceClient) (*VirtualMachineAPI, error) {
 	nc := &node.NodeConnections{
 		NodeAPI: noa,
 	}
@@ -39,7 +39,7 @@ func CreateVirtualMachineAPI(ds datastore.Datastore, noa ppool.NodeServiceClient
 		dataStore:       ds,
 		nodeAPI:         noa,
 		networkAPI:      nea,
-		volumeAPI:       va,
+		blockstorageAPI: bsa,
 		nodeConnections: nc,
 	}
 
@@ -52,7 +52,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Metadata.Name)
 	} else if !reflect.ValueOf(prev.Metadata).IsNil() {
-		return nil, grpc.Errorf(codes.AlreadyExists, "Volume '%s' is already exists", req.Metadata.Name)
+		return nil, grpc.Errorf(codes.AlreadyExists, "BlockStorage '%s' is already exists", req.Metadata.Name)
 	}
 
 	if req.Spec.LimitCpuMilliCore%1000 != 0 {
@@ -96,15 +96,15 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 	}
 	defer conn.Close()
 
-	if blockdev, err = a.reserveVolume(req.Spec.BlockStorageNames); err != nil {
-		log.Printf("Failed to reserve volume: err=%v.", err.Error())
+	if blockdev, err = a.reserveBlockStorage(req.Spec.BlockStorageNames); err != nil {
+		log.Printf("Failed to reserve block storage: err=%v.", err.Error())
 		goto ReleaseCompute
 	}
 
 	res.Spec.Nics, res.Status.NetworkInterfaceNames, err = a.reserveNics(req.Metadata.Name, req.Spec.Nics)
 	if err != nil {
 		log.Printf("Failed to reserve nics: err=%v.", err.Error())
-		goto ReleaseVolume
+		goto ReleaseBlockStorage
 	}
 
 	if vm, err := cli.CreateVirtualMachineAgent(context.Background(), &CreateVirtualMachineAgentRequest{
@@ -114,7 +114,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		Netdev:      StructNetDev(req.Spec.Nics, res.Status.NetworkInterfaceNames),
 		Blockdev:    blockdev,
 	}); err != nil {
-		log.Printf("Failed to create volume on node '%s': err='%s'", res.Status.ComputeNodeName, err.Error()) // TODO: #89
+		log.Printf("Failed to create block storage on node '%s': err='%s'", res.Status.ComputeNodeName, err.Error()) // TODO: #89
 		goto ReleaseNetworkInterface
 	} else {
 		log.Printf("[DEBUG] after CreateVirtualMachineAgent: vm='%+v'", vm)
@@ -144,9 +144,9 @@ ReleaseNetworkInterface:
 		log.Printf("Fail to release network interfaces on API: err=%s.", err.Error())
 	}
 
-ReleaseVolume:
-	if err := a.relaseVolumes(res.Spec.BlockStorageNames); err != nil {
-		log.Printf("Fail to release volume on API: err=%s.", err.Error())
+ReleaseBlockStorage:
+	if err := a.relaseBlockStorages(res.Spec.BlockStorageNames); err != nil {
+		log.Printf("Fail to release block storage on API: err=%s.", err.Error())
 	}
 
 ReleaseCompute:
@@ -234,7 +234,7 @@ func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprov
 		return nil, err
 	}
 
-	if err := a.relaseVolumes(prev.Spec.BlockStorageNames); err != nil {
+	if err := a.relaseBlockStorages(prev.Spec.BlockStorageNames); err != nil {
 		return nil, err
 	}
 
@@ -278,7 +278,7 @@ func (a *VirtualMachineAPI) BootVirtualMachine(ctx context.Context, req *pprovis
 	vm, err := cli.BootVirtualMachineAgent(context.Background(), &BootVirtualMachineAgentRequest{Name: req.Name})
 	if err != nil {
 		log.Printf("Fail to boot on node, err:%v.", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Fail to boot volume on node") // TODO #89
+		return nil, grpc.Errorf(codes.Internal, "Fail to boot block storage on node") // TODO #89
 	}
 	res.Status.State = GetAPIStateFromAgentState(vm.State)
 
@@ -322,7 +322,7 @@ func (a *VirtualMachineAPI) RebootVirtualMachine(ctx context.Context, req *pprov
 	})
 	if err != nil {
 		log.Printf("Fail to reboot on node, err:%v.", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Fail to reboot volume on node") // TODO #89
+		return nil, grpc.Errorf(codes.Internal, "Fail to reboot block storage on node") // TODO #89
 	}
 	res.Status.State = GetAPIStateFromAgentState(vm.State)
 
@@ -366,7 +366,7 @@ func (a *VirtualMachineAPI) ShutdownVirtualMachine(ctx context.Context, req *ppr
 	})
 	if err != nil {
 		log.Printf("Fail to shutdown on node, err:%v.", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Fail to shutdown volume on node") // TODO #89
+		return nil, grpc.Errorf(codes.Internal, "Fail to shutdown block storage on node") // TODO #89
 	}
 	res.Status.State = GetAPIStateFromAgentState(vm.State)
 

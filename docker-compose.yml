@@ -34,11 +34,11 @@ services:
       - "20182:20182"
     links:
       - etcd
-  volume:
+  block_storage:
     image: n0stack/n0core
     command:
       - ./bin/n0core-api
-      - volume
+      - block_storage
       - --etcd-endpoints=etcd:2379
       - --node-api-endpoint=node:20181
     ports:
@@ -54,13 +54,13 @@ services:
       - --etcd-endpoints=etcd:2379
       - --node-api-endpoint=node:20181
       - --network-api-endpoint=network:20182
-      - --volume-api-endpoint=volume:20183
+      - --block-storage-api-endpoint=block_storage:20183
     ports:
       - "20184:20184"
     links:
       - node
       - network
-      - volume
+      - block_storage
       - etcd
 
   etcd:

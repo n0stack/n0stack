@@ -44,12 +44,12 @@ func ServeVirtualMachineAPI(ctx *cli.Context) error {
 	defer networkConn.Close()
 	nec := ppool.NewNetworkServiceClient(networkConn)
 
-	volumeConn, err := grpc.Dial(ctx.String("volume-api-endpoint"), grpc.WithInsecure())
+	bsConn, err := grpc.Dial(ctx.String("block-storage-api-endpoint"), grpc.WithInsecure())
 	if err != nil {
 		log.Fatalln("Dial:", err)
 	}
-	defer volumeConn.Close()
-	vc := pprovisioning.NewBlockStorageServiceClient(volumeConn)
+	defer bsConn.Close()
+	vc := pprovisioning.NewBlockStorageServiceClient(bsConn)
 
 	va, err := provisioning.CreateVirtualMachineAPI(ve, noc, nec, vc)
 	if err != nil {

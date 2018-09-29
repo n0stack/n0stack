@@ -26,7 +26,7 @@ func ServeBlockStorageAPI(ctx *cli.Context) error {
 		return err
 	}
 
-	ve, err := etcd.NewEtcdDatastore("volume", strings.Split(ctx.String("etcd-endpoints"), ","))
+	ve, err := etcd.NewEtcdDatastore("block_storage", strings.Split(ctx.String("etcd-endpoints"), ","))
 	if err != nil {
 		return err
 	}

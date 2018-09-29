@@ -98,7 +98,7 @@ func main() {
 					Name: "network-api-endpoint",
 				},
 				cli.StringFlag{
-					Name: "volume-api-endpoint",
+					Name: "block-storage-api-endpoint",
 				},
 			},
 		},

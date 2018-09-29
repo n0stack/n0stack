@@ -175,24 +175,23 @@ func (a VirtualMachineAPI) releaseNics(nics []*pprovisioning.VirtualMachineSpec_
 	return nil
 }
 
-func (a VirtualMachineAPI) reserveVolume(names []string) ([]*BlockDev, error) {
+func (a VirtualMachineAPI) reserveBlockStorage(names []string) ([]*BlockDev, error) {
 	bd := make([]*BlockDev, 0, len(names))
 	for i, n := range names {
-		v, err := a.volumeAPI.SetInuseBlockStorage(context.Background(), &pprovisioning.SetInuseBlockStorageRequest{Name: n})
+		v, err := a.blockstorageAPI.SetInuseBlockStorage(context.Background(), &pprovisioning.SetInuseBlockStorageRequest{Name: n})
 		if err != nil {
-			log.Printf("Failed to get volume '%s' from API: %s", n, err.Error())
+			log.Printf("Failed to get block storage '%s' from API: %s", n, err.Error())
 			if status.Code(err) != codes.NotFound {
-				return nil, grpc.Errorf(codes.Internal, "Failed to set volume '%s' as in use from API", n)
+				return nil, grpc.Errorf(codes.Internal, "Failed to set block storage '%s' as in use from API", n)
 			}
 
-			return nil, grpc.Errorf(codes.InvalidArgument, "Volume '%s' is not found", n)
+			return nil, grpc.Errorf(codes.InvalidArgument, "BlockStorage '%s' is not found", n)
 		}
 
 		u := url.URL{
 			Scheme: "file",
 			Path:   v.Metadata.Annotations[AnnotationBlockStoragePath],
 		}
-		log.Printf("[DEBUG] SetInuseVolume response %+v", v)
 		bd = append(bd, &BlockDev{
 			Name:      names[i],
 			Url:       u.String(),
@@ -203,14 +202,14 @@ func (a VirtualMachineAPI) reserveVolume(names []string) ([]*BlockDev, error) {
 	return bd, nil
 }
 
-func (a VirtualMachineAPI) relaseVolumes(names []string) error {
+func (a VirtualMachineAPI) relaseBlockStorages(names []string) error {
 	for _, n := range names {
-		_, err := a.volumeAPI.SetAvailableBlockStorage(context.Background(), &pprovisioning.SetAvailableBlockStorageRequest{Name: n})
+		_, err := a.blockstorageAPI.SetAvailableBlockStorage(context.Background(), &pprovisioning.SetAvailableBlockStorageRequest{Name: n})
 		if err != nil {
-			log.Printf("Failed to get volume '%s' from API: %s", n, err.Error())
+			log.Printf("Failed to get block storage '%s' from API: %s", n, err.Error())
 
 			if status.Code(err) != codes.NotFound {
-				return grpc.Errorf(codes.Internal, "Failed to get volume '%s' as in use from API", n)
+				return grpc.Errorf(codes.Internal, "Failed to get block storage '%s' as in use from API", n)
 			}
 		}
 	}

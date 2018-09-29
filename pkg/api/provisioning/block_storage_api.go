@@ -29,7 +29,7 @@ type BlockStorageAPI struct {
 
 const (
 	// Create のときに自動生成、消されると困る
-	AnnotationBlockStoragePath = "n0core/provisioning/volume_url"
+	AnnotationBlockStoragePath = "n0core/provisioning/block_storage_url"
 )
 
 func CreateBlockStorageAPI(ds datastore.Datastore, na ppool.NodeServiceClient) (*BlockStorageAPI, error) {
@@ -85,7 +85,7 @@ func (a *BlockStorageAPI) CreateBlockStorage(ctx context.Context, req *pprovisio
 		Bytes: req.Spec.LimitBytes,
 	})
 	if err != nil && status.Code(err) != codes.AlreadyExists {
-		log.Printf("Failed to create volume on node '%s': err='%s'", res.Status.NodeName, err.Error()) // TODO: #89
+		log.Printf("Failed to create block_storage on node '%s': err='%s'", res.Status.NodeName, err.Error()) // TODO: #89
 		goto ReleaseStorage
 	}
 
@@ -102,8 +102,8 @@ func (a *BlockStorageAPI) CreateBlockStorage(ctx context.Context, req *pprovisio
 DeleteBlockStorage:
 	_, err = cli.DeleteBlockStorageAgent(context.Background(), &DeleteBlockStorageAgentRequest{Path: res.Metadata.Annotations[AnnotationBlockStoragePath]})
 	if err != nil {
-		log.Printf("Fail to delete volume on node, err:%v.", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Fail to delete volume on node") // TODO #89
+		log.Printf("Fail to delete block_storage on node, err:%v.", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Fail to delete block_storage on node") // TODO #89
 	}
 
 ReleaseStorage:
@@ -163,7 +163,7 @@ ReleaseStorage:
 // 		SourceUrl: req.SourceUrl,
 // 	})
 // 	if err != nil && status.Code(err) != codes.AlreadyExists {
-// 		log.Printf("Fail to create volume on node '%s': err='%s'", "", err.Error()) // TODO: #89
+// 		log.Printf("Fail to create block_storage on node '%s': err='%s'", "", err.Error()) // TODO: #89
 // 		goto ReleaseStorage
 // 	}
 
@@ -180,8 +180,8 @@ ReleaseStorage:
 // DeleteBlockStorage:
 // 	_, err = cli.DeleteBlockStorageAgent(context.Background(), &DeleteBlockStorageAgentRequest{Path: res.Metadata.Annotations[AnnotationBlockStoragePath]})
 // 	if err != nil {
-// 		log.Printf("Fail to delete volume on node, err:%v.", err.Error())
-// 		return nil, grpc.Errorf(codes.Internal, "Fail to delete volume on node") // TODO #89
+// 		log.Printf("Fail to delete block_storage on node, err:%v.", err.Error())
+// 		return nil, grpc.Errorf(codes.Internal, "Fail to delete block_storage on node") // TODO #89
 // 	}
 
 // ReleaseStorage:
@@ -302,8 +302,8 @@ func (a *BlockStorageAPI) DeleteBlockStorage(ctx context.Context, req *pprovisio
 
 	_, err = cli.DeleteBlockStorageAgent(context.Background(), &DeleteBlockStorageAgentRequest{Path: prev.Metadata.Annotations[AnnotationBlockStoragePath]})
 	if err != nil {
-		log.Printf("Fail to delete volume on node, err:%v.", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Fail to delete volume on node") // TODO #89
+		log.Printf("Fail to delete block_storage on node, err:%v.", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Fail to delete block_storage on node") // TODO #89
 	}
 
 	_, err = a.nodeAPI.ReleaseStorage(context.Background(), &ppool.ReleaseStorageRequest{
