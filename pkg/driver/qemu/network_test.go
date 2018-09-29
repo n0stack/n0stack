@@ -1,4 +1,5 @@
 // +build medium
+// +build !without_root
 
 package qemu
 
