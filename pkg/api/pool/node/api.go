@@ -148,7 +148,10 @@ func (a NodeAPI) ScheduleCompute(ctx context.Context, req *ppool.ScheduleCompute
 
 func (a NodeAPI) ReserveCompute(ctx context.Context, req *ppool.ReserveComputeRequest) (*ppool.ReserveComputeResponse, error) {
 	if req.ComputeName == "" {
-		return nil, grpc.Errorf(codes.InvalidArgument, "Do not set field 'compute_name' as blank")
+		return nil, grpc.Errorf(codes.InvalidArgument, "Set field 'compute_name'")
+	}
+	if req.Compute == nil {
+		return nil, grpc.Errorf(codes.InvalidArgument, "Set field 'compute'")
 	}
 
 	n := &ppool.Node{}
@@ -167,7 +170,7 @@ func (a NodeAPI) ReserveCompute(ctx context.Context, req *ppool.ReserveComputeRe
 	}
 
 	if err := CheckCompute(req.Compute.RequestCpuMilliCore, n.Spec.CpuMilliCores, req.Compute.RequestMemoryBytes, n.Spec.MemoryBytes, n.Status.ReservedComputes); err != nil {
-		grpc.Errorf(codes.ResourceExhausted, "Compute resource is exhausted on node '%s': %s", req.Name, err.Error())
+		return nil, grpc.Errorf(codes.ResourceExhausted, "Compute resource is exhausted on node '%s': %s", req.Name, err.Error())
 	}
 
 	res := &ppool.ReserveComputeResponse{
@@ -219,7 +222,10 @@ func (a NodeAPI) ScheduleStorage(ctx context.Context, req *ppool.ScheduleStorage
 
 func (a NodeAPI) ReserveStorage(ctx context.Context, req *ppool.ReserveStorageRequest) (*ppool.ReserveStorageResponse, error) {
 	if req.StorageName == "" {
-		return nil, grpc.Errorf(codes.InvalidArgument, "Do not set field 'storage_name' as blank")
+		return nil, grpc.Errorf(codes.InvalidArgument, "Set field 'storage_name'")
+	}
+	if req.Storage == nil {
+		return nil, grpc.Errorf(codes.InvalidArgument, "Set field 'storage'")
 	}
 
 	n := &ppool.Node{}
@@ -238,7 +244,7 @@ func (a NodeAPI) ReserveStorage(ctx context.Context, req *ppool.ReserveStorageRe
 	}
 
 	if err := CheckStorage(req.Storage.RequestBytes, n.Spec.StorageBytes, n.Status.ReservedStorages); err != nil {
-		grpc.Errorf(codes.ResourceExhausted, "Storage resource is exhausted on node '%s': %s", req.Name, err.Error())
+		return nil, grpc.Errorf(codes.ResourceExhausted, "Storage resource is exhausted on node '%s': %s", req.Name, err.Error())
 	}
 
 	res := &ppool.ReserveStorageResponse{
