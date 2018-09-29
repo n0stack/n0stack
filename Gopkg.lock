@@ -160,7 +160,7 @@
     "provisioning/v0",
     "v0"
   ]
-  revision = "3374ba623f12b67c4deb4d75c96bf7c914c6e56a"
+  revision = "23b47f9e06812da99b982b603c5945837ec6c14d"
 
 [[projects]]
   name = "github.com/pkg/errors"
@@ -232,7 +232,7 @@
     "poly1305",
     "ssh"
   ]
-  revision = "0e37d006457bf46f9e6692014ba72ef82c33022c"
+  revision = "5295e8364332db77d75fce11f1d19c053919a9c9"
 
 [[projects]]
   branch = "master"
@@ -251,7 +251,7 @@
     "ipv6",
     "trace"
   ]
-  revision = "2f5d2388922f370f4355f327fcf4cfe9f5583908"
+  revision = "4dfa2610cdf3b287375bbba5b8f2a14d3b01d8de"
 
 [[projects]]
   branch = "master"
@@ -260,7 +260,7 @@
     "unix",
     "windows"
   ]
-  revision = "d47a0f3392421c5624713c9a19fe781f651f8a50"
+  revision = "e4b3c5e9061176387e7cea65e4dc5853801f3fb7"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -287,7 +287,7 @@
   branch = "master"
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
-  revision = "c3f76f3b92d1ffa4c58a9ff842a58b8877655e0f"
+  revision = "c7e5094acea1ca1b899e2259d80a6b0f882f81f8"
 
 [[projects]]
   name = "google.golang.org/grpc"

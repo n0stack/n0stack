@@ -49,7 +49,7 @@ func ServeVirtualMachineAPI(ctx *cli.Context) error {
 		log.Fatalln("Dial:", err)
 	}
 	defer volumeConn.Close()
-	vc := pprovisioning.NewVolumeServiceClient(volumeConn)
+	vc := pprovisioning.NewBlockStorageServiceClient(volumeConn)
 
 	va, err := provisioning.CreateVirtualMachineAPI(ve, noc, nec, vc)
 	if err != nil {

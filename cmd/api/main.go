@@ -53,9 +53,9 @@ func main() {
 			},
 		},
 		{
-			Name:   "volume",
+			Name:   "block_storage",
 			Usage:  "",
-			Action: ServeVolumeAPI,
+			Action: ServeBlockStorageAPI,
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name: "etcd-endpoints",

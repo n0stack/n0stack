@@ -25,12 +25,12 @@ type VirtualMachineAPI struct {
 	// dependency APIs
 	nodeAPI    ppool.NodeServiceClient
 	networkAPI ppool.NetworkServiceClient
-	volumeAPI  pprovisioning.VolumeServiceClient
+	volumeAPI  pprovisioning.BlockStorageServiceClient
 
 	nodeConnections *node.NodeConnections
 }
 
-func CreateVirtualMachineAPI(ds datastore.Datastore, noa ppool.NodeServiceClient, nea ppool.NetworkServiceClient, va pprovisioning.VolumeServiceClient) (*VirtualMachineAPI, error) {
+func CreateVirtualMachineAPI(ds datastore.Datastore, noa ppool.NodeServiceClient, nea ppool.NetworkServiceClient, va pprovisioning.BlockStorageServiceClient) (*VirtualMachineAPI, error) {
 	nc := &node.NodeConnections{
 		NodeAPI: noa,
 	}
@@ -96,7 +96,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 	}
 	defer conn.Close()
 
-	if blockdev, err = a.reserveVolume(req.Spec.VolumeNames); err != nil {
+	if blockdev, err = a.reserveVolume(req.Spec.BlockStorageNames); err != nil {
 		log.Printf("Failed to reserve volume: err=%v.", err.Error())
 		goto ReleaseCompute
 	}
@@ -145,7 +145,7 @@ ReleaseNetworkInterface:
 	}
 
 ReleaseVolume:
-	if err := a.relaseVolumes(res.Spec.VolumeNames); err != nil {
+	if err := a.relaseVolumes(res.Spec.BlockStorageNames); err != nil {
 		log.Printf("Fail to release volume on API: err=%s.", err.Error())
 	}
 
@@ -234,7 +234,7 @@ func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprov
 		return nil, err
 	}
 
-	if err := a.relaseVolumes(prev.Spec.VolumeNames); err != nil {
+	if err := a.relaseVolumes(prev.Spec.BlockStorageNames); err != nil {
 		return nil, err
 	}
 

@@ -26,13 +26,13 @@ func Serve(ctx *cli.Context) error {
 	}
 
 	bv := filepath.Join(ctx.String("base-directory"), "volume")
-	va, err := provisioning.CreateVolumeAgentAPI(bv)
+	va, err := provisioning.CreateBlockStorageAgentAPI(bv)
 	if err != nil {
 		return err
 	}
 
 	s := grpc.NewServer()
-	provisioning.RegisterVolumeAgentServiceServer(s, va)
+	provisioning.RegisterBlockStorageAgentServiceServer(s, va)
 	provisioning.RegisterVirtualMachineAgentServiceServer(s, vma)
 	reflection.Register(s)
 

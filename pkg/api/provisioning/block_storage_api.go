@@ -46,7 +46,7 @@ func CreateBlockStorageAPI(ds datastore.Datastore, na ppool.NodeServiceClient) (
 	return a, nil
 }
 
-func (a *BlockStorageAPI) CreateEmptyBlockStorage(ctx context.Context, req *pprovisioning.CreateEmptyBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
+func (a *BlockStorageAPI) CreateBlockStorage(ctx context.Context, req *pprovisioning.CreateBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
 	prev := &pprovisioning.BlockStorage{}
 	if err := a.dataStore.Get(req.Metadata.Name, prev); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
@@ -123,83 +123,83 @@ ReleaseStorage:
 	return nil, grpc.Errorf(codes.Internal, "")
 }
 
-func (a *BlockStorageAPI) CreateBlockStorageWithDownloading(ctx context.Context, req *pprovisioning.CreateBlockStorageWithDownloadingRequest) (*pprovisioning.BlockStorage, error) {
-	prev := &pprovisioning.BlockStorage{}
-	if err := a.dataStore.Get(req.Metadata.Name, prev); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Metadata.Name)
-	} else if !reflect.ValueOf(prev.Metadata).IsNil() {
-		return nil, grpc.Errorf(codes.AlreadyExists, "BlockStorage '%s' is already exists", req.Metadata.Name)
-	}
+// func (a *BlockStorageAPI) CreateBlockStorageWithDownloading(ctx context.Context, req *pprovisioning.CreateBlockStorageWithDownloadingRequest) (*pprovisioning.BlockStorage, error) {
+// 	prev := &pprovisioning.BlockStorage{}
+// 	if err := a.dataStore.Get(req.Metadata.Name, prev); err != nil {
+// 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
+// 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Metadata.Name)
+// 	} else if !reflect.ValueOf(prev.Metadata).IsNil() {
+// 		return nil, grpc.Errorf(codes.AlreadyExists, "BlockStorage '%s' is already exists", req.Metadata.Name)
+// 	}
 
-	res := &pprovisioning.BlockStorage{
-		Metadata: req.Metadata,
-		Spec:     req.Spec,
-		Status:   &pprovisioning.BlockStorageStatus{},
-	}
-	var v *BlockStorageAgent
+// 	res := &pprovisioning.BlockStorage{
+// 		Metadata: req.Metadata,
+// 		Spec:     req.Spec,
+// 		Status:   &pprovisioning.BlockStorageStatus{},
+// 	}
+// 	var v *BlockStorageAgent
 
-	var err error
-	if res.Status.NodeName, res.Status.StorageName, err = a.reserveStorage(
-		req.Metadata.Name,
-		req.Metadata.Annotations,
-		req.Spec.RequestBytes,
-		req.Spec.LimitBytes,
-	); err != nil {
-		return nil, err
-	}
+// 	var err error
+// 	if res.Status.NodeName, res.Status.StorageName, err = a.reserveStorage(
+// 		req.Metadata.Name,
+// 		req.Metadata.Annotations,
+// 		req.Spec.RequestBytes,
+// 		req.Spec.LimitBytes,
+// 	); err != nil {
+// 		return nil, err
+// 	}
 
-	conn, err := a.nodeConnections.GetConnection(res.Status.NodeName) // errorについて考える
-	cli := NewBlockStorageAgentServiceClient(conn)
-	if err != nil {
-		log.Printf("Fail to dial to node: err=%v.", err.Error())
-		goto ReleaseStorage
-	}
-	defer conn.Close()
+// 	conn, err := a.nodeConnections.GetConnection(res.Status.NodeName) // errorについて考える
+// 	cli := NewBlockStorageAgentServiceClient(conn)
+// 	if err != nil {
+// 		log.Printf("Fail to dial to node: err=%v.", err.Error())
+// 		goto ReleaseStorage
+// 	}
+// 	defer conn.Close()
 
-	v, err = cli.CreateBlockStorageAgentWithDownloading(context.Background(), &CreateBlockStorageAgentWithDownloadingRequest{
-		Name:      req.Metadata.Name,
-		Bytes:     req.Spec.LimitBytes,
-		SourceUrl: req.SourceUrl,
-	})
-	if err != nil && status.Code(err) != codes.AlreadyExists {
-		log.Printf("Fail to create volume on node '%s': err='%s'", "", err.Error()) // TODO: #89
-		goto ReleaseStorage
-	}
+// 	v, err = cli.CreateBlockStorageAgentWithDownloading(context.Background(), &CreateBlockStorageAgentWithDownloadingRequest{
+// 		Name:      req.Metadata.Name,
+// 		Bytes:     req.Spec.LimitBytes,
+// 		SourceUrl: req.SourceUrl,
+// 	})
+// 	if err != nil && status.Code(err) != codes.AlreadyExists {
+// 		log.Printf("Fail to create volume on node '%s': err='%s'", "", err.Error()) // TODO: #89
+// 		goto ReleaseStorage
+// 	}
 
-	res.Metadata.Annotations[AnnotationBlockStoragePath] = v.Path
-	res.Status.State = pprovisioning.BlockStorageStatus_AVAILABLE
+// 	res.Metadata.Annotations[AnnotationBlockStoragePath] = v.Path
+// 	res.Status.State = pprovisioning.BlockStorageStatus_AVAILABLE
 
-	if err := a.dataStore.Apply(req.Metadata.Name, res); err != nil {
-		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
-		goto DeleteBlockStorage
-	}
+// 	if err := a.dataStore.Apply(req.Metadata.Name, res); err != nil {
+// 		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
+// 		goto DeleteBlockStorage
+// 	}
 
-	return res, nil
+// 	return res, nil
 
-DeleteBlockStorage:
-	_, err = cli.DeleteBlockStorageAgent(context.Background(), &DeleteBlockStorageAgentRequest{Path: res.Metadata.Annotations[AnnotationBlockStoragePath]})
-	if err != nil {
-		log.Printf("Fail to delete volume on node, err:%v.", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Fail to delete volume on node") // TODO #89
-	}
+// DeleteBlockStorage:
+// 	_, err = cli.DeleteBlockStorageAgent(context.Background(), &DeleteBlockStorageAgentRequest{Path: res.Metadata.Annotations[AnnotationBlockStoragePath]})
+// 	if err != nil {
+// 		log.Printf("Fail to delete volume on node, err:%v.", err.Error())
+// 		return nil, grpc.Errorf(codes.Internal, "Fail to delete volume on node") // TODO #89
+// 	}
 
-ReleaseStorage:
-	_, err = a.nodeAPI.ReleaseStorage(context.Background(), &ppool.ReleaseStorageRequest{
-		Name:        res.Status.NodeName,
-		StorageName: res.Status.StorageName,
-	})
-	if err != nil {
-		log.Printf("[ERROR] Failed to release compute '%s': %s", res.Status.StorageName, err.Error())
+// ReleaseStorage:
+// 	_, err = a.nodeAPI.ReleaseStorage(context.Background(), &ppool.ReleaseStorageRequest{
+// 		Name:        res.Status.NodeName,
+// 		StorageName: res.Status.StorageName,
+// 	})
+// 	if err != nil {
+// 		log.Printf("[ERROR] Failed to release compute '%s': %s", res.Status.StorageName, err.Error())
 
-		// Notfound でもとりあえず問題ないため、処理を続ける
-		if status.Code(err) != codes.NotFound {
-			return nil, grpc.Errorf(codes.Internal, "Failed to release compute '%s': please retry", res.Status.StorageName)
-		}
-	}
+// 		// Notfound でもとりあえず問題ないため、処理を続ける
+// 		if status.Code(err) != codes.NotFound {
+// 			return nil, grpc.Errorf(codes.Internal, "Failed to release compute '%s': please retry", res.Status.StorageName)
+// 		}
+// 	}
 
-	return nil, grpc.Errorf(codes.Internal, "")
-}
+// 	return nil, grpc.Errorf(codes.Internal, "")
+// }
 
 func (a *BlockStorageAPI) ListBlockStorages(ctx context.Context, req *pprovisioning.ListBlockStoragesRequest) (*pprovisioning.ListBlockStoragesResponse, error) {
 	res := &pprovisioning.ListBlockStoragesResponse{}
@@ -358,4 +358,16 @@ func (a *BlockStorageAPI) SetAvailableBlockStorage(ctx context.Context, req *ppr
 	}
 
 	return res, nil
+}
+
+func (a *BlockStorageAPI) UploadBlockStorage(req pprovisioning.BlockStorageService_UploadBlockStorageServer) error {
+	return grpc.Errorf(codes.Unimplemented, "")
+}
+
+func (a *BlockStorageAPI) CopyBlockStorage(ctx context.Context, req *pprovisioning.CopyBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
+	return nil, grpc.Errorf(codes.Unimplemented, "")
+}
+
+func (a *BlockStorageAPI) DownloadBlockStorage(req *pprovisioning.DownloadBlockStorageRequest, stream pprovisioning.BlockStorageService_DownloadBlockStorageServer) error {
+	return grpc.Errorf(codes.Unimplemented, "")
 }

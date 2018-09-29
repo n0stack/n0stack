@@ -19,7 +19,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-func ServeVolumeAPI(ctx *cli.Context) error {
+func ServeBlockStorageAPI(ctx *cli.Context) error {
 	b := fmt.Sprintf("%s:%d", ctx.String("bind-address"), ctx.Int("bind-port"))
 	lis, err := net.Listen("tcp", b)
 	if err != nil {
@@ -39,13 +39,13 @@ func ServeVolumeAPI(ctx *cli.Context) error {
 	defer conn.Close()
 	noc := ppool.NewNodeServiceClient(conn)
 
-	va, err := provisioning.CreateVolumeAPI(ve, noc)
+	va, err := provisioning.CreateBlockStorageAPI(ve, noc)
 	if err != nil {
 		return err
 	}
 
 	s := grpc.NewServer()
-	pprovisioning.RegisterVolumeServiceServer(s, va)
+	pprovisioning.RegisterBlockStorageServiceServer(s, va)
 	reflection.Register(s)
 
 	log.Printf("[INFO] Started API")

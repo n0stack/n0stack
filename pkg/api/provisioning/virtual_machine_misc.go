@@ -178,7 +178,7 @@ func (a VirtualMachineAPI) releaseNics(nics []*pprovisioning.VirtualMachineSpec_
 func (a VirtualMachineAPI) reserveVolume(names []string) ([]*BlockDev, error) {
 	bd := make([]*BlockDev, 0, len(names))
 	for i, n := range names {
-		v, err := a.volumeAPI.SetInuseVolume(context.Background(), &pprovisioning.SetInuseVolumeRequest{Name: n})
+		v, err := a.volumeAPI.SetInuseBlockStorage(context.Background(), &pprovisioning.SetInuseBlockStorageRequest{Name: n})
 		if err != nil {
 			log.Printf("Failed to get volume '%s' from API: %s", n, err.Error())
 			if status.Code(err) != codes.NotFound {
@@ -190,7 +190,7 @@ func (a VirtualMachineAPI) reserveVolume(names []string) ([]*BlockDev, error) {
 
 		u := url.URL{
 			Scheme: "file",
-			Path:   v.Metadata.Annotations[AnnotationVolumePath],
+			Path:   v.Metadata.Annotations[AnnotationBlockStoragePath],
 		}
 		log.Printf("[DEBUG] SetInuseVolume response %+v", v)
 		bd = append(bd, &BlockDev{
@@ -205,7 +205,7 @@ func (a VirtualMachineAPI) reserveVolume(names []string) ([]*BlockDev, error) {
 
 func (a VirtualMachineAPI) relaseVolumes(names []string) error {
 	for _, n := range names {
-		_, err := a.volumeAPI.SetAvailableVolume(context.Background(), &pprovisioning.SetAvailableVolumeRequest{Name: n})
+		_, err := a.volumeAPI.SetAvailableBlockStorage(context.Background(), &pprovisioning.SetAvailableBlockStorageRequest{Name: n})
 		if err != nil {
 			log.Printf("Failed to get volume '%s' from API: %s", n, err.Error())
 
