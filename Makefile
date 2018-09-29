@@ -17,6 +17,8 @@ build:
 	# go build -o bin/n0stack -v cmd/n0stack/*.go
 build-docker:
 	docker build -t n0stack/n0core .
+build-proto:
+	docker run -it --rm  -v $(PWD):/src:ro -v `go env GOPATH`/src:/dst n0stack/build-proto --go_out=plugins=grpc:/dst
 
 up: build-docker
 	mkdir -p sandbox

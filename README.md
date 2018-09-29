@@ -30,6 +30,14 @@ make dep
 make dep-update
 ```
 
+### Build
+
+```sh
+make build
+make build-docker
+make build-proto
+```
+
 ### Tests
 
 #### small
