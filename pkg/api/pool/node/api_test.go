@@ -179,83 +179,113 @@ func TestNodeAboutCompute(t *testing.T) {
 		t.Errorf("ReserveCompute response is wrong: diff=(-want +got)\n%s", diff)
 	}
 
-	// errors
-	// TODO: memory, CPU
-	reserveRes, err = na.ReserveCompute(context.Background(), reserveReq)
-	if err != nil && status.Code(err) != codes.AlreadyExists {
-		t.Errorf("[AlreadyExists] ReserveCompute got error, not AlreadyExists: err='%s'", err.Error())
-	}
-	if reserveRes != nil {
-		t.Errorf("[AlreadyExists] ReserveCompute response is not nil: res=%+v", reserveRes)
-	}
-	reserveRes, err = na.ReserveCompute(context.Background(), &ppool.ReserveComputeRequest{
-		Name:        n.Metadata.Name,
-		ComputeName: "test-compute2",
-		Compute: &pbudget.Compute{
-			LimitCpuMilliCore:   1000,
-			RequestCpuMilliCore: 1000,
-			LimitMemoryBytes:    1 * bytefmt.GIGABYTE,
-			RequestMemoryBytes:  1 * bytefmt.GIGABYTE,
+	cases := []struct {
+		name       string
+		req        *ppool.ReserveComputeRequest
+		res        *ppool.ReserveComputeResponse
+		statusCode codes.Code
+	}{
+		{
+			"already exists",
+			reserveReq,
+			nil,
+			codes.AlreadyExists,
 		},
-	})
-	if err != nil && status.Code(err) != codes.ResourceExhausted {
-		t.Errorf("[ResourceExhausted] ReserveCompute got error, not ResourceExhausted: err='%s'", err.Error())
-	}
-	if reserveRes != nil {
-		t.Errorf("[ResourceExhausted] ReserveCompute response is not nil: res=%+v", reserveRes)
-	}
-	reserveRes, err = na.ReserveCompute(context.Background(), &ppool.ReserveComputeRequest{
-		Name: "not_found",
-		Compute: &pbudget.Compute{
-			LimitCpuMilliCore:   1000,
-			RequestCpuMilliCore: 1000,
-			LimitMemoryBytes:    1 * bytefmt.GIGABYTE,
-			RequestMemoryBytes:  1 * bytefmt.GIGABYTE,
+		{
+			"no ComputeName -> InvalidArgument",
+			&ppool.ReserveComputeRequest{
+				Name: "invalid_argument",
+				Compute: &pbudget.Compute{
+					LimitCpuMilliCore:   1000,
+					RequestCpuMilliCore: 1000,
+					LimitMemoryBytes:    1 * bytefmt.GIGABYTE,
+					RequestMemoryBytes:  1 * bytefmt.GIGABYTE,
+				},
+			},
+			nil,
+			codes.InvalidArgument,
 		},
-	})
-	if err != nil && status.Code(err) != codes.InvalidArgument {
-		t.Errorf("[InvalidArgument] ReserveCompute got error, not InvalidArgument: err='%s'", err.Error())
-	}
-	if reserveRes != nil {
-		t.Errorf("[InvalidArgument] ReserveCompute response is not nil: res=%+v", reserveRes)
-	}
-	reserveRes, err = na.ReserveCompute(context.Background(), &ppool.ReserveComputeRequest{
-		Name:        n.Metadata.Name,
-		ComputeName: "test-compute2",
-	})
-	if err != nil && status.Code(err) != codes.InvalidArgument {
-		t.Errorf("[InvalidArgument] ReserveCompute got error, not InvalidArgument: err='%s'", err.Error())
-	}
-	if reserveRes != nil {
-		t.Errorf("[InvalidArgument] ReserveCompute response is not nil: res=%+v", reserveRes)
-	}
-	reserveRes, err = na.ReserveCompute(context.Background(), &ppool.ReserveComputeRequest{
-		ComputeName: "not_found",
-		Compute: &pbudget.Compute{
-			LimitCpuMilliCore:   1000,
-			RequestCpuMilliCore: 1000,
-			LimitMemoryBytes:    1 * bytefmt.GIGABYTE,
-			RequestMemoryBytes:  1 * bytefmt.GIGABYTE,
+		{
+			"no Compute -> InvalidArgument",
+			&ppool.ReserveComputeRequest{
+				Name:        n.Metadata.Name,
+				ComputeName: "test-compute2",
+			},
+			nil,
+			codes.InvalidArgument,
 		},
-	})
-	if err != nil && status.Code(err) != codes.NotFound {
-		t.Errorf("[NotFound] ReserveCompute got error, not NotFound: err='%s'", err.Error())
-	}
-	if reserveRes != nil {
-		t.Errorf("[NotFound] ReserveCompute response is not nil: res=%+v", reserveRes)
+		{
+			"no Name -> NotFound",
+			&ppool.ReserveComputeRequest{
+				ComputeName: "not_found",
+				Compute: &pbudget.Compute{
+					LimitCpuMilliCore:   1000,
+					RequestCpuMilliCore: 1000,
+					LimitMemoryBytes:    1 * bytefmt.GIGABYTE,
+					RequestMemoryBytes:  1 * bytefmt.GIGABYTE,
+				},
+			},
+			nil,
+			codes.NotFound,
+		},
+		{
+			"no all -> InvalidArgument",
+			&ppool.ReserveComputeRequest{},
+			nil,
+			codes.InvalidArgument,
+		},
+		{
+			"request over -> ResourceExhausted",
+			&ppool.ReserveComputeRequest{
+				Name:        n.Metadata.Name,
+				ComputeName: "test-compute2",
+				Compute: &pbudget.Compute{
+					RequestCpuMilliCore: 1000,
+					RequestMemoryBytes:  1 * bytefmt.GIGABYTE,
+				},
+			},
+			nil,
+			codes.ResourceExhausted,
+		},
 	}
 
-	_, err = na.ReleaseCompute(context.Background(), &ppool.ReleaseComputeRequest{
-		ComputeName: reserveReq.ComputeName,
-	})
-	if err != nil && status.Code(err) != codes.NotFound {
-		t.Errorf("[NotFound] ReleaseCompute got error, not NotFound: err='%s'", err.Error())
+	// TODO: memory, CPU
+	for _, c := range cases {
+		res, err := na.ReserveCompute(context.Background(), c.req)
+		if err != nil && status.Code(err) != c.statusCode {
+			t.Errorf("[%s] ReserveCompute got error: err='%s'", c.name, err.Error())
+		}
+		if res != c.res {
+			t.Errorf("[%s] ReserveCompute response is not nil: res=%+v", c.name, reserveRes)
+		}
 	}
-	_, err = na.ReleaseCompute(context.Background(), &ppool.ReleaseComputeRequest{
-		Name: reserveReq.Name,
-	})
-	if err != nil && status.Code(err) != codes.NotFound {
-		t.Errorf("[NotFound] ReleaseCompute got error, not NotFound: err='%s'", err.Error())
+
+	releaseCases := []struct {
+		name       string
+		req        *ppool.ReleaseComputeRequest
+		statusCode codes.Code
+	}{
+		{
+			"no Name -> NotFound",
+			&ppool.ReleaseComputeRequest{
+				ComputeName: reserveReq.ComputeName,
+			},
+			codes.NotFound,
+		},
+		{
+			"no ComputeName -> NotFound",
+			&ppool.ReleaseComputeRequest{
+				Name: reserveReq.Name,
+			},
+			codes.NotFound,
+		},
+	}
+
+	for _, c := range releaseCases {
+		_, err := na.ReleaseCompute(context.Background(), c.req)
+		if err != nil && status.Code(err) != c.statusCode {
+			t.Errorf("[%s] ReleaseCompute got error: err='%s'", c.name, err.Error())
+		}
 	}
 
 	_, err = na.ReleaseCompute(context.Background(), &ppool.ReleaseComputeRequest{
@@ -333,75 +363,108 @@ func TestNodeAboutStorage(t *testing.T) {
 	}
 
 	// errors
-	reserveRes, err = na.ReserveStorage(context.Background(), reserveReq)
-	if err != nil && status.Code(err) != codes.AlreadyExists {
-		t.Errorf("[AlreadyExists] ReserveStorage got error, not AlreadyExists: err='%s'", err.Error())
-	}
-	if reserveRes != nil {
-		t.Errorf("[AlreadyExists] ReserveStorage response is not nil: res=%+v", reserveRes)
-	}
-	reserveRes, err = na.ReserveStorage(context.Background(), &ppool.ReserveStorageRequest{
-		Name:        n.Metadata.Name,
-		StorageName: "test-storage2",
-		Storage: &pbudget.Storage{
-			LimitBytes:   1 * bytefmt.GIGABYTE,
-			RequestBytes: 1 * bytefmt.GIGABYTE,
+	cases := []struct {
+		name       string
+		req        *ppool.ReserveStorageRequest
+		res        *ppool.ReserveStorageResponse
+		statusCode codes.Code
+	}{
+		{
+			"already exists",
+			reserveReq,
+			nil,
+			codes.AlreadyExists,
 		},
-	})
-	if err != nil && status.Code(err) != codes.ResourceExhausted {
-		t.Errorf("[ResourceExhausted] ReserveStorage got error, not ResourceExhausted: err='%s'", err.Error())
-	}
-	if reserveRes != nil {
-		t.Errorf("[ResourceExhausted] ReserveStorage response is not nil: res=%+v", reserveRes)
-	}
-	reserveRes, err = na.ReserveStorage(context.Background(), &ppool.ReserveStorageRequest{
-		Name: "not_found",
-		Storage: &pbudget.Storage{
-			LimitBytes:   1 * bytefmt.GIGABYTE,
-			RequestBytes: 1 * bytefmt.GIGABYTE,
+		{
+			"no StorageName -> InvalidArgument",
+			&ppool.ReserveStorageRequest{
+				Name: "not_found",
+				Storage: &pbudget.Storage{
+					LimitBytes:   1 * bytefmt.GIGABYTE,
+					RequestBytes: 1 * bytefmt.GIGABYTE,
+				},
+			},
+			nil,
+			codes.InvalidArgument,
 		},
-	})
-	if err != nil && status.Code(err) != codes.InvalidArgument {
-		t.Errorf("[InvalidArgument] ReserveStorage got error, not InvalidArgument: err='%s'", err.Error())
-	}
-	if reserveRes != nil {
-		t.Errorf("[InvalidArgument] ReserveStorage response is not nil: res=%+v", reserveRes)
-	}
-	reserveRes, err = na.ReserveStorage(context.Background(), &ppool.ReserveStorageRequest{
-		Name:        n.Metadata.Name,
-		StorageName: "test-storage2",
-	})
-	if err != nil && status.Code(err) != codes.InvalidArgument {
-		t.Errorf("[InvalidArgument] ReserveStorage got error, not InvalidArgument: err='%s'", err.Error())
-	}
-	if reserveRes != nil {
-		t.Errorf("[InvalidArgument] ReserveStorage response is not nil: res=%+v", reserveRes)
-	}
-	reserveRes, err = na.ReserveStorage(context.Background(), &ppool.ReserveStorageRequest{
-		StorageName: "not_found",
-		Storage: &pbudget.Storage{
-			LimitBytes:   1 * bytefmt.GIGABYTE,
-			RequestBytes: 1 * bytefmt.GIGABYTE,
+		{
+			"no Storage -> InvalidArgument",
+			&ppool.ReserveStorageRequest{
+				Name:        n.Metadata.Name,
+				StorageName: "test-storage2",
+			},
+			nil,
+			codes.InvalidArgument,
 		},
-	})
-	if err != nil && status.Code(err) != codes.NotFound {
-		t.Errorf("[NotFound] ReserveStorage got error, not NotFound: err='%s'", err.Error())
-	}
-	if reserveRes != nil {
-		t.Errorf("[NotFound] ReserveStorage response is not nil: res=%+v", reserveRes)
+		{
+			"no Name -> NotFound",
+			&ppool.ReserveStorageRequest{
+				StorageName: "not_found",
+				Storage: &pbudget.Storage{
+					LimitBytes:   1 * bytefmt.GIGABYTE,
+					RequestBytes: 1 * bytefmt.GIGABYTE,
+				},
+			},
+			nil,
+			codes.NotFound,
+		},
+		{
+			"no all -> InvalidArgument",
+			&ppool.ReserveStorageRequest{},
+			nil,
+			codes.InvalidArgument,
+		},
+		{
+			"request over -> ResourceExhausted",
+			&ppool.ReserveStorageRequest{
+				Name:        n.Metadata.Name,
+				StorageName: "test-storage2",
+				Storage: &pbudget.Storage{
+					LimitBytes:   1 * bytefmt.GIGABYTE,
+					RequestBytes: 1 * bytefmt.GIGABYTE,
+				},
+			},
+			nil,
+			codes.ResourceExhausted,
+		},
 	}
 
-	_, err = na.ReleaseStorage(context.Background(), &ppool.ReleaseStorageRequest{
-		StorageName: reserveReq.StorageName,
-	})
-	if err != nil && status.Code(err) != codes.NotFound {
-		t.Errorf("[NotFound] ReleaseStorage got error, not NotFound: err='%s'", err.Error())
+	for _, c := range cases {
+		res, err := na.ReserveStorage(context.Background(), c.req)
+		if err != nil && status.Code(err) != c.statusCode {
+			t.Errorf("[%s] ReserveStorage got error: err='%s'", c.name, err.Error())
+		}
+		if res != c.res {
+			t.Errorf("[%s] ReserveStorage response is not nil: res=%+v", c.name, reserveRes)
+		}
 	}
-	_, err = na.ReleaseStorage(context.Background(), &ppool.ReleaseStorageRequest{
-		Name: reserveReq.Name,
-	})
-	if err != nil && status.Code(err) != codes.NotFound {
-		t.Errorf("[NotFound] ReleaseStorage got error, not NotFound: err='%s'", err.Error())
+
+	releaseCases := []struct {
+		name       string
+		req        *ppool.ReleaseStorageRequest
+		statusCode codes.Code
+	}{
+		{
+			"no Name -> NotFound",
+			&ppool.ReleaseStorageRequest{
+				StorageName: reserveReq.StorageName,
+			},
+			codes.NotFound,
+		},
+		{
+			"no StorageName -> NotFound",
+			&ppool.ReleaseStorageRequest{
+				Name: reserveReq.Name,
+			},
+			codes.NotFound,
+		},
+	}
+
+	for _, c := range releaseCases {
+		_, err := na.ReleaseStorage(context.Background(), c.req)
+		if err != nil && status.Code(err) != c.statusCode {
+			t.Errorf("[%s] ReleaseStorage got error: err='%s'", c.name, err.Error())
+		}
 	}
 
 	_, err = na.ReleaseStorage(context.Background(), &ppool.ReleaseStorageRequest{
