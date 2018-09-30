@@ -120,14 +120,14 @@ func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.Rese
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
-	if n == nil {
-		return nil, grpc.Errorf(codes.NotFound, "Node '%s' is not found", req.Name)
+	if reflect.ValueOf(n.Metadata).IsNil() {
+		return nil, grpc.Errorf(codes.NotFound, "Network '%s' is not found", req.Name)
 	}
 	if n.Status.ReservedNetworkInterfaces == nil {
 		n.Status.ReservedNetworkInterfaces = make(map[string]*pbudget.NetworkInterface)
 	}
 	if _, ok := n.Status.ReservedNetworkInterfaces[req.NetworkInterfaceName]; ok {
-		return nil, grpc.Errorf(codes.AlreadyExists, "Network interface '%s' is already exists on Node '%s'", req.NetworkInterfaceName, req.Name)
+		return nil, grpc.Errorf(codes.AlreadyExists, "Network interface '%s' is already exists on Network '%s'", req.NetworkInterfaceName, req.Name)
 	}
 
 	// 保存する際にパースするのでエラーは発生しない
@@ -151,7 +151,7 @@ func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.Rese
 			return nil, grpc.Errorf(codes.InvalidArgument, "ipv4_address field is invalid: %s", err.Error())
 		}
 		if err := CheckConflictIPv4(reqIPv4, n.Status.ReservedNetworkInterfaces); err != nil {
-			return nil, grpc.Errorf(codes.AlreadyExists, "ipv4_address field is invalid: %s", err.Error())
+			return nil, grpc.Errorf(codes.ResourceExhausted, "ipv4_address field is invalid: %s", err.Error())
 		}
 	}
 
@@ -190,10 +190,13 @@ func (a NetworkAPI) ReleaseNetworkInterface(ctx context.Context, req *ppool.Rele
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
-	if n == nil {
+	if reflect.ValueOf(n.Metadata).IsNil() {
 		return nil, grpc.Errorf(codes.NotFound, "Do not exists network '%s'", req.Name)
 	}
 
+	if n.Status.ReservedNetworkInterfaces == nil {
+		return nil, grpc.Errorf(codes.NotFound, "Do not exists network interface '%s' on network '%s'", req.NetworkInterfaceName, req.Name)
+	}
 	if _, ok := n.Status.ReservedNetworkInterfaces[req.NetworkInterfaceName]; !ok {
 		return nil, grpc.Errorf(codes.NotFound, "Do not exists network interface '%s' on network '%s'", req.NetworkInterfaceName, req.Name)
 	}

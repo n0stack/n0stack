@@ -17,7 +17,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func TestEmptyNodes(t *testing.T) {
+func TestEmptyNode(t *testing.T) {
 	m := memory.NewMemoryDatastore()
 	na, err := CreateNodeAPI(m)
 	if err != nil {
@@ -83,6 +83,7 @@ func TestApplyNode(t *testing.T) {
 		t.Fatalf("Failed to apply node: err='%s'", err.Error())
 	}
 
+	// diffが取れないので
 	applyRes.XXX_sizecache = 0
 	applyRes.Metadata.XXX_sizecache = 0
 	applyRes.Spec.XXX_sizecache = 0
@@ -186,13 +187,13 @@ func TestNodeAboutCompute(t *testing.T) {
 		statusCode codes.Code
 	}{
 		{
-			"already exists",
+			"Invalid: already exists",
 			reserveReq,
 			nil,
 			codes.AlreadyExists,
 		},
 		{
-			"no ComputeName -> InvalidArgument",
+			"Invalid: no ComputeName -> InvalidArgument",
 			&ppool.ReserveComputeRequest{
 				Name: "invalid_argument",
 				Compute: &pbudget.Compute{
@@ -206,7 +207,7 @@ func TestNodeAboutCompute(t *testing.T) {
 			codes.InvalidArgument,
 		},
 		{
-			"no Compute -> InvalidArgument",
+			"Invalid: no Compute -> InvalidArgument",
 			&ppool.ReserveComputeRequest{
 				Name:        n.Metadata.Name,
 				ComputeName: "test-compute2",
@@ -215,7 +216,7 @@ func TestNodeAboutCompute(t *testing.T) {
 			codes.InvalidArgument,
 		},
 		{
-			"no Name -> NotFound",
+			"Invalid: no Name -> NotFound",
 			&ppool.ReserveComputeRequest{
 				ComputeName: "not_found",
 				Compute: &pbudget.Compute{
@@ -229,13 +230,13 @@ func TestNodeAboutCompute(t *testing.T) {
 			codes.NotFound,
 		},
 		{
-			"no all -> InvalidArgument",
+			"Invalid: no all -> InvalidArgument",
 			&ppool.ReserveComputeRequest{},
 			nil,
 			codes.InvalidArgument,
 		},
 		{
-			"request over -> ResourceExhausted",
+			"Invalid: request over -> ResourceExhausted",
 			&ppool.ReserveComputeRequest{
 				Name:        n.Metadata.Name,
 				ComputeName: "test-compute2",
@@ -266,14 +267,14 @@ func TestNodeAboutCompute(t *testing.T) {
 		statusCode codes.Code
 	}{
 		{
-			"no Name -> NotFound",
+			"Invalid: no Name -> NotFound",
 			&ppool.ReleaseComputeRequest{
 				ComputeName: reserveReq.ComputeName,
 			},
 			codes.NotFound,
 		},
 		{
-			"no ComputeName -> NotFound",
+			"Invalid: no ComputeName -> NotFound",
 			&ppool.ReleaseComputeRequest{
 				Name: reserveReq.Name,
 			},
@@ -370,13 +371,13 @@ func TestNodeAboutStorage(t *testing.T) {
 		statusCode codes.Code
 	}{
 		{
-			"already exists",
+			"Invalid: already exists",
 			reserveReq,
 			nil,
 			codes.AlreadyExists,
 		},
 		{
-			"no StorageName -> InvalidArgument",
+			"Invalid: no StorageName -> InvalidArgument",
 			&ppool.ReserveStorageRequest{
 				Name: "not_found",
 				Storage: &pbudget.Storage{
@@ -388,7 +389,7 @@ func TestNodeAboutStorage(t *testing.T) {
 			codes.InvalidArgument,
 		},
 		{
-			"no Storage -> InvalidArgument",
+			"Invalid: no Storage -> InvalidArgument",
 			&ppool.ReserveStorageRequest{
 				Name:        n.Metadata.Name,
 				StorageName: "test-storage2",
@@ -397,7 +398,7 @@ func TestNodeAboutStorage(t *testing.T) {
 			codes.InvalidArgument,
 		},
 		{
-			"no Name -> NotFound",
+			"Invalid: no Name -> NotFound",
 			&ppool.ReserveStorageRequest{
 				StorageName: "not_found",
 				Storage: &pbudget.Storage{
@@ -409,13 +410,13 @@ func TestNodeAboutStorage(t *testing.T) {
 			codes.NotFound,
 		},
 		{
-			"no all -> InvalidArgument",
+			"Invalid: no all -> InvalidArgument",
 			&ppool.ReserveStorageRequest{},
 			nil,
 			codes.InvalidArgument,
 		},
 		{
-			"request over -> ResourceExhausted",
+			"Invalid: request over -> ResourceExhausted",
 			&ppool.ReserveStorageRequest{
 				Name:        n.Metadata.Name,
 				StorageName: "test-storage2",
@@ -445,14 +446,14 @@ func TestNodeAboutStorage(t *testing.T) {
 		statusCode codes.Code
 	}{
 		{
-			"no Name -> NotFound",
+			"Invalid: no Name -> NotFound",
 			&ppool.ReleaseStorageRequest{
 				StorageName: reserveReq.StorageName,
 			},
 			codes.NotFound,
 		},
 		{
-			"no StorageName -> NotFound",
+			"Invalid: no StorageName -> NotFound",
 			&ppool.ReleaseStorageRequest{
 				Name: reserveReq.Name,
 			},
