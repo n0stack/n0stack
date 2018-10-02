@@ -1,5 +1,4 @@
 // +build medium
-// +build !without_external
 
 package network
 

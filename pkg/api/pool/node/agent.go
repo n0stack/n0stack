@@ -10,7 +10,6 @@ import (
 
 	"code.cloudfoundry.org/bytefmt"
 	"github.com/n0stack/proto.go/pool/v0"
-	"github.com/n0stack/proto.go/v0"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -81,30 +80,23 @@ func RegisterNodeToAPI(name, advertiseAddress, api string) error {
 	}
 
 	ar := &ppool.ApplyNodeRequest{
-		Spec: &ppool.NodeSpec{
-			Address:       advertiseAddress,
-			IpmiAddress:   GetIpmiAddress(),
-			Serial:        GetSerial(),
-			CpuMilliCores: GetTotalCPUMilliCores() * 1000,
-			MemoryBytes:   mem,
-			StorageBytes:  100. * bytefmt.GIGABYTE,
-		},
+		Name:          name,
+		Address:       advertiseAddress,
+		IpmiAddress:   GetIpmiAddress(),
+		Serial:        GetSerial(),
+		CpuMilliCores: GetTotalCPUMilliCores() * 1000,
+		MemoryBytes:   mem,
+		StorageBytes:  100. * bytefmt.GIGABYTE,
 	}
-	log.Printf("[INFO] Advertise address: '%s'", advertiseAddress)
-	log.Printf("[INFO] Name: '%s'", name)
 
 	n, err := cli.GetNode(context.Background(), &ppool.GetNodeRequest{Name: name})
 	if err != nil {
 		if status.Code(err) != codes.NotFound {
 			return err
 		}
-
-		ar.Metadata = &pn0stack.Metadata{
-			Name: name,
-		}
 	} else {
-		log.Printf("[INFO] Apply req: '%+v'", n)
-		ar.Metadata = n.Metadata
+		log.Printf("[INFO] Get res: '%+v'", n)
+		ar.Annotations = n.Annotations
 	}
 
 	log.Printf("[INFO] Apply req: '%+v'", ar)

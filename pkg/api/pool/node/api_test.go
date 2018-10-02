@@ -1,5 +1,4 @@
 // +build medium
-// +build !without_external
 
 package node
 
@@ -10,9 +9,7 @@ import (
 	"code.cloudfoundry.org/bytefmt"
 	"github.com/google/go-cmp/cmp"
 	"github.com/n0stack/n0core/pkg/datastore/memory"
-	"github.com/n0stack/proto.go/budget/v0"
 	"github.com/n0stack/proto.go/pool/v0"
-	"github.com/n0stack/proto.go/v0"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -49,35 +46,42 @@ func TestApplyNode(t *testing.T) {
 	}
 
 	n := &ppool.Node{
-		Metadata: &pn0stack.Metadata{
-			Name:    "test-node",
-			Version: 1,
-		},
-		Spec: &ppool.NodeSpec{
-			Address:     "10.0.0.1",
-			IpmiAddress: "192.168.0.1",
-			Serial:      "aa",
+		Name:    "test-node",
+		Version: 1,
 
-			CpuMilliCores: 1000,
-			MemoryBytes:   1 * bytefmt.GIGABYTE,
-			StorageBytes:  10 * bytefmt.GIGABYTE,
+		Address:     "10.0.0.1",
+		IpmiAddress: "192.168.0.1",
+		Serial:      "aa",
 
-			Datacenter:       "test-dc",
-			AvailavilityZone: "test-az",
-			Cell:             "test-cell",
-			Rack:             "test-rack",
-			Unit:             1,
-		},
-		Status: &ppool.NodeStatus{
-			State: ppool.NodeStatus_Ready,
-		},
+		CpuMilliCores: 1000,
+		MemoryBytes:   1 * bytefmt.GIGABYTE,
+		StorageBytes:  10 * bytefmt.GIGABYTE,
+
+		Datacenter:       "test-dc",
+		AvailavilityZone: "test-az",
+		Cell:             "test-cell",
+		Rack:             "test-rack",
+		Unit:             1,
+
+		State: ppool.Node_Ready,
 	}
 
 	applyRes, err := na.ApplyNode(context.Background(), &ppool.ApplyNodeRequest{
-		Metadata: &pn0stack.Metadata{
-			Name: n.Metadata.Name,
-		},
-		Spec: n.Spec,
+		Name: "test-node",
+
+		Address:     "10.0.0.1",
+		IpmiAddress: "192.168.0.1",
+		Serial:      "aa",
+
+		CpuMilliCores: 1000,
+		MemoryBytes:   1 * bytefmt.GIGABYTE,
+		StorageBytes:  10 * bytefmt.GIGABYTE,
+
+		Datacenter:       "test-dc",
+		AvailavilityZone: "test-az",
+		Cell:             "test-cell",
+		Rack:             "test-rack",
+		Unit:             1,
 	})
 	if err != nil {
 		t.Fatalf("Failed to apply node: err='%s'", err.Error())
@@ -85,9 +89,6 @@ func TestApplyNode(t *testing.T) {
 
 	// diffが取れないので
 	applyRes.XXX_sizecache = 0
-	applyRes.Metadata.XXX_sizecache = 0
-	applyRes.Spec.XXX_sizecache = 0
-	applyRes.Status.XXX_sizecache = 0
 	if diff := cmp.Diff(n, applyRes); diff != "" {
 		t.Fatalf("ApplyNode response is wrong: diff=(-want +got)\n%s", diff)
 	}
@@ -100,7 +101,7 @@ func TestApplyNode(t *testing.T) {
 		t.Errorf("ListNodes response is wrong: have='%d', want='%d'", len(listRes.Nodes), 1)
 	}
 
-	getRes, err := na.GetNode(context.Background(), &ppool.GetNodeRequest{Name: n.Metadata.Name})
+	getRes, err := na.GetNode(context.Background(), &ppool.GetNodeRequest{Name: n.Name})
 	if err != nil {
 		t.Errorf("GetNode got error: err='%s'", err.Error())
 	}
@@ -108,7 +109,7 @@ func TestApplyNode(t *testing.T) {
 		t.Errorf("GetNode response is wrong: diff=(-want +got)\n%s", diff)
 	}
 
-	if _, err := na.DeleteNode(context.Background(), &ppool.DeleteNodeRequest{Name: n.Metadata.Name}); err != nil {
+	if _, err := na.DeleteNode(context.Background(), &ppool.DeleteNodeRequest{Name: n.Name}); err != nil {
 		t.Errorf("DeleteNode got error: err='%s'", err.Error())
 	}
 }
@@ -121,69 +122,70 @@ func TestNodeAboutCompute(t *testing.T) {
 	}
 
 	n := &ppool.Node{
-		Metadata: &pn0stack.Metadata{
-			Name:    "test-node",
-			Version: 1,
-		},
-		Spec: &ppool.NodeSpec{
-			Address:     "10.0.0.1",
-			IpmiAddress: "192.168.0.1",
-			Serial:      "aa",
+		Name:    "test-node",
+		Version: 1,
 
-			CpuMilliCores: 1000,
-			MemoryBytes:   1 * bytefmt.GIGABYTE,
-			StorageBytes:  10 * bytefmt.GIGABYTE,
+		Address:     "10.0.0.1",
+		IpmiAddress: "192.168.0.1",
+		Serial:      "aa",
 
-			Datacenter:       "test-dc",
-			AvailavilityZone: "test-az",
-			Cell:             "test-cell",
-			Rack:             "test-rack",
-			Unit:             1,
-		},
-		Status: &ppool.NodeStatus{
-			State: ppool.NodeStatus_Ready,
-		},
+		CpuMilliCores: 1000,
+		MemoryBytes:   1 * bytefmt.GIGABYTE,
+		StorageBytes:  10 * bytefmt.GIGABYTE,
+
+		Datacenter:       "test-dc",
+		AvailavilityZone: "test-az",
+		Cell:             "test-cell",
+		Rack:             "test-rack",
+		Unit:             1,
+
+		State: ppool.Node_Ready,
 	}
 
 	_, err = na.ApplyNode(context.Background(), &ppool.ApplyNodeRequest{
-		Metadata: &pn0stack.Metadata{
-			Name: n.Metadata.Name,
-		},
-		Spec: n.Spec,
+		Name: "test-node",
+
+		Address:     "10.0.0.1",
+		IpmiAddress: "192.168.0.1",
+		Serial:      "aa",
+
+		CpuMilliCores: 1000,
+		MemoryBytes:   1 * bytefmt.GIGABYTE,
+		StorageBytes:  10 * bytefmt.GIGABYTE,
+
+		Datacenter:       "test-dc",
+		AvailavilityZone: "test-az",
+		Cell:             "test-cell",
+		Rack:             "test-rack",
+		Unit:             1,
 	})
 	if err != nil {
 		t.Fatalf("Failed to apply node: err='%s'", err.Error())
 	}
 
 	reserveReq := &ppool.ReserveComputeRequest{
-		Name:        n.Metadata.Name,
-		ComputeName: "test-compute",
-		Compute: &pbudget.Compute{
-			LimitCpuMilliCore:   1000,
-			RequestCpuMilliCore: 1000,
-			LimitMemoryBytes:    1 * bytefmt.GIGABYTE,
-			RequestMemoryBytes:  1 * bytefmt.GIGABYTE,
-		},
+		NodeName:            n.Name,
+		ComputeName:         "test-compute",
+		LimitCpuMilliCore:   1000,
+		RequestCpuMilliCore: 1000,
+		LimitMemoryBytes:    1 * bytefmt.GIGABYTE,
+		RequestMemoryBytes:  1 * bytefmt.GIGABYTE,
 	}
 	reserveRes, err := na.ReserveCompute(context.Background(), reserveReq)
 	if err != nil {
 		t.Errorf("ReserveCompute got error: err='%s'", err.Error())
 	}
-	reserveRes.Compute.XXX_sizecache = 0
-	if diff := cmp.Diff(reserveReq.Name, reserveRes.Name); diff != "" {
-		t.Errorf("ReserveCompute response is wrong: diff=(-want +got)\n%s", diff)
+	if reserveReq.NodeName != reserveRes.Name {
+		t.Errorf("ReserveCompute response about 'Name' is wrong: want=%s, have=%s", reserveReq.NodeName, reserveRes.Name)
 	}
-	if diff := cmp.Diff(reserveReq.ComputeName, reserveRes.ComputeName); diff != "" {
-		t.Errorf("ReserveCompute response is wrong: diff=(-want +got)\n%s", diff)
-	}
-	if diff := cmp.Diff(reserveReq.Compute, reserveRes.Compute); diff != "" {
-		t.Errorf("ReserveCompute response is wrong: diff=(-want +got)\n%s", diff)
+	if _, ok := reserveRes.ReservedComputes[reserveReq.ComputeName]; !ok {
+		t.Errorf("ReserveCompute response do not have requested compute")
 	}
 
 	cases := []struct {
 		name       string
 		req        *ppool.ReserveComputeRequest
-		res        *ppool.ReserveComputeResponse
+		res        *ppool.Node
 		statusCode codes.Code
 	}{
 		{
@@ -195,13 +197,11 @@ func TestNodeAboutCompute(t *testing.T) {
 		{
 			"Invalid: no ComputeName -> InvalidArgument",
 			&ppool.ReserveComputeRequest{
-				Name: "invalid_argument",
-				Compute: &pbudget.Compute{
-					LimitCpuMilliCore:   1000,
-					RequestCpuMilliCore: 1000,
-					LimitMemoryBytes:    1 * bytefmt.GIGABYTE,
-					RequestMemoryBytes:  1 * bytefmt.GIGABYTE,
-				},
+				NodeName:            "invalid_argument",
+				LimitCpuMilliCore:   1000,
+				RequestCpuMilliCore: 1000,
+				LimitMemoryBytes:    1 * bytefmt.GIGABYTE,
+				RequestMemoryBytes:  1 * bytefmt.GIGABYTE,
 			},
 			nil,
 			codes.InvalidArgument,
@@ -209,22 +209,20 @@ func TestNodeAboutCompute(t *testing.T) {
 		{
 			"Invalid: no Compute -> InvalidArgument",
 			&ppool.ReserveComputeRequest{
-				Name:        n.Metadata.Name,
+				NodeName:    n.Name,
 				ComputeName: "test-compute2",
 			},
 			nil,
 			codes.InvalidArgument,
 		},
 		{
-			"Invalid: no Name -> NotFound",
+			"Invalid: no NodeName -> NotFound",
 			&ppool.ReserveComputeRequest{
-				ComputeName: "not_found",
-				Compute: &pbudget.Compute{
-					LimitCpuMilliCore:   1000,
-					RequestCpuMilliCore: 1000,
-					LimitMemoryBytes:    1 * bytefmt.GIGABYTE,
-					RequestMemoryBytes:  1 * bytefmt.GIGABYTE,
-				},
+				ComputeName:         "not_found",
+				LimitCpuMilliCore:   1000,
+				RequestCpuMilliCore: 1000,
+				LimitMemoryBytes:    1 * bytefmt.GIGABYTE,
+				RequestMemoryBytes:  1 * bytefmt.GIGABYTE,
 			},
 			nil,
 			codes.NotFound,
@@ -238,12 +236,10 @@ func TestNodeAboutCompute(t *testing.T) {
 		{
 			"Invalid: request over -> ResourceExhausted",
 			&ppool.ReserveComputeRequest{
-				Name:        n.Metadata.Name,
-				ComputeName: "test-compute2",
-				Compute: &pbudget.Compute{
-					RequestCpuMilliCore: 1000,
-					RequestMemoryBytes:  1 * bytefmt.GIGABYTE,
-				},
+				NodeName:            n.Name,
+				ComputeName:         "test-compute2",
+				RequestCpuMilliCore: 1000,
+				RequestMemoryBytes:  1 * bytefmt.GIGABYTE,
 			},
 			nil,
 			codes.ResourceExhausted,
@@ -267,7 +263,7 @@ func TestNodeAboutCompute(t *testing.T) {
 		statusCode codes.Code
 	}{
 		{
-			"Invalid: no Name -> NotFound",
+			"Invalid: no NodeName -> NotFound",
 			&ppool.ReleaseComputeRequest{
 				ComputeName: reserveReq.ComputeName,
 			},
@@ -276,7 +272,7 @@ func TestNodeAboutCompute(t *testing.T) {
 		{
 			"Invalid: no ComputeName -> NotFound",
 			&ppool.ReleaseComputeRequest{
-				Name: reserveReq.Name,
+				NodeName: reserveReq.NodeName,
 			},
 			codes.NotFound,
 		},
@@ -290,7 +286,7 @@ func TestNodeAboutCompute(t *testing.T) {
 	}
 
 	_, err = na.ReleaseCompute(context.Background(), &ppool.ReleaseComputeRequest{
-		Name:        reserveReq.Name,
+		NodeName:    reserveReq.NodeName,
 		ComputeName: reserveReq.ComputeName,
 	})
 	if err != nil {
@@ -306,68 +302,69 @@ func TestNodeAboutStorage(t *testing.T) {
 	}
 
 	n := &ppool.Node{
-		Metadata: &pn0stack.Metadata{
-			Name:    "test-node",
-			Version: 1,
-		},
-		Spec: &ppool.NodeSpec{
-			Address:     "10.0.0.1",
-			IpmiAddress: "192.168.0.1",
-			Serial:      "aa",
+		Name:    "test-node",
+		Version: 1,
 
-			CpuMilliCores: 1000,
-			MemoryBytes:   1 * bytefmt.GIGABYTE,
-			StorageBytes:  1 * bytefmt.GIGABYTE,
+		Address:     "10.0.0.1",
+		IpmiAddress: "192.168.0.1",
+		Serial:      "aa",
 
-			Datacenter:       "test-dc",
-			AvailavilityZone: "test-az",
-			Cell:             "test-cell",
-			Rack:             "test-rack",
-			Unit:             1,
-		},
-		Status: &ppool.NodeStatus{
-			State: ppool.NodeStatus_Ready,
-		},
+		CpuMilliCores: 1000,
+		MemoryBytes:   1 * bytefmt.GIGABYTE,
+		StorageBytes:  10 * bytefmt.GIGABYTE,
+
+		Datacenter:       "test-dc",
+		AvailavilityZone: "test-az",
+		Cell:             "test-cell",
+		Rack:             "test-rack",
+		Unit:             1,
+
+		State: ppool.Node_Ready,
 	}
 
 	_, err = na.ApplyNode(context.Background(), &ppool.ApplyNodeRequest{
-		Metadata: &pn0stack.Metadata{
-			Name: n.Metadata.Name,
-		},
-		Spec: n.Spec,
+		Name: "test-node",
+
+		Address:     "10.0.0.1",
+		IpmiAddress: "192.168.0.1",
+		Serial:      "aa",
+
+		CpuMilliCores: 1000,
+		MemoryBytes:   1 * bytefmt.GIGABYTE,
+		StorageBytes:  1 * bytefmt.GIGABYTE,
+
+		Datacenter:       "test-dc",
+		AvailavilityZone: "test-az",
+		Cell:             "test-cell",
+		Rack:             "test-rack",
+		Unit:             1,
 	})
 	if err != nil {
 		t.Fatalf("Failed to apply node: err='%s'", err.Error())
 	}
 
 	reserveReq := &ppool.ReserveStorageRequest{
-		Name:        n.Metadata.Name,
-		StorageName: "test-storage",
-		Storage: &pbudget.Storage{
-			LimitBytes:   1 * bytefmt.GIGABYTE,
-			RequestBytes: 1 * bytefmt.GIGABYTE,
-		},
+		NodeName:     n.Name,
+		StorageName:  "test-storage",
+		LimitBytes:   1 * bytefmt.GIGABYTE,
+		RequestBytes: 1 * bytefmt.GIGABYTE,
 	}
 	reserveRes, err := na.ReserveStorage(context.Background(), reserveReq)
 	if err != nil {
 		t.Errorf("ReserveStorage got error: err='%s'", err.Error())
 	}
-	reserveRes.Storage.XXX_sizecache = 0
-	if diff := cmp.Diff(reserveReq.Name, reserveRes.Name); diff != "" {
-		t.Errorf("ReserveStorage response is wrong: diff=(-want +got)\n%s", diff)
+	if reserveReq.NodeName != reserveRes.Name {
+		t.Errorf("ReserveStorage response about 'Name' is wrong: want=%s, have=%s", reserveReq.NodeName, reserveRes.Name)
 	}
-	if diff := cmp.Diff(reserveReq.StorageName, reserveRes.StorageName); diff != "" {
-		t.Errorf("ReserveStorage response is wrong: diff=(-want +got)\n%s", diff)
-	}
-	if diff := cmp.Diff(reserveReq.Storage, reserveRes.Storage); diff != "" {
-		t.Errorf("ReserveStorage response is wrong: diff=(-want +got)\n%s", diff)
+	if _, ok := reserveRes.ReservedStorages[reserveReq.StorageName]; !ok {
+		t.Errorf("ReserveStorage response do not have requested compute")
 	}
 
 	// errors
 	cases := []struct {
 		name       string
 		req        *ppool.ReserveStorageRequest
-		res        *ppool.ReserveStorageResponse
+		res        *ppool.Node
 		statusCode codes.Code
 	}{
 		{
@@ -379,11 +376,9 @@ func TestNodeAboutStorage(t *testing.T) {
 		{
 			"Invalid: no StorageName -> InvalidArgument",
 			&ppool.ReserveStorageRequest{
-				Name: "not_found",
-				Storage: &pbudget.Storage{
-					LimitBytes:   1 * bytefmt.GIGABYTE,
-					RequestBytes: 1 * bytefmt.GIGABYTE,
-				},
+				NodeName:     "not_found",
+				LimitBytes:   1 * bytefmt.GIGABYTE,
+				RequestBytes: 1 * bytefmt.GIGABYTE,
 			},
 			nil,
 			codes.InvalidArgument,
@@ -391,20 +386,18 @@ func TestNodeAboutStorage(t *testing.T) {
 		{
 			"Invalid: no Storage -> InvalidArgument",
 			&ppool.ReserveStorageRequest{
-				Name:        n.Metadata.Name,
+				NodeName:    n.Name,
 				StorageName: "test-storage2",
 			},
 			nil,
 			codes.InvalidArgument,
 		},
 		{
-			"Invalid: no Name -> NotFound",
+			"Invalid: no NodeName -> NotFound",
 			&ppool.ReserveStorageRequest{
-				StorageName: "not_found",
-				Storage: &pbudget.Storage{
-					LimitBytes:   1 * bytefmt.GIGABYTE,
-					RequestBytes: 1 * bytefmt.GIGABYTE,
-				},
+				StorageName:  "not_found",
+				LimitBytes:   1 * bytefmt.GIGABYTE,
+				RequestBytes: 1 * bytefmt.GIGABYTE,
 			},
 			nil,
 			codes.NotFound,
@@ -418,12 +411,10 @@ func TestNodeAboutStorage(t *testing.T) {
 		{
 			"Invalid: request over -> ResourceExhausted",
 			&ppool.ReserveStorageRequest{
-				Name:        n.Metadata.Name,
-				StorageName: "test-storage2",
-				Storage: &pbudget.Storage{
-					LimitBytes:   1 * bytefmt.GIGABYTE,
-					RequestBytes: 1 * bytefmt.GIGABYTE,
-				},
+				NodeName:     n.Name,
+				StorageName:  "test-storage2",
+				LimitBytes:   1 * bytefmt.GIGABYTE,
+				RequestBytes: 1 * bytefmt.GIGABYTE,
 			},
 			nil,
 			codes.ResourceExhausted,
@@ -446,7 +437,7 @@ func TestNodeAboutStorage(t *testing.T) {
 		statusCode codes.Code
 	}{
 		{
-			"Invalid: no Name -> NotFound",
+			"Invalid: no NodeName -> NotFound",
 			&ppool.ReleaseStorageRequest{
 				StorageName: reserveReq.StorageName,
 			},
@@ -455,7 +446,7 @@ func TestNodeAboutStorage(t *testing.T) {
 		{
 			"Invalid: no StorageName -> NotFound",
 			&ppool.ReleaseStorageRequest{
-				Name: reserveReq.Name,
+				NodeName: reserveReq.NodeName,
 			},
 			codes.NotFound,
 		},
@@ -469,7 +460,7 @@ func TestNodeAboutStorage(t *testing.T) {
 	}
 
 	_, err = na.ReleaseStorage(context.Background(), &ppool.ReleaseStorageRequest{
-		Name:        reserveReq.Name,
+		NodeName:    reserveReq.NodeName,
 		StorageName: reserveReq.StorageName,
 	})
 	if err != nil {

@@ -51,12 +51,12 @@ func (nc NodeConnections) GetConnection(nodeName string) (*grpc.ClientConn, erro
 		return nil, errors.Wrap(err, "Failed to get node from API")
 	}
 
-	if n.Status.State == ppool.NodeStatus_NotReady {
+	if n.State == ppool.Node_NotReady {
 		return nil, nil
 	}
 
 	// port を何かから取れるようにする
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", n.Spec.Address, 20180), grpc.WithInsecure())
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", n.Address, 20180), grpc.WithInsecure())
 	if err != nil {
 		return nil, errors.Wrap(err, "Fail to dial to node")
 	}
