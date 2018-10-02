@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"reflect"
 
 	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
@@ -62,7 +61,7 @@ func (a NetworkAPI) GetNetwork(ctx context.Context, req *ppool.GetNetworkRequest
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
-	if reflect.ValueOf(res.Metadata).IsNil() {
+	if res.Name == "" {
 		return nil, grpc.Errorf(codes.NotFound, "")
 	}
 
@@ -71,30 +70,33 @@ func (a NetworkAPI) GetNetwork(ctx context.Context, req *ppool.GetNetworkRequest
 
 func (a NetworkAPI) ApplyNetwork(ctx context.Context, req *ppool.ApplyNetworkRequest) (*ppool.Network, error) {
 	res := &ppool.Network{
-		Metadata: req.Metadata,
-		Spec:     req.Spec,
-		Status:   &ppool.NetworkStatus{},
+		Name:        req.Name,
+		Annotations: req.Annotations,
+		Version:     req.Version,
+		Ipv4Cidr:    req.Ipv4Cidr,
+		Ipv6Cidr:    req.Ipv6Cidr,
+		Domain:      req.Domain,
 	}
 
-	if _, _, err := net.ParseCIDR(req.Spec.Ipv4Cidr); err != nil {
+	if _, _, err := net.ParseCIDR(req.Ipv4Cidr); err != nil {
 		return nil, grpc.Errorf(codes.InvalidArgument, "Field 'ipv4_cidr' is invalid : %s", err.Error())
 	}
 
 	prev := &ppool.Network{}
-	if err := a.dataStore.Get(req.Metadata.Name, prev); err != nil {
+	if err := a.dataStore.Get(req.Name, prev); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Metadata.Name)
+		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
 	var err error
-	res.Metadata.Version, err = datastore.CheckVersion(prev, req)
+	res.Version, err = datastore.CheckVersion(prev.Version, req.Version)
 	if err != nil {
 		return nil, grpc.Errorf(codes.InvalidArgument, "Failed to check version: %s", err.Error())
 	}
 
-	res.Status.State = ppool.NetworkStatus_AVAILABLE
-	if err := a.dataStore.Apply(req.Metadata.Name, res); err != nil {
+	res.State = ppool.Network_AVAILABLE
+	if err := a.dataStore.Apply(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to store '%s' for db, please retry or contact for the administrator of this cluster", req.Metadata.Name)
+		return nil, grpc.Errorf(codes.Internal, "Failed to store '%s' for db, please retry or contact for the administrator of this cluster", req.Name)
 	}
 
 	return res, nil
@@ -110,39 +112,35 @@ func (a NetworkAPI) DeleteNetwork(ctx context.Context, req *ppool.DeleteNetworkR
 }
 
 // とりあえず IPv4 のスケジューリングのみに対応
-func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.ReserveNetworkInterfaceRequest) (*ppool.ReserveNetworkInterfaceResponse, error) {
+func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.ReserveNetworkInterfaceRequest) (*ppool.Network, error) {
 	if req.NetworkInterfaceName == "" {
 		return nil, grpc.Errorf(codes.InvalidArgument, "Do not set field 'network_interface_name' as blank")
 	}
 
-	n := &ppool.Network{}
-	if err := a.dataStore.Get(req.Name, n); err != nil {
+	res := &ppool.Network{}
+	if err := a.dataStore.Get(req.NetworkName, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
+		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.NetworkName)
 	}
-	if reflect.ValueOf(n.Metadata).IsNil() {
-		return nil, grpc.Errorf(codes.NotFound, "Network '%s' is not found", req.Name)
+	if res.Name == "" {
+		return nil, grpc.Errorf(codes.NotFound, "Network '%s' is not found", req.NetworkName)
 	}
-	if n.Status.ReservedNetworkInterfaces == nil {
-		n.Status.ReservedNetworkInterfaces = make(map[string]*pbudget.NetworkInterface)
+	if res.ReservedNetworkInterfaces == nil {
+		res.ReservedNetworkInterfaces = make(map[string]*pbudget.NetworkInterface)
 	}
-	if _, ok := n.Status.ReservedNetworkInterfaces[req.NetworkInterfaceName]; ok {
-		return nil, grpc.Errorf(codes.AlreadyExists, "Network interface '%s' is already exists on Network '%s'", req.NetworkInterfaceName, req.Name)
+	if _, ok := res.ReservedNetworkInterfaces[req.NetworkInterfaceName]; ok {
+		return nil, grpc.Errorf(codes.AlreadyExists, "Network interface '%s' is already exists on Network '%s'", req.NetworkInterfaceName, req.NetworkName)
 	}
 
 	// 保存する際にパースするのでエラーは発生しない
-	_, cidr, _ := net.ParseCIDR(n.Spec.Ipv4Cidr)
-	if req.NetworkInterface == nil {
-		req.NetworkInterface = &pbudget.NetworkInterface{}
-	}
-
+	_, cidr, _ := net.ParseCIDR(res.Ipv4Cidr)
 	var reqIPv4 net.IP
-	if req.NetworkInterface.Ipv4Address == "" {
-		if reqIPv4 = ScheduleNewIPv4(cidr, n.Status.ReservedNetworkInterfaces); reqIPv4 == nil {
-			return nil, grpc.Errorf(codes.ResourceExhausted, "ipv4_address is full on Network '%s'", req.Name)
+	if req.Ipv4Address == "" {
+		if reqIPv4 = ScheduleNewIPv4(cidr, res.ReservedNetworkInterfaces); reqIPv4 == nil {
+			return nil, grpc.Errorf(codes.ResourceExhausted, "ipv4_address is full on Network '%s'", req.NetworkName)
 		}
 	} else {
-		reqIPv4 = net.ParseIP(req.NetworkInterface.Ipv4Address)
+		reqIPv4 = net.ParseIP(req.Ipv4Address)
 		if reqIPv4 == nil {
 			return nil, grpc.Errorf(codes.InvalidArgument, "ipv4_address field is invalid")
 		}
@@ -150,35 +148,30 @@ func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.Rese
 		if err := CheckIPv4OnCIDR(reqIPv4, cidr); err != nil {
 			return nil, grpc.Errorf(codes.InvalidArgument, "ipv4_address field is invalid: %s", err.Error())
 		}
-		if err := CheckConflictIPv4(reqIPv4, n.Status.ReservedNetworkInterfaces); err != nil {
+		if err := CheckConflictIPv4(reqIPv4, res.ReservedNetworkInterfaces); err != nil {
 			return nil, grpc.Errorf(codes.ResourceExhausted, "ipv4_address field is invalid: %s", err.Error())
 		}
 	}
 
 	var reqHW net.HardwareAddr
-	if req.NetworkInterface.HardwareAddress == "" {
-		reqHW = GenerateHardwareAddress(fmt.Sprintf("%s/%s", req.Name, req.NetworkInterfaceName))
+	if req.HardwareAddress == "" {
+		reqHW = GenerateHardwareAddress(fmt.Sprintf("%s/%s", req.NetworkName, req.NetworkInterfaceName))
 	} else {
 		var err error
-		reqHW, err = net.ParseMAC(req.NetworkInterface.HardwareAddress)
+		reqHW, err = net.ParseMAC(req.HardwareAddress)
 		if err != nil {
 			return nil, grpc.Errorf(codes.InvalidArgument, "hardware_address field is invalid")
 		}
 	}
 
-	res := &ppool.ReserveNetworkInterfaceResponse{
-		Name:                 req.Name,
-		NetworkInterfaceName: req.NetworkInterfaceName,
-		NetworkInterface: &pbudget.NetworkInterface{
-			Annotations:     req.NetworkInterface.Annotations,
-			HardwareAddress: reqHW.String(),
-			Ipv4Address:     reqIPv4.String(),
-		},
+	res.ReservedNetworkInterfaces[req.NetworkInterfaceName] = &pbudget.NetworkInterface{
+		Annotations:     req.Annotations,
+		HardwareAddress: reqHW.String(),
+		Ipv4Address:     reqIPv4.String(),
 	}
-	n.Status.ReservedNetworkInterfaces[req.NetworkInterfaceName] = res.NetworkInterface
-	if err := a.dataStore.Apply(req.Name, n); err != nil {
+	if err := a.dataStore.Apply(req.NetworkName, res); err != nil {
 		log.Printf("[WARNING] Failed to store data on db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to store '%s' on db, please retry or contact for the administrator of this cluster", req.Name)
+		return nil, grpc.Errorf(codes.Internal, "Failed to store '%s' on db, please retry or contact for the administrator of this cluster", req.NetworkName)
 	}
 
 	return res, nil
@@ -186,25 +179,25 @@ func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.Rese
 
 func (a NetworkAPI) ReleaseNetworkInterface(ctx context.Context, req *ppool.ReleaseNetworkInterfaceRequest) (*empty.Empty, error) {
 	n := &ppool.Network{}
-	if err := a.dataStore.Get(req.Name, n); err != nil {
+	if err := a.dataStore.Get(req.NetworkName, n); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
+		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.NetworkName)
 	}
-	if reflect.ValueOf(n.Metadata).IsNil() {
-		return nil, grpc.Errorf(codes.NotFound, "Do not exists network '%s'", req.Name)
+	if n.Name == "" {
+		return nil, grpc.Errorf(codes.NotFound, "Do not exists network '%s'", req.NetworkName)
 	}
 
-	if n.Status.ReservedNetworkInterfaces == nil {
-		return nil, grpc.Errorf(codes.NotFound, "Do not exists network interface '%s' on network '%s'", req.NetworkInterfaceName, req.Name)
+	if n.ReservedNetworkInterfaces == nil {
+		return nil, grpc.Errorf(codes.NotFound, "Do not exists network interface '%s' on network '%s'", req.NetworkInterfaceName, req.NetworkName)
 	}
-	if _, ok := n.Status.ReservedNetworkInterfaces[req.NetworkInterfaceName]; !ok {
-		return nil, grpc.Errorf(codes.NotFound, "Do not exists network interface '%s' on network '%s'", req.NetworkInterfaceName, req.Name)
+	if _, ok := n.ReservedNetworkInterfaces[req.NetworkInterfaceName]; !ok {
+		return nil, grpc.Errorf(codes.NotFound, "Do not exists network interface '%s' on network '%s'", req.NetworkInterfaceName, req.NetworkName)
 	}
-	delete(n.Status.ReservedNetworkInterfaces, req.NetworkInterfaceName)
+	delete(n.ReservedNetworkInterfaces, req.NetworkInterfaceName)
 
-	if err := a.dataStore.Apply(req.Name, n); err != nil {
+	if err := a.dataStore.Apply(req.NetworkName, n); err != nil {
 		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to store '%s' on db, please retry or contact for the administrator of this cluster", req.Name)
+		return nil, grpc.Errorf(codes.Internal, "Failed to store '%s' on db, please retry or contact for the administrator of this cluster", req.NetworkName)
 	}
 
 	return &empty.Empty{}, nil
