@@ -206,7 +206,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:9798cbf7ec5e1911513e7579ed7d6e0d707b14a09139e2460c1d3eb5c77b52d2"
+  digest = "1:b44040c510513b13a012a2e070f32ee7ed4542cd6e263024834549b555e28a6e"
   name = "github.com/n0stack/proto.go"
   packages = [
     "budget/v0",
@@ -214,7 +214,7 @@
     "provisioning/v0",
   ]
   pruneopts = ""
-  revision = "17519ec58906d70219b7a25491f91d01c0131b2c"
+  revision = "df00cbc2689a0e1a740cdd47fece21574f61d298"
 
 [[projects]]
   digest = "1:7365acd48986e205ccb8652cc746f09c8b7876030d53710ea6ef7d0bd0dcd7ca"
