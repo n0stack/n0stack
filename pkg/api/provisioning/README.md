@@ -5,33 +5,26 @@
 ### BlockStorage
 
 ```
-grpc_cli call localhost:20183 n0stack.provisioning.BlockStorageService/CreateEmptyBlockStorage \
-'metadata {
-  name: "test-empty-volume"
-  annotations {
-    key: "n0core/provisioning/request_node_name"
-    value: "test"
-  }
+grpc_cli call localhost:20183 n0stack.provisioning.BlockStorageService/CreateEmptyBlockStorage '\
+name: "test-empty-volume"
+annotations {
+  key: "n0core/provisioning/request_node_name"
+  value: "test"
 }
-spec {
-  request_bytes: 1024
-  limit_bytes: 1073741824
-}'
+request_bytes: 1024
+limit_bytes: 1073741824
+'
 ```
 
 ```
-grpc_cli call localhost:20183 n0stack.provisioning.BlockStorageService/CreateBlockStorageWithDownloading \
-'metadata {
-  name: "test-ubuntu-volume"
-  annotations {
-    key: "n0core/provisioning/request_node_name"
-    value: "test"
-  }
+grpc_cli call localhost:20183 n0stack.provisioning.BlockStorageService/CreateBlockStorageWithDownloading '\
+name: "test-ubuntu-volume"
+annotations {
+  key: "n0core/provisioning/request_node_name"
+  value: "test"
 }
-spec {
-  request_bytes: 1073741824
-  limit_bytes: 10737418240
-}
+request_bytes: 1073741824
+limit_bytes: 10737418240
 source_url: "http://cloud-images.ubuntu.com/xenial/current/xenial-server-cloudimg-amd64-disk1.img"
 '
 ```
@@ -56,26 +49,22 @@ grpc_cli call localhost:20183 n0stack.provisioning.BlockStorageService/SetInuseB
 ### Virtual machine
 
 ```
-grpc_cli call localhost:20184 n0stack.provisioning.VirtualMachineService/CreateVirtualMachine \
-'metadata {
-  name: "test-vm"
-  annotations {
-    key: "n0core/provisioning/request_node_name"
-    value: "test"
-  }
+grpc_cli call localhost:20184 n0stack.provisioning.VirtualMachineService/CreateVirtualMachine '\
+name: "test-vm"
+annotations {
+  key: "n0core/provisioning/request_node_name"
+  value: "test"
 }
-spec {
-  request_cpu_milli_core: 10
-  limit_cpu_milli_core: 1000
+request_cpu_milli_core: 10
+limit_cpu_milli_core: 1000
 
-  request_memory_bytes: 1073741824
-  limit_memory_bytes: 1073741824
+request_memory_bytes: 1073741824
+limit_memory_bytes: 1073741824
 
-  block_storage_names: "test-ubuntu-volume"
+block_storage_names: "test-ubuntu-volume"
 
-  nics {
-    network_name: "test-network"
-  }
+nics {
+  network_name: "test-network"
 }
 '
 ```
