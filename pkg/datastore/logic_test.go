@@ -2,77 +2,41 @@ package datastore
 
 import (
 	"testing"
-
-	"github.com/n0stack/proto.go/v0"
-
-	n0stack "github.com/n0stack/proto.go/v0"
 )
-
-type stubHavingMetadata struct {
-	metadata *pn0stack.Metadata
-}
-
-func (s stubHavingMetadata) GetMetadata() *pn0stack.Metadata {
-	return s.metadata
-}
 
 func TestCheckVersion(t *testing.T) {
 	Cases := []struct {
 		name    string
-		prev    *stubHavingMetadata
-		new     *stubHavingMetadata
+		prev    uint64
+		new     uint64
 		version uint64
 		err     string
 	}{
 		{
-			name: "Valid: previous=nil, new=0, version=1",
-			prev: nil,
-			new: &stubHavingMetadata{
-				metadata: &n0stack.Metadata{
-					Version: 0,
-				},
-			},
+			name:    "Valid: previous=0, new=0, version=1",
+			prev:    0,
+			new:     0,
 			version: 1,
 			err:     "",
 		},
 		{
-			name: "Valid: prev=1, new=1, version=2",
-			prev: &stubHavingMetadata{
-				metadata: &n0stack.Metadata{
-					Version: 1,
-				},
-			},
-			new: &stubHavingMetadata{
-				metadata: &n0stack.Metadata{
-					Version: 1,
-				},
-			},
+			name:    "Valid: prev=1, new=1, version=2",
+			prev:    1,
+			new:     1,
 			version: 2,
 			err:     "",
 		},
 		{
-			name: "Invalid: previous=nil, new=1, err",
-			prev: nil,
-			new: &stubHavingMetadata{
-				metadata: &n0stack.Metadata{
-					Version: 1,
-				},
-			},
+			name:    "Invalid: previous=0, new=1, err",
+			prev:    0,
+			new:     1,
 			version: 0,
-			err:     "Set 0 when create new object: have=1, want=0",
+			err:     "Set the same version as stored in database: have=1, want=0",
 		},
 		{
-			name: "Invalid: prev=1, new=2, err",
-			prev: &stubHavingMetadata{
-				metadata: &n0stack.Metadata{
-					Version: 1,
-				},
-			},
-			new: &stubHavingMetadata{
-				metadata: &n0stack.Metadata{
-					Version: 2,
-				},
-			},
+			name:    "Invalid: prev=1, new=2, err",
+			prev:    1,
+			new:     2,
 			version: 0,
 			err:     "Set the same version as stored in database: have=2, want=1",
 		},
