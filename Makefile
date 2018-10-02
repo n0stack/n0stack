@@ -9,7 +9,6 @@ dep:
 dep-update:
 	dep ensure -update
 	dep ensure
-	dep prune
 	dep status
 
 build:
