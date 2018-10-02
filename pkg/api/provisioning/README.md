@@ -5,7 +5,7 @@
 ### BlockStorage
 
 ```
-grpc_cli call localhost:20183 n0stack.provisioning.BlockStorageService/CreateEmptyBlockStorage '\
+grpc_cli call localhost:20183 n0stack.provisioning.BlockStorageService/CreateBlockStorage '
 name: "test-empty-volume"
 annotations {
   key: "n0core/provisioning/request_node_name"
@@ -17,7 +17,7 @@ limit_bytes: 1073741824
 ```
 
 ```
-grpc_cli call localhost:20183 n0stack.provisioning.BlockStorageService/CreateBlockStorageWithDownloading '\
+grpc_cli call localhost:20183 n0stack.provisioning.BlockStorageService/FetchBlockStorage '
 name: "test-ubuntu-volume"
 annotations {
   key: "n0core/provisioning/request_node_name"
@@ -26,6 +26,17 @@ annotations {
 request_bytes: 1073741824
 limit_bytes: 10737418240
 source_url: "http://cloud-images.ubuntu.com/xenial/current/xenial-server-cloudimg-amd64-disk1.img"
+'
+
+grpc_cli call localhost:20183 n0stack.provisioning.BlockStorageService/FetchBlockStorage '
+name: "test-ubuntu1804"
+annotations {
+  key: "n0core/provisioning/request_node_name"
+  value: "test"
+}
+request_bytes: 1073741824
+limit_bytes: 10737418240
+source_url: "http://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img"
 '
 ```
 
@@ -49,20 +60,19 @@ grpc_cli call localhost:20183 n0stack.provisioning.BlockStorageService/SetInuseB
 ### Virtual machine
 
 ```
-grpc_cli call localhost:20184 n0stack.provisioning.VirtualMachineService/CreateVirtualMachine '\
+grpc_cli call localhost:20184 n0stack.provisioning.VirtualMachineService/CreateVirtualMachine '
 name: "test-vm"
 annotations {
   key: "n0core/provisioning/request_node_name"
   value: "test"
 }
+
 request_cpu_milli_core: 10
 limit_cpu_milli_core: 1000
-
 request_memory_bytes: 1073741824
 limit_memory_bytes: 1073741824
 
 block_storage_names: "test-ubuntu-volume"
-
 nics {
   network_name: "test-network"
 }
@@ -75,6 +85,10 @@ grpc_cli call localhost:20184 n0stack.provisioning.VirtualMachineService/ListVir
 
 ```
 grpc_cli call localhost:20184 n0stack.provisioning.VirtualMachineService/GetVirtualMachine 'name: "test-vm"'
+```
+
+```
+grpc_cli call localhost:20184 n0stack.provisioning.VirtualMachineService/DeleteVirtualMachine 'name: "test-vm"'
 ```
 
 ```
