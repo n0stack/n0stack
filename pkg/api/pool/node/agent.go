@@ -3,6 +3,7 @@ package node
 import (
 	"context"
 	"log"
+	"net"
 	"os/exec"
 	"runtime"
 	"strings"
@@ -79,9 +80,14 @@ func RegisterNodeToAPI(name, advertiseAddress, api string) error {
 		return err
 	}
 
+	aip, err := net.ResolveIPAddr("ip", advertiseAddress)
+	if err != nil {
+		return err
+	}
+
 	ar := &ppool.ApplyNodeRequest{
 		Name:          name,
-		Address:       advertiseAddress,
+		Address:       aip.String(),
 		IpmiAddress:   GetIpmiAddress(),
 		Serial:        GetSerial(),
 		CpuMilliCores: GetTotalCPUMilliCores() * 1000,
