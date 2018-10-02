@@ -8,6 +8,7 @@ dep:
 	dep ensure
 dep-update:
 	dep ensure -update
+	dep ensure
 	dep prune
 	dep status
 
