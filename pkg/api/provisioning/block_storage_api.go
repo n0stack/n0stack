@@ -3,11 +3,10 @@ package provisioning
 import (
 	"context"
 	"log"
-	"reflect"
 
-	"github.com/n0stack/proto.go/budget/v0"
 	"github.com/n0stack/proto.go/pool/v0"
 	"github.com/n0stack/proto.go/provisioning/v0"
+	"github.com/pkg/errors"
 
 	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
@@ -48,32 +47,37 @@ func CreateBlockStorageAPI(ds datastore.Datastore, na ppool.NodeServiceClient) (
 }
 
 func (a *BlockStorageAPI) CreateBlockStorage(ctx context.Context, req *pprovisioning.CreateBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
+	if req.RequestBytes == 0 {
+		return nil, grpc.Errorf(codes.InvalidArgument, "Set 'request_bytes'")
+	}
+
 	prev := &pprovisioning.BlockStorage{}
-	if err := a.dataStore.Get(req.Metadata.Name, prev); err != nil {
+	if err := a.dataStore.Get(req.Name, prev); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Metadata.Name)
-	} else if !reflect.ValueOf(prev.Metadata).IsNil() {
-		return nil, grpc.Errorf(codes.AlreadyExists, "BlockStorage '%s' is already exists", req.Metadata.Name)
+		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
+	} else if prev.Name != "" {
+		return nil, grpc.Errorf(codes.AlreadyExists, "BlockStorage '%s' is already exists", req.Name)
 	}
 
 	res := &pprovisioning.BlockStorage{
-		Metadata: req.Metadata,
-		Spec:     req.Spec,
-		Status:   &pprovisioning.BlockStorageStatus{},
+		Name:         req.Name,
+		Annotations:  req.Annotations,
+		RequestBytes: req.RequestBytes,
+		LimitBytes:   req.LimitBytes,
 	}
 
 	var err error
-	if res.Status.NodeName, res.Status.StorageName, err = a.reserveStorage(
-		req.Metadata.Name,
-		req.Metadata.Annotations,
-		req.Spec.RequestBytes,
-		req.Spec.LimitBytes,
+	if res.NodeName, res.StorageName, err = a.reserveStorage(
+		req.Name,
+		req.Annotations,
+		req.RequestBytes,
+		req.LimitBytes,
 	); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Failed to reserve storage")
 	}
 	var v *BlockStorageAgent
 
-	conn, err := a.nodeConnections.GetConnection(res.Status.NodeName) // errorについて考える
+	conn, err := a.nodeConnections.GetConnection(res.NodeName) // errorについて考える
 	cli := NewBlockStorageAgentServiceClient(conn)
 	if err != nil {
 		log.Printf("Fail to dial to node: err=%v.", err.Error())
@@ -82,18 +86,18 @@ func (a *BlockStorageAPI) CreateBlockStorage(ctx context.Context, req *pprovisio
 	defer conn.Close()
 
 	v, err = cli.CreateEmptyBlockStorageAgent(context.Background(), &CreateEmptyBlockStorageAgentRequest{
-		Name:  req.Metadata.Name,
-		Bytes: req.Spec.LimitBytes,
+		Name:  req.Name,
+		Bytes: req.LimitBytes,
 	})
 	if err != nil && status.Code(err) != codes.AlreadyExists {
-		log.Printf("Failed to create block_storage on node '%s': err='%s'", res.Status.NodeName, err.Error()) // TODO: #89
+		log.Printf("Failed to create block_storage on node '%s': err='%s'", res.NodeName, err.Error()) // TODO: #89
 		goto ReleaseStorage
 	}
 
-	res.Metadata.Annotations[AnnotationBlockStoragePath] = v.Path
-	res.Status.State = pprovisioning.BlockStorageStatus_AVAILABLE
+	res.Annotations[AnnotationBlockStoragePath] = v.Path
+	res.State = pprovisioning.BlockStorage_AVAILABLE
 
-	if err := a.dataStore.Apply(req.Metadata.Name, res); err != nil {
+	if err := a.dataStore.Apply(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
 		goto DeleteBlockStorage
 	}
@@ -101,7 +105,7 @@ func (a *BlockStorageAPI) CreateBlockStorage(ctx context.Context, req *pprovisio
 	return res, nil
 
 DeleteBlockStorage:
-	_, err = cli.DeleteBlockStorageAgent(context.Background(), &DeleteBlockStorageAgentRequest{Path: res.Metadata.Annotations[AnnotationBlockStoragePath]})
+	_, err = cli.DeleteBlockStorageAgent(context.Background(), &DeleteBlockStorageAgentRequest{Path: res.Annotations[AnnotationBlockStoragePath]})
 	if err != nil {
 		log.Printf("Fail to delete block_storage on node, err:%v.", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Fail to delete block_storage on node") // TODO #89
@@ -109,15 +113,15 @@ DeleteBlockStorage:
 
 ReleaseStorage:
 	_, err = a.nodeAPI.ReleaseStorage(context.Background(), &ppool.ReleaseStorageRequest{
-		Name:        res.Status.NodeName,
-		StorageName: res.Status.StorageName,
+		NodeName:    res.NodeName,
+		StorageName: res.StorageName,
 	})
 	if err != nil {
-		log.Printf("[ERROR] Failed to release compute '%s': %s", res.Status.StorageName, err.Error())
+		log.Printf("[ERROR] Failed to release compute '%s': %s", res.StorageName, err.Error())
 
 		// Notfound でもとりあえず問題ないため、処理を続ける
 		if status.Code(err) != codes.NotFound {
-			return nil, grpc.Errorf(codes.Internal, "Failed to release compute '%s': please retry", res.Status.StorageName)
+			return nil, grpc.Errorf(codes.Internal, "Failed to release compute '%s': please retry", res.StorageName)
 		}
 	}
 
@@ -235,7 +239,7 @@ func (a *BlockStorageAPI) GetBlockStorage(ctx context.Context, req *pprovisionin
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
-	if reflect.ValueOf(res.Metadata).IsNil() {
+	if res.Name == "" {
 		return nil, grpc.Errorf(codes.NotFound, "")
 	}
 
@@ -282,41 +286,41 @@ func (a *BlockStorageAPI) DeleteBlockStorage(ctx context.Context, req *pprovisio
 	if err := a.dataStore.Get(req.Name, prev); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	} else if !reflect.ValueOf(prev.Metadata).IsNil() {
+	} else if prev.Name == "" {
 		return nil, grpc.Errorf(codes.NotFound, "")
 	}
 
-	if prev.Status.State != pprovisioning.BlockStorageStatus_AVAILABLE {
+	if prev.State != pprovisioning.BlockStorage_AVAILABLE {
 		return nil, grpc.Errorf(codes.FailedPrecondition, "BlockStorage '%s' is not available", req.Name)
 	}
 
-	conn, err := a.nodeConnections.GetConnection(prev.Status.NodeName)
+	conn, err := a.nodeConnections.GetConnection(prev.NodeName)
 	if err != nil {
 		log.Printf("[WARNING] Fail to dial to node: err=%v.", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "") // TODO: #89
 	}
 	if conn == nil {
-		return nil, grpc.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", prev.Status.NodeName)
+		return nil, grpc.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", prev.NodeName)
 	}
 	defer conn.Close()
 	cli := NewBlockStorageAgentServiceClient(conn)
 
-	_, err = cli.DeleteBlockStorageAgent(context.Background(), &DeleteBlockStorageAgentRequest{Path: prev.Metadata.Annotations[AnnotationBlockStoragePath]})
+	_, err = cli.DeleteBlockStorageAgent(context.Background(), &DeleteBlockStorageAgentRequest{Path: prev.Annotations[AnnotationBlockStoragePath]})
 	if err != nil {
 		log.Printf("Fail to delete block_storage on node, err:%v.", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Fail to delete block_storage on node") // TODO #89
 	}
 
 	_, err = a.nodeAPI.ReleaseStorage(context.Background(), &ppool.ReleaseStorageRequest{
-		Name:        prev.Status.NodeName,
-		StorageName: prev.Status.StorageName,
+		NodeName:    prev.NodeName,
+		StorageName: prev.StorageName,
 	})
 	if err != nil {
-		log.Printf("[ERROR] Failed to release compute '%s': %s", prev.Status.StorageName, err.Error())
+		log.Printf("[ERROR] Failed to release compute '%s': %s", prev.StorageName, err.Error())
 
 		// Notfound でもとりあえず問題ないため、処理を続ける
 		if status.Code(err) != codes.NotFound {
-			return nil, grpc.Errorf(codes.Internal, "Failed to release compute '%s': please retry", prev.Status.StorageName)
+			return nil, grpc.Errorf(codes.Internal, "Failed to release compute '%s': please retry", prev.StorageName)
 		}
 	}
 
@@ -327,14 +331,17 @@ func (a *BlockStorageAPI) DeleteBlockStorage(ctx context.Context, req *pprovisio
 	return &empty.Empty{}, nil
 }
 
-func (a *BlockStorageAPI) SetInuseBlockStorage(ctx context.Context, req *pprovisioning.SetInuseBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
+func (a *BlockStorageAPI) SetAvailableBlockStorage(ctx context.Context, req *pprovisioning.SetAvailableBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
 	res := &pprovisioning.BlockStorage{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
 
-	res.Status.State = pprovisioning.BlockStorageStatus_IN_USE
+	if res.State == pprovisioning.BlockStorage_UNKNOWN {
+		return nil, grpc.Errorf(codes.FailedPrecondition, "Can change state to AVAILABLE when UNKNOWN")
+	}
+	res.State = pprovisioning.BlockStorage_AVAILABLE
 
 	if err := a.dataStore.Apply(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
@@ -344,14 +351,37 @@ func (a *BlockStorageAPI) SetInuseBlockStorage(ctx context.Context, req *pprovis
 	return res, nil
 }
 
-func (a *BlockStorageAPI) SetAvailableBlockStorage(ctx context.Context, req *pprovisioning.SetAvailableBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
+func (a *BlockStorageAPI) SetInuseBlockStorage(ctx context.Context, req *pprovisioning.SetInuseBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
 	res := &pprovisioning.BlockStorage{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
 
-	res.Status.State = pprovisioning.BlockStorageStatus_AVAILABLE
+	if res.State != pprovisioning.BlockStorage_AVAILABLE && res.State != pprovisioning.BlockStorage_IN_USE {
+		return nil, grpc.Errorf(codes.FailedPrecondition, "Can change state to IN_USE when only AVAILABLE")
+	}
+	res.State = pprovisioning.BlockStorage_IN_USE
+
+	if err := a.dataStore.Apply(req.Name, res); err != nil {
+		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Failed to store '%s' for db, please retry or contact for the administrator of this cluster", req.Name)
+	}
+
+	return res, nil
+}
+
+func (a *BlockStorageAPI) SetProtectedBlockStorage(ctx context.Context, req *pprovisioning.SetProtectedBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
+	res := &pprovisioning.BlockStorage{}
+	if err := a.dataStore.Get(req.Name, res); err != nil {
+		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
+	}
+
+	if res.State != pprovisioning.BlockStorage_AVAILABLE && res.State != pprovisioning.BlockStorage_PROTECTED {
+		return nil, grpc.Errorf(codes.FailedPrecondition, "Can change state to PROTECTED when only AVAILABLE")
+	}
+	res.State = pprovisioning.BlockStorage_PROTECTED
 
 	if err := a.dataStore.Apply(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
@@ -372,37 +402,27 @@ func (a *BlockStorageAPI) CopyBlockStorage(ctx context.Context, req *pprovisioni
 func (a *BlockStorageAPI) DownloadBlockStorage(req *pprovisioning.DownloadBlockStorageRequest, stream pprovisioning.BlockStorageService_DownloadBlockStorageServer) error {
 	return grpc.Errorf(codes.Unimplemented, "")
 }
-func (a *BlockStorageAPI) ProtectBlockStorage(ctx context.Context, req *pprovisioning.ProtectBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
-	return nil, grpc.Errorf(codes.Unimplemented, "")
-}
-func (a *BlockStorageAPI) UnprotectBlockStorage(ctx context.Context, req *pprovisioning.UnprotectBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
-	return nil, grpc.Errorf(codes.Unimplemented, "")
-}
 
 func (a BlockStorageAPI) reserveStorage(name string, annotations map[string]string, req, limit uint64) (string, string, error) {
-	var rcr *ppool.ReserveStorageResponse
+	var n *ppool.Node
 	var err error
 	if node, ok := annotations[AnnotationRequestNodeName]; !ok {
-		rcr, err = a.nodeAPI.ScheduleStorage(context.Background(), &ppool.ScheduleStorageRequest{
-			StorageName: name,
-			Storage: &pbudget.Storage{
-				RequestBytes: req,
-				LimitBytes:   limit,
-			},
+		n, err = a.nodeAPI.ScheduleStorage(context.Background(), &ppool.ScheduleStorageRequest{
+			StorageName:  name,
+			RequestBytes: req,
+			LimitBytes:   limit,
 		})
 	} else {
-		rcr, err = a.nodeAPI.ReserveStorage(context.Background(), &ppool.ReserveStorageRequest{
-			Name:        node,
-			StorageName: name,
-			Storage: &pbudget.Storage{
-				RequestBytes: req,
-				LimitBytes:   limit,
-			},
+		n, err = a.nodeAPI.ReserveStorage(context.Background(), &ppool.ReserveStorageRequest{
+			NodeName:     node,
+			StorageName:  name,
+			RequestBytes: req,
+			LimitBytes:   limit,
 		})
 	}
 	if err != nil {
 		return "", "", err // TODO: #89
 	}
 
-	return rcr.Name, rcr.StorageName, nil
+	return n.Name, name, nil
 }

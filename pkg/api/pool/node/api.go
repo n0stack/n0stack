@@ -72,8 +72,6 @@ func (a NodeAPI) ListNodes(ctx context.Context, req *ppool.ListNodesRequest) (*p
 }
 
 func (a NodeAPI) GetNode(ctx context.Context, req *ppool.GetNodeRequest) (*ppool.Node, error) {
-	log.Printf("[DEBUG] GetNode: req='%+v'", req)
-
 	res := &ppool.Node{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
