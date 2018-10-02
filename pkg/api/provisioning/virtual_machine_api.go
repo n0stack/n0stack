@@ -4,10 +4,8 @@ import (
 	"context"
 	"log"
 	"net/url"
-	"reflect"
 	"strconv"
 
-	"github.com/n0stack/proto.go/budget/v0"
 	"github.com/n0stack/proto.go/pool/v0"
 	"github.com/n0stack/proto.go/provisioning/v0"
 
@@ -49,37 +47,46 @@ func CreateVirtualMachineAPI(ds datastore.Datastore, noa ppool.NodeServiceClient
 	return a, nil
 }
 
-func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprovisioning.ApplyVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
-	prev := &pprovisioning.VirtualMachine{}
-	if err := a.dataStore.Get(req.Metadata.Name, prev); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Metadata.Name)
-	} else if !reflect.ValueOf(prev.Metadata).IsNil() {
-		return nil, grpc.Errorf(codes.AlreadyExists, "BlockStorage '%s' is already exists", req.Metadata.Name)
+func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprovisioning.CreateVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
+	if req.Name == "" {
+		return nil, grpc.Errorf(codes.InvalidArgument, "Set 'Name'")
 	}
 
-	if req.Spec.LimitCpuMilliCore%1000 != 0 {
-		return nil, grpc.Errorf(codes.InvalidArgument, "Make limit_cpu_milli_core '%d' a multiple of 1000", req.Spec.LimitCpuMilliCore)
+	prev := &pprovisioning.VirtualMachine{}
+	if err := a.dataStore.Get(req.Name, prev); err != nil {
+		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
+	} else if prev.Name != "" {
+		return nil, grpc.Errorf(codes.AlreadyExists, "BlockStorage '%s' is already exists", req.Name)
+	}
+
+	if req.LimitCpuMilliCore%1000 != 0 {
+		return nil, grpc.Errorf(codes.InvalidArgument, "Make limit_cpu_milli_core '%d' a multiple of 1000", req.LimitCpuMilliCore)
 	}
 
 	res := &pprovisioning.VirtualMachine{
-		Metadata: req.Metadata,
-		Spec:     req.Spec,
-		Status:   &pprovisioning.VirtualMachineStatus{},
+		Name:                req.Name,
+		Annotations:         req.Annotations,
+		RequestCpuMilliCore: req.RequestCpuMilliCore,
+		LimitCpuMilliCore:   req.LimitCpuMilliCore,
+		RequestMemoryBytes:  req.RequestMemoryBytes,
+		LimitMemoryBytes:    req.LimitMemoryBytes,
+		BlockStorageNames:   req.BlockStorageNames,
+		Nics:                req.Nics,
 	}
+	var err error
 	var blockdev []*BlockDev
-	if res.Metadata.Annotations == nil {
-		res.Metadata.Annotations = make(map[string]string)
+	if res.Annotations == nil {
+		res.Annotations = make(map[string]string)
 	}
 
-	var err error
-	res.Status.ComputeNodeName, res.Status.ComputeName, err = a.reserveCompute(
-		req.Metadata.Name,
-		req.Metadata.Annotations,
-		req.Spec.RequestCpuMilliCore,
-		req.Spec.LimitCpuMilliCore,
-		req.Spec.RequestMemoryBytes,
-		req.Spec.LimitMemoryBytes,
+	res.ComputeNodeName, res.ComputeName, err = a.reserveCompute(
+		req.Name,
+		req.Annotations,
+		req.RequestCpuMilliCore,
+		req.LimitCpuMilliCore,
+		req.RequestMemoryBytes,
+		req.LimitMemoryBytes,
 	)
 	if err != nil {
 		log.Printf("Failed to reserve compute: err=%v.", err.Error())
@@ -87,7 +94,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 	}
 
 	// errorについて考える
-	conn, err := a.nodeConnections.GetConnection(res.Status.ComputeNodeName)
+	conn, err := a.nodeConnections.GetConnection(res.ComputeNodeName)
 	cli := NewVirtualMachineAgentServiceClient(conn)
 	if err != nil {
 		log.Printf("Failed to dial to node: err=%v.", err.Error())
@@ -95,38 +102,38 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 	}
 	if conn == nil {
 		// TODO: goto ReleaseCompute
-		return nil, grpc.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", prev.Status.ComputeNodeName)
+		return nil, grpc.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", prev.ComputeNodeName)
 	}
 	defer conn.Close()
 
-	if blockdev, err = a.reserveBlockStorage(req.Spec.BlockStorageNames); err != nil {
+	if blockdev, err = a.reserveBlockStorage(req.BlockStorageNames); err != nil {
 		log.Printf("Failed to reserve block storage: err=%v.", err.Error())
 		goto ReleaseCompute
 	}
 
-	res.Spec.Nics, res.Status.NetworkInterfaceNames, err = a.reserveNics(req.Metadata.Name, req.Spec.Nics)
+	res.Nics, res.NetworkInterfaceNames, err = a.reserveNics(req.Name, req.Nics)
 	if err != nil {
 		log.Printf("Failed to reserve nics: err=%v.", err.Error())
 		goto ReleaseBlockStorage
 	}
 
 	if vm, err := cli.CreateVirtualMachineAgent(context.Background(), &CreateVirtualMachineAgentRequest{
-		Name:        req.Metadata.Name,
-		Vcpus:       req.Spec.LimitCpuMilliCore / 1000,
-		MemoryBytes: req.Spec.LimitMemoryBytes,
-		Netdev:      StructNetDev(req.Spec.Nics, res.Status.NetworkInterfaceNames),
+		Name:        req.Name,
+		Vcpus:       req.LimitCpuMilliCore / 1000,
+		MemoryBytes: req.LimitMemoryBytes,
+		Netdev:      StructNetDev(req.Nics, res.NetworkInterfaceNames),
 		Blockdev:    blockdev,
 	}); err != nil {
-		log.Printf("Failed to create block storage on node '%s': err='%s'", res.Status.ComputeNodeName, err.Error()) // TODO: #89
+		log.Printf("Failed to create block storage on node '%s': err='%s'", res.ComputeNodeName, err.Error()) // TODO: #89
 		goto ReleaseNetworkInterface
 	} else {
 		log.Printf("[DEBUG] after CreateVirtualMachineAgent: vm='%+v'", vm)
-		res.Metadata.Annotations[AnnotationVNCWebSocketPort] = strconv.Itoa(int(vm.WebsocketPort))
-		res.Status.State = GetAPIStateFromAgentState(vm.State)
-		res.Status.Uuid = vm.Uuid
+		res.Annotations[AnnotationVNCWebSocketPort] = strconv.Itoa(int(vm.WebsocketPort))
+		res.State = GetAPIStateFromAgentState(vm.State)
+		res.Uuid = vm.Uuid
 	}
 
-	if err := a.dataStore.Apply(req.Metadata.Name, res); err != nil {
+	if err := a.dataStore.Apply(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
 		goto DeleteVirtualMachine
 	}
@@ -135,25 +142,25 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 
 DeleteVirtualMachine:
 	_, err = cli.DeleteVirtualMachineAgent(context.Background(), &DeleteVirtualMachineAgentRequest{
-		Name:   req.Metadata.Name,
-		Netdev: StructNetDev(res.Spec.Nics, res.Status.NetworkInterfaceNames),
+		Name:   req.Name,
+		Netdev: StructNetDev(res.Nics, res.NetworkInterfaceNames),
 	})
 	if err != nil {
 		log.Printf("Fail to delete virtual machine on node: err=%s.", err.Error())
 	}
 
 ReleaseNetworkInterface:
-	if err := a.releaseNics(res.Spec.Nics, res.Status.NetworkInterfaceNames); err != nil {
+	if err := a.releaseNics(res.Nics, res.NetworkInterfaceNames); err != nil {
 		log.Printf("Fail to release network interfaces on API: err=%s.", err.Error())
 	}
 
 ReleaseBlockStorage:
-	if err := a.relaseBlockStorages(res.Spec.BlockStorageNames); err != nil {
+	if err := a.relaseBlockStorages(res.BlockStorageNames); err != nil {
 		log.Printf("Fail to release block storage on API: err=%s.", err.Error())
 	}
 
 ReleaseCompute:
-	if err := a.releaseCompute(res.Status.ComputeNodeName, res.Status.ComputeName); err != nil {
+	if err := a.releaseCompute(res.ComputeNodeName, res.ComputeName); err != nil {
 		log.Printf("Fail to release compute on API: err=%s.", err.Error())
 	}
 
@@ -193,7 +200,7 @@ func (a *VirtualMachineAPI) GetVirtualMachine(ctx context.Context, req *pprovisi
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
-	if reflect.ValueOf(res.Metadata).IsNil() {
+	if res.Name == "" {
 		return nil, grpc.Errorf(codes.NotFound, "")
 	}
 
@@ -209,39 +216,39 @@ func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprov
 	if err := a.dataStore.Get(req.Name, prev); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	} else if reflect.ValueOf(prev.Metadata).IsNil() {
+	} else if prev.Name == "" {
 		return nil, grpc.Errorf(codes.NotFound, "")
 	}
 
-	conn, err := a.nodeConnections.GetConnection(prev.Status.ComputeNodeName)
+	conn, err := a.nodeConnections.GetConnection(prev.ComputeNodeName)
 	if err != nil {
 		log.Printf("[WARNING] Fail to dial to node: err=%v.", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "") // TODO: #89
 	}
 	if conn == nil {
-		return nil, grpc.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", prev.Status.ComputeNodeName)
+		return nil, grpc.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", prev.ComputeNodeName)
 	}
 	defer conn.Close()
 	cli := NewVirtualMachineAgentServiceClient(conn)
 
 	_, err = cli.DeleteVirtualMachineAgent(context.Background(), &DeleteVirtualMachineAgentRequest{
 		Name:   req.Name,
-		Netdev: StructNetDev(prev.Spec.Nics, prev.Status.NetworkInterfaceNames),
+		Netdev: StructNetDev(prev.Nics, prev.NetworkInterfaceNames),
 	})
 	if err != nil {
 		log.Printf("Fail to delete virtual machine on node, err:%v.", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Fail to delete virtual machine on node") // TODO #89
 	}
 
-	if err := a.releaseCompute(prev.Status.ComputeNodeName, prev.Status.ComputeName); err != nil {
+	if err := a.releaseCompute(prev.ComputeNodeName, prev.ComputeName); err != nil {
 		return nil, err
 	}
 
-	if err := a.relaseBlockStorages(prev.Spec.BlockStorageNames); err != nil {
+	if err := a.relaseBlockStorages(prev.BlockStorageNames); err != nil {
 		return nil, err
 	}
 
-	if err := a.releaseNics(prev.Spec.Nics, prev.Status.NetworkInterfaceNames); err != nil {
+	if err := a.releaseNics(prev.Nics, prev.NetworkInterfaceNames); err != nil {
 		return nil, err
 	}
 
@@ -253,27 +260,21 @@ func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprov
 }
 
 func (a *VirtualMachineAPI) BootVirtualMachine(ctx context.Context, req *pprovisioning.BootVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
-	prev := &pprovisioning.VirtualMachine{}
-	if err := a.dataStore.Get(req.Name, prev); err != nil {
+	res := &pprovisioning.VirtualMachine{}
+	if err := a.dataStore.Get(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	} else if reflect.ValueOf(prev.Metadata).IsNil() {
+	} else if res.Name == "" {
 		return nil, grpc.Errorf(codes.NotFound, "")
 	}
 
-	res := &pprovisioning.VirtualMachine{
-		Metadata: prev.Metadata,
-		Spec:     prev.Spec,
-		Status:   prev.Status,
-	}
-
-	conn, err := a.nodeConnections.GetConnection(prev.Status.ComputeNodeName)
+	conn, err := a.nodeConnections.GetConnection(res.ComputeNodeName)
 	if err != nil {
 		log.Printf("[WARNING] Fail to dial to node: err=%v.", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "") // TODO: #89
 	}
 	if conn == nil {
-		return nil, grpc.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", prev.Status.ComputeNodeName)
+		return nil, grpc.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", res.ComputeNodeName)
 	}
 	defer conn.Close()
 	cli := NewVirtualMachineAgentServiceClient(conn)
@@ -283,7 +284,7 @@ func (a *VirtualMachineAPI) BootVirtualMachine(ctx context.Context, req *pprovis
 		log.Printf("Fail to boot on node, err:%v.", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Fail to boot block storage on node") // TODO #89
 	}
-	res.Status.State = GetAPIStateFromAgentState(vm.State)
+	res.State = GetAPIStateFromAgentState(vm.State)
 
 	if err := a.dataStore.Apply(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
@@ -294,27 +295,21 @@ func (a *VirtualMachineAPI) BootVirtualMachine(ctx context.Context, req *pprovis
 }
 
 func (a *VirtualMachineAPI) RebootVirtualMachine(ctx context.Context, req *pprovisioning.RebootVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
-	prev := &pprovisioning.VirtualMachine{}
-	if err := a.dataStore.Get(req.Name, prev); err != nil {
+	res := &pprovisioning.VirtualMachine{}
+	if err := a.dataStore.Get(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	} else if reflect.ValueOf(prev.Metadata).IsNil() {
+	} else if res.Name == "" {
 		return nil, grpc.Errorf(codes.NotFound, "")
 	}
 
-	res := &pprovisioning.VirtualMachine{
-		Metadata: prev.Metadata,
-		Spec:     prev.Spec,
-		Status:   prev.Status,
-	}
-
-	conn, err := a.nodeConnections.GetConnection(prev.Status.ComputeNodeName)
+	conn, err := a.nodeConnections.GetConnection(res.ComputeNodeName)
 	if err != nil {
 		log.Printf("[WARNING] Fail to dial to node: err=%v.", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "") // TODO: #89
 	}
 	if conn == nil {
-		return nil, grpc.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", prev.Status.ComputeNodeName)
+		return nil, grpc.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", res.ComputeNodeName)
 	}
 	defer conn.Close()
 	cli := NewVirtualMachineAgentServiceClient(conn)
@@ -327,7 +322,7 @@ func (a *VirtualMachineAPI) RebootVirtualMachine(ctx context.Context, req *pprov
 		log.Printf("Fail to reboot on node, err:%v.", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Fail to reboot block storage on node") // TODO #89
 	}
-	res.Status.State = GetAPIStateFromAgentState(vm.State)
+	res.State = GetAPIStateFromAgentState(vm.State)
 
 	if err := a.dataStore.Apply(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
@@ -338,27 +333,21 @@ func (a *VirtualMachineAPI) RebootVirtualMachine(ctx context.Context, req *pprov
 }
 
 func (a *VirtualMachineAPI) ShutdownVirtualMachine(ctx context.Context, req *pprovisioning.ShutdownVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
-	prev := &pprovisioning.VirtualMachine{}
-	if err := a.dataStore.Get(req.Name, prev); err != nil {
+	res := &pprovisioning.VirtualMachine{}
+	if err := a.dataStore.Get(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	} else if reflect.ValueOf(prev.Metadata).IsNil() {
+	} else if res.Name == "" {
 		return nil, grpc.Errorf(codes.NotFound, "")
 	}
 
-	res := &pprovisioning.VirtualMachine{
-		Metadata: prev.Metadata,
-		Spec:     prev.Spec,
-		Status:   prev.Status,
-	}
-
-	conn, err := a.nodeConnections.GetConnection(prev.Status.ComputeNodeName)
+	conn, err := a.nodeConnections.GetConnection(res.ComputeNodeName)
 	if err != nil {
 		log.Printf("[WARNING] Fail to dial to node: err=%v.", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "") // TODO: #89
 	}
 	if conn == nil {
-		return nil, grpc.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", prev.Status.ComputeNodeName)
+		return nil, grpc.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", res.ComputeNodeName)
 	}
 	defer conn.Close()
 	cli := NewVirtualMachineAgentServiceClient(conn)
@@ -371,7 +360,7 @@ func (a *VirtualMachineAPI) ShutdownVirtualMachine(ctx context.Context, req *ppr
 		log.Printf("Fail to shutdown on node, err:%v.", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Fail to shutdown block storage on node") // TODO #89
 	}
-	res.Status.State = GetAPIStateFromAgentState(vm.State)
+	res.State = GetAPIStateFromAgentState(vm.State)
 
 	if err := a.dataStore.Apply(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
@@ -386,40 +375,36 @@ func (a *VirtualMachineAPI) SaveVirtualMachine(ctx context.Context, req *pprovis
 }
 
 func (a VirtualMachineAPI) reserveCompute(name string, annotations map[string]string, reqCpu, limitCpu uint32, reqMem, limitMem uint64) (string, string, error) {
-	var rcr *ppool.ReserveComputeResponse
+	var n *ppool.Node
 	var err error
 	if node, ok := annotations[AnnotationRequestNodeName]; !ok {
-		rcr, err = a.nodeAPI.ScheduleCompute(context.Background(), &ppool.ScheduleComputeRequest{
-			ComputeName: name,
-			Compute: &pbudget.Compute{
-				RequestCpuMilliCore: reqCpu,
-				LimitCpuMilliCore:   limitCpu,
-				RequestMemoryBytes:  reqMem,
-				LimitMemoryBytes:    limitMem,
-			},
+		n, err = a.nodeAPI.ScheduleCompute(context.Background(), &ppool.ScheduleComputeRequest{
+			ComputeName:         name,
+			RequestCpuMilliCore: reqCpu,
+			LimitCpuMilliCore:   limitCpu,
+			RequestMemoryBytes:  reqMem,
+			LimitMemoryBytes:    limitMem,
 		})
 	} else {
-		rcr, err = a.nodeAPI.ReserveCompute(context.Background(), &ppool.ReserveComputeRequest{
-			Name:        node,
-			ComputeName: name,
-			Compute: &pbudget.Compute{
-				RequestCpuMilliCore: reqCpu,
-				LimitCpuMilliCore:   limitCpu,
-				RequestMemoryBytes:  reqMem,
-				LimitMemoryBytes:    limitMem,
-			},
+		n, err = a.nodeAPI.ReserveCompute(context.Background(), &ppool.ReserveComputeRequest{
+			NodeName:            node,
+			ComputeName:         name,
+			RequestCpuMilliCore: reqCpu,
+			LimitCpuMilliCore:   limitCpu,
+			RequestMemoryBytes:  reqMem,
+			LimitMemoryBytes:    limitMem,
 		})
 	}
 	if err != nil {
 		return "", "", grpc.Errorf(codes.Internal, "") // TODO: #89
 	}
 
-	return rcr.Name, rcr.ComputeName, nil
+	return n.Name, name, nil
 }
 
 func (a VirtualMachineAPI) releaseCompute(node, compute string) error {
 	_, err := a.nodeAPI.ReleaseCompute(context.Background(), &ppool.ReleaseComputeRequest{
-		Name:        node,
+		NodeName:    node,
 		ComputeName: compute,
 	})
 	if err != nil {
@@ -434,38 +419,37 @@ func (a VirtualMachineAPI) releaseCompute(node, compute string) error {
 	return nil
 }
 
-func (a VirtualMachineAPI) reserveNics(name string, nics []*pprovisioning.VirtualMachineSpec_NIC) ([]*pprovisioning.VirtualMachineSpec_NIC, []string, error) {
+func (a VirtualMachineAPI) reserveNics(name string, nics []*pprovisioning.VirtualMachineNIC) ([]*pprovisioning.VirtualMachineNIC, []string, error) {
 	// res.Status.NetworkInterfaceNames = make([]string, 0, len(req.Spec.Nics))
 	networkInterfaceNames := make([]string, 0, len(nics))
 
-	for i, n := range nics {
-		ni, err := a.networkAPI.ReserveNetworkInterface(context.Background(), &ppool.ReserveNetworkInterfaceRequest{
-			Name:                 n.NetworkName,
-			NetworkInterfaceName: name + strconv.Itoa(i),
-			NetworkInterface: &pbudget.NetworkInterface{
-				HardwareAddress: nics[i].HardwareAddress,
-				Ipv4Address:     nics[i].Ipv4Address,
-				Ipv6Address:     nics[i].Ipv6Address,
-			},
+	for i, nic := range nics {
+		niname := name + strconv.Itoa(i)
+		network, err := a.networkAPI.ReserveNetworkInterface(context.Background(), &ppool.ReserveNetworkInterfaceRequest{
+			NetworkName:          nic.NetworkName,
+			NetworkInterfaceName: niname,
+			HardwareAddress:      nics[i].HardwareAddress,
+			Ipv4Address:          nics[i].Ipv4Address,
+			Ipv6Address:          nics[i].Ipv6Address,
 		})
 		if err != nil {
 			log.Printf("Failed to relserve network interface '%s' from API: %s", name+strconv.Itoa(i), err.Error())
 			return nil, nil, err // TODO: #89
 		}
 
-		nics[i].HardwareAddress = ni.NetworkInterface.HardwareAddress
-		nics[i].Ipv4Address = ni.NetworkInterface.Ipv4Address
-		nics[i].Ipv6Address = ni.NetworkInterface.Ipv6Address
-		networkInterfaceNames = append(networkInterfaceNames, ni.NetworkInterfaceName)
+		nics[i].HardwareAddress = network.ReservedNetworkInterfaces[niname].HardwareAddress
+		nics[i].Ipv4Address = network.ReservedNetworkInterfaces[niname].Ipv4Address
+		nics[i].Ipv6Address = network.ReservedNetworkInterfaces[niname].Ipv6Address
+		networkInterfaceNames = append(networkInterfaceNames, niname)
 	}
 
 	return nics, networkInterfaceNames, nil
 }
 
-func (a VirtualMachineAPI) releaseNics(nics []*pprovisioning.VirtualMachineSpec_NIC, networkInterfaces []string) error {
-	for i, n := range nics {
+func (a VirtualMachineAPI) releaseNics(nics []*pprovisioning.VirtualMachineNIC, networkInterfaces []string) error {
+	for i, nic := range nics {
 		_, err := a.networkAPI.ReleaseNetworkInterface(context.Background(), &ppool.ReleaseNetworkInterfaceRequest{
-			Name:                 n.NetworkName,
+			NetworkName:          nic.NetworkName,
 			NetworkInterfaceName: networkInterfaces[i],
 		})
 		if err != nil {
@@ -496,7 +480,7 @@ func (a VirtualMachineAPI) reserveBlockStorage(names []string) ([]*BlockDev, err
 
 		u := url.URL{
 			Scheme: "file",
-			Path:   v.Metadata.Annotations[AnnotationBlockStoragePath],
+			Path:   v.Annotations[AnnotationBlockStoragePath],
 		}
 		bd = append(bd, &BlockDev{
 			Name:      names[i],

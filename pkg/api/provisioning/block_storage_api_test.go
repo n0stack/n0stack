@@ -2,39 +2,19 @@ package provisioning
 
 import (
 	"context"
-	"os"
 	"testing"
 
 	"code.cloudfoundry.org/bytefmt"
 	"github.com/google/go-cmp/cmp"
 	"github.com/n0stack/n0core/pkg/datastore/memory"
-	"github.com/n0stack/proto.go/pool/v0"
 	"github.com/n0stack/proto.go/provisioning/v0"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-func getNodeAPI() (ppool.NodeServiceClient, *grpc.ClientConn, error) {
-	endpoint := ""
-	if value, ok := os.LookupEnv("NODE_API_ENDPOINT"); ok {
-		endpoint = value
-	} else {
-		endpoint = "localhost:20181"
-	}
-
-	conn, err := grpc.Dial(endpoint, grpc.WithInsecure())
-	if err != nil {
-		return nil, nil, err
-	}
-	noc := ppool.NewNodeServiceClient(conn)
-
-	return noc, conn, nil
-}
-
 func TestEmptyBlockStorage(t *testing.T) {
 	m := memory.NewMemoryDatastore()
-	na, conn, err := getNodeAPI()
+	na, conn, err := getTestNodeAPI()
 	if err != nil {
 		t.Fatalf("Failed to connect node api: err='%s'", err.Error())
 	}
@@ -42,7 +22,7 @@ func TestEmptyBlockStorage(t *testing.T) {
 
 	bsa, err := CreateBlockStorageAPI(m, na)
 	if err != nil {
-		t.Fatalf("Failed to create Network API: err='%s'", err.Error())
+		t.Fatalf("Failed to create block storage API: err='%s'", err.Error())
 	}
 
 	listRes, err := bsa.ListBlockStorages(context.Background(), &pprovisioning.ListBlockStoragesRequest{})
@@ -64,7 +44,7 @@ func TestEmptyBlockStorage(t *testing.T) {
 
 func TestApplyBlockStorage(t *testing.T) {
 	m := memory.NewMemoryDatastore()
-	na, nconn, err := getNodeAPI()
+	na, nconn, err := getTestNodeAPI()
 	if err != nil {
 		t.Fatalf("Failed to connect node api: err='%s'", err.Error())
 	}
@@ -72,7 +52,7 @@ func TestApplyBlockStorage(t *testing.T) {
 
 	bsa, err := CreateBlockStorageAPI(m, na)
 	if err != nil {
-		t.Fatalf("Failed to create Network API: err='%s'", err.Error())
+		t.Fatalf("Failed to create block storage API: err='%s'", err.Error())
 	}
 
 	bs := &pprovisioning.BlockStorage{
@@ -127,7 +107,7 @@ func TestApplyBlockStorage(t *testing.T) {
 
 func TestBlockStorageAboutInUseState(t *testing.T) {
 	m := memory.NewMemoryDatastore()
-	na, nconn, err := getNodeAPI()
+	na, nconn, err := getTestNodeAPI()
 	if err != nil {
 		t.Fatalf("Failed to connect node api: err='%s'", err.Error())
 	}
@@ -135,7 +115,7 @@ func TestBlockStorageAboutInUseState(t *testing.T) {
 
 	bsa, err := CreateBlockStorageAPI(m, na)
 	if err != nil {
-		t.Fatalf("Failed to create Network API: err='%s'", err.Error())
+		t.Fatalf("Failed to create block storage API: err='%s'", err.Error())
 	}
 
 	bs := &pprovisioning.BlockStorage{
@@ -192,7 +172,7 @@ func TestBlockStorageAboutInUseState(t *testing.T) {
 
 func TestBlockStorageAboutProtectedState(t *testing.T) {
 	m := memory.NewMemoryDatastore()
-	na, nconn, err := getNodeAPI()
+	na, nconn, err := getTestNodeAPI()
 	if err != nil {
 		t.Fatalf("Failed to connect node api: err='%s'", err.Error())
 	}
@@ -200,7 +180,7 @@ func TestBlockStorageAboutProtectedState(t *testing.T) {
 
 	bsa, err := CreateBlockStorageAPI(m, na)
 	if err != nil {
-		t.Fatalf("Failed to create Network API: err='%s'", err.Error())
+		t.Fatalf("Failed to create block storage API: err='%s'", err.Error())
 	}
 
 	bs := &pprovisioning.BlockStorage{

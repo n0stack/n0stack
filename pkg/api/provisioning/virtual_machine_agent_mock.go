@@ -10,9 +10,11 @@ import (
 type MockVirtualMachineAgentAPI struct{}
 
 func (a *MockVirtualMachineAgentAPI) CreateVirtualMachineAgent(ctx context.Context, req *CreateVirtualMachineAgentRequest) (*VirtualMachineAgent, error) {
+	u, _ := uuid.FromString("1d5fd196-b6c9-4f58-86f2-3ef227018e47")
+
 	return &VirtualMachineAgent{
 		Name:          req.Name,
-		Uuid:          uuid.NewV4().String(),
+		Uuid:          u.String(),
 		Vcpus:         req.Vcpus,
 		MemoryBytes:   req.MemoryBytes,
 		State:         VirtualMachineAgentState_RUNNING,

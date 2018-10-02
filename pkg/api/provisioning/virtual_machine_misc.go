@@ -6,19 +6,19 @@ import (
 	"github.com/n0stack/n0core/pkg/driver/qemu"
 )
 
-func GetAPIStateFromAgentState(s VirtualMachineAgentState) pprovisioning.VirtualMachineStatus_VirtualMachineState {
+func GetAPIStateFromAgentState(s VirtualMachineAgentState) pprovisioning.VirtualMachine_VirtualMachineState {
 	switch s {
 	case VirtualMachineAgentState_SHUTDOWN:
-		return pprovisioning.VirtualMachineStatus_SHUTDOWN
+		return pprovisioning.VirtualMachine_SHUTDOWN
 
 	case VirtualMachineAgentState_RUNNING:
-		return pprovisioning.VirtualMachineStatus_RUNNING
+		return pprovisioning.VirtualMachine_RUNNING
 
 	case VirtualMachineAgentState_PAUSED:
-		return pprovisioning.VirtualMachineStatus_PAUSED
+		return pprovisioning.VirtualMachine_PAUSED
 	}
 
-	return pprovisioning.VirtualMachineStatus_SHUTDOWN
+	return pprovisioning.VirtualMachine_UNKNOWN
 }
 
 func GetAgentStateFromQemuState(s qemu.Status) VirtualMachineAgentState {
@@ -55,7 +55,7 @@ func TrimNetdevName(name string) string {
 	return name[:16]
 }
 
-func StructNetDev(nics []*pprovisioning.VirtualMachineSpec_NIC, names []string) []*NetDev {
+func StructNetDev(nics []*pprovisioning.VirtualMachineNIC, names []string) []*NetDev {
 	nd := make([]*NetDev, 0, len(nics))
 	for i, n := range nics {
 		nd = append(nd, &NetDev{
