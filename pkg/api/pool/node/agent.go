@@ -96,6 +96,7 @@ func RegisterNodeToAPI(name, advertiseAddress, api string) error {
 		}
 	} else {
 		log.Printf("[INFO] Get res: '%+v'", n)
+		ar.Version = n.Version
 		ar.Annotations = n.Annotations
 	}
 
