@@ -210,6 +210,7 @@
   name = "github.com/n0stack/proto.go"
   packages = [
     "budget/v0",
+    "deployment/v0",
     "pool/v0",
     "provisioning/v0",
   ]
@@ -308,7 +309,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:08e41d63f8dac84d83797368b56cf0b339e42d0224e5e56668963c28aec95685"
+  digest = "1:db4fdf03f745823eff6c2f06cd50eb447a7b77f307079cf5220e1621a1d63593"
   name = "golang.org/x/net"
   packages = [
     "bpf",
@@ -325,7 +326,7 @@
     "trace",
   ]
   pruneopts = ""
-  revision = "4dfa2610cdf3b287375bbba5b8f2a14d3b01d8de"
+  revision = "f5e5bdd778241bfefa8627f7124c39cd6ad8d74f"
 
 [[projects]]
   branch = "master"
@@ -430,6 +431,7 @@
     "github.com/google/go-cmp/cmp",
     "github.com/hashicorp/memberlist",
     "github.com/n0stack/proto.go/budget/v0",
+    "github.com/n0stack/proto.go/deployment/v0",
     "github.com/n0stack/proto.go/pool/v0",
     "github.com/n0stack/proto.go/provisioning/v0",
     "github.com/pkg/errors",
