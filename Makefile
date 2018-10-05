@@ -31,7 +31,6 @@ logs:
 rm:
 	docker-compose down
 	docker-compose rm
-rm-sandbox:
 	sudo rm -rf sandbox/etcd
 clean:
 	go clean
