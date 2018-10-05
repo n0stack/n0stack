@@ -296,3 +296,78 @@ func TestBlockStorageAboutProtectedState(t *testing.T) {
 		t.Errorf("[Valid: PROTECTED -> AVAILABLE] SetAvailableBlockStorage got error: err='%s'", err.Error())
 	}
 }
+
+func TestBlockCopyStorage(t *testing.T) {
+	m := memory.NewMemoryDatastore()
+	na, nconn, err := getTestNodeAPI()
+	if err != nil {
+		t.Fatalf("Failed to connect node api: err='%s'", err.Error())
+	}
+	defer nconn.Close()
+
+	bsa, err := CreateBlockStorageAPI(m, na)
+	if err != nil {
+		t.Fatalf("Failed to create block storage API: err='%s'", err.Error())
+	}
+
+	bs := &pprovisioning.BlockStorage{
+		Name: "test-block-storage",
+		Annotations: map[string]string{
+			AnnotationRequestNodeName: "mock-node",
+		},
+		RequestBytes: 1 * bytefmt.GIGABYTE,
+		LimitBytes:   1 * bytefmt.GIGABYTE,
+		State:        pprovisioning.BlockStorage_AVAILABLE,
+		NodeName:     "mock-node",
+		StorageName:  "test-block-storage",
+	}
+
+	src, err := bsa.CreateBlockStorage(context.Background(), &pprovisioning.CreateBlockStorageRequest{
+		Name:         "source",
+		Annotations:  bs.Annotations,
+		RequestBytes: bs.RequestBytes,
+		LimitBytes:   bs.LimitBytes,
+	})
+	if err != nil {
+		t.Fatalf("Failed to create block storage: err='%s'", err.Error())
+	}
+	defer bsa.DeleteBlockStorage(context.Background(), &pprovisioning.DeleteBlockStorageRequest{Name: src.Name})
+
+	copyRes, err := bsa.CopyBlockStorage(context.Background(), &pprovisioning.CopyBlockStorageRequest{
+		Name:         bs.Name,
+		Annotations:  bs.Annotations,
+		RequestBytes: bs.RequestBytes,
+		LimitBytes:   bs.LimitBytes,
+
+		SourceBlockStorage: src.Name,
+	})
+	if err != nil {
+		t.Fatalf("Failed to create block storage: err='%s'", err.Error())
+	}
+	defer bsa.DeleteBlockStorage(context.Background(), &pprovisioning.DeleteBlockStorageRequest{Name: bs.Name})
+
+	copyRes.XXX_sizecache = 0
+	if diff := cmp.Diff(bs, copyRes); diff != "" {
+		t.Errorf("CreateBlockStorage response is wrong: diff=(-want +got)\n%s", diff)
+	}
+
+	listRes, err := bsa.ListBlockStorages(context.Background(), &pprovisioning.ListBlockStoragesRequest{})
+	if err != nil {
+		t.Errorf("ListBlockStorages got error: err='%s'", err.Error())
+	}
+	if len(listRes.BlockStorages) != 2 {
+		t.Errorf("ListBlockStorages return wrong length: res='%s', want=1", listRes)
+	}
+
+	getRes, err := bsa.GetBlockStorage(context.Background(), &pprovisioning.GetBlockStorageRequest{Name: bs.Name})
+	if err != nil {
+		t.Errorf("GetBlockStorage got error: err='%s'", err.Error())
+	}
+	if diff := cmp.Diff(bs, getRes); diff != "" {
+		t.Errorf("GetBlockStorage response is wrong: diff=(-want +got)\n%s", diff)
+	}
+
+	if _, err := bsa.DeleteBlockStorage(context.Background(), &pprovisioning.DeleteBlockStorageRequest{Name: bs.Name}); err != nil {
+		t.Errorf("DeleteBlockStorage got error: err='%s'", err.Error())
+	}
+}
