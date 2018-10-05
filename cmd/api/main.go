@@ -102,6 +102,28 @@ func main() {
 				},
 			},
 		},
+		{
+			Name:   "image",
+			Usage:  "",
+			Action: ServeImageAPI,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name: "etcd-endpoints",
+				},
+				cli.StringFlag{
+					// interfaceからも取れるようにしたい
+					Name:  "bind-address",
+					Value: "0.0.0.0",
+				},
+				cli.IntFlag{
+					Name:  "bind-port",
+					Value: 20185,
+				},
+				cli.StringFlag{
+					Name: "block-storage-api-endpoint",
+				},
+			},
+		},
 	}
 
 	log.SetFlags(log.Lshortfile)

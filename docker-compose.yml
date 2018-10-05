@@ -59,6 +59,18 @@ services:
       - network
       - block_storage
       - etcd
+  image:
+    image: n0stack/n0core
+    command:
+      - ./bin/n0core-api
+      - image
+      - --etcd-endpoints=etcd:2379
+      - --block-storage-api-endpoint=block_storage:20183
+    ports:
+      - "20185:20185"
+    links:
+      - block_storage
+      - etcd
 
   etcd:
     image: quay.io/coreos/etcd:v3.3
