@@ -110,3 +110,37 @@ func TestBackingfile(t *testing.T) {
 		t.Errorf("Failed to delete image: image is existing yet")
 	}
 }
+
+func TestCopy(t *testing.T) {
+	p := "test.qcow2"
+
+	i, err := OpenQemuImg(p)
+	if err != nil {
+		t.Fatalf("Cannot open '%s': err='%s'", p, err.Error())
+	}
+	s, _ := bytefmt.ToBytes("1G")
+	if err := i.Create(s); err != nil {
+		t.Errorf("Failed to create image: err='%s'", err.Error())
+	}
+	defer i.Delete()
+
+	pc := "test.copied.qcow2"
+
+	ic, err := OpenQemuImg(pc)
+	if err != nil {
+		t.Errorf("Cannot open '%s': err='%s'", p, err.Error())
+	}
+
+	if err := ic.Copy(i); err != nil {
+		t.Errorf("Failed to copy image: err='%s'", err.Error())
+	}
+	if !ic.IsExists() {
+		t.Errorf("Failed to copy image: image is not existing yet")
+	}
+	if err := ic.Delete(); err != nil {
+		t.Errorf("Failed to delete image: err='%s'", err.Error())
+	}
+	if ic.IsExists() {
+		t.Errorf("Failed to delete image: image is existing yet")
+	}
+}

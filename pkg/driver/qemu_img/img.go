@@ -3,11 +3,13 @@ package img
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 
 	"code.cloudfoundry.org/bytefmt"
+	"github.com/pkg/errors"
 )
 
 // ImgInfo is response of `qemu-img info`.
@@ -54,6 +56,33 @@ func (q *QemuImg) Create(bytes uint64) error {
 	cmd := exec.Command(args[0], args[1:]...)
 	if o, err := cmd.CombinedOutput(); err != nil {
 		return fmt.Errorf("Failed to create image: err='%s', args='%v', output='%s'", err.Error(), args, o)
+	}
+
+	q.updateInfo()
+
+	return nil
+}
+
+func (q *QemuImg) Copy(source *QemuImg) error {
+	if q.IsExists() {
+		return fmt.Errorf("Already exists") // TODO
+	}
+
+	src, err := os.Open(source.path)
+	if err != nil {
+		return errors.Wrap(err, "Failed to open source file")
+	}
+	defer src.Close()
+
+	dst, err := os.Create(q.path)
+	if err != nil {
+		return errors.Wrap(err, "Failed to create destination file")
+	}
+	defer dst.Close()
+
+	_, err = io.Copy(dst, src)
+	if err != nil {
+		return errors.Wrap(err, "Failed to copy file")
 	}
 
 	q.updateInfo()
