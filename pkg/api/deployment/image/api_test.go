@@ -193,6 +193,19 @@ func TestImageAboutRegister(t *testing.T) {
 		t.Errorf("BlockStorage 'test-image' state is wrong: have=%+v, want=%+v", rbs.State, pprovisioning.BlockStorage_PROTECTED)
 	}
 
+	genRes, err := ia.GenerateBlockStorage(context.Background(), &pdeployment.GenerateBlockStorageRequest{
+		ImageName:        i.Name,
+		Tag:              "test-tag",
+		BlockStorageName: "generated-image",
+		// Annotations:      bs.Annotations,
+		RequestBytes: 10 * bytefmt.MEGABYTE,
+		LimitBytes:   10 * bytefmt.GIGABYTE,
+	})
+	if err != nil {
+		t.Errorf("Failed to generate BlockStorageAPI got error: err='%s'", err.Error())
+	}
+	defer bsa.DeleteBlockStorage(context.Background(), &pprovisioning.DeleteBlockStorageRequest{Name: genRes.Name})
+
 	unregRes, err := ia.UnregisterBlockStorage(context.Background(), &pdeployment.UnregisterBlockStorageRequest{
 		ImageName:        i.Name,
 		BlockStorageName: bs.Name,
@@ -290,8 +303,8 @@ func TestImageAboutTag(t *testing.T) {
 		t.Errorf("TagBlockStorage response of len(Tags) is wrong: have=%d, want=%d", len(tagRes.Tags), 0)
 	}
 	tagRes.XXX_sizecache = 0
-	i.RegisteredBlockStorages = nil
-	tagRes.RegisteredBlockStorages = nil
+	tagRes.RegisteredBlockStorages[0].XXX_sizecache = 0
+	tagRes.RegisteredBlockStorages[0].RegisteredAt = nil
 	if diff := cmp.Diff(i, tagRes); diff != "" {
 		t.Errorf("TagBlockStorage response is wrong: diff=(-want +got)\n%s", diff)
 	}

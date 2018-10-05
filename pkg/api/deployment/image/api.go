@@ -197,7 +197,31 @@ func (a ImageAPI) UnregisterBlockStorage(ctx context.Context, req *pdeployment.U
 }
 
 func (a ImageAPI) GenerateBlockStorage(ctx context.Context, req *pdeployment.GenerateBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
-	return nil, grpc.Errorf(codes.Unimplemented, "")
+	prev := &pdeployment.Image{}
+	if err := a.dataStore.Get(req.ImageName, prev); err != nil {
+		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.ImageName)
+	}
+	if prev.Name == "" {
+		return nil, grpc.Errorf(codes.NotFound, "Image '%s' is not found", req.ImageName)
+	}
+	if prev.Tags == nil {
+		return nil, grpc.Errorf(codes.NotFound, "Tag '%s' is not found", req.Tag)
+	}
+
+	bs, err := a.blockstorageAPI.CopyBlockStorage(context.Background(), &pprovisioning.CopyBlockStorageRequest{
+		SourceBlockStorage: prev.Tags[req.Tag],
+		Name:               req.BlockStorageName,
+		Annotations:        req.Annotations,
+		RequestBytes:       req.RequestBytes,
+		LimitBytes:         req.LimitBytes,
+	})
+	if err != nil {
+		log.Printf("[WARNING] Failed to copy blockstorage: err='%s'", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "")
+	}
+
+	return bs, nil
 }
 
 func (a ImageAPI) TagImage(ctx context.Context, req *pdeployment.TagImageRequest) (*pdeployment.Image, error) {
@@ -224,10 +248,6 @@ func (a ImageAPI) TagImage(ctx context.Context, req *pdeployment.TagImageRequest
 		return nil, grpc.Errorf(codes.NotFound, "BlockStorage '%s' is not in RegisteredBlockStorages", req.BlockStorageName)
 	}
 
-	res.RegisteredBlockStorages = append(res.RegisteredBlockStorages, &pdeployment.Image_RegisteredBlockStorage{
-		BlockStorageName: req.BlockStorageName,
-		RegisteredAt:     ptypes.TimestampNow(),
-	})
 	for _, t := range req.Tags {
 		res.Tags[t] = req.BlockStorageName
 	}
