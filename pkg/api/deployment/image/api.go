@@ -155,6 +155,47 @@ func (a ImageAPI) RegisterBlockStorage(ctx context.Context, req *pdeployment.Reg
 	return res, nil
 }
 
+func (a ImageAPI) UnregisterBlockStorage(ctx context.Context, req *pdeployment.UnregisterBlockStorageRequest) (*pdeployment.Image, error) {
+	res := &pdeployment.Image{}
+	if err := a.dataStore.Get(req.ImageName, res); err != nil {
+		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.ImageName)
+	}
+	if res.Name == "" {
+		return nil, grpc.Errorf(codes.NotFound, "Image '%s' is not found", req.ImageName)
+	}
+	if res.Tags == nil {
+		res.Tags = make(map[string]string)
+	}
+
+	_, err := a.blockstorageAPI.SetAvailableBlockStorage(context.Background(), &pprovisioning.SetAvailableBlockStorageRequest{Name: req.BlockStorageName})
+	if err != nil {
+		log.Printf("[WARNING] Failed to set blockstorage as protected: err='%s'", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.ImageName)
+	}
+
+	for i, bs := range res.RegisteredBlockStorages {
+		if bs.BlockStorageName == req.BlockStorageName {
+			res.RegisteredBlockStorages = append(res.RegisteredBlockStorages[:i], res.RegisteredBlockStorages[i+1:]...)
+
+			break
+		}
+	}
+
+	for k, v := range res.Tags {
+		if v == req.BlockStorageName {
+			delete(res.Tags, k)
+		}
+	}
+
+	if err := a.dataStore.Apply(req.ImageName, res); err != nil {
+		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Failed to store '%s' for db, please retry or contact for the administrator of this cluster", req.ImageName)
+	}
+
+	return res, nil
+}
+
 func (a ImageAPI) GenerateBlockStorage(ctx context.Context, req *pdeployment.GenerateBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
 	return nil, grpc.Errorf(codes.Unimplemented, "")
 }
