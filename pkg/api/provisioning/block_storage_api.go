@@ -241,18 +241,21 @@ func (a *BlockStorageAPI) CopyBlockStorage(ctx context.Context, req *pprovisioni
 		LimitBytes:   req.LimitBytes,
 	}
 
-	if v, ok := req.Annotations[AnnotationRequestNodeName]; ok {
+	if res.Annotations == nil {
+		res.Annotations = make(map[string]string)
+	}
+	if v, ok := res.Annotations[AnnotationRequestNodeName]; ok {
 		if src.Annotations[AnnotationRequestNodeName] != v {
 			return nil, grpc.Errorf(codes.InvalidArgument, "Set annotation, about request, node same as src")
 		}
 	} else {
-		req.Annotations[AnnotationRequestNodeName] = src.Annotations[AnnotationRequestNodeName]
+		res.Annotations[AnnotationRequestNodeName] = src.Annotations[AnnotationRequestNodeName]
 	}
 
 	var err error
 	if res.NodeName, res.StorageName, err = a.reserveStorage(
 		req.Name,
-		req.Annotations,
+		res.Annotations,
 		req.RequestBytes,
 		req.LimitBytes,
 	); err != nil {
@@ -261,7 +264,7 @@ func (a *BlockStorageAPI) CopyBlockStorage(ctx context.Context, req *pprovisioni
 	var v *BlockStorageAgent
 	srcUrl := url.URL{
 		Scheme: "file",
-		Path:   src.Annotations[AnnotationBlockStoragePath],
+		Path:   res.Annotations[AnnotationBlockStoragePath],
 	}
 
 	conn, err := a.nodeConnections.GetConnection(res.NodeName) // errorについて考える
