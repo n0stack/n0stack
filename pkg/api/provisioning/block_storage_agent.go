@@ -75,8 +75,22 @@ func (a *BlockStorageAgentAPI) CreateBlockStorageAgentWithDownloading(ctx contex
 	if err != nil {
 		return nil, grpc.Errorf(codes.InvalidArgument, "Parsing source_url '%s' is invalid url: err='%s'", req.SourceUrl, err.Error())
 	}
-	if err := i.Download(u); err != nil {
-		return nil, grpc.Errorf(codes.Internal, "Failed to download image: err='%s'", err.Error())
+
+	switch u.Scheme {
+	case "http", "https":
+		if err := i.Download(u); err != nil {
+			return nil, grpc.Errorf(codes.Internal, "Failed to download image: err='%s'", err.Error())
+		}
+
+	case "file":
+		src, err := img.OpenQemuImg(u.Path)
+		if err != nil {
+			return nil, grpc.Errorf(codes.Internal, "Failed to open source image: err='%s'", err.Error())
+		}
+
+		if err := i.Copy(src); err != nil {
+			return nil, grpc.Errorf(codes.Internal, "Failed to download image: err='%s'", err.Error())
+		}
 	}
 
 	return &BlockStorageAgent{
