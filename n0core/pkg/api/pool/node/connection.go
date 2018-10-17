@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 
 	"google.golang.org/grpc"
 
@@ -34,7 +33,7 @@ type NodeConnections struct {
 func (nc NodeConnections) IsExisting(nodeName string) (bool, error) {
 	_, err := nc.NodeAPI.GetNode(context.Background(), &ppool.GetNodeRequest{Name: nodeName})
 	if err != nil {
-		if status.Code(err) == codes.NotFound {
+		if grpc.Code(err) == codes.NotFound {
 			return false, nil
 		}
 

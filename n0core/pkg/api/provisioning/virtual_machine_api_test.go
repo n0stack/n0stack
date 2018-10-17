@@ -10,8 +10,8 @@ import (
 	"github.com/n0stack/n0stack/n0proto/pool/v0"
 	"github.com/n0stack/n0stack/n0proto/provisioning/v0"
 
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 func TestEmptyVirtualMachine(t *testing.T) {
@@ -38,7 +38,7 @@ func TestEmptyVirtualMachine(t *testing.T) {
 	}
 
 	listRes, err := vma.ListVirtualMachines(context.Background(), &pprovisioning.ListVirtualMachinesRequest{})
-	if err != nil && status.Code(err) != codes.NotFound {
+	if err != nil && grpc.Code(err) != codes.NotFound {
 		t.Errorf("ListVirtualMachines got error, not NotFound: err='%s'", err.Error())
 	}
 	if listRes != nil {
@@ -46,7 +46,7 @@ func TestEmptyVirtualMachine(t *testing.T) {
 	}
 
 	getRes, err := vma.GetVirtualMachine(context.Background(), &pprovisioning.GetVirtualMachineRequest{})
-	if err != nil && status.Code(err) != codes.NotFound {
+	if err != nil && grpc.Code(err) != codes.NotFound {
 		t.Errorf("GetVirtualMachine got error, not NotFound: err='%s'", err.Error())
 	}
 	if getRes != nil {

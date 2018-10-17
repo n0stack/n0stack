@@ -12,7 +12,6 @@ import (
 	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
@@ -90,7 +89,7 @@ func (a *BlockStorageAPI) CreateBlockStorage(ctx context.Context, req *pprovisio
 		Name:  req.Name,
 		Bytes: req.LimitBytes,
 	})
-	if err != nil && status.Code(err) != codes.AlreadyExists {
+	if err != nil && grpc.Code(err) != codes.AlreadyExists {
 		log.Printf("Failed to create block_storage on node '%s': err='%s'", res.NodeName, err.Error()) // TODO: #89
 		goto ReleaseStorage
 	}
@@ -121,7 +120,7 @@ ReleaseStorage:
 		log.Printf("[ERROR] Failed to release compute '%s': %s", res.StorageName, err.Error())
 
 		// Notfound でもとりあえず問題ないため、処理を続ける
-		if status.Code(err) != codes.NotFound {
+		if grpc.Code(err) != codes.NotFound {
 			return nil, grpc.Errorf(codes.Internal, "Failed to release compute '%s': please retry", res.StorageName)
 		}
 	}
@@ -174,7 +173,7 @@ func (a *BlockStorageAPI) FetchBlockStorage(ctx context.Context, req *pprovision
 		Bytes:     req.LimitBytes,
 		SourceUrl: req.SourceUrl,
 	})
-	if err != nil && status.Code(err) != codes.AlreadyExists {
+	if err != nil && grpc.Code(err) != codes.AlreadyExists {
 		log.Printf("Fail to create block_storage on node '%s': err='%s'", "", err.Error()) // TODO: #89
 		goto ReleaseStorage
 	}
@@ -205,7 +204,7 @@ ReleaseStorage:
 		log.Printf("[ERROR] Failed to release compute '%s': %s", res.StorageName, err.Error())
 
 		// Notfound でもとりあえず問題ないため、処理を続ける
-		if status.Code(err) != codes.NotFound {
+		if grpc.Code(err) != codes.NotFound {
 			return nil, grpc.Errorf(codes.Internal, "Failed to release compute '%s': please retry", res.StorageName)
 		}
 	}
@@ -280,7 +279,7 @@ func (a *BlockStorageAPI) CopyBlockStorage(ctx context.Context, req *pprovisioni
 		Bytes:     req.LimitBytes,
 		SourceUrl: srcUrl.String(),
 	})
-	if err != nil && status.Code(err) != codes.AlreadyExists {
+	if err != nil && grpc.Code(err) != codes.AlreadyExists {
 		log.Printf("Fail to create block_storage on node '%s': err='%s'", "", err.Error()) // TODO: #89
 		goto ReleaseStorage
 	}
@@ -311,7 +310,7 @@ ReleaseStorage:
 		log.Printf("[ERROR] Failed to release compute '%s': %s", res.StorageName, err.Error())
 
 		// Notfound でもとりあえず問題ないため、処理を続ける
-		if status.Code(err) != codes.NotFound {
+		if grpc.Code(err) != codes.NotFound {
 			return nil, grpc.Errorf(codes.Internal, "Failed to release compute '%s': please retry", res.StorageName)
 		}
 	}
@@ -432,7 +431,7 @@ func (a *BlockStorageAPI) DeleteBlockStorage(ctx context.Context, req *pprovisio
 		log.Printf("[ERROR] Failed to release compute '%s': %s", prev.StorageName, err.Error())
 
 		// Notfound でもとりあえず問題ないため、処理を続ける
-		if status.Code(err) != codes.NotFound {
+		if grpc.Code(err) != codes.NotFound {
 			return nil, grpc.Errorf(codes.Internal, "Failed to release compute '%s': please retry", prev.StorageName)
 		}
 	}

@@ -6,8 +6,8 @@ import (
 	"context"
 	"testing"
 
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/memory"
@@ -22,7 +22,7 @@ func TestEmptyNetwork(t *testing.T) {
 	}
 
 	listRes, err := na.ListNetworks(context.Background(), &ppool.ListNetworksRequest{})
-	if err != nil && status.Code(err) != codes.NotFound {
+	if err != nil && grpc.Code(err) != codes.NotFound {
 		t.Errorf("ListNetworks got error, not NotFound: err='%s'", err.Error())
 	}
 	if listRes != nil {
@@ -30,7 +30,7 @@ func TestEmptyNetwork(t *testing.T) {
 	}
 
 	getRes, err := na.GetNetwork(context.Background(), &ppool.GetNetworkRequest{})
-	if err != nil && status.Code(err) != codes.NotFound {
+	if err != nil && grpc.Code(err) != codes.NotFound {
 		t.Errorf("GetNetwork got error, not NotFound: err='%s'", err.Error())
 	}
 	if getRes != nil {
@@ -116,7 +116,7 @@ func TestNetworkAboutNetworkInterface(t *testing.T) {
 		NetworkName:          n.Name,
 		NetworkInterfaceName: "hogehoge",
 	})
-	if err != nil && status.Code(err) != codes.NotFound {
+	if err != nil && grpc.Code(err) != codes.NotFound {
 		t.Errorf("[Invalid: no reserved network interface on Network -> NotFound] ReleaseNetworkInterface got error: err='%s'", err.Error())
 	}
 
@@ -256,7 +256,7 @@ func TestNetworkAboutNetworkInterface(t *testing.T) {
 
 	for _, c := range cases {
 		res, err := na.ReserveNetworkInterface(context.Background(), c.req)
-		if err != nil && status.Code(err) != c.statusCode {
+		if err != nil && grpc.Code(err) != c.statusCode {
 			t.Errorf("[%s] ReserveNetworkInterface got error: err='%s'", c.name, err.Error())
 		}
 		if res != c.res {
@@ -287,7 +287,7 @@ func TestNetworkAboutNetworkInterface(t *testing.T) {
 
 	for _, c := range releaseCases {
 		_, err := na.ReleaseNetworkInterface(context.Background(), c.req)
-		if err != nil && status.Code(err) != c.statusCode {
+		if err != nil && grpc.Code(err) != c.statusCode {
 			t.Errorf("[%s] ReleaseNetworkInterface got error: err='%s'", c.name, err.Error())
 		}
 	}

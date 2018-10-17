@@ -1,0 +1,94 @@
+# Gopkg.toml example
+#
+# Refer to https://golang.github.io/dep/docs/Gopkg.toml.html
+# for detailed Gopkg.toml documentation.
+#
+# required = ["github.com/user/thing/cmd/thing"]
+# ignored = ["github.com/user/project/pkgX", "bitbucket.org/user/project/pkgA/pkgY"]
+#
+# [[constraint]]
+#   name = "github.com/user/project"
+#   version = "1.0.0"
+#
+# [[constraint]]
+#   name = "github.com/user/project2"
+#   branch = "dev"
+#   source = "github.com/myfork/project2"
+#
+# [[override]]
+#   name = "github.com/x/y"
+#   version = "2.4.0"
+#
+# [prune]
+#   non-go = false
+#   go-tests = true
+#   unused-packages = true
+
+
+[[constraint]]
+  branch = "master"
+  name = "code.cloudfoundry.org/bytefmt"
+
+[[constraint]]
+  name = "github.com/cenkalti/backoff"
+  version = "2.0.0"
+
+[[constraint]]
+  name = "github.com/coreos/etcd"
+  version = "3.3.10"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/digitalocean/go-qemu"
+
+[[constraint]]
+  name = "github.com/golang/protobuf"
+  version = "1.2.0"
+
+[[constraint]]
+  name = "github.com/google/go-cmp"
+  version = "0.2.0"
+
+[[constraint]]
+  name = "github.com/hashicorp/memberlist"
+  version = "0.1.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/n0stack/n0stack"
+
+[[constraint]]
+  name = "github.com/pkg/errors"
+  version = "0.8.0"
+
+[[constraint]]
+  name = "github.com/satori/go.uuid"
+  version = "1.2.0"
+
+[[constraint]]
+  name = "github.com/shirou/gopsutil"
+  version = "2.18.7"
+
+[[constraint]]
+  name = "github.com/urfave/cli"
+  version = "1.20.0"
+
+[[constraint]]
+  name = "github.com/vishvananda/netlink"
+  version = "1.0.0"
+
+[[constraint]]
+  branch = "master"
+  name = "golang.org/x/crypto"
+
+[[constraint]]
+  name = "google.golang.org/grpc"
+  version = "1.7.5"
+
+[[constraint]]
+  name = "gopkg.in/yaml.v2"
+  version = "2.2.1"
+
+[prune]
+  go-tests = true
+  unused-packages = true

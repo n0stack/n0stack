@@ -15,7 +15,6 @@ import (
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 const AnnotationVNCWebSocketPort = "n0core/provisioning/virtual_machine_vnc_websocket_port"
@@ -411,7 +410,7 @@ func (a VirtualMachineAPI) releaseCompute(node, compute string) error {
 		log.Printf("[ERROR] Failed to release compute '%s': %s", compute, err.Error())
 
 		// Notfound でもとりあえず問題ないため、処理を続ける
-		if status.Code(err) != codes.NotFound {
+		if grpc.Code(err) != codes.NotFound {
 			return grpc.Errorf(codes.Internal, "Failed to release compute '%s': please retry", compute)
 		}
 	}
@@ -456,7 +455,7 @@ func (a VirtualMachineAPI) releaseNics(nics []*pprovisioning.VirtualMachineNIC, 
 			log.Printf("[ERROR] Failed to release network interface '%s': %s", networkInterfaces[i], err.Error())
 
 			// Notfound でもとりあえず問題ないため、処理を続ける
-			if status.Code(err) != codes.NotFound {
+			if grpc.Code(err) != codes.NotFound {
 				return grpc.Errorf(codes.Internal, "Failed to release network interface '%s': please check network interface on your own", networkInterfaces[i])
 			}
 		}
@@ -471,7 +470,7 @@ func (a VirtualMachineAPI) reserveBlockStorage(names []string) ([]*BlockDev, err
 		v, err := a.blockstorageAPI.SetInuseBlockStorage(context.Background(), &pprovisioning.SetInuseBlockStorageRequest{Name: n})
 		if err != nil {
 			log.Printf("Failed to get block storage '%s' from API: %s", n, err.Error())
-			if status.Code(err) != codes.NotFound {
+			if grpc.Code(err) != codes.NotFound {
 				return nil, grpc.Errorf(codes.Internal, "Failed to set block storage '%s' as in use from API", n)
 			}
 
@@ -498,7 +497,7 @@ func (a VirtualMachineAPI) relaseBlockStorages(names []string) error {
 		if err != nil {
 			log.Printf("Failed to get block storage '%s' from API: %s", n, err.Error())
 
-			if status.Code(err) != codes.NotFound {
+			if grpc.Code(err) != codes.NotFound {
 				return grpc.Errorf(codes.Internal, "Failed to get block storage '%s' as in use from API", n)
 			}
 		}

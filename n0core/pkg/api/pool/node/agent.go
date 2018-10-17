@@ -14,7 +14,6 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 // IPMIを持っていない場合が考えられるので、とりあえずエラーハンドリングはしていない
@@ -97,7 +96,7 @@ func RegisterNodeToAPI(name, advertiseAddress, api string) error {
 
 	n, err := cli.GetNode(context.Background(), &ppool.GetNodeRequest{Name: name})
 	if err != nil {
-		if status.Code(err) != codes.NotFound {
+		if grpc.Code(err) != codes.NotFound {
 			return err
 		}
 	} else {

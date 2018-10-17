@@ -13,7 +13,6 @@ import (
 	"github.com/n0stack/n0stack/n0proto/provisioning/v0"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 func getTestBlockStorageAPI() (pprovisioning.BlockStorageServiceClient, *grpc.ClientConn, error) {
@@ -46,7 +45,7 @@ func TestEmptyImage(t *testing.T) {
 	}
 
 	listRes, err := ia.ListImages(context.Background(), &pdeployment.ListImagesRequest{})
-	if err != nil && status.Code(err) != codes.NotFound {
+	if err != nil && grpc.Code(err) != codes.NotFound {
 		t.Errorf("ListImages got error, not NotFound: err='%s'", err.Error())
 	}
 	if listRes != nil {
@@ -54,7 +53,7 @@ func TestEmptyImage(t *testing.T) {
 	}
 
 	getRes, err := ia.GetImage(context.Background(), &pdeployment.GetImageRequest{})
-	if err != nil && status.Code(err) != codes.NotFound {
+	if err != nil && grpc.Code(err) != codes.NotFound {
 		t.Errorf("GetImage got error, not NotFound: err='%s'", err.Error())
 	}
 	if getRes != nil {

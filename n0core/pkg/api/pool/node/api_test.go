@@ -10,8 +10,8 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/memory"
 	"github.com/n0stack/n0stack/n0proto/pool/v0"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 func TestEmptyNode(t *testing.T) {
@@ -22,7 +22,7 @@ func TestEmptyNode(t *testing.T) {
 	}
 
 	listRes, err := na.ListNodes(context.Background(), &ppool.ListNodesRequest{})
-	if err != nil && status.Code(err) != codes.NotFound {
+	if err != nil && grpc.Code(err) != codes.NotFound {
 		t.Errorf("ListNode got error, not NotFound: err='%s'", err.Error())
 	}
 	if listRes != nil {
@@ -30,7 +30,7 @@ func TestEmptyNode(t *testing.T) {
 	}
 
 	getRes, err := na.GetNode(context.Background(), &ppool.GetNodeRequest{})
-	if err != nil && status.Code(err) != codes.NotFound {
+	if err != nil && grpc.Code(err) != codes.NotFound {
 		t.Errorf("GetNode got error, not NotFound: err='%s'", err.Error())
 	}
 	if getRes != nil {
@@ -249,7 +249,7 @@ func TestNodeAboutCompute(t *testing.T) {
 	// TODO: memory, CPU
 	for _, c := range cases {
 		res, err := na.ReserveCompute(context.Background(), c.req)
-		if err != nil && status.Code(err) != c.statusCode {
+		if err != nil && grpc.Code(err) != c.statusCode {
 			t.Errorf("[%s] ReserveCompute got error: err='%s'", c.name, err.Error())
 		}
 		if res != c.res {
@@ -280,7 +280,7 @@ func TestNodeAboutCompute(t *testing.T) {
 
 	for _, c := range releaseCases {
 		_, err := na.ReleaseCompute(context.Background(), c.req)
-		if err != nil && status.Code(err) != c.statusCode {
+		if err != nil && grpc.Code(err) != c.statusCode {
 			t.Errorf("[%s] ReleaseCompute got error: err='%s'", c.name, err.Error())
 		}
 	}
@@ -423,7 +423,7 @@ func TestNodeAboutStorage(t *testing.T) {
 
 	for _, c := range cases {
 		res, err := na.ReserveStorage(context.Background(), c.req)
-		if err != nil && status.Code(err) != c.statusCode {
+		if err != nil && grpc.Code(err) != c.statusCode {
 			t.Errorf("[%s] ReserveStorage got error: err='%s'", c.name, err.Error())
 		}
 		if res != c.res {
@@ -454,7 +454,7 @@ func TestNodeAboutStorage(t *testing.T) {
 
 	for _, c := range releaseCases {
 		_, err := na.ReleaseStorage(context.Background(), c.req)
-		if err != nil && status.Code(err) != c.statusCode {
+		if err != nil && grpc.Code(err) != c.statusCode {
 			t.Errorf("[%s] ReleaseStorage got error: err='%s'", c.name, err.Error())
 		}
 	}

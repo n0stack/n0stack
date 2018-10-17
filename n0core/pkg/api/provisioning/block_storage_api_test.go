@@ -8,8 +8,8 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/memory"
 	"github.com/n0stack/n0stack/n0proto/provisioning/v0"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 func TestEmptyBlockStorage(t *testing.T) {
@@ -26,7 +26,7 @@ func TestEmptyBlockStorage(t *testing.T) {
 	}
 
 	listRes, err := bsa.ListBlockStorages(context.Background(), &pprovisioning.ListBlockStoragesRequest{})
-	if err != nil && status.Code(err) != codes.NotFound {
+	if err != nil && grpc.Code(err) != codes.NotFound {
 		t.Errorf("ListBlockStorages got error, not NotFound: err='%s'", err.Error())
 	}
 	if listRes != nil {
@@ -34,7 +34,7 @@ func TestEmptyBlockStorage(t *testing.T) {
 	}
 
 	getRes, err := bsa.GetBlockStorage(context.Background(), &pprovisioning.GetBlockStorageRequest{})
-	if err != nil && status.Code(err) != codes.NotFound {
+	if err != nil && grpc.Code(err) != codes.NotFound {
 		t.Errorf("GetBlockStorage got error, not NotFound: err='%s'", err.Error())
 	}
 	if getRes != nil {
@@ -216,7 +216,7 @@ func TestBlockStorageAboutInUseState(t *testing.T) {
 	}
 
 	_, err = bsa.SetProtectedBlockStorage(context.Background(), &pprovisioning.SetProtectedBlockStorageRequest{Name: bs.Name})
-	if err != nil && status.Code(err) != codes.FailedPrecondition {
+	if err != nil && grpc.Code(err) != codes.FailedPrecondition {
 		t.Errorf("[Invalid: IN_USE -> PROTECTED] SetProtectedBlockStorage got error, not FailedPrecondition: err='%s'", err.Error())
 	}
 	_, err = bsa.SetInuseBlockStorage(context.Background(), &pprovisioning.SetInuseBlockStorageRequest{Name: bs.Name})
@@ -281,7 +281,7 @@ func TestBlockStorageAboutProtectedState(t *testing.T) {
 	}
 
 	_, err = bsa.SetInuseBlockStorage(context.Background(), &pprovisioning.SetInuseBlockStorageRequest{Name: bs.Name})
-	if err != nil && status.Code(err) != codes.FailedPrecondition {
+	if err != nil && grpc.Code(err) != codes.FailedPrecondition {
 		t.Errorf("[InValid: PROTECTED -> IN_USE] SetInuseBlockStorage got error: err='%s'", err.Error())
 	}
 	_, err = bsa.SetProtectedBlockStorage(context.Background(), &pprovisioning.SetProtectedBlockStorageRequest{Name: bs.Name})
