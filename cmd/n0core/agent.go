@@ -13,7 +13,7 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-func Serve(ctx *cli.Context) error {
+func ServeAgent(ctx *cli.Context) error {
 	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", ctx.String("bind-address"), ctx.Int("bind-port")))
 	if err != nil {
 		return err
@@ -31,15 +31,15 @@ func Serve(ctx *cli.Context) error {
 		return err
 	}
 
-	s := grpc.NewServer()
-	provisioning.RegisterBlockStorageAgentServiceServer(s, va)
-	provisioning.RegisterVirtualMachineAgentServiceServer(s, vma)
-	reflection.Register(s)
+	grpcServer := grpc.NewServer()
+	provisioning.RegisterBlockStorageAgentServiceServer(grpcServer, va)
+	provisioning.RegisterVirtualMachineAgentServiceServer(grpcServer, vma)
+	reflection.Register(grpcServer)
 
 	if err := node.RegisterNodeToAPI(ctx.String("name"), ctx.String("advertise-address"), ctx.String("node-api-endpoint")); err != nil {
 		return err
 	}
 
 	log.Printf("[INFO] Started API")
-	return s.Serve(lis)
+	return grpcServer.Serve(lis)
 }

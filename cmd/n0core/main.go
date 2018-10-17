@@ -9,18 +9,44 @@ import (
 
 func main() {
 	app := cli.NewApp()
-	app.Name = "n0core API"
+	app.Name = "n0core"
 	// app.Usage = ""
-	app.Version = "0.1.0" // CIで取るようにする
+	app.Version = "0.1.2" // CIで取るようにする
 
 	app.Commands = []cli.Command{
 		{
-			Name:   "node",
+			Name:   "api",
 			Usage:  "",
-			Action: ServeNodeAPI,
+			Action: ServeAPI,
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name: "etcd-endpoints",
+				},
+				cli.StringFlag{
+					// interfaceからも取れるようにしたい
+					Name:  "bind-address",
+					Value: "0.0.0.0",
+				},
+				cli.IntFlag{
+					Name:  "bind-port",
+					Value: 20180,
+				},
+			},
+		},
+		{
+			Name:   "agent",
+			Usage:  "",
+			Action: ServeAgent,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name: "name",
+				},
+				cli.StringFlag{
+					// interfaceからも取れるようにしたい
+					Name: "advertise-address",
+				},
+				cli.StringFlag{
+					Name: "node-api-endpoint",
 				},
 				cli.StringFlag{
 					// interfaceからも取れるようにしたい
@@ -31,96 +57,35 @@ func main() {
 					Name:  "bind-port",
 					Value: 20181,
 				},
-			},
-		},
-		{
-			Name:   "network",
-			Usage:  "",
-			Action: ServeNetworkAPI,
-			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name: "etcd-endpoints",
-				},
-				cli.StringFlag{
-					// interfaceからも取れるようにしたい
-					Name:  "bind-address",
-					Value: "0.0.0.0",
-				},
-				cli.IntFlag{
-					Name:  "bind-port",
-					Value: 20182,
+					Name:  "base-directory",
+					Value: "/var/lib/n0core",
 				},
 			},
 		},
 		{
-			Name:   "block_storage",
+			Name:   "mock-agent",
 			Usage:  "",
-			Action: ServeBlockStorageAPI,
+			Action: ServeMockAgent,
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name: "etcd-endpoints",
+					Name: "name",
 				},
 				cli.StringFlag{
 					// interfaceからも取れるようにしたい
-					Name:  "bind-address",
-					Value: "0.0.0.0",
-				},
-				cli.IntFlag{
-					Name:  "bind-port",
-					Value: 20183,
-				},
-				cli.StringFlag{
-					Name: "node-api-endpoint",
-				},
-			},
-		},
-		{
-			Name:   "virtual_machine",
-			Usage:  "",
-			Action: ServeVirtualMachineAPI,
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name: "etcd-endpoints",
-				},
-				cli.StringFlag{
-					// interfaceからも取れるようにしたい
-					Name:  "bind-address",
-					Value: "0.0.0.0",
-				},
-				cli.IntFlag{
-					Name:  "bind-port",
-					Value: 20184,
+					Name: "advertise-address",
 				},
 				cli.StringFlag{
 					Name: "node-api-endpoint",
 				},
 				cli.StringFlag{
-					Name: "network-api-endpoint",
-				},
-				cli.StringFlag{
-					Name: "block-storage-api-endpoint",
-				},
-			},
-		},
-		{
-			Name:   "image",
-			Usage:  "",
-			Action: ServeImageAPI,
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name: "etcd-endpoints",
-				},
-				cli.StringFlag{
 					// interfaceからも取れるようにしたい
 					Name:  "bind-address",
 					Value: "0.0.0.0",
 				},
 				cli.IntFlag{
 					Name:  "bind-port",
-					Value: 20185,
-				},
-				cli.StringFlag{
-					Name: "block-storage-api-endpoint",
+					Value: 20181,
 				},
 			},
 		},

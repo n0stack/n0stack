@@ -59,14 +59,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:78274060b0b15e6edc7291b707b7e521c725c4330212e4bedec46a6b392a3a9c"
+  digest = "1:c24a1b00e3214f0d8be429ba1198be57c1baf69a9b41f901042acc0dcbe4628a"
   name = "github.com/digitalocean/go-libvirt"
   packages = [
     ".",
     "internal/constants",
   ]
   pruneopts = ""
-  revision = "290a4e90c0e1eabb3d9e0613167d9b36c6b7f366"
+  revision = "893c43b4a17ca91b85a5dbf9d3e94c7ea11bd8fe"
 
 [[projects]]
   branch = "master"
@@ -206,7 +206,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:746a18abac97ce3337c9f88cedacf59f25f27f97e99067164cd82f03a1bd8b4e"
+  digest = "1:2156a45ee836c5ac96b0a04dc3eec040e1ebf443132b7d4ad531019ebb0314a4"
   name = "github.com/n0stack/proto.go"
   packages = [
     "budget/v0",
@@ -215,7 +215,7 @@
     "provisioning/v0",
   ]
   pruneopts = ""
-  revision = "d43ec6657a432605044528a7f3e971ced0e1de86"
+  revision = "21f6873c24f7f9afea7e6401614cff0a43cce0a6"
 
 [[projects]]
   digest = "1:7365acd48986e205ccb8652cc746f09c8b7876030d53710ea6ef7d0bd0dcd7ca"
@@ -309,7 +309,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:527ef63529b794e427d4ef76ff17f6211ea37a6a54bba6442e51f9d2478f1f0f"
+  digest = "1:3a3c1b660248c0ec25f00cfb9c6526bd5b0ede4c8bfa2ed56a3f5e7e9d0a19cd"
   name = "golang.org/x/net"
   packages = [
     "bpf",
@@ -326,18 +326,18 @@
     "trace",
   ]
   pruneopts = ""
-  revision = "68fc911561ed0cb104e22deafa05515909b706ab"
+  revision = "146acd28ed5894421fb5aac80ca93bc1b1f46f87"
 
 [[projects]]
   branch = "master"
-  digest = "1:ba03b726677347f35b063436e5d97c67021503cc35ab411c370b10ac50051d07"
+  digest = "1:a4bda6e065eb3ccf1e6adeaa863cb416e0ae6b43e613f20a8931d52d19dc20e2"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = ""
-  revision = "8469e314837c2e2471561de5c47bbf8bfd0d9099"
+  revision = "4497e2df6f9e69048a54498c7affbbec3294ad47"
 
 [[projects]]
   digest = "1:5acd3512b047305d49e8763eef7ba423901e85d5dd2fd1e71778a0ea8de10bd4"

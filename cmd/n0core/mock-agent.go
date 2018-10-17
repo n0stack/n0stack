@@ -12,21 +12,21 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-func Mock(ctx *cli.Context) error {
+func ServeMockAgent(ctx *cli.Context) error {
 	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", ctx.String("bind-address"), ctx.Int("bind-port")))
 	if err != nil {
 		return err
 	}
 
-	s := grpc.NewServer()
-	provisioning.RegisterBlockStorageAgentServiceServer(s, &provisioning.MockBlockStorageAgentAPI{})
-	provisioning.RegisterVirtualMachineAgentServiceServer(s, &provisioning.MockVirtualMachineAgentAPI{})
-	reflection.Register(s)
+	grpcServer := grpc.NewServer()
+	provisioning.RegisterBlockStorageAgentServiceServer(grpcServer, &provisioning.MockBlockStorageAgentAPI{})
+	provisioning.RegisterVirtualMachineAgentServiceServer(grpcServer, &provisioning.MockVirtualMachineAgentAPI{})
+	reflection.Register(grpcServer)
 
 	if err := node.RegisterNodeToAPI(ctx.String("name"), ctx.String("advertise-address"), ctx.String("node-api-endpoint")); err != nil {
 		return err
 	}
 
 	log.Printf("[INFO] Started API")
-	return s.Serve(lis)
+	return grpcServer.Serve(lis)
 }

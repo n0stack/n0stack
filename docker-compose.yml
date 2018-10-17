@@ -3,73 +3,23 @@ services:
   mock_agent:
     image: n0stack/n0core
     command:
-      - ./bin/n0core-agent
-      - mock
+      - ./bin/n0core
+      - mock-agent
       - --name=mock-node
       - --advertise-address=mock_agent
-      - --node-api-endpoint=node:20181
+      - --node-api-endpoint=api:20180
     links:
-      - node
+      - api
 
-  node:
+  api:
     image: n0stack/n0core
     command:
-      - ./bin/n0core-api
-      - node
+      - ./bin/n0core
+      - api
       - --etcd-endpoints=etcd:2379
     ports:
-      - "20181:20181"
+      - "20180:20180"
     links:
-      - etcd
-  network:
-    image: n0stack/n0core
-    command:
-      - ./bin/n0core-api
-      - network
-      - --etcd-endpoints=etcd:2379
-    ports:
-      - "20182:20182"
-    links:
-      - etcd
-  block_storage:
-    image: n0stack/n0core
-    command:
-      - ./bin/n0core-api
-      - block_storage
-      - --etcd-endpoints=etcd:2379
-      - --node-api-endpoint=node:20181
-    ports:
-      - "20183:20183"
-    links:
-      - node
-      - etcd
-  virtual_machine:
-    image: n0stack/n0core
-    command:
-      - ./bin/n0core-api
-      - virtual_machine
-      - --etcd-endpoints=etcd:2379
-      - --node-api-endpoint=node:20181
-      - --network-api-endpoint=network:20182
-      - --block-storage-api-endpoint=block_storage:20183
-    ports:
-      - "20184:20184"
-    links:
-      - node
-      - network
-      - block_storage
-      - etcd
-  image:
-    image: n0stack/n0core
-    command:
-      - ./bin/n0core-api
-      - image
-      - --etcd-endpoints=etcd:2379
-      - --block-storage-api-endpoint=block_storage:20183
-    ports:
-      - "20185:20185"
-    links:
-      - block_storage
       - etcd
 
   etcd:

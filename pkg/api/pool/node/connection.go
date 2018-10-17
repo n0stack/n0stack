@@ -18,18 +18,18 @@ type NodeConnections struct {
 	NodeAPI ppool.NodeServiceClient
 }
 
-func NewNodeConnections(api string) (*NodeConnections, error) {
-	conn, err := grpc.Dial(api, grpc.WithInsecure())
-	if err != nil {
-		return nil, fmt.Errorf("Fail to dial to node, err:%v", err.Error())
-	}
+// func NewNodeConnections(api string) (*NodeConnections, error) {
+// 	conn, err := grpc.Dial(api, grpc.WithInsecure())
+// 	if err != nil {
+// 		return nil, fmt.Errorf("Fail to dial to node, err:%v", err.Error())
+// 	}
 
-	nc := &NodeConnections{
-		NodeAPI: ppool.NewNodeServiceClient(conn),
-	}
+// 	nc := &NodeConnections{
+// 		NodeAPI: ppool.NewNodeServiceClient(conn),
+// 	}
 
-	return nc, nil
-}
+// 	return nc, nil
+// }
 
 func (nc NodeConnections) IsExisting(nodeName string) (bool, error) {
 	_, err := nc.NodeAPI.GetNode(context.Background(), &ppool.GetNodeRequest{Name: nodeName})
@@ -56,7 +56,7 @@ func (nc NodeConnections) GetConnection(nodeName string) (*grpc.ClientConn, erro
 	}
 
 	// port を何かから取れるようにする
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", n.Address, 20180), grpc.WithInsecure())
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", n.Address, 20181), grpc.WithInsecure())
 	if err != nil {
 		return nil, errors.Wrap(err, "Fail to dial to node")
 	}

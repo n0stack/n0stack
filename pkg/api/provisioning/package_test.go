@@ -13,7 +13,7 @@ func getTestNodeAPI() (ppool.NodeServiceClient, *grpc.ClientConn, error) {
 	if value, ok := os.LookupEnv("NODE_API_ENDPOINT"); ok {
 		endpoint = value
 	} else {
-		endpoint = "localhost:20181"
+		endpoint = "localhost:20180"
 	}
 
 	conn, err := grpc.Dial(endpoint, grpc.WithInsecure())
@@ -29,7 +29,7 @@ func getTestNetworkAPI() (ppool.NetworkServiceClient, *grpc.ClientConn, error) {
 	if value, ok := os.LookupEnv("NETWORK_API_ENDPOINT"); ok {
 		endpoint = value
 	} else {
-		endpoint = "localhost:20182"
+		endpoint = "localhost:20180"
 	}
 
 	conn, err := grpc.Dial(endpoint, grpc.WithInsecure())
@@ -45,7 +45,7 @@ func getTestBlockStorageAPI() (pprovisioning.BlockStorageServiceClient, *grpc.Cl
 	if value, ok := os.LookupEnv("BLOCK_STORAGE_API_ENDPOINT"); ok {
 		endpoint = value
 	} else {
-		endpoint = "localhost:20183"
+		endpoint = "localhost:20180"
 	}
 
 	conn, err := grpc.Dial(endpoint, grpc.WithInsecure())

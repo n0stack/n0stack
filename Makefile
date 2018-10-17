@@ -12,9 +12,7 @@ dep-update:
 	dep status
 
 build:
-	go build -o bin/n0core-agent -v cmd/agent/*.go
-	go build -o bin/n0core-api -v cmd/api/*.go
-	# go build -o bin/n0stack -v cmd/n0stack/*.go
+	go build -o bin/n0core -v cmd/n0core/*.go
 build-docker:
 	docker build -t n0stack/n0core .
 build-proto:
@@ -48,18 +46,18 @@ test-small-docker:
 	docker run -it --rm -v $(PWD):/go/src/github.com/n0stack/n0core n0stack/n0core make test-small
 
 test-medium: up-mock # with root, having dependency for external
-	go test -tags=medium -cover ./...
+	sudo go test -tags=medium -cover ./...
 test-medium-v: up-mock
-	go test -tags=medium -v -cover ./...
+	sudo go test -tags=medium -v -cover ./...
 test-medium-without-root: up-mock
 	go test -tags="medium without_root" -cover ./...
 test-medium-without-external:
-	go test -tags="medium without_external" -cover ./...
+	sudo go test -tags="medium without_external" -cover ./...
 
 run-all-in-one: up
 	docker run --rm -it -v $(PWD)/bin:/go/src/github.com/n0stack/n0core/bin n0stack/n0core make build
-	sudo ./bin/n0core-agent serve \
+	sudo ./bin/n0core agent \
 		--name=test \
 		--advertise-address=10.20.180.1 \
-		--node-api-endpoint=localhost:20181 \
+		--node-api-endpoint=localhost:20180 \
 		--base-directory=./sandbox/workdir

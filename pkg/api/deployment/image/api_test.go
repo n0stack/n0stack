@@ -21,7 +21,7 @@ func getTestBlockStorageAPI() (pprovisioning.BlockStorageServiceClient, *grpc.Cl
 	if value, ok := os.LookupEnv("BLOCK_STORAGE_API_ENDPOINT"); ok {
 		endpoint = value
 	} else {
-		endpoint = "localhost:20183"
+		endpoint = "localhost:20180"
 	}
 
 	conn, err := grpc.Dial(endpoint, grpc.WithInsecure())
