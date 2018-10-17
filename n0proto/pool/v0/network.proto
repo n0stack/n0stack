@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+option go_package = "github.com/n0stack/n0stack/n0proto/pool/v0;ppool";
+
+package n0stack.pool;
+
+import "google/protobuf/empty.proto";
+import "budget/v0/network_interface.proto";
+
+
+message Network {
+  string name = 1;
+  map<string, string> annotations = 3;
+  uint64 version = 5;
+
+  string ipv4_cidr = 10;
+  string ipv6_cidr = 11;
+  string domain = 12;
+
+  enum NetworkState {
+    // falied state because failed some process on API.
+    FAILED = 0;
+
+    // unknown state because failed to connect for scheduled node after RUNNING.
+    UNKNOWN = 1;
+
+    AVAILABLE = 2;
+  }
+  NetworkState state = 50;
+
+  map<string, n0stack.budget.NetworkInterface> reserved_network_interfaces = 51;
+}
+
+
+service NetworkService {
+  rpc ListNetworks(ListNetworksRequest) returns (ListNetworksResponse) {}
+  rpc GetNetwork(GetNetworkRequest) returns (Network) {}
+  rpc ApplyNetwork(ApplyNetworkRequest) returns (Network) {}
+  rpc DeleteNetwork(DeleteNetworkRequest) returns (google.protobuf.Empty) {}
+
+  rpc ReserveNetworkInterface(ReserveNetworkInterfaceRequest) returns (Network) {}
+  rpc ReleaseNetworkInterface(ReleaseNetworkInterfaceRequest) returns (google.protobuf.Empty) {}
+}
+
+
+message ListNetworksRequest {}
+message ListNetworksResponse{
+  repeated Network networks = 1;
+}
+
+message GetNetworkRequest {
+  string name = 1;
+}
+
+message ApplyNetworkRequest {
+  string name = 1;
+  map<string, string> annotations = 3;
+  uint64 version = 5;
+
+  string ipv4_cidr = 10;
+  string ipv6_cidr = 11;
+  string domain = 12;
+}
+
+message DeleteNetworkRequest {
+  string name = 1;
+}
+
+message ReserveNetworkInterfaceRequest {
+  string network_name = 1;
+  string network_interface_name = 2;
+
+  map<string, string> annotations = 3;
+
+  string hardware_address = 4;
+
+  string ipv4_address = 5;
+  string ipv6_address = 6;
+}
+
+message ReleaseNetworkInterfaceRequest {
+  string network_name = 1;
+  string network_interface_name = 2;
+}

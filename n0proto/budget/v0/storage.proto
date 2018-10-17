@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+option go_package = "github.com/n0stack/n0stack/n0proto/budget/v0;pbudget";
+
+package n0stack.budget;
+
+message Storage {
+  map<string, string> annotations = 1;
+
+  uint64 request_bytes = 2;
+  uint64 limit_bytes = 3;
+}

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option go_package = "github.com/n0stack/n0stack/n0proto/budget/v0;pbudget";
+
+package n0stack.budget;
+
+message Compute {
+  map<string, string> annotations = 1;
+
+  uint32 request_cpu_milli_core = 2;
+  uint32 limit_cpu_milli_core = 3;
+
+  uint64 request_memory_bytes = 4;
+  uint64 limit_memory_bytes = 5;
+}

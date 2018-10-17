@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option go_package = "github.com/n0stack/n0stack/n0proto/budget/v0;pbudget";
+
+package n0stack.budget;
+
+message NetworkInterface {
+  map<string, string> annotations = 1;
+
+  string hardware_address = 2;
+
+  string ipv4_address = 3;
+  string ipv6_address = 4;
+}

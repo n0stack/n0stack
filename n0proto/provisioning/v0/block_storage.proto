@@ -1,0 +1,148 @@
+syntax = "proto3";
+
+option go_package = "github.com/n0stack/n0stack/n0proto/provisioning/v0;pprovisioning";
+
+package n0stack.provisioning;
+
+import "google/protobuf/empty.proto";
+
+
+message BlockStorage {
+  string name = 1;
+  map<string, string> annotations = 3;
+
+  uint64 request_bytes = 10;
+  uint64 limit_bytes = 11;
+
+  // ISOか見極めたい気持ちがある
+  // bool cd = 4;
+
+  enum BlockStorageState {
+    // falied state because failed some process on API.
+    FAILED = 0;
+
+    // unknown state because failed to connect for scheduled node after RUNNING.
+    UNKNOWN = 1;
+
+    AVAILABLE = 2;
+    IN_USE = 3;
+    PROTECTED = 4;
+  }
+  BlockStorageState state = 50;
+  // string state_reason = 51;
+
+  string node_name = 52;
+  string storage_name = 53;
+}
+
+
+service BlockStorageService {
+  rpc CreateBlockStorage(CreateBlockStorageRequest) returns (BlockStorage) {}
+  rpc FetchBlockStorage(FetchBlockStorageRequest) returns (BlockStorage) {}
+  rpc CopyBlockStorage(CopyBlockStorageRequest) returns (BlockStorage) {}
+  // rpc UploadBlockStorage(stream UploadBlockStorageRequest) returns (BlockStorage) {}
+
+  rpc ListBlockStorages(ListBlockStoragesRequest) returns (ListBlockStoragesResponse) {}
+
+  rpc GetBlockStorage(GetBlockStorageRequest) returns (BlockStorage) {}
+
+  rpc UpdateBlockStorage(UpdateBlockStorageRequest) returns (BlockStorage) {}
+
+  rpc DeleteBlockStorage(DeleteBlockStorageRequest) returns (google.protobuf.Empty) {}
+
+  // AVAILABLE -> IN_USE
+  rpc SetInuseBlockStorage(SetInuseBlockStorageRequest) returns (BlockStorage) {}
+  // -> AVAILABLE
+  rpc SetAvailableBlockStorage(SetAvailableBlockStorageRequest) returns (BlockStorage) {}
+  // AVAILABLE -> PROTECTED
+  rpc SetProtectedBlockStorage(SetProtectedBlockStorageRequest) returns (BlockStorage) {}
+
+  // rpc DownloadBlockStorage(DownloadBlockStorageRequest) returns (stream BlockStorageChunk) {}
+
+  // // when AVAILABLE, not IN_USE
+  // rpc MigrateBlockStorage(MigrateBlockStorageRequest) returns (BlockStorage) {}
+}
+
+message BlockStorageChunk {
+  bytes data = 1;
+}
+
+message CreateBlockStorageRequest {
+  string name = 1;
+  map<string, string> annotations = 3;
+
+  uint64 request_bytes = 10;
+  uint64 limit_bytes = 11;
+}
+message FetchBlockStorageRequest {
+  string name = 1;
+  map<string, string> annotations = 3;
+
+  uint64 request_bytes = 10;
+  uint64 limit_bytes = 11;
+
+  string source_url = 100;
+}
+message UploadBlockStorageRequest {
+  message UploadBlockStorageMetadata {
+    string name = 1;
+    map<string, string> annotations = 3;
+
+    uint64 request_bytes = 10;
+    uint64 limit_bytes = 11;
+  }
+
+  oneof value {
+    UploadBlockStorageMetadata metadata = 1;
+    BlockStorageChunk chunk = 2;
+  }
+}
+message CopyBlockStorageRequest {
+  string name = 1;
+  map<string, string> annotations = 3;
+
+  uint64 request_bytes = 10;
+  uint64 limit_bytes = 11;
+
+  string source_block_storage = 100;
+}
+
+message ListBlockStoragesRequest {}
+message ListBlockStoragesResponse {
+  repeated BlockStorage BlockStorages = 1;
+}
+
+message GetBlockStorageRequest {
+  string name = 1;
+}
+
+message UpdateBlockStorageRequest {
+  string name = 1;
+  map<string, string> annotations = 3;
+
+  uint64 request_bytes = 10;
+  uint64 limit_bytes = 11;
+}
+
+message DeleteBlockStorageRequest {
+  string name = 1;
+}
+
+message SetInuseBlockStorageRequest {
+  string name = 1;
+}
+message SetAvailableBlockStorageRequest {
+  string name = 1;
+}
+message SetProtectedBlockStorageRequest {
+  string name = 1;
+}
+
+message DownloadBlockStorageRequest {
+  string name = 1;
+}
+
+// message MigrateBlockStorageRequest {
+//   string name = 1;
+//   string node_name = 2;
+// }

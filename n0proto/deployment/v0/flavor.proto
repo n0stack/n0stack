@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+option go_package = "github.com/n0stack/n0stack/n0proto/deployment/v0;pdeployment";
+
+package n0stack.deployment;
+
+import "google/protobuf/empty.proto";
+import "provisioning/v0/virtual_machine.proto";
+
+
+message Flavor {
+  string name = 1;
+  map<string, string> annotations = 3;
+  uint64 version = 5;
+
+  uint32 limit_cpu_milli_core = 10;
+  uint64 limit_memory_bytes = 11;
+  uint64 limit_storage_bytes = 12;
+
+  string network_name = 13;
+}
+
+
+service FlavorService {
+  rpc ListFlavors(ListFlavorsRequest) returns (ListFlavorsResponse) {}
+  rpc GetFlavor(GetFlavorRequest) returns (Flavor) {}
+  rpc ApplyFlavor(ApplyFlavorRequest) returns (Flavor) {}
+  rpc DeleteFlavor(DeleteFlavorRequest) returns (google.protobuf.Empty) {}
+
+  rpc GenerateVirtualMachine(GenerateVirtualMachineRequest) returns (n0stack.provisioning.VirtualMachine) {}
+}
+
+
+message ListFlavorsRequest {}
+message ListFlavorsResponse {
+  repeated Flavor flavors = 1;
+}
+
+message GetFlavorRequest {
+  string name = 1;
+}
+
+message ApplyFlavorRequest {
+  string name = 1;
+  map<string, string> annotations = 3;
+  uint64 version = 5;
+
+  uint32 limit_cpu_milli_core = 10;
+  uint64 limit_memory_bytes = 11;
+  string network_name = 12;
+}
+
+message DeleteFlavorRequest {
+  string name = 1;
+}
+
+message GenerateVirtualMachineRequest {
+  string flavor_name = 1;
+
+  string virtual_machine_name = 2;
+  map<string, string> annotations = 3;
+
+  uint32 request_cpu_milli_core = 4;
+  uint64 request_memory_bytes = 5;
+  uint64 request_storage_bytes = 6;
+
+  string image_name = 7;
+  string image_tag = 8;
+}
