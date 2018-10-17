@@ -1,7 +1,5 @@
 # n0core
 
-[![Build Status](https://travis-ci.org/n0stack/n0core.svg?branch=master)](https://travis-ci.org/n0stack/n0core)
-
 ## Motivation
 
 - The example for implementation of n0stack API
@@ -72,4 +70,4 @@ make run-all-in-one
 
 ## Dependency map
 
-![](docs/images/dependency_map.svg)
+![](../docs/images/dependency_map.svg)

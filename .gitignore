@@ -20,3 +20,5 @@ bin/
 
 # using in docker-compose file
 **/sandbox/*
+
+n0proto/middleware
