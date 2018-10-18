@@ -30,6 +30,8 @@ type BlockStorageAPI struct {
 const (
 	// Create のときに自動生成、消されると困る
 	AnnotationBlockStoragePath = "n0core/provisioning/block_storage_url"
+
+	AnnotationBlockStorageReserve = "n0core/provisioning/block_storage_name"
 )
 
 func CreateBlockStorageAPI(ds datastore.Datastore, na ppool.NodeServiceClient) (*BlockStorageAPI, error) {
@@ -516,13 +518,19 @@ func (a BlockStorageAPI) reserveStorage(name string, annotations map[string]stri
 	var err error
 	if node, ok := annotations[AnnotationRequestNodeName]; !ok {
 		n, err = a.nodeAPI.ScheduleStorage(context.Background(), &ppool.ScheduleStorageRequest{
-			StorageName:  name,
+			StorageName: name,
+			Annotations: map[string]string{
+				AnnotationBlockStorageReserve: name,
+			},
 			RequestBytes: req,
 			LimitBytes:   limit,
 		})
 	} else {
 		n, err = a.nodeAPI.ReserveStorage(context.Background(), &ppool.ReserveStorageRequest{
-			NodeName:     node,
+			NodeName: node,
+			Annotations: map[string]string{
+				AnnotationBlockStorageReserve: name,
+			},
 			StorageName:  name,
 			RequestBytes: req,
 			LimitBytes:   limit,

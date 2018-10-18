@@ -18,6 +18,7 @@ import (
 )
 
 const AnnotationVNCWebSocketPort = "n0core/provisioning/virtual_machine_vnc_websocket_port"
+const AnnotationVirtualMachineReserve = "n0core/provisioning/virtual_machine_name"
 
 type VirtualMachineAPI struct {
 	dataStore datastore.Datastore
@@ -378,7 +379,10 @@ func (a VirtualMachineAPI) reserveCompute(name string, annotations map[string]st
 	var err error
 	if node, ok := annotations[AnnotationRequestNodeName]; !ok {
 		n, err = a.nodeAPI.ScheduleCompute(context.Background(), &ppool.ScheduleComputeRequest{
-			ComputeName:         name,
+			ComputeName: name,
+			Annotations: map[string]string{
+				AnnotationVirtualMachineReserve: name,
+			},
 			RequestCpuMilliCore: reqCpu,
 			LimitCpuMilliCore:   limitCpu,
 			RequestMemoryBytes:  reqMem,
@@ -386,8 +390,11 @@ func (a VirtualMachineAPI) reserveCompute(name string, annotations map[string]st
 		})
 	} else {
 		n, err = a.nodeAPI.ReserveCompute(context.Background(), &ppool.ReserveComputeRequest{
-			NodeName:            node,
-			ComputeName:         name,
+			NodeName:    node,
+			ComputeName: name,
+			Annotations: map[string]string{
+				AnnotationVirtualMachineReserve: name,
+			},
 			RequestCpuMilliCore: reqCpu,
 			LimitCpuMilliCore:   limitCpu,
 			RequestMemoryBytes:  reqMem,
@@ -427,9 +434,12 @@ func (a VirtualMachineAPI) reserveNics(name string, nics []*pprovisioning.Virtua
 		network, err := a.networkAPI.ReserveNetworkInterface(context.Background(), &ppool.ReserveNetworkInterfaceRequest{
 			NetworkName:          nic.NetworkName,
 			NetworkInterfaceName: niname,
-			HardwareAddress:      nics[i].HardwareAddress,
-			Ipv4Address:          nics[i].Ipv4Address,
-			Ipv6Address:          nics[i].Ipv6Address,
+			Annotations: map[string]string{
+				AnnotationVirtualMachineReserve: name,
+			},
+			HardwareAddress: nics[i].HardwareAddress,
+			Ipv4Address:     nics[i].Ipv4Address,
+			Ipv6Address:     nics[i].Ipv6Address,
 		})
 		if err != nil {
 			log.Printf("Failed to relserve network interface '%s' from API: %s", name+strconv.Itoa(i), err.Error())
