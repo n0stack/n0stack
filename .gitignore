@@ -22,6 +22,8 @@ bin/
 **/sandbox/*
 
 n0proto/middleware
+**/*.iso
+**/*.img
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -12,7 +12,7 @@
 
 ## Environment
 
-- Ubuntu 16.04 LTS (Xenial Xerus)
+- Ubuntu 18.04 LTS (Bionic Beaver)
 - Golang 1.10
 
 ## How to develop

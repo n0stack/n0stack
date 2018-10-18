@@ -47,7 +47,7 @@ func (q Qemu) AttachISO(label string, filepath *url.URL, index uint) error {
 	return nil
 }
 
-func (q *Qemu) qcow2BlockdevAdd(id string, filepath *url.URL) error {
+func (q *Qemu) qcow2BlockdevAdd(nodeName string, filepath *url.URL) error {
 	f := struct {
 		Driver   string `json:"driver"`
 		Filename string `json:"filename"`
@@ -56,23 +56,18 @@ func (q *Qemu) qcow2BlockdevAdd(id string, filepath *url.URL) error {
 		filepath.Path,
 	}
 	cmd := struct {
-		ID     string      `json:"id"`
-		Driver string      `json:"driver"`
-		File   interface{} `json:"file"`
+		NodeName string      `json:"node-name"`
+		Driver   string      `json:"driver"`
+		File     interface{} `json:"file"`
 	}{
-		id,
+		nodeName,
 		"qcow2",
 		f,
-	}
-	options := struct {
-		Options interface{} `json:"options"`
-	}{
-		cmd,
 	}
 
 	bs, err := json.Marshal(map[string]interface{}{
 		"execute":   "blockdev-add",
-		"arguments": options,
+		"arguments": cmd,
 	})
 	if err != nil {
 		return err
@@ -119,7 +114,7 @@ func (q *Qemu) virtioBlkPCIAdd(devID, driveID string, bootIndex uint) error {
 	return nil
 }
 
-func (q *Qemu) rawBlockdevAdd(id string, filepath *url.URL, readonly bool) error {
+func (q *Qemu) rawBlockdevAdd(nodeName string, filepath *url.URL, readonly bool) error {
 	f := struct {
 		Driver   string `json:"driver"`
 		Filename string `json:"filename"`
@@ -128,25 +123,20 @@ func (q *Qemu) rawBlockdevAdd(id string, filepath *url.URL, readonly bool) error
 		filepath.Path,
 	}
 	cmd := struct {
-		ID       string      `json:"id"`
+		NodeName string      `json:"node-name"`
 		Driver   string      `json:"driver"`
 		ReadOnly bool        `json:"read-only"`
 		File     interface{} `json:"file"`
 	}{
-		id,
+		nodeName,
 		"raw",
 		readonly,
 		f,
 	}
-	options := struct {
-		Options interface{} `json:"options"`
-	}{
-		cmd,
-	}
 
 	bs, err := json.Marshal(map[string]interface{}{
 		"execute":   "blockdev-add",
-		"arguments": options,
+		"arguments": cmd,
 	})
 	if err != nil {
 		return err

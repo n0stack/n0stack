@@ -182,8 +182,8 @@ func TestHardShutdown(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to get status: err='%s'", err.Error())
 	}
-	if s != StatusPaused {
-		t.Errorf("Status is mismatch: want='%v', have='%v'", StatusPaused, s)
+	if s != StatusPreLaunch {
+		t.Errorf("Status is mismatch: want='%v', have='%v'", StatusPreLaunch, s)
 	}
 }
 
