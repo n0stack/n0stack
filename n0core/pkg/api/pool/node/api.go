@@ -90,34 +90,30 @@ func (a NodeAPI) ApplyNode(ctx context.Context, req *ppool.ApplyNodeRequest) (*p
 		return nil, grpc.Errorf(codes.InvalidArgument, "Set something to Name")
 	}
 
-	res := &ppool.Node{
-		Name:             req.Name,
-		Annotations:      req.Annotations,
-		Version:          req.Version,
-		Address:          req.Address,
-		IpmiAddress:      req.IpmiAddress,
-		Serial:           req.Serial,
-		CpuMilliCores:    req.CpuMilliCores,
-		MemoryBytes:      req.MemoryBytes,
-		StorageBytes:     req.StorageBytes,
-		Datacenter:       req.Datacenter,
-		AvailavilityZone: req.AvailavilityZone,
-		Cell:             req.Cell,
-		Rack:             req.Rack,
-		Unit:             req.Unit,
-	}
-
-	prev := &ppool.Node{}
-	if err := a.dataStore.Get(req.Name, prev); err != nil {
+	res := &ppool.Node{}
+	if err := a.dataStore.Get(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
-
 	var err error
-	res.Version, err = datastore.CheckVersion(prev.Version, req.Version)
+	res.Version, err = datastore.CheckVersion(res.Version, req.Version)
 	if err != nil {
 		return nil, grpc.Errorf(codes.InvalidArgument, "Failed to check version, detail='%s'", err.Error())
 	}
+
+	res.Name = req.Name
+	res.Annotations = req.Annotations
+	res.Address = req.Address
+	res.IpmiAddress = req.IpmiAddress
+	res.Serial = req.Serial
+	res.CpuMilliCores = req.CpuMilliCores
+	res.MemoryBytes = req.MemoryBytes
+	res.StorageBytes = req.StorageBytes
+	res.Datacenter = req.Datacenter
+	res.AvailavilityZone = req.AvailavilityZone
+	res.Cell = req.Cell
+	res.Rack = req.Rack
+	res.Unit = req.Unit
 
 	// res.State = prev.State
 	res.State = ppool.Node_Ready

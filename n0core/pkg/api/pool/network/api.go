@@ -69,28 +69,25 @@ func (a NetworkAPI) GetNetwork(ctx context.Context, req *ppool.GetNetworkRequest
 }
 
 func (a NetworkAPI) ApplyNetwork(ctx context.Context, req *ppool.ApplyNetworkRequest) (*ppool.Network, error) {
-	res := &ppool.Network{
-		Name:        req.Name,
-		Annotations: req.Annotations,
-		Version:     req.Version,
-		Ipv4Cidr:    req.Ipv4Cidr,
-		Ipv6Cidr:    req.Ipv6Cidr,
-		Domain:      req.Domain,
-	}
-
-	if _, _, err := net.ParseCIDR(req.Ipv4Cidr); err != nil {
-		return nil, grpc.Errorf(codes.InvalidArgument, "Field 'ipv4_cidr' is invalid : %s", err.Error())
-	}
-
-	prev := &ppool.Network{}
-	if err := a.dataStore.Get(req.Name, prev); err != nil {
+	res := &ppool.Network{}
+	if err := a.dataStore.Get(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
 	var err error
-	res.Version, err = datastore.CheckVersion(prev.Version, req.Version)
+	res.Version, err = datastore.CheckVersion(res.Version, req.Version)
 	if err != nil {
 		return nil, grpc.Errorf(codes.InvalidArgument, "Failed to check version: %s", err.Error())
+	}
+
+	res.Name = req.Name
+	res.Annotations = req.Annotations
+	res.Ipv4Cidr = req.Ipv4Cidr
+	res.Ipv6Cidr = req.Ipv6Cidr
+	res.Domain = req.Domain
+
+	if _, _, err := net.ParseCIDR(req.Ipv4Cidr); err != nil {
+		return nil, grpc.Errorf(codes.InvalidArgument, "Field 'ipv4_cidr' is invalid : %s", err.Error())
 	}
 
 	res.State = ppool.Network_AVAILABLE
