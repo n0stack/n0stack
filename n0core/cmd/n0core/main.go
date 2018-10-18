@@ -8,6 +8,11 @@ import (
 )
 
 func main() {
+	hostname, err := os.Hostname()
+	if err != nil {
+		log.Fatalf("Failed to get hostname")
+	}
+
 	app := cli.NewApp()
 	app.Name = "n0core"
 	// app.Usage = ""
@@ -39,7 +44,8 @@ func main() {
 			Action: ServeAgent,
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name: "name",
+					Name:  "name",
+					Value: hostname,
 				},
 				cli.StringFlag{
 					// interfaceからも取れるようにしたい
