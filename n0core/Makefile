@@ -12,6 +12,7 @@ dep-update:
 
 build:
 	go build -o bin/n0core -v cmd/n0core/*.go
+	go build -o bin/n0ctl -v cmd/n0ctl/*.go
 build-docker:
 	docker build -t n0stack/n0core .
 build-proto:
