@@ -3,7 +3,6 @@ package provisioning
 import (
 	"context"
 	"log"
-	"net/url"
 	"strconv"
 
 	"github.com/n0stack/n0stack/n0proto/pool/v0"
@@ -487,13 +486,9 @@ func (a VirtualMachineAPI) reserveBlockStorage(names []string) ([]*BlockDev, err
 			return nil, grpc.Errorf(codes.InvalidArgument, "BlockStorage '%s' is not found", n)
 		}
 
-		u := url.URL{
-			Scheme: "file",
-			Path:   v.Annotations[AnnotationBlockStoragePath],
-		}
 		bd = append(bd, &BlockDev{
 			Name:      names[i],
-			Url:       u.String(),
+			Url:       v.Annotations[AnnotationBlockStorageURL],
 			BootIndex: uint32(i),
 		})
 	}
