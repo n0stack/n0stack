@@ -15,7 +15,7 @@ import (
 )
 
 func Delete(ctx *cli.Context) error {
-	if ctx.NArg() != 2 {
+	if ctx.NArg() == 2 {
 		return delete(ctx)
 	}
 
