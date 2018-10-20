@@ -1,11 +1,10 @@
 package main
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/n0stack/n0stack/n0proto/deployment/v0"
 	"github.com/n0stack/n0stack/n0proto/pool/v0"
@@ -37,7 +36,6 @@ func get(ctx *cli.Context) error {
 	defer conn.Close()
 	log.Printf("[DEBUG] Connected to '%s'\n", endpoint)
 
-	data := []byte{}
 	switch resourceType {
 	case "node":
 		cl := ppool.NewNodeServiceClient(conn)
@@ -47,7 +45,7 @@ func get(ctx *cli.Context) error {
 			return nil
 		}
 
-		data, _ = json.Marshal(res)
+		marshaler.Marshal(os.Stdout, res)
 
 	case "network":
 		cl := ppool.NewNetworkServiceClient(conn)
@@ -57,7 +55,7 @@ func get(ctx *cli.Context) error {
 			return nil
 		}
 
-		data, _ = json.Marshal(res)
+		marshaler.Marshal(os.Stdout, res)
 
 	case "block_storage":
 		cl := pprovisioning.NewBlockStorageServiceClient(conn)
@@ -67,7 +65,7 @@ func get(ctx *cli.Context) error {
 			return nil
 		}
 
-		data, _ = json.Marshal(res)
+		marshaler.Marshal(os.Stdout, res)
 
 	case "virtual_machine":
 		cl := pprovisioning.NewVirtualMachineServiceClient(conn)
@@ -77,7 +75,7 @@ func get(ctx *cli.Context) error {
 			return nil
 		}
 
-		data, _ = json.Marshal(res)
+		marshaler.Marshal(os.Stdout, res)
 
 	case "image":
 		cl := pdeployment.NewImageServiceClient(conn)
@@ -87,7 +85,7 @@ func get(ctx *cli.Context) error {
 			return nil
 		}
 
-		data, _ = json.Marshal(res)
+		marshaler.Marshal(os.Stdout, res)
 
 	case "flavor":
 		cl := pdeployment.NewFlavorServiceClient(conn)
@@ -97,15 +95,11 @@ func get(ctx *cli.Context) error {
 			return nil
 		}
 
-		data, _ = json.Marshal(res)
+		marshaler.Marshal(os.Stdout, res)
 
 	default:
 		return fmt.Errorf("resource type '%s' is not existing\n", resourceType)
 	}
-
-	buf := &bytes.Buffer{}
-	json.Indent(buf, data, "", "  ")
-	fmt.Printf("%s\n", buf.String())
 
 	return nil
 }
@@ -121,7 +115,6 @@ func list(ctx *cli.Context) error {
 	defer conn.Close()
 	log.Printf("[DEBUG] Connected to '%s'\n", endpoint)
 
-	data := []byte{}
 	switch resourceType {
 	case "node":
 		cl := ppool.NewNodeServiceClient(conn)
@@ -131,7 +124,7 @@ func list(ctx *cli.Context) error {
 			return nil
 		}
 
-		data, _ = json.Marshal(res)
+		marshaler.Marshal(os.Stdout, res)
 
 	case "network":
 		cl := ppool.NewNetworkServiceClient(conn)
@@ -141,7 +134,7 @@ func list(ctx *cli.Context) error {
 			return nil
 		}
 
-		data, _ = json.Marshal(res)
+		marshaler.Marshal(os.Stdout, res)
 
 	case "block_storage":
 		cl := pprovisioning.NewBlockStorageServiceClient(conn)
@@ -151,7 +144,7 @@ func list(ctx *cli.Context) error {
 			return nil
 		}
 
-		data, _ = json.Marshal(res)
+		marshaler.Marshal(os.Stdout, res)
 
 	case "virtual_machine":
 		cl := pprovisioning.NewVirtualMachineServiceClient(conn)
@@ -161,7 +154,7 @@ func list(ctx *cli.Context) error {
 			return nil
 		}
 
-		data, _ = json.Marshal(res)
+		marshaler.Marshal(os.Stdout, res)
 
 	case "image":
 		cl := pdeployment.NewImageServiceClient(conn)
@@ -171,7 +164,7 @@ func list(ctx *cli.Context) error {
 			return nil
 		}
 
-		data, _ = json.Marshal(res)
+		marshaler.Marshal(os.Stdout, res)
 
 	case "flavor":
 		cl := pdeployment.NewFlavorServiceClient(conn)
@@ -181,15 +174,13 @@ func list(ctx *cli.Context) error {
 			return nil
 		}
 
-		data, _ = json.Marshal(res)
+		marshaler.Marshal(os.Stdout, res)
 
 	default:
 		return fmt.Errorf("resource type '%s' is not existing\n", resourceType)
 	}
 
-	buf := &bytes.Buffer{}
-	json.Indent(buf, data, "", "  ")
-	fmt.Printf("%s\n", buf.String())
+	fmt.Println("")
 
 	return nil
 }

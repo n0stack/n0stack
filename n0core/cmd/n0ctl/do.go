@@ -43,6 +43,7 @@ func do(ctx *cli.Context) error {
 	defer conn.Close()
 	log.Printf("[DEBUG] Connected to '%s'\n", endpoint)
 
+	dag.Marshaler = marshaler
 	if !dag.IsDAG(tasks) {
 		return fmt.Errorf("This request is not DAG")
 	}

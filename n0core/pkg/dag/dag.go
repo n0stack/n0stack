@@ -1,7 +1,6 @@
 package dag
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -10,12 +9,20 @@ import (
 	"reflect"
 	"sync"
 
+	"github.com/golang/protobuf/jsonpb"
 	"github.com/n0stack/n0stack/n0proto/deployment/v0"
 	"github.com/n0stack/n0stack/n0proto/pool/v0"
 	"github.com/n0stack/n0stack/n0proto/provisioning/v0"
 
+	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
 )
+
+var Marshaler = &jsonpb.Marshaler{
+	EnumsAsInts:  true,
+	EmitDefaults: false,
+	OrigName:     true,
+}
 
 type Task struct {
 	ResourceType string                 `yaml:"resource_type"`
@@ -29,7 +36,7 @@ type Task struct {
 }
 
 // return response JSON bytes
-func (a Task) Do(conn *grpc.ClientConn) ([]byte, error) {
+func (a Task) Do(conn *grpc.ClientConn) (proto.Message, error) {
 	var grpcCliType reflect.Type
 	var grpcCliValue reflect.Value
 
@@ -82,9 +89,7 @@ func (a Task) Do(conn *grpc.ClientConn) ([]byte, error) {
 		return nil, fmt.Errorf("got error response: %s", err.Error())
 	}
 
-	res, _ := json.Marshal(out[0].Interface())
-
-	return res, nil
+	return out[0].Interface().(proto.Message), nil
 }
 
 // topological sort
@@ -99,6 +104,7 @@ func IsDAG(tasks map[string]*Task) bool {
 
 	for k, v := range tasks {
 		for _, d := range v.DependOn {
+			// check if _, ok := tasks[d]; !ok { return err }
 			tasks[d].child = append(tasks[d].child, k)
 		}
 	}
@@ -129,7 +135,7 @@ func IsDAG(tasks map[string]*Task) bool {
 
 type ActionResult struct {
 	Name string
-	Json []byte
+	Res  proto.Message
 	Err  error
 }
 
@@ -157,7 +163,7 @@ func DoDAG(tasks map[string]*Task, out io.Writer, conn *grpc.ClientConn) bool {
 		result, err := tasks[taskName].Do(conn)
 		resultChan <- ActionResult{
 			Name: taskName,
-			Json: result,
+			Res:  result,
 			Err:  err,
 		}
 	}
@@ -189,12 +195,12 @@ func DoDAG(tasks map[string]*Task, out io.Writer, conn *grpc.ClientConn) bool {
 				}()
 			}
 		} else {
-			buf := &bytes.Buffer{}
-			json.Indent(buf, r.Json, "", "  ")
+			res, _ := Marshaler.MarshalToString(r.Res)
+
 			if failed {
-				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s', which was requested until failed, is finished\n--- Response ---\n%s\n", done, total, r.Name, buf.String())
+				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s', which was requested until failed, is finished\n--- Response ---\n%s\n", done, total, r.Name, res)
 			} else {
-				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s' is finished\n--- Response ---\n%s\n", done, total, r.Name, buf.String())
+				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s' is finished\n--- Response ---\n%s\n", done, total, r.Name, res)
 
 				// queueing
 				for _, d := range tasks[r.Name].child {
