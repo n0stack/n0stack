@@ -41,8 +41,37 @@ func main() {
 			},
 		},
 		{
-			Name:      "do",
-			Usage:     "Do DAG tasks (Detail n0stack/pkg/dag)",
+			Name:  "do",
+			Usage: "Do DAG tasks (Detail n0stack/pkg/dag)",
+			Description: `
+	## File format
+
+	---
+	task_name:
+		resource_type: Network
+		action: GetNetwork
+		args:
+			name: test-network
+		depend_on:
+			- dependency_task_name
+	dependency_task_name:
+		resource_type: ...
+	---
+
+	- task_name
+			- 任意の名前をつけ、ひとつのリクエストに対してユニークなものにする
+	- resource_type
+			- gRPC メッセージを指定する
+			- VirtualMachine や virtual_machine という形で指定できる
+	- action
+			- gRPC の RPC を指定する
+			- GetNetwork など定義のとおりに書く
+	- args
+			- gRPC の RPCのリクエストを書く
+	- depend_on
+			- DAG スケジューリングに用いられる
+			- task_name を指定する
+			`,
 			ArgsUsage: "[file name]",
 			Action:    Do,
 			Flags: []cli.Flag{
