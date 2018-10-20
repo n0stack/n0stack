@@ -44,8 +44,8 @@ func do(ctx *cli.Context) error {
 	log.Printf("[DEBUG] Connected to '%s'\n", endpoint)
 
 	dag.Marshaler = marshaler
-	if !dag.IsDAG(tasks) {
-		return fmt.Errorf("This request is not DAG")
+	if err := dag.CheckDAG(tasks); err != nil {
+		return err
 	}
 
 	if ok := dag.DoDAG(tasks, os.Stdout, conn); !ok {

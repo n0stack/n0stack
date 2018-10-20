@@ -94,7 +94,7 @@ func (a Task) Do(conn *grpc.ClientConn) (proto.Message, error) {
 
 // topological sort
 // 実際遅いけどもういいや O(E^2 + V)
-func IsDAG(tasks map[string]*Task) bool {
+func CheckDAG(tasks map[string]*Task) error {
 	result := 0
 
 	for k, _ := range tasks {
@@ -104,7 +104,10 @@ func IsDAG(tasks map[string]*Task) bool {
 
 	for k, v := range tasks {
 		for _, d := range v.DependOn {
-			// check if _, ok := tasks[d]; !ok { return err }
+			if _, ok := tasks[d]; !ok {
+				return fmt.Errorf("Depended task '%s' do not exist", d)
+			}
+
 			tasks[d].child = append(tasks[d].child, k)
 		}
 	}
@@ -130,7 +133,11 @@ func IsDAG(tasks map[string]*Task) bool {
 		}
 	}
 
-	return result == len(tasks)
+	if result != len(tasks) {
+		return fmt.Errorf("This request is not DAG")
+	}
+
+	return nil
 }
 
 type ActionResult struct {
