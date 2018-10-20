@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 
 	"code.cloudfoundry.org/bytefmt"
 	img "github.com/n0stack/n0stack/n0core/pkg/driver/qemu_img"

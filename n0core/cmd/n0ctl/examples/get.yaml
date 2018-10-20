@@ -1,0 +1,19 @@
+g1:
+  resource_type: Network
+  action: ApplyNetwork
+  args:
+    name: test-network
+    ipv4_cidr: 10.100.100.0/24
+    domain: test.local
+  depend_on:
+    - g3
+g2:
+  resource_type: Node
+  action: GetNode
+  args:
+    name: mock-node
+  depend_on:
+    - g3
+g3:
+  resource_type: Node
+  action: ListNodes

@@ -16,8 +16,8 @@ func main() {
 	app.Commands = []cli.Command{
 		{
 			Name:      "get",
-			Usage:     "Get resource if set resource_name, List resources if not set",
-			ArgsUsage: "[resource_type] [resource_name]",
+			Usage:     "Get resource if set resource name, List resources if not set",
+			ArgsUsage: "[resource type] [resource name]",
 			Action:    Get,
 			Flags: []cli.Flag{
 				cli.StringFlag{
@@ -30,7 +30,7 @@ func main() {
 		{
 			Name:      "delete",
 			Usage:     "Delete resource",
-			ArgsUsage: "[resource_type] [resource_name]",
+			ArgsUsage: "[resource type] [resource name]",
 			Action:    Delete,
 			Flags: []cli.Flag{
 				cli.StringFlag{
@@ -40,16 +40,24 @@ func main() {
 				},
 			},
 		},
-		// {
-		// 	Name:   "do",
-		// 	Usage:  "",
-		// 	Action: Do,
-		// },
+		{
+			Name:      "do",
+			Usage:     "Do DAG tasks (Detail n0stack/pkg/dag)",
+			ArgsUsage: "[file name]",
+			Action:    Do,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:   "api-endpoint",
+					Value:  "localhost:20180",
+					EnvVar: "N0CTL_API_ENDPOINT",
+				},
+			},
+		},
 	}
 
 	log.SetFlags(log.Lshortfile)
 
 	if err := app.Run(os.Args); err != nil {
-		log.Fatalf("Failed to command: err=%v", err.Error())
+		log.Fatalf("Failed to command: %v", err.Error())
 	}
 }
