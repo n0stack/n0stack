@@ -80,11 +80,11 @@ func (a ImageAPI) ApplyImage(ctx context.Context, req *pdeployment.ApplyImageReq
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
-	var err error
-	res.Version, err = datastore.CheckVersion(prev.Version, req.Version)
-	if err != nil {
-		return nil, grpc.Errorf(codes.InvalidArgument, "Failed to check version: %s", err.Error())
-	}
+	// var err error
+	res.Version, _ = datastore.CheckVersion(prev.Version, req.Version)
+	// if err != nil {
+	// 	return nil, grpc.Errorf(codes.InvalidArgument, "Failed to check version: %s", err.Error())
+	// }
 
 	if err := a.dataStore.Apply(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
