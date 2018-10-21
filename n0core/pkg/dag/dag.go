@@ -25,10 +25,11 @@ var Marshaler = &jsonpb.Marshaler{
 }
 
 type Task struct {
-	ResourceType string      `yaml:"resource_type"`
-	Action       string      `yaml:"action"`
-	Args         interface{} `yaml:"args"`
-	DependOn     []string    `yaml:"depend_on"` // depends onにする
+	Type        string      `yaml:"type"`
+	Action      string      `yaml:"action"`
+	Args        interface{} `yaml:"args"`
+	DependsOn   []string    `yaml:"depend_on"`
+	IgnoreError bool        `yaml:"ignore_error"`
 	// Rollback []*Task `yaml:"rollback"`
 
 	child   []string
@@ -117,11 +118,11 @@ func CheckDAG(tasks map[string]*Task) error {
 
 	for k, _ := range tasks {
 		tasks[k].child = make([]string, 0)
-		tasks[k].depends = len(tasks[k].DependOn)
+		tasks[k].depends = len(tasks[k].DependsOn)
 	}
 
 	for k, v := range tasks {
-		for _, d := range v.DependOn {
+		for _, d := range v.DependsOn {
 			if _, ok := tasks[d]; !ok {
 				return fmt.Errorf("Depended task '%s' do not exist", d)
 			}
@@ -168,11 +169,11 @@ type ActionResult struct {
 func DoDAG(tasks map[string]*Task, out io.Writer, conn *grpc.ClientConn) bool {
 	for k, _ := range tasks {
 		tasks[k].child = make([]string, 0)
-		tasks[k].depends = len(tasks[k].DependOn)
+		tasks[k].depends = len(tasks[k].DependsOn)
 	}
 
 	for k, v := range tasks {
-		for _, d := range v.DependOn {
+		for _, d := range v.DependsOn {
 			tasks[d].child = append(tasks[d].child, k)
 		}
 	}
@@ -209,7 +210,7 @@ func DoDAG(tasks map[string]*Task, out io.Writer, conn *grpc.ClientConn) bool {
 		if r.Err != nil {
 			fmt.Fprintf(out, "---> [ %d/%d ] Task '%s' is failed: %s\n", done, total, r.Name, r.Err.Error())
 
-			if !failed {
+			if !tasks[r.Name].IgnoreError && !failed {
 				failed = true
 
 				// すでにリクエストしたタスクの終了を待つ

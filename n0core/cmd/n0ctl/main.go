@@ -48,19 +48,20 @@ func main() {
 
 	---
 	task_name:
-		resource_type: Network
+		type: Network
 		action: GetNetwork
 		args:
 			name: test-network
 		depend_on:
 			- dependency_task_name
+		ignore_error: true
 	dependency_task_name:
-		resource_type: ...
+		type: ...
 	---
 
 	- task_name
 			- 任意の名前をつけ、ひとつのリクエストに対してユニークなものにする
-	- resource_type
+	- type
 			- gRPC メッセージを指定する
 			- VirtualMachine や virtual_machine という形で指定できる
 	- action
@@ -71,6 +72,8 @@ func main() {
 	- depend_on
 			- DAG スケジューリングに用いられる
 			- task_name を指定する
+	- ignore_error
+	    - タスクでエラーが発生しても継続する
 			`,
 			ArgsUsage: "[file name]",
 			Action:    Do,
