@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io/ioutil"
 	"log"
 	"os"
 
@@ -85,6 +86,7 @@ func main() {
 	}
 
 	log.SetFlags(log.Lshortfile)
+	log.SetOutput(ioutil.Discard)
 
 	if err := app.Run(os.Args); err != nil {
 		log.Fatalf("Failed to command: %v", err.Error())
