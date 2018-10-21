@@ -6,6 +6,7 @@ import (
 	"net"
 	"strings"
 
+	"github.com/n0stack/n0stack/n0core/pkg/api/deployment/flavor"
 	"github.com/n0stack/n0stack/n0core/pkg/api/deployment/image"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/network"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
@@ -84,6 +85,7 @@ func ServeAPI(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	vmc := pprovisioning.NewVirtualMachineServiceClient(conn)
 
 	ie, err := etcd.NewEtcdDatastore("image", etcdEndpoints)
 	if err != nil {
@@ -95,6 +97,18 @@ func ServeAPI(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	ic := pdeployment.NewImageServiceClient(conn)
+
+	fe, err := etcd.NewEtcdDatastore("flavor", etcdEndpoints)
+	if err != nil {
+		return err
+	}
+	defer ie.Close()
+
+	fa, err := flavor.CreateFlavorAPI(fe, vmc, ic)
+	if err != nil {
+		return err
+	}
 
 	grpcServer := grpc.NewServer()
 	ppool.RegisterNodeServiceServer(grpcServer, noa)
@@ -102,6 +116,7 @@ func ServeAPI(ctx *cli.Context) error {
 	pprovisioning.RegisterBlockStorageServiceServer(grpcServer, bsa)
 	pprovisioning.RegisterVirtualMachineServiceServer(grpcServer, vma)
 	pdeployment.RegisterImageServiceServer(grpcServer, ia)
+	pdeployment.RegisterFlavorServiceServer(grpcServer, fa)
 	reflection.Register(grpcServer)
 
 	log.Printf("[INFO] Starting API")

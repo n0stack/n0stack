@@ -15,11 +15,11 @@ import (
 
 type FlavorAPI struct {
 	dataStore datastore.Datastore
-	vmAPI     pprovisioning.VirtualMachineServiceServer
-	imageAPI  pdeployment.ImageServiceServer
+	vmAPI     pprovisioning.VirtualMachineServiceClient
+	imageAPI  pdeployment.ImageServiceClient
 }
 
-func CreateFlavorAPI(ds datastore.Datastore, vma pprovisioning.VirtualMachineServiceServer, ia pdeployment.ImageServiceServer) (*FlavorAPI, error) {
+func CreateFlavorAPI(ds datastore.Datastore, vma pprovisioning.VirtualMachineServiceClient, ia pdeployment.ImageServiceClient) (*FlavorAPI, error) {
 	a := &FlavorAPI{
 		dataStore: ds,
 		vmAPI:     vma,
@@ -70,25 +70,23 @@ func (a FlavorAPI) GetFlavor(ctx context.Context, req *pdeployment.GetFlavorRequ
 }
 
 func (a FlavorAPI) ApplyFlavor(ctx context.Context, req *pdeployment.ApplyFlavorRequest) (*pdeployment.Flavor, error) {
-	res := &pdeployment.Flavor{
-		Name:              req.Name,
-		Annotations:       req.Annotations,
-		Version:           req.Version,
-		LimitCpuMilliCore: req.LimitCpuMilliCore,
-		LimitMemoryBytes:  req.LimitMemoryBytes,
-		NetworkName:       req.NetworkName,
-	}
 
-	prev := &pdeployment.Flavor{}
-	if err := a.dataStore.Get(req.Name, prev); err != nil {
+	res := &pdeployment.Flavor{}
+	if err := a.dataStore.Get(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
-	var err error
-	res.Version, err = datastore.CheckVersion(prev.Version, req.Version)
-	if err != nil {
-		return nil, grpc.Errorf(codes.InvalidArgument, "Failed to check version: %s", err.Error())
-	}
+	// var err error
+	res.Version, _ = datastore.CheckVersion(res.Version, req.Version)
+	// if err != nil {
+	// 	return nil, grpc.Errorf(codes.InvalidArgument, "Failed to check version: %s", err.Error())
+	// }
+
+	res.Name = req.Name
+	res.Annotations = req.Annotations
+	res.LimitCpuMilliCore = req.LimitCpuMilliCore
+	res.LimitMemoryBytes = req.LimitMemoryBytes
+	res.NetworkName = req.NetworkName
 
 	if err := a.dataStore.Apply(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
