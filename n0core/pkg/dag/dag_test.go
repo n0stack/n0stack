@@ -71,8 +71,8 @@ func TestIsDAG(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		if IsDAG(c.actions) != c.result {
-			t.Errorf("[%s]", c.name)
+		if err := CheckDAG(c.actions); err != nil {
+			t.Errorf("[%s] got err: err=%s", c.name, err.Error())
 		}
 	}
 }
@@ -93,8 +93,13 @@ func TestDoDAG(t *testing.T) {
 			"loop",
 			&Task{
 				ResourceType: "Node",
-				Action:       "GetNode",
-				Args:         map[string]interface{}{"Name": "mock-node"},
+				Action:       "ApplyNode",
+				Args: map[string]interface{}{
+					"name": "mock-node",
+					"annotations": map[interface{}]interface{}{
+						"test": "test",
+					},
+				},
 				DependOn: []string{
 					"g3",
 				},

@@ -25,14 +25,32 @@ var Marshaler = &jsonpb.Marshaler{
 }
 
 type Task struct {
-	ResourceType string                 `yaml:"resource_type"`
-	Action       string                 `yaml:"action"`
-	Args         map[string]interface{} `yaml:"args"`
-	DependOn     []string               `yaml:"depend_on"`
+	ResourceType string      `yaml:"resource_type"`
+	Action       string      `yaml:"action"`
+	Args         interface{} `yaml:"args"`
+	DependOn     []string    `yaml:"depend_on"` // depends onにする
 	// Rollback []*Task `yaml:"rollback"`
 
 	child   []string
 	depends int
+}
+
+// referenced by https://stackoverflow.com/questions/40737122/convert-yaml-to-json-without-struct
+func convert(i interface{}) interface{} {
+	switch x := i.(type) {
+	case map[interface{}]interface{}:
+		m2 := map[string]interface{}{}
+		for k, v := range x {
+			m2[k.(string)] = convert(v)
+		}
+		return m2
+	case []interface{}:
+		for i, v := range x {
+			x[i] = convert(v)
+		}
+	}
+
+	return i
 }
 
 // return response JSON bytes
@@ -76,7 +94,7 @@ func (a Task) Do(conn *grpc.ClientConn) (proto.Message, error) {
 	if a.Args == nil {
 		a.Args = make(map[string]interface{})
 	}
-	buf, err := json.Marshal(a.Args)
+	buf, err := json.Marshal(convert(a.Args))
 	if err != nil {
 		return nil, fmt.Errorf("Args is invalid, set fields of message '%s' err=%s", argsType.String(), err.Error())
 	}
