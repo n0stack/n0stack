@@ -34,17 +34,17 @@ func TestIsDAG(t *testing.T) {
 			"loop",
 			map[string]*Task{
 				"g1": &Task{
-					DependOn: []string{
+					DependsOn: []string{
 						"g2",
 					},
 				},
 				"g2": &Task{
-					DependOn: []string{
+					DependsOn: []string{
 						"g3",
 					},
 				},
 				"g3": &Task{
-					DependOn: []string{
+					DependsOn: []string{
 						"g1",
 					},
 				},
@@ -55,12 +55,12 @@ func TestIsDAG(t *testing.T) {
 			"liner",
 			map[string]*Task{
 				"g1": &Task{
-					DependOn: []string{
+					DependsOn: []string{
 						"g2",
 					},
 				},
 				"g2": &Task{
-					DependOn: []string{
+					DependsOn: []string{
 						"g3",
 					},
 				},
@@ -92,15 +92,15 @@ func TestDoDAG(t *testing.T) {
 		{
 			"loop",
 			&Task{
-				ResourceType: "Node",
-				Action:       "ApplyNode",
+				Type:   "Node",
+				Action: "ApplyNode",
 				Args: map[string]interface{}{
 					"name": "mock-node",
 					"annotations": map[interface{}]interface{}{
 						"test": "test",
 					},
 				},
-				DependOn: []string{
+				DependsOn: []string{
 					"g3",
 				},
 			},

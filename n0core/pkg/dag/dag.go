@@ -60,7 +60,7 @@ func (a Task) Do(conn *grpc.ClientConn) (proto.Message, error) {
 	var grpcCliValue reflect.Value
 
 	// TODO :生成自動化
-	switch a.ResourceType {
+	switch a.Type {
 	case "node", "Node":
 		grpcCliType = reflect.TypeOf(ppool.NewNodeServiceClient(conn))
 		grpcCliValue = reflect.ValueOf(ppool.NewNodeServiceClient(conn))
@@ -80,12 +80,12 @@ func (a Task) Do(conn *grpc.ClientConn) (proto.Message, error) {
 		grpcCliType = reflect.TypeOf(pdeployment.NewFlavorServiceClient(conn))
 		grpcCliValue = reflect.ValueOf(pdeployment.NewFlavorServiceClient(conn))
 	default:
-		return nil, fmt.Errorf("Resource type '%s' do not exist", a.ResourceType)
+		return nil, fmt.Errorf("Resource type '%s' do not exist", a.Type)
 	}
 
 	fnt, ok := grpcCliType.MethodByName(a.Action)
 	if !ok {
-		return nil, fmt.Errorf("Resource type '%s' do not have action '%s'", a.ResourceType, a.Action)
+		return nil, fmt.Errorf("Resource type '%s' do not have action '%s'", a.Type, a.Action)
 	}
 
 	// 1st arg is instance, 2nd is context.Background()
