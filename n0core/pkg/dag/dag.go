@@ -52,8 +52,8 @@ func (a Task) Do(conn *grpc.ClientConn) (proto.Message, error) {
 		grpcCliType = reflect.TypeOf(pprovisioning.NewBlockStorageServiceClient(conn))
 		grpcCliValue = reflect.ValueOf(pprovisioning.NewBlockStorageServiceClient(conn))
 	case "virtual_machine", "VirtualMachine":
-		grpcCliType = reflect.TypeOf(pprovisioning.NewBlockStorageServiceClient(conn))
-		grpcCliValue = reflect.ValueOf(pprovisioning.NewBlockStorageServiceClient(conn))
+		grpcCliType = reflect.TypeOf(pprovisioning.NewVirtualMachineServiceClient(conn))
+		grpcCliValue = reflect.ValueOf(pprovisioning.NewVirtualMachineServiceClient(conn))
 	case "image", "Image":
 		grpcCliType = reflect.TypeOf(pdeployment.NewImageServiceClient(conn))
 		grpcCliValue = reflect.ValueOf(pdeployment.NewImageServiceClient(conn))
