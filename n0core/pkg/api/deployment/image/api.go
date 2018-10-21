@@ -216,7 +216,8 @@ func (a ImageAPI) GenerateBlockStorage(ctx context.Context, req *pdeployment.Gen
 	})
 	if err != nil {
 		log.Printf("[WARNING] Failed to copy blockstorage: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "")
+		// already exists を判定したほうがいいような気がするが、とりあえず err をそのまま返すことで対処する
+		return nil, err
 	}
 
 	return bs, nil
