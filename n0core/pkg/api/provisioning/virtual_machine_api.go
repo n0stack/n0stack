@@ -123,7 +123,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		Netdev:      StructNetDev(req.Nics, res.NetworkInterfaceNames),
 		Blockdev:    blockdev,
 	}); err != nil {
-		log.Printf("Failed to create block storage on node '%s': err='%s'", res.ComputeNodeName, err.Error()) // TODO: #89
+		log.Printf("Failed to create virtual machine on node '%s': err='%s'", res.ComputeNodeName, err.Error()) // TODO: #89
 		goto ReleaseNetworkInterface
 	} else {
 		log.Printf("[DEBUG] after CreateVirtualMachineAgent: vm='%+v'", vm)

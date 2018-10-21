@@ -64,6 +64,7 @@ func (a VirtualMachineAgentAPI) GetWorkDirectory(name string) (string, error) {
 	return p, nil
 }
 
+// TODO: エラーハンドリングでプロセスを削除する必要がある
 func (a VirtualMachineAgentAPI) CreateVirtualMachineAgent(ctx context.Context, req *CreateVirtualMachineAgentRequest) (*VirtualMachineAgent, error) {
 	id := uuid.NewV5(N0coreVirtualMachineNamespace, req.Name)
 	q, err := qemu.OpenQemu(&id)
@@ -134,7 +135,7 @@ func (a VirtualMachineAgentAPI) CreateVirtualMachineAgent(ctx context.Context, r
 			}
 		} else {
 			if err := q.AttachQcow2(bd.Name, u, uint(bd.BootIndex)); err != nil {
-				log.Printf("Failed to attach image '%s': err='%s'", u.Path, err.Error())
+				log.Printf("Failed to attach image '%s': err='%s'", u.String(), err.Error())
 				return nil, grpc.Errorf(codes.Internal, "") // TODO #89
 			}
 		}

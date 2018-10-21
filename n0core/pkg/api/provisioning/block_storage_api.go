@@ -269,7 +269,7 @@ func (a *BlockStorageAPI) CopyBlockStorage(ctx context.Context, req *pprovisioni
 		return nil, errors.Wrap(err, "Failed to reserve storage")
 	}
 	var v *BlockStorageAgent
-	srcUrl := res.Annotations[AnnotationBlockStorageURL]
+	srcUrl := src.Annotations[AnnotationBlockStorageURL]
 
 	conn, err := a.nodeConnections.GetConnection(res.NodeName) // errorについて考える
 	cli := NewBlockStorageAgentServiceClient(conn)

@@ -48,11 +48,11 @@ func GetAgentStateFromQemuState(s qemu.Status) VirtualMachineAgentState {
 }
 
 func TrimNetdevName(name string) string {
-	if len(name) <= 16 {
+	if len(name) <= 15 {
 		return name
 	}
 
-	return name[:16]
+	return name[:15]
 }
 
 func StructNetDev(nics []*pprovisioning.VirtualMachineNIC, names []string) []*NetDev {
