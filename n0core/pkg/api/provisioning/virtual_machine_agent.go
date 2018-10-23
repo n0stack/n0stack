@@ -64,8 +64,7 @@ func (a VirtualMachineAgentAPI) GetWorkDirectory(name string) (string, error) {
 	return p, nil
 }
 
-// TODO: エラーハンドリングでプロセスを削除する必要がある
-func (a VirtualMachineAgentAPI) CreateVirtualMachineAgent(ctx context.Context, req *CreateVirtualMachineAgentRequest) (*VirtualMachineAgent, error) {
+func (a VirtualMachineAgentAPI) CreateVirtualMachineAgent(ctx context.Context, req *CreateVirtualMachineAgentRequest) (res *VirtualMachineAgent, errRes error) {
 	id := uuid.NewV5(N0coreVirtualMachineNamespace, req.Name)
 	q, err := qemu.OpenQemu(&id)
 	if err != nil {
@@ -87,66 +86,80 @@ func (a VirtualMachineAgentAPI) CreateVirtualMachineAgent(ctx context.Context, r
 	}
 	defer q.Close()
 
+	createdNetdev := []*NetDev{}
 	for _, nd := range req.Netdev {
 		b, err := iproute2.NewBridge(TrimNetdevName(nd.NetworkName))
 		if err != nil {
 			log.Printf("Failed to create bridge '%s': err='%s'", nd.NetworkName, err.Error())
-			return nil, grpc.Errorf(codes.Internal, "") // TODO #89
+			errRes = grpc.Errorf(codes.Internal, "") // TODO #89
+			goto DeleteNetDev
 		}
 
 		t, err := iproute2.NewTap(TrimNetdevName(nd.Name))
 		if err != nil {
 			log.Printf("Failed to create tap '%s': err='%s'", nd.Name, err.Error())
-			return nil, grpc.Errorf(codes.Internal, "") // TODO #89
+			errRes = grpc.Errorf(codes.Internal, "") // TODO #89
+			goto DeleteNetDev
 		}
+		createdNetdev = append(createdNetdev, nd)
+
 		if err := t.SetMaster(b); err != nil {
 			log.Printf("Failed to set master of tap '%s' as '%s': err='%s'", t.Name(), b.Name(), err.Error())
-			return nil, grpc.Errorf(codes.Internal, "") // TODO #89
+			errRes = grpc.Errorf(codes.Internal, "") // TODO #89
+			goto DeleteNetDev
 		}
 
 		hw, err := net.ParseMAC(nd.HardwareAddress)
 		if err != nil {
-			return nil, grpc.Errorf(codes.InvalidArgument, "Hardware address '%s' is invalid on netdev '%s'", nd.HardwareAddress, nd.Name)
+			errRes = grpc.Errorf(codes.InvalidArgument, "Hardware address '%s' is invalid on netdev '%s'", nd.HardwareAddress, nd.Name)
+			goto DeleteNetDev
 		}
 
 		if err := q.AttachTap(nd.Name, t.Name(), hw); err != nil {
 			log.Printf("Failed to attach tap: err='%s'", err.Error())
-			return nil, grpc.Errorf(codes.Internal, "Failed to attach tap")
+			errRes = grpc.Errorf(codes.Internal, "Failed to attach tap")
+			goto DeleteNetDev
 		}
 	}
 
 	for _, bd := range req.Blockdev {
 		u, err := url.Parse(bd.Url)
 		if err != nil {
-			return nil, grpc.Errorf(codes.InvalidArgument, "url '%s' is invalid url: '%s'", bd.Url, err.Error())
+			errRes = grpc.Errorf(codes.InvalidArgument, "url '%s' is invalid url: '%s'", bd.Url, err.Error())
+			goto DeleteNetDev
 		}
 
 		i, err := img.OpenQemuImg(u.Path)
 		if err != nil {
 			log.Printf("Failed to open qemu image: err='%s'", err.Error())
-			return nil, grpc.Errorf(codes.Internal, "") // TODO #89
+			errRes = grpc.Errorf(codes.Internal, "") // TODO #89
+			goto DeleteNetDev
 		}
 
 		// この条件は雑
 		if i.Info.Format == "raw" {
 			if err := q.AttachISO(bd.Name, u, uint(bd.BootIndex)); err != nil {
 				log.Printf("Failed to attach iso '%s': err='%s'", u.Path, err.Error())
-				return nil, grpc.Errorf(codes.Internal, "") // TODO #89
+				errRes = grpc.Errorf(codes.Internal, "") // TODO #89
+				goto DeleteNetDev
 			}
 		} else {
 			if err := q.AttachQcow2(bd.Name, u, uint(bd.BootIndex)); err != nil {
 				log.Printf("Failed to attach image '%s': err='%s'", u.String(), err.Error())
-				return nil, grpc.Errorf(codes.Internal, "") // TODO #89
+				errRes = grpc.Errorf(codes.Internal, "") // TODO #89
+				goto DeleteNetDev
 			}
 		}
 	}
 
 	if err := q.Boot(); err != nil {
 		log.Printf("Failed to boot qemu: err=%s", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to boot qemu")
+		errRes = grpc.Errorf(codes.Internal, "Failed to boot qemu")
+		goto DeleteNetDev
+
 	}
 
-	res := &VirtualMachineAgent{
+	res = &VirtualMachineAgent{
 		Name:          req.Name,
 		Uuid:          id.String(),
 		Vcpus:         req.Vcpus,
@@ -156,11 +169,59 @@ func (a VirtualMachineAgentAPI) CreateVirtualMachineAgent(ctx context.Context, r
 		WebsocketPort: uint32(websocket),
 	}
 	if s, err := q.Status(); err != nil {
-		return nil, grpc.Errorf(codes.Internal, "Failed to get status")
+		errRes = grpc.Errorf(codes.Internal, "Failed to get status")
+		goto DeleteNetDev
 	} else {
 		res.State = GetAgentStateFromQemuState(s)
 	}
-	return res, nil
+
+	return
+
+DeleteNetDev:
+	if err := q.Delete(); err != nil {
+		log.Printf("Failed to delete qemu: err=%s", err.Error())
+	}
+
+	for _, nd := range createdNetdev {
+		t, err := iproute2.NewTap(TrimNetdevName(nd.Name))
+		if err != nil {
+			log.Printf("Failed to create tap '%s': err='%s'", nd.Name, err.Error())
+			return nil, grpc.Errorf(codes.Internal, "") // TODO #89
+		}
+
+		if err := t.Delete(); err != nil {
+			log.Printf("Failed to delete tap '%s': err='%s'", nd.Name, err.Error())
+			return nil, grpc.Errorf(codes.Internal, "") // TODO #89
+		}
+
+		b, err := iproute2.NewBridge(TrimNetdevName(nd.NetworkName))
+		if err != nil {
+			log.Printf("Failed to create bridge '%s': err='%s'", nd.NetworkName, err.Error())
+			return nil, grpc.Errorf(codes.Internal, "") // TODO #89
+		}
+
+		links, err := b.ListSlaves()
+		if err != nil {
+			log.Printf("Failed to list links of bridge '%s': err='%s'", nd.NetworkName, err.Error())
+			return nil, grpc.Errorf(codes.Internal, "") // TODO #89
+		}
+
+		// TODO: 以下遅い気がする
+		i := 0
+		for _, l := range links {
+			if _, err := iproute2.NewTap(l); err == nil {
+				i++
+			}
+		}
+		if i == 0 {
+			if err := b.Delete(); err != nil {
+				log.Printf("Failed to delete bridge '%s': err='%s'", b.Name(), err.Error())
+				return nil, grpc.Errorf(codes.Internal, "") // TODO #89
+			}
+		}
+	}
+
+	return
 }
 
 func (a VirtualMachineAgentAPI) DeleteVirtualMachineAgent(ctx context.Context, req *DeleteVirtualMachineAgentRequest) (*empty.Empty, error) {
