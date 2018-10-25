@@ -28,7 +28,7 @@ type Task struct {
 	Type        string      `yaml:"type"`
 	Action      string      `yaml:"action"`
 	Args        interface{} `yaml:"args"`
-	DependsOn   []string    `yaml:"depend_on"`
+	DependsOn   []string    `yaml:"depends_on"`
 	IgnoreError bool        `yaml:"ignore_error"`
 	// Rollback []*Task `yaml:"rollback"`
 

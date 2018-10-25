@@ -28,7 +28,7 @@ func TestIsDAG(t *testing.T) {
 	cases := []struct {
 		name    string
 		actions map[string]*Task
-		result  bool
+		err     string
 	}{
 		{
 			"loop",
@@ -49,7 +49,7 @@ func TestIsDAG(t *testing.T) {
 					},
 				},
 			},
-			false,
+			"This request is not DAG",
 		},
 		{
 			"liner",
@@ -66,13 +66,18 @@ func TestIsDAG(t *testing.T) {
 				},
 				"g3": &Task{},
 			},
-			true,
+			"",
 		},
 	}
 
 	for _, c := range cases {
-		if err := CheckDAG(c.actions); err != nil {
-			t.Errorf("[%s] got err: err=%s", c.name, err.Error())
+		err := CheckDAG(c.actions)
+
+		if (c.err == "") == (err != nil) {
+			t.Errorf("[%s] wrong existence error: have=%+v, want=%+v", c.name, err != nil, c.err == "")
+		}
+		if c.err != "" && err.Error() != c.err {
+			t.Errorf("[%s] got wrong err: have=%s, want='%s'", c.name, err.Error(), c.err)
 		}
 	}
 }
