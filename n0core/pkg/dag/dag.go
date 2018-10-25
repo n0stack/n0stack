@@ -208,17 +208,21 @@ func DoDAG(tasks map[string]*Task, out io.Writer, conn *grpc.ClientConn) bool {
 		done++
 
 		if r.Err != nil {
-			fmt.Fprintf(out, "---> [ %d/%d ] Task '%s' is failed: %s\n", done, total, r.Name, r.Err.Error())
+			if tasks[r.Name].IgnoreError {
+				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s' is failed, ignore error: %s\n", done, total, r.Name, r.Err.Error())
+			} else {
+				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s' is failed: %s\n", done, total, r.Name, r.Err.Error())
 
-			if !tasks[r.Name].IgnoreError && !failed {
-				failed = true
+				if !failed {
+					failed = true
 
-				// すでにリクエストしたタスクの終了を待つ
-				fmt.Fprintf(out, "---> Wait to finish requested tasks\n")
-				go func() {
-					wg.Wait()
-					close(resultChan)
-				}()
+					// すでにリクエストしたタスクの終了を待つ
+					fmt.Fprintf(out, "---> Wait to finish requested tasks\n")
+					go func() {
+						wg.Wait()
+						close(resultChan)
+					}()
+				}
 			}
 		} else {
 			res, _ := Marshaler.MarshalToString(r.Res)
@@ -227,16 +231,18 @@ func DoDAG(tasks map[string]*Task, out io.Writer, conn *grpc.ClientConn) bool {
 				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s', which was requested until failed, is finished\n--- Response ---\n%s\n", done, total, r.Name, res)
 			} else {
 				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s' is finished\n--- Response ---\n%s\n", done, total, r.Name, res)
+			}
+		}
 
-				// queueing
-				for _, d := range tasks[r.Name].child {
-					tasks[d].depends--
-					if tasks[d].depends == 0 {
-						wg.Add(1)
-						fmt.Fprintf(out, "---> Task '%s' is started\n", d)
-						log.Printf("[DEBUG] Task '%s' is started: %+v", d, tasks[d])
-						go doTask(d)
-					}
+		if !failed {
+			// queueing
+			for _, d := range tasks[r.Name].child {
+				tasks[d].depends--
+				if tasks[d].depends == 0 {
+					wg.Add(1)
+					fmt.Fprintf(out, "---> Task '%s' is started\n", d)
+					log.Printf("[DEBUG] Task '%s' is started: %+v", d, tasks[d])
+					go doTask(d)
 				}
 			}
 		}
