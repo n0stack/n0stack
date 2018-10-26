@@ -8,20 +8,20 @@ import (
 
 type MockBlockStorageAgentAPI struct{}
 
-func (a MockBlockStorageAgentAPI) CreateEmptyBlockStorageAgent(ctx context.Context, req *CreateEmptyBlockStorageAgentRequest) (*BlockStorageAgent, error) {
-	return &BlockStorageAgent{
+func (a MockBlockStorageAgentAPI) CreateEmptyBlockStorage(ctx context.Context, req *CreateEmptyBlockStorageRequest) (*CreateEmptyBlockStorageResponse, error) {
+	return &CreateEmptyBlockStorageResponse{
 		Name:  req.Name,
 		Bytes: req.Bytes,
 		Path:  "/tmp/test",
 	}, nil
 }
-func (a MockBlockStorageAgentAPI) CreateBlockStorageAgentWithDownloading(ctx context.Context, req *CreateBlockStorageAgentWithDownloadingRequest) (*BlockStorageAgent, error) {
-	return &BlockStorageAgent{
+func (a MockBlockStorageAgentAPI) FetchBlockStorage(ctx context.Context, req *FetchBlockStorageRequest) (*FetchBlockStorageResponse, error) {
+	return &FetchBlockStorageResponse{
 		Name:  req.Name,
 		Bytes: req.Bytes,
 		Path:  "/tmp/test",
 	}, nil
 }
-func (a MockBlockStorageAgentAPI) DeleteBlockStorageAgent(ctx context.Context, req *DeleteBlockStorageAgentRequest) (*empty.Empty, error) {
+func (a MockBlockStorageAgentAPI) DeleteBlockStorage(ctx context.Context, req *DeleteBlockStorageRequest) (*empty.Empty, error) {
 	return &empty.Empty{}, nil
 }

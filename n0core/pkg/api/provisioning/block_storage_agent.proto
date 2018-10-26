@@ -6,34 +6,38 @@ package n0stack.internal.n0core.provisioning;
 
 import "google/protobuf/empty.proto";
 
-message BlockStorageAgent {
-  string name = 1;
-  uint64 bytes = 2;
-  string path = 3;
-}
-
 service BlockStorageAgentService {
-  rpc CreateEmptyBlockStorageAgent(CreateEmptyBlockStorageAgentRequest) returns (BlockStorageAgent) {}
-  rpc CreateBlockStorageAgentWithDownloading(CreateBlockStorageAgentWithDownloadingRequest) returns (BlockStorageAgent) {}
+  rpc CreateEmptyBlockStorage(CreateEmptyBlockStorageRequest) returns (CreateEmptyBlockStorageResponse) {}
+  rpc FetchBlockStorage(FetchBlockStorageRequest) returns (FetchBlockStorageResponse) {}
 
-  rpc DeleteBlockStorageAgent(DeleteBlockStorageAgentRequest) returns (google.protobuf.Empty) {}
+  rpc DeleteBlockStorage(DeleteBlockStorageRequest) returns (google.protobuf.Empty) {}
 
   // rpc ResizeBlockStorageAgent(ResizeBlockStorageAgentRequest) returns (BlockStorageAgent) {}
   // rpc MigrateBlockStorageAgent(MigrateBlockStorageAgentRequest) returns (BlockStorageAgent) {}
 }
 
-message CreateEmptyBlockStorageAgentRequest {
+message CreateEmptyBlockStorageRequest {
   string name = 1;
   uint64 bytes = 2;
 }
+message CreateEmptyBlockStorageResponse{
+  string name = 1;
+  uint64 bytes = 2;
+  string path = 3;
+}
 
-message CreateBlockStorageAgentWithDownloadingRequest {
+message FetchBlockStorageRequest {
   string name = 1;
   uint64 bytes = 2;
 
-  string source_url = 4;
+  string source_url = 3;
+}
+message FetchBlockStorageResponse {
+  string name = 1;
+  uint64 bytes = 2;
+  string path = 3;
 }
 
-message DeleteBlockStorageAgentRequest {
+message DeleteBlockStorageRequest {
   string path = 3;
 }

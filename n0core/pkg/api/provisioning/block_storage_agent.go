@@ -39,7 +39,7 @@ func (a *BlockStorageAgentAPI) structPath(name string) string {
 	return filepath.Join(a.baseDirectory, name+".qcow2")
 }
 
-func (a *BlockStorageAgentAPI) CreateEmptyBlockStorageAgent(ctx context.Context, req *CreateEmptyBlockStorageAgentRequest) (*BlockStorageAgent, error) {
+func (a *BlockStorageAgentAPI) CreateEmptyBlockStorage(ctx context.Context, req *CreateEmptyBlockStorageRequest) (*CreateEmptyBlockStorageResponse, error) {
 	path := a.structPath(req.Name)
 	i, err := img.OpenQemuImg(path)
 	if err != nil {
@@ -53,7 +53,7 @@ func (a *BlockStorageAgentAPI) CreateEmptyBlockStorageAgent(ctx context.Context,
 		return nil, grpc.Errorf(codes.Internal, "Failed to create image: err='%s'", err.Error())
 	}
 
-	return &BlockStorageAgent{
+	return &CreateEmptyBlockStorageResponse{
 		Name:  req.Name,
 		Path:  path,
 		Bytes: req.Bytes,
@@ -61,7 +61,7 @@ func (a *BlockStorageAgentAPI) CreateEmptyBlockStorageAgent(ctx context.Context,
 }
 
 // タイムアウトが心配
-func (a *BlockStorageAgentAPI) CreateBlockStorageAgentWithDownloading(ctx context.Context, req *CreateBlockStorageAgentWithDownloadingRequest) (*BlockStorageAgent, error) {
+func (a *BlockStorageAgentAPI) FetchBlockStorage(ctx context.Context, req *FetchBlockStorageRequest) (*FetchBlockStorageResponse, error) {
 	path := a.structPath(req.Name)
 	i, err := img.OpenQemuImg(path)
 	if err != nil {
@@ -93,14 +93,14 @@ func (a *BlockStorageAgentAPI) CreateBlockStorageAgentWithDownloading(ctx contex
 		}
 	}
 
-	return &BlockStorageAgent{
+	return &FetchBlockStorageResponse{
 		Name:  req.Name,
 		Path:  path,
 		Bytes: req.Bytes,
 	}, nil
 }
 
-func (a *BlockStorageAgentAPI) DeleteBlockStorageAgent(ctx context.Context, req *DeleteBlockStorageAgentRequest) (*empty.Empty, error) {
+func (a *BlockStorageAgentAPI) DeleteBlockStorage(ctx context.Context, req *DeleteBlockStorageRequest) (*empty.Empty, error) {
 	i, err := img.OpenQemuImg(req.Path)
 	if err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Cannot open '%s': err='%s'", req.Path, err.Error())
