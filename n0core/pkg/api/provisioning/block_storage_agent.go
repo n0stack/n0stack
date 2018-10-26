@@ -36,7 +36,7 @@ func CreateBlockStorageAgentAPI(basedir string) (*BlockStorageAgentAPI, error) {
 }
 
 func (a *BlockStorageAgentAPI) structPath(name string) string {
-	return filepath.Join(a.baseDirectory, name+".qcow2")
+	return filepath.Join(a.baseDirectory, name)
 }
 
 func (a *BlockStorageAgentAPI) CreateEmptyBlockStorage(ctx context.Context, req *CreateEmptyBlockStorageRequest) (*CreateEmptyBlockStorageResponse, error) {
