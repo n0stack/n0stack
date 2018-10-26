@@ -12,9 +12,12 @@ dep-update:
 
 build:
 	go build -o bin/n0core -v cmd/n0core/*.go
-	go build -o bin/n0ctl -v cmd/n0ctl/*.go
+	go build -o bin/n0cli -v cmd/n0cli/*.go
 build-docker:
 	docker build -t n0stack/n0core .
+.PHONY: build
+build-on-docker:
+	docker run -it --rm -v $(PWD):/go/src/github.com/n0stack/n0stack/n0core n0stack/n0core make build
 build-proto:
 	docker run -it --rm -v $(PWD):/src:ro -v `go env GOPATH`/src:/dst n0stack/build-proto /entry_point.sh --go_out=plugins=grpc:/dst
 
