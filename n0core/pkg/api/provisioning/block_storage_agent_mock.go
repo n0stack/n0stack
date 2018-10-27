@@ -2,6 +2,7 @@ package provisioning
 
 import (
 	"context"
+	"path/filepath"
 
 	"github.com/golang/protobuf/ptypes/empty"
 )
@@ -12,14 +13,14 @@ func (a MockBlockStorageAgentAPI) CreateEmptyBlockStorage(ctx context.Context, r
 	return &CreateEmptyBlockStorageResponse{
 		Name:  req.Name,
 		Bytes: req.Bytes,
-		Path:  "/tmp/test",
+		Path:  filepath.Join("/tmp", req.Name),
 	}, nil
 }
 func (a MockBlockStorageAgentAPI) FetchBlockStorage(ctx context.Context, req *FetchBlockStorageRequest) (*FetchBlockStorageResponse, error) {
 	return &FetchBlockStorageResponse{
 		Name:  req.Name,
 		Bytes: req.Bytes,
-		Path:  "/tmp/test",
+		Path:  filepath.Join("/tmp", req.Name),
 	}, nil
 }
 func (a MockBlockStorageAgentAPI) DeleteBlockStorage(ctx context.Context, req *DeleteBlockStorageRequest) (*empty.Empty, error) {
