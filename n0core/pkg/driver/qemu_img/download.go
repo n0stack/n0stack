@@ -25,9 +25,13 @@ func (q *QemuImg) Download(src *url.URL) error {
 	}
 	defer f.Close()
 
-	io.Copy(f, res.Body)
+	if _, err := io.Copy(f, res.Body); err != nil {
+		return fmt.Errorf("Failed to copy file: path='%s', err='%s'", q.path, err.Error())
+	}
 
-	q.updateInfo()
+	if err := q.updateInfo(); err != nil {
+		return fmt.Errorf("Failed to update info: err='%s'", err.Error())
+	}
 
 	return nil
 }

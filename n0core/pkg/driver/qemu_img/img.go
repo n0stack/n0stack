@@ -42,7 +42,9 @@ func OpenQemuImg(path string) (*QemuImg, error) {
 	q := &QemuImg{
 		path: p,
 	}
-	q.updateInfo()
+	if err := q.updateInfo(); err != nil {
+		return nil, fmt.Errorf("Failed to update info: err='%s'", err.Error())
+	}
 
 	return q, nil
 }
@@ -58,7 +60,9 @@ func (q *QemuImg) Create(bytes uint64) error {
 		return fmt.Errorf("Failed to create image: err='%s', args='%v', output='%s'", err.Error(), args, o)
 	}
 
-	q.updateInfo()
+	if err := q.updateInfo(); err != nil {
+		return fmt.Errorf("Failed to update info: err='%s'", err.Error())
+	}
 
 	return nil
 }
@@ -85,7 +89,9 @@ func (q *QemuImg) Copy(source *QemuImg) error {
 		return errors.Wrap(err, "Failed to copy file")
 	}
 
-	q.updateInfo()
+	if err := q.updateInfo(); err != nil {
+		return fmt.Errorf("Failed to update info: err='%s'", err.Error())
+	}
 
 	return nil
 }
@@ -116,7 +122,9 @@ func (q *QemuImg) Resize(bytes uint64) error {
 		return fmt.Errorf("Failed to create image: err='%s', args='%v', output='%s'", err.Error(), args, o)
 	}
 
-	q.updateInfo()
+	if err := q.updateInfo(); err != nil {
+		return fmt.Errorf("Failed to update info: err='%s'", err.Error())
+	}
 
 	return nil
 }
@@ -130,7 +138,9 @@ func (q *QemuImg) Delete() error {
 		return fmt.Errorf("Failed to delete image: err='%s'", err.Error())
 	}
 
-	q.updateInfo()
+	if err := q.updateInfo(); err != nil {
+		return fmt.Errorf("Failed to update info: err='%s'", err.Error())
+	}
 
 	return nil
 }
