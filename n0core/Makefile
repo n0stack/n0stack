@@ -32,10 +32,10 @@ logs:
 rm:
 	docker-compose down
 	docker-compose rm
-	sudo rm -rf sandbox/etcd
 clean:
 	go clean
 	rm -rf bin
+	sudo rm -rf sandbox
 
 analysis:
 	gofmt -d -s `find ./ -name "*.go" | grep -v vendor`
