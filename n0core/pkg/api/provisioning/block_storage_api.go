@@ -428,7 +428,7 @@ func (a *BlockStorageAPI) DeleteBlockStorage(ctx context.Context, req *pprovisio
 	u, _ := url.Parse(prev.Annotations[AnnotationBlockStorageURL]) // TODO: エラー処理
 	_, err = cli.DeleteBlockStorage(context.Background(), &DeleteBlockStorageRequest{Path: u.Path})
 	if err != nil {
-		log.Printf("Fail to delete block_storage on node, err:%v.", err.Error())
+		log.Printf("Fail to delete block_storage on node: err=%s, req=%s", err.Error(), &DeleteBlockStorageRequest{Path: u.Path})
 		return nil, grpc.Errorf(codes.Internal, "Fail to delete block_storage on node") // TODO #89
 	}
 
