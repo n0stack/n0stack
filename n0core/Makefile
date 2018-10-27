@@ -34,7 +34,7 @@ rm:
 	docker-compose rm
 clean:
 	go clean
-	rm -rf bin
+	sudo rm -rf bin
 	sudo rm -rf sandbox
 
 analysis:
