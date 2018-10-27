@@ -137,7 +137,9 @@ func (a *BlockStorageAPI) FetchBlockStorage(ctx context.Context, req *pprovision
 	if req.RequestBytes == 0 {
 		return nil, grpc.Errorf(codes.InvalidArgument, "Set 'request_bytes'")
 	}
-	// parse url
+	if _, err := url.Parse(req.SourceUrl); req.SourceUrl == "" || err != nil {
+		return nil, grpc.Errorf(codes.InvalidArgument, "invalid source url")
+	}
 
 	prev := &pprovisioning.BlockStorage{}
 	if err := a.dataStore.Get(req.Name, prev); err != nil {
