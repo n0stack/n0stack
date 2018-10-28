@@ -102,3 +102,41 @@ func TestAgentFetchBlockStorage(t *testing.T) {
 		t.Errorf("DeleteBlockStorage got error: err=%s", err.Error())
 	}
 }
+
+// // errors
+// // からの場合を
+// func TestAgentFetchBlockStorageAboutErrors(t *testing.T) {
+// 	bsaa, err := CreateBlockStorageAgentAPI(".")
+// 	if err != nil {
+// 		t.Fatalf("CreateBlockStorageAgentAPI is failed: err=%s", err.Error())
+// 	}
+
+// 	cases := []struct {
+// 		name string
+// 		req  *FetchBlockStorageRequest
+// 		res  *FetchBlockStorageResponse
+// 		code codes.Code
+// 	}{
+// 		{
+// 			"no url",
+// 			&FetchBlockStorageRequest{},
+// 			nil,
+// 			codes.Internal,
+// 		},
+// 	}
+
+// 	for _, c := range cases {
+// 		res, err := bsaa.FetchBlockStorage(context.Background(), c.req)
+// 		if diff := cmp.Diff(c.res, res); diff != "" {
+// 			t.Errorf("")
+// 		}
+
+// 		if c.code == 0 && err != nil {
+// 			t.Errorf("")
+// 		}
+
+// 		if grpc.Code(err) != c.code {
+// 			t.Errorf("")
+// 		}
+// 	}
+// }

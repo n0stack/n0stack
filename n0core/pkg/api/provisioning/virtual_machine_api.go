@@ -2,9 +2,12 @@ package provisioning
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"net/url"
 	"strconv"
 
+	"github.com/koding/websocketproxy"
 	"github.com/n0stack/n0stack/n0proto/pool/v0"
 	"github.com/n0stack/n0stack/n0proto/provisioning/v0"
 
@@ -12,6 +15,8 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
+
+	"github.com/labstack/echo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 )
@@ -20,6 +25,8 @@ const AnnotationVNCWebSocketPort = "n0core/provisioning/virtual_machine_vnc_webs
 const AnnotationVirtualMachineReserve = "n0core/provisioning/virtual_machine_name"
 
 type VirtualMachineAPI struct {
+	consoleURL *url.URL
+
 	dataStore datastore.Datastore
 
 	// dependency APIs
@@ -126,7 +133,6 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		log.Printf("Failed to create virtual machine on node '%s': err='%s'", res.ComputeNodeName, err.Error()) // TODO: #89
 		goto ReleaseNetworkInterface
 	} else {
-		log.Printf("[DEBUG] after CreateVirtualMachineAgent: vm='%+v'", vm)
 		res.Annotations[AnnotationVNCWebSocketPort] = strconv.Itoa(int(vm.WebsocketPort))
 		res.State = GetAPIStateFromAgentState(vm.State)
 		res.Uuid = vm.Uuid
@@ -256,121 +262,6 @@ func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprov
 	}
 
 	return &empty.Empty{}, nil
-}
-
-func (a *VirtualMachineAPI) BootVirtualMachine(ctx context.Context, req *pprovisioning.BootVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
-	res := &pprovisioning.VirtualMachine{}
-	if err := a.dataStore.Get(req.Name, res); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	} else if res.Name == "" {
-		return nil, grpc.Errorf(codes.NotFound, "")
-	}
-
-	conn, err := a.nodeConnections.GetConnection(res.ComputeNodeName)
-	if err != nil {
-		log.Printf("[WARNING] Fail to dial to node: err=%v.", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "") // TODO: #89
-	}
-	if conn == nil {
-		return nil, grpc.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", res.ComputeNodeName)
-	}
-	defer conn.Close()
-	cli := NewVirtualMachineAgentServiceClient(conn)
-
-	vm, err := cli.BootVirtualMachineAgent(context.Background(), &BootVirtualMachineAgentRequest{Name: req.Name})
-	if err != nil {
-		log.Printf("Fail to boot on node, err:%v.", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Fail to boot block storage on node") // TODO #89
-	}
-	res.State = GetAPIStateFromAgentState(vm.State)
-
-	if err := a.dataStore.Apply(req.Name, res); err != nil {
-		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to store '%s' for db, please retry or contact for the administrator of this cluster", req.Name)
-	}
-
-	return res, nil
-}
-
-func (a *VirtualMachineAPI) RebootVirtualMachine(ctx context.Context, req *pprovisioning.RebootVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
-	res := &pprovisioning.VirtualMachine{}
-	if err := a.dataStore.Get(req.Name, res); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	} else if res.Name == "" {
-		return nil, grpc.Errorf(codes.NotFound, "")
-	}
-
-	conn, err := a.nodeConnections.GetConnection(res.ComputeNodeName)
-	if err != nil {
-		log.Printf("[WARNING] Fail to dial to node: err=%v.", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "") // TODO: #89
-	}
-	if conn == nil {
-		return nil, grpc.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", res.ComputeNodeName)
-	}
-	defer conn.Close()
-	cli := NewVirtualMachineAgentServiceClient(conn)
-
-	vm, err := cli.RebootVirtualMachineAgent(context.Background(), &RebootVirtualMachineAgentRequest{
-		Name: req.Name,
-		Hard: req.Hard,
-	})
-	if err != nil {
-		log.Printf("Fail to reboot on node, err:%v.", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Fail to reboot block storage on node") // TODO #89
-	}
-	res.State = GetAPIStateFromAgentState(vm.State)
-
-	if err := a.dataStore.Apply(req.Name, res); err != nil {
-		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to store '%s' for db, please retry or contact for the administrator of this cluster", req.Name)
-	}
-
-	return res, nil
-}
-
-func (a *VirtualMachineAPI) ShutdownVirtualMachine(ctx context.Context, req *pprovisioning.ShutdownVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
-	res := &pprovisioning.VirtualMachine{}
-	if err := a.dataStore.Get(req.Name, res); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	} else if res.Name == "" {
-		return nil, grpc.Errorf(codes.NotFound, "")
-	}
-
-	conn, err := a.nodeConnections.GetConnection(res.ComputeNodeName)
-	if err != nil {
-		log.Printf("[WARNING] Fail to dial to node: err=%v.", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "") // TODO: #89
-	}
-	if conn == nil {
-		return nil, grpc.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", res.ComputeNodeName)
-	}
-	defer conn.Close()
-	cli := NewVirtualMachineAgentServiceClient(conn)
-
-	vm, err := cli.ShutdownVirtualMachineAgent(context.Background(), &ShutdownVirtualMachineAgentRequest{
-		Name: req.Name,
-		Hard: req.Hard,
-	})
-	if err != nil {
-		log.Printf("Fail to shutdown on node, err:%v.", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Fail to shutdown block storage on node") // TODO #89
-	}
-	res.State = GetAPIStateFromAgentState(vm.State)
-
-	if err := a.dataStore.Apply(req.Name, res); err != nil {
-		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to store '%s' for db, please retry or contact for the administrator of this cluster", req.Name)
-	}
-
-	return res, nil
-}
-
-func (a *VirtualMachineAPI) SaveVirtualMachine(ctx context.Context, req *pprovisioning.SaveVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
-	return nil, grpc.Errorf(codes.Unimplemented, "")
 }
 
 func (a VirtualMachineAPI) reserveCompute(name string, annotations map[string]string, reqCpu, limitCpu uint32, reqMem, limitMem uint64) (string, string, error) {
@@ -510,3 +401,155 @@ func (a VirtualMachineAPI) relaseBlockStorages(names []string) error {
 
 	return nil
 }
+
+func (a *VirtualMachineAPI) BootVirtualMachine(ctx context.Context, req *pprovisioning.BootVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
+	res := &pprovisioning.VirtualMachine{}
+	if err := a.dataStore.Get(req.Name, res); err != nil {
+		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
+	} else if res.Name == "" {
+		return nil, grpc.Errorf(codes.NotFound, "")
+	}
+
+	conn, err := a.nodeConnections.GetConnection(res.ComputeNodeName)
+	if err != nil {
+		log.Printf("[WARNING] Fail to dial to node: err=%v.", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "") // TODO: #89
+	}
+	if conn == nil {
+		return nil, grpc.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", res.ComputeNodeName)
+	}
+	defer conn.Close()
+	cli := NewVirtualMachineAgentServiceClient(conn)
+
+	vm, err := cli.BootVirtualMachineAgent(context.Background(), &BootVirtualMachineAgentRequest{Name: req.Name})
+	if err != nil {
+		log.Printf("Fail to boot on node, err:%v.", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Fail to boot block storage on node") // TODO #89
+	}
+	res.State = GetAPIStateFromAgentState(vm.State)
+
+	if err := a.dataStore.Apply(req.Name, res); err != nil {
+		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Failed to store '%s' for db, please retry or contact for the administrator of this cluster", req.Name)
+	}
+
+	return res, nil
+}
+
+func (a *VirtualMachineAPI) RebootVirtualMachine(ctx context.Context, req *pprovisioning.RebootVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
+	res := &pprovisioning.VirtualMachine{}
+	if err := a.dataStore.Get(req.Name, res); err != nil {
+		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
+	} else if res.Name == "" {
+		return nil, grpc.Errorf(codes.NotFound, "")
+	}
+
+	conn, err := a.nodeConnections.GetConnection(res.ComputeNodeName)
+	if err != nil {
+		log.Printf("[WARNING] Fail to dial to node: err=%v.", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "") // TODO: #89
+	}
+	if conn == nil {
+		return nil, grpc.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", res.ComputeNodeName)
+	}
+	defer conn.Close()
+	cli := NewVirtualMachineAgentServiceClient(conn)
+
+	vm, err := cli.RebootVirtualMachineAgent(context.Background(), &RebootVirtualMachineAgentRequest{
+		Name: req.Name,
+		Hard: req.Hard,
+	})
+	if err != nil {
+		log.Printf("Fail to reboot on node, err:%v.", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Fail to reboot block storage on node") // TODO #89
+	}
+	res.State = GetAPIStateFromAgentState(vm.State)
+
+	if err := a.dataStore.Apply(req.Name, res); err != nil {
+		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Failed to store '%s' for db, please retry or contact for the administrator of this cluster", req.Name)
+	}
+
+	return res, nil
+}
+
+func (a *VirtualMachineAPI) ShutdownVirtualMachine(ctx context.Context, req *pprovisioning.ShutdownVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
+	res := &pprovisioning.VirtualMachine{}
+	if err := a.dataStore.Get(req.Name, res); err != nil {
+		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
+	} else if res.Name == "" {
+		return nil, grpc.Errorf(codes.NotFound, "")
+	}
+
+	conn, err := a.nodeConnections.GetConnection(res.ComputeNodeName)
+	if err != nil {
+		log.Printf("[WARNING] Fail to dial to node: err=%v.", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "") // TODO: #89
+	}
+	if conn == nil {
+		return nil, grpc.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", res.ComputeNodeName)
+	}
+	defer conn.Close()
+	cli := NewVirtualMachineAgentServiceClient(conn)
+
+	vm, err := cli.ShutdownVirtualMachineAgent(context.Background(), &ShutdownVirtualMachineAgentRequest{
+		Name: req.Name,
+		Hard: req.Hard,
+	})
+	if err != nil {
+		log.Printf("Fail to shutdown on node, err:%v.", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Fail to shutdown block storage on node") // TODO #89
+	}
+	res.State = GetAPIStateFromAgentState(vm.State)
+
+	if err := a.dataStore.Apply(req.Name, res); err != nil {
+		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Failed to store '%s' for db, please retry or contact for the administrator of this cluster", req.Name)
+	}
+
+	return res, nil
+}
+
+func (a *VirtualMachineAPI) SaveVirtualMachine(ctx context.Context, req *pprovisioning.SaveVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
+	return nil, grpc.Errorf(codes.Unimplemented, "")
+}
+
+func (a *VirtualMachineAPI) ProxyWebsocket() func(echo.Context) error {
+	return func(c echo.Context) error {
+		vmName := c.Param("name")
+
+		vm := &pprovisioning.VirtualMachine{}
+		if err := a.dataStore.Get(vmName, vm); err != nil {
+			log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
+			return fmt.Errorf("db error")
+			// return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
+		} else if vm.Name == "" {
+			return err
+			// return nil, grpc.Errorf(codes.NotFound, "")
+		}
+
+		node, err := a.nodeAPI.GetNode(context.Background(), &ppool.GetNodeRequest{Name: vm.ComputeNodeName})
+		if err != nil {
+			return err
+		}
+
+		nodeIP := node.Address
+		websocketPort := vm.Annotations[AnnotationVNCWebSocketPort]
+		u := &url.URL{
+			Scheme: "ws",
+			Host:   fmt.Sprintf("%s:%d", nodeIP, websocketPort),
+		}
+
+		ws := websocketproxy.NewProxy(u)
+		ws.ServeHTTP(c.Response(), c.Request())
+
+		return nil
+	}
+}
+
+// func HostNovnc(c echo.Context) error {
+// 	return nil
+// }

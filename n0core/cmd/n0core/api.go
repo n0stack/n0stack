@@ -11,6 +11,7 @@ import (
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/network"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
 	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning"
+	"github.com/n0stack/n0stack/n0core/pkg/datastore/etcd"
 	"github.com/n0stack/n0stack/n0proto/deployment/v0"
 	"github.com/n0stack/n0stack/n0proto/pool/v0"
 	"github.com/n0stack/n0stack/n0proto/provisioning/v0"
@@ -18,11 +19,11 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/grpc-ecosystem/go-grpc-middleware/recovery"
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-
-	"github.com/n0stack/n0stack/n0core/pkg/datastore/etcd"
 
 	"github.com/urfave/cli"
 )
@@ -141,6 +142,15 @@ func ServeAPI(ctx *cli.Context) error {
 	pdeployment.RegisterFlavorServiceServer(grpcServer, fa)
 	reflection.Register(grpcServer)
 
-	log.Printf("[INFO] Starting API")
+	e := echo.New()
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+
+	e.GET("/api/v0/virtual_machines/:name/vnc", vma.ProxyWebsocket())
+
+	// 本当は panic させる必要がある
+	go e.Start("0.0.0.0:8080")
+
+	log.Printf("[INFO] Started API")
 	return grpcServer.Serve(lis)
 }

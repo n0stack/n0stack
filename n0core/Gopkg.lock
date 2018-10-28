@@ -58,6 +58,14 @@
   revision = "e6a2ba005892b6a5b27cb5352f64c2e96942dd28"
 
 [[projects]]
+  digest = "1:76dc72490af7174349349838f2fe118996381b31ea83243812a97e5a0fd5ed55"
+  name = "github.com/dgrijalva/jwt-go"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
+  version = "v3.2.0"
+
+[[projects]]
   branch = "master"
   digest = "1:3f4100b1217f606b62fb4582037e445a89aa1151f987266fa72af56060dc0c9e"
   name = "github.com/digitalocean/go-libvirt"
@@ -143,6 +151,14 @@
   version = "v0.2.0"
 
 [[projects]]
+  digest = "1:7b5c6e2eeaa9ae5907c391a91c132abfd5c9e8a784a341b5625e750c67e6825d"
+  name = "github.com/gorilla/websocket"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "66b9c49e59c6c48f0ffce28c2d8b8a5678502c6d"
+  version = "v1.4.0"
+
+[[projects]]
   digest = "1:40da601708c420dbea753eca53d1a696e47c41768e4b2197359b2c6d489b5eb8"
   name = "github.com/grpc-ecosystem/go-grpc-middleware"
   packages = [
@@ -213,6 +229,54 @@
   pruneopts = "UT"
   revision = "ce8abaa0c60c2d6bee7219f5ddf500e0a1457b28"
   version = "v0.1.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:73405a734b6495d7ff09ff24a86633b56bc13917ea9adef16f3d8cccaea176c2"
+  name = "github.com/koding/websocketproxy"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "0fa3f994f6e724d94f7299587cee4ba089152c9d"
+
+[[projects]]
+  digest = "1:9acadb9c8c15b8a9f635a7fa960c9a522b001a3919bc03df92ac26c372476aff"
+  name = "github.com/labstack/echo"
+  packages = [
+    ".",
+    "middleware",
+  ]
+  pruneopts = "UT"
+  revision = "1abaa3049251d17932e4313c2d6165073fd07fd8"
+  version = "v3.3.6"
+
+[[projects]]
+  digest = "1:568171fc14a3d819b112c3e219d351ea7b05e8dad7935c4168c6b3373244a686"
+  name = "github.com/labstack/gommon"
+  packages = [
+    "bytes",
+    "color",
+    "log",
+    "random",
+  ]
+  pruneopts = "UT"
+  revision = "2a618302b929cc20862dda3aa6f02f64dbe740dd"
+  version = "v0.2.7"
+
+[[projects]]
+  digest = "1:c658e84ad3916da105a761660dcaeb01e63416c8ec7bc62256a9b411a05fcd67"
+  name = "github.com/mattn/go-colorable"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "167de6bfdfba052fa6b2d3664c8f5272e23c9072"
+  version = "v0.0.9"
+
+[[projects]]
+  digest = "1:0981502f9816113c9c8c4ac301583841855c8cf4da8c72f696b3ebedf6d0e4e5"
+  name = "github.com/mattn/go-isatty"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "6ca4dbf54d38eea1a992b3c722a76a5d1c4cb25c"
+  version = "v0.0.4"
 
 [[projects]]
   digest = "1:c22d250c583ec1136ecad8b74a43f408c08ddbbcbae715341ec4a49f332628e0"
@@ -291,6 +355,22 @@
   version = "v1.20.0"
 
 [[projects]]
+  digest = "1:c468422f334a6b46a19448ad59aaffdfc0a36b08fdcc1c749a0b29b6453d7e59"
+  name = "github.com/valyala/bytebufferpool"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7"
+  version = "v1.0.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:268b8bce0064e8c057d7b913605459f9a26dcab864c0886a56d196540fbf003f"
+  name = "github.com/valyala/fasttemplate"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "dcecefd839c4193db0d35b88ec65b4c12d360ab0"
+
+[[projects]]
   digest = "1:2d9d06cb9d46dacfdbb45f8575b39fc0126d083841a29d4fbf8d97708f43107e"
   name = "github.com/vishvananda/netlink"
   packages = [
@@ -342,9 +422,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:2464e24610e1cdab712d3955745c0da6d1d26c50d6a7aecf61ebe07e68d2ec4d"
+  digest = "1:7ced737049dbefb31e1fa959fbf3e14152f8eaebf9e329492a0447abf3e2a34b"
   name = "golang.org/x/crypto"
   packages = [
+    "acme",
+    "acme/autocert",
     "curve25519",
     "ed25519",
     "ed25519/internal/edwards25519",
@@ -484,6 +566,9 @@
     "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap",
     "github.com/grpc-ecosystem/go-grpc-middleware/recovery",
     "github.com/hashicorp/memberlist",
+    "github.com/koding/websocketproxy",
+    "github.com/labstack/echo",
+    "github.com/labstack/echo/middleware",
     "github.com/n0stack/n0stack/n0proto/budget/v0",
     "github.com/n0stack/n0stack/n0proto/deployment/v0",
     "github.com/n0stack/n0stack/n0proto/pool/v0",
