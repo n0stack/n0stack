@@ -26,8 +26,6 @@ const AnnotationVNCWebSocketPort = "n0core/provisioning/virtual_machine_vnc_webs
 const AnnotationVirtualMachineReserve = "n0core/provisioning/virtual_machine_name"
 
 type VirtualMachineAPI struct {
-	consoleURL *url.URL
-
 	dataStore datastore.Datastore
 
 	// dependency APIs
@@ -518,6 +516,27 @@ func (a *VirtualMachineAPI) SaveVirtualMachine(ctx context.Context, req *pprovis
 	return nil, grpc.Errorf(codes.Unimplemented, "")
 }
 
+// TODO: めんどくさいので n0core コマンドで定義した URL に一時的に依存している、治す必要あり
+func (a *VirtualMachineAPI) OpenConsole(ctx context.Context, req *pprovisioning.OpenConsoleRequest) (*pprovisioning.OpenConsoleResponse, error) {
+	vm := &pprovisioning.VirtualMachine{}
+	if err := a.dataStore.Get(req.Name, vm); err != nil {
+		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
+	} else if vm.Name == "" {
+		return nil, grpc.Errorf(codes.NotFound, "")
+	}
+
+	u := &url.URL{
+		Scheme: "http",
+		Path: "/static/virtual_machines/vnc.html",
+		RawQuery: fmt.Sprintf("path=api/v0/virtual_machines/%s/vncwebsocket", vm.Name),
+	}
+
+	return &pprovisioning.OpenConsoleResponse{
+		ConsoleUrl: u.String(),
+	}, nil
+}
+
 func (a *VirtualMachineAPI) ProxyWebsocket() func(echo.Context) error {
 	return func(c echo.Context) error {
 		vmName := c.Param("name")
@@ -562,7 +581,3 @@ func (a *VirtualMachineAPI) ProxyWebsocket() func(echo.Context) error {
 		return nil
 	}
 }
-
-// func HostNovnc(c echo.Context) error {
-// 	return nil
-// }

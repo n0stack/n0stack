@@ -288,7 +288,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:0cb5be1d638610fd5dbe6eb4a14cc1a11315944a065fcb6b8ffde2f310229822"
+  digest = "1:9829d6d95870ed5d83c1972196008a9203ef7e7f61b83b63175cba0f417442e6"
   name = "github.com/n0stack/n0stack"
   packages = [
     "n0proto/budget/v0",
@@ -297,7 +297,7 @@
     "n0proto/provisioning/v0",
   ]
   pruneopts = "UT"
-  revision = "85bcbdac11c0d44f99034c18a38fea5ba65e62c4"
+  revision = "0d02b67473e877d0364bbd4828ce28de49558714"
 
 [[projects]]
   digest = "1:40e195917a951a8bf867cd05de2a46aaf1806c50cf92eebf4c16f78cd196f747"
