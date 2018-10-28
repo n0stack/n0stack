@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 	"strings"
 
 	"github.com/n0stack/n0stack/n0core/pkg/api/deployment/flavor"
@@ -15,6 +16,9 @@ import (
 	"github.com/n0stack/n0stack/n0proto/deployment/v0"
 	"github.com/n0stack/n0stack/n0proto/pool/v0"
 	"github.com/n0stack/n0stack/n0proto/provisioning/v0"
+
+	_ "github.com/n0stack/n0stack/n0core/pkg/api/provisioning/novnc"
+	"github.com/rakyll/statik/fs"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
@@ -92,6 +96,11 @@ func ServeAPI(ctx *cli.Context) error {
 	}
 	vmc := pprovisioning.NewVirtualMachineServiceClient(conn)
 
+	statikFs, err := fs.New()
+	if err != nil {
+		return err
+	}
+
 	ie, err := etcd.NewEtcdDatastore("image", etcdEndpoints)
 	if err != nil {
 		return err
@@ -146,7 +155,8 @@ func ServeAPI(ctx *cli.Context) error {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	e.GET("/api/v0/virtual_machines/:name/vnc", vma.ProxyWebsocket())
+	e.GET("/api/v0/virtual_machines/:name/vncwebsocket", vma.ProxyWebsocket())
+	e.GET("/static/virtual_machines/novnc", echo.WrapHandler(http.FileServer(statikFs)))
 
 	// 本当は panic させる必要がある
 	go e.Start("0.0.0.0:8080")

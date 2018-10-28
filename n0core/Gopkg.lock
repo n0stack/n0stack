@@ -297,7 +297,7 @@
     "n0proto/provisioning/v0",
   ]
   pruneopts = "UT"
-  revision = "4fe880d7f386da9ead73db549d6d2ed19e269ce0"
+  revision = "85bcbdac11c0d44f99034c18a38fea5ba65e62c4"
 
 [[projects]]
   digest = "1:40e195917a951a8bf867cd05de2a46aaf1806c50cf92eebf4c16f78cd196f747"
@@ -306,6 +306,14 @@
   pruneopts = "UT"
   revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
   version = "v0.8.0"
+
+[[projects]]
+  digest = "1:ea0700160aca4ef099f4e06686a665a87691f4248dddd40796925eda2e46bd64"
+  name = "github.com/rakyll/statik"
+  packages = ["fs"]
+  pruneopts = "UT"
+  revision = "1355192d24db2566a83c3914e187e2a7e7679832"
+  version = "v0.1.5"
 
 [[projects]]
   digest = "1:274f67cb6fed9588ea2521ecdac05a6d62a8c51c074c1fccc6a49a40ba80e925"
@@ -574,6 +582,7 @@
     "github.com/n0stack/n0stack/n0proto/pool/v0",
     "github.com/n0stack/n0stack/n0proto/provisioning/v0",
     "github.com/pkg/errors",
+    "github.com/rakyll/statik/fs",
     "github.com/satori/go.uuid",
     "github.com/shirou/gopsutil/process",
     "github.com/urfave/cli",

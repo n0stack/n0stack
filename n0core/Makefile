@@ -3,13 +3,6 @@ GOARCH=amd64
 GOCMD=go
 
 
-dep:
-	dep ensure
-dep-update:
-	dep ensure -update
-	dep ensure
-	dep status
-
 build:
 	go build -o bin/n0core -v cmd/n0core/*.go
 	go build -o bin/n0cli -v cmd/n0cli/*.go
@@ -20,6 +13,18 @@ build-on-docker:
 	docker run -it --rm -v $(PWD):/go/src/github.com/n0stack/n0stack/n0core n0stack/n0core make build
 build-proto:
 	docker run -it --rm -v $(PWD):/src:ro -v `go env GOPATH`/src:/dst n0stack/build-proto /entry_point.sh --go_out=plugins=grpc:/dst
+
+update: dep-update update-novnc
+update-novnc:
+	go get -v github.com/rakyll/statik
+	wget https://raw.githubusercontent.com/novnc/noVNC/master/vnc.html -O /tmp/index.html 
+	statik -p novnc -Z -f -src /tmp/index.html -dest pkg/api/provisioning
+dep:
+	dep ensure
+dep-update:
+	dep ensure -update
+	dep ensure
+	dep status
 
 up: build-docker
 	mkdir -p sandbox
