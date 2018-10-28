@@ -47,6 +47,7 @@ func GetAgentStateFromQemuState(s qemu.Status) VirtualMachineAgentState {
 	return VirtualMachineAgentState_UNKNOWN
 }
 
+// TrimNetdevName trim network device name because Linux network device can use 15 characters.
 func TrimNetdevName(name string) string {
 	if len(name) <= 15 {
 		return name
