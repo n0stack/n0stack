@@ -17,8 +17,9 @@ build-proto:
 update: dep-update update-novnc
 update-novnc:
 	go get -v github.com/rakyll/statik
-	wget https://raw.githubusercontent.com/novnc/noVNC/master/vnc.html -O pkg/api/provisioning/novnc/vnc.html
-	statik -p provisioning -Z -f -src pkg/api/provisioning/novnc -dest pkg/api
+	rm -rf /tmp/novnc
+	git clone --depth 1 https://github.com/novnc/noVNC /tmp/novnc
+	statik -p provisioning -Z -f -src /tmp/novnc -dest pkg/api
 dep:
 	dep ensure
 dep-update:
