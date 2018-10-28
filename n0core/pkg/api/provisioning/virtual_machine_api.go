@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"net/url"
 	"strconv"
 
@@ -548,7 +549,14 @@ func (a *VirtualMachineAPI) ProxyWebsocket() func(echo.Context) error {
 			Path:   "/",
 		}
 
-		ws := websocketproxy.NewProxy(u)
+		ws := &websocketproxy.WebsocketProxy{
+			Backend: func(r *http.Request) *url.URL {
+				return u
+			},
+		}
+		// TODO: セキュリティを無視して、とりあえず動かす https://github.com/koding/websocketproxy/issues/9
+		delete(c.Request().Header, "Origin")
+		log.Printf("[DEBUG] websocket proxy requesting to backend '%s'", ws.Backend(c.Request()))
 		ws.ServeHTTP(c.Response(), c.Request())
 
 		return nil
