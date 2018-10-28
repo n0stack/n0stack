@@ -537,10 +537,15 @@ func (a *VirtualMachineAPI) ProxyWebsocket() func(echo.Context) error {
 		}
 
 		nodeIP := node.Address
-		websocketPort := vm.Annotations[AnnotationVNCWebSocketPort]
+		websocketPort, err := strconv.Atoi(vm.Annotations[AnnotationVNCWebSocketPort])
+		if err != nil {
+			return err
+		}
+
 		u := &url.URL{
 			Scheme: "ws",
 			Host:   fmt.Sprintf("%s:%d", nodeIP, websocketPort),
+			Path:   "/",
 		}
 
 		ws := websocketproxy.NewProxy(u)
