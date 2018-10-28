@@ -59,14 +59,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:adf277946da49791662f31b4665035c62c2d9e3a6fc81a68b42968dfe94c4386"
+  digest = "1:3f4100b1217f606b62fb4582037e445a89aa1151f987266fa72af56060dc0c9e"
   name = "github.com/digitalocean/go-libvirt"
   packages = [
     ".",
     "internal/constants",
   ]
   pruneopts = "UT"
-  revision = "893c43b4a17ca91b85a5dbf9d3e94c7ea11bd8fe"
+  revision = "83daaa03c8babae232629b125a8ff195ecde663d"
 
 [[projects]]
   branch = "master"
@@ -112,7 +112,8 @@
   version = "v1.1.1"
 
 [[projects]]
-  digest = "1:fce9b252e844078774d9bc017acfba0e961e104f268859b23e277d3d23270202"
+  branch = "master"
+  digest = "1:11d1b5f3a93d96be46f471ef5aa46c38877ff69b4576c1c736f62f28321ac2b9"
   name = "github.com/golang/protobuf"
   packages = [
     "jsonpb",
@@ -126,8 +127,7 @@
     "ptypes/timestamp",
   ]
   pruneopts = "UT"
-  revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
-  version = "v1.2.0"
+  revision = "d3de96c4c28ef8af3aa1a892fc481e0f103c01ff"
 
 [[projects]]
   digest = "1:2e3c336fc7fde5c984d2841455a658a6d626450b1754a854b3b32e7a8f49a07a"
@@ -141,6 +141,22 @@
   pruneopts = "UT"
   revision = "3af367b6b30c263d47e8895973edcca9a49cf029"
   version = "v0.2.0"
+
+[[projects]]
+  digest = "1:40da601708c420dbea753eca53d1a696e47c41768e4b2197359b2c6d489b5eb8"
+  name = "github.com/grpc-ecosystem/go-grpc-middleware"
+  packages = [
+    ".",
+    "logging",
+    "logging/zap",
+    "logging/zap/ctxzap",
+    "recovery",
+    "tags",
+    "tags/zap",
+  ]
+  pruneopts = "UT"
+  revision = "c250d6563d4d4c20252cd865923440e829844f4e"
+  version = "v1.0.0"
 
 [[projects]]
   digest = "1:0ade334594e69404d80d9d323445d2297ff8161637f9b2d347cc6973d2d6f05b"
@@ -199,12 +215,12 @@
   version = "v0.1.0"
 
 [[projects]]
-  digest = "1:57689550840d285f2da9e85356a66e626592a8b6f1170d7f2482438e64fe82e3"
+  digest = "1:c22d250c583ec1136ecad8b74a43f408c08ddbbcbae715341ec4a49f332628e0"
   name = "github.com/miekg/dns"
   packages = ["."]
   pruneopts = "UT"
-  revision = "d74956db7b5b20451796774572d0f5a0222e377a"
-  version = "v1.0.13"
+  revision = "915ca3d5ffd945235828a097c917311a9d86ebb4"
+  version = "v1.0.14"
 
 [[projects]]
   branch = "master"
@@ -217,7 +233,7 @@
     "n0proto/provisioning/v0",
   ]
   pruneopts = "UT"
-  revision = "4e6dba65a41e4a157abbbb5840ef904e21561f50"
+  revision = "4fe880d7f386da9ead73db549d6d2ed19e269ce0"
 
 [[projects]]
   digest = "1:40e195917a951a8bf867cd05de2a46aaf1806c50cf92eebf4c16f78cd196f747"
@@ -294,6 +310,37 @@
   revision = "13995c7128ccc8e51e9a6bd2b551020a27180abd"
 
 [[projects]]
+  digest = "1:3c1a69cdae3501bf75e76d0d86dc6f2b0a7421bc205c0cb7b96b19eed464a34d"
+  name = "go.uber.org/atomic"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "1ea20fb1cbb1cc08cbd0d913a96dead89aa18289"
+  version = "v1.3.2"
+
+[[projects]]
+  digest = "1:60bf2a5e347af463c42ed31a493d817f8a72f102543060ed992754e689805d1a"
+  name = "go.uber.org/multierr"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "3c4937480c32f4c13a875a1829af76c98ca3d40a"
+  version = "v1.1.0"
+
+[[projects]]
+  digest = "1:c52caf7bd44f92e54627a31b85baf06a68333a196b3d8d241480a774733dcf8b"
+  name = "go.uber.org/zap"
+  packages = [
+    ".",
+    "buffer",
+    "internal/bufferpool",
+    "internal/color",
+    "internal/exit",
+    "zapcore",
+  ]
+  pruneopts = "UT"
+  revision = "ff33455a0e382e8a81d14dd7c922020b6b5e7982"
+  version = "v1.9.1"
+
+[[projects]]
   branch = "master"
   digest = "1:2464e24610e1cdab712d3955745c0da6d1d26c50d6a7aecf61ebe07e68d2ec4d"
   name = "golang.org/x/crypto"
@@ -307,7 +354,7 @@
     "ssh",
   ]
   pruneopts = "UT"
-  revision = "0c41d7ab0a0ee717d4590a44bcb987dfd9e183eb"
+  revision = "e84da0312774c21d64ee2317962ef669b27ffb41"
 
 [[projects]]
   branch = "master"
@@ -328,18 +375,18 @@
     "trace",
   ]
   pruneopts = "UT"
-  revision = "04a2e542c03f1d053ab3e4d6e5abcd4b66e2be8e"
+  revision = "9b4f9f5ad5197c79fd623a3638e70d8b26cef344"
 
 [[projects]]
   branch = "master"
-  digest = "1:56e0fb6e56fa651d9183abd2db5f29d05da203a7c50bf9b331259e5087aca683"
+  digest = "1:d2605ed96ca0244a457fa8e6c37d5c370ce98ea09dcc21e5e07d967bfcb78878"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "8e24a49d80f82323e1c4db1b5da3e0f31171a151"
+  revision = "95b1ffbd15a57cc5abb3f04402b9e8ec0016a52c"
 
 [[projects]]
   digest = "1:a2ab62866c75542dd18d2b069fec854577a20211d7c0ea6ae746072a1dccdd18"
@@ -370,10 +417,10 @@
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
   pruneopts = "UT"
-  revision = "94acd270e44e65579b9ee3cdab25034d33fed608"
+  revision = "8b5d7a19e2d98fbad9aaf9c599776bf066d7c70f"
 
 [[projects]]
-  digest = "1:fbdce2fee46de3a5d4f324eee12c3f39c479c07e64f966bdde89bddf15887913"
+  digest = "1:7df90886bfa3282d344d54b7c47cddca165522a8fc927f3adf29e0d29bfbb5f2"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -407,8 +454,8 @@
     "tap",
   ]
   pruneopts = "UT"
-  revision = "8dea3dc473e90c8179e519d91302d0597c0ca1d1"
-  version = "v1.15.0"
+  revision = "2e463a05d100327ca47ac218281906921038fd95"
+  version = "v1.16.0"
 
 [[projects]]
   digest = "1:342378ac4dcb378a5448dd723f0784ae519383532f5e70ade24132c4c8693202"
@@ -433,6 +480,9 @@
     "github.com/golang/protobuf/ptypes",
     "github.com/golang/protobuf/ptypes/empty",
     "github.com/google/go-cmp/cmp",
+    "github.com/grpc-ecosystem/go-grpc-middleware",
+    "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap",
+    "github.com/grpc-ecosystem/go-grpc-middleware/recovery",
     "github.com/hashicorp/memberlist",
     "github.com/n0stack/n0stack/n0proto/budget/v0",
     "github.com/n0stack/n0stack/n0proto/deployment/v0",
@@ -444,6 +494,7 @@
     "github.com/urfave/cli",
     "github.com/vishvananda/netlink",
     "github.com/vishvananda/netlink/nl",
+    "go.uber.org/zap",
     "golang.org/x/crypto/ssh",
     "golang.org/x/net/context",
     "google.golang.org/grpc",
