@@ -68,6 +68,8 @@ service VirtualMachineService {
   // RUNNING -> PAUSED
   rpc SaveVirtualMachine(SaveVirtualMachineRequest) returns (VirtualMachine) {}
 
+  rpc OpenConsole(OpenConsoleRequest) returns (OpenConsoleResponse) {}
+
   // rpc MigrateVirtualMachine(MigrateVirtualMachineRequest) returns (VirtualMachine) {}
 }
 
@@ -125,4 +127,11 @@ message ShutdownVirtualMachineRequest {
 }
 message SaveVirtualMachineRequest {
   string name = 1;
+}
+
+message OpenConsoleRequest {
+  string name = 1;
+}
+message OpenConsoleResponse{
+  string console_url = 1;
 }
