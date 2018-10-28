@@ -154,13 +154,11 @@ func ServeAPI(ctx *cli.Context) error {
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-
 	e.GET("/api/v0/virtual_machines/:name/vncwebsocket", vma.ProxyWebsocket())
-	e.GET("/static/virtual_machines/novnc", echo.WrapHandler(http.FileServer(statikFs)))
-
-	// 本当は panic させる必要がある
-	go e.Start("0.0.0.0:8080")
+	e.GET("/static/virtual_machines/", echo.WrapHandler(http.StripPrefix("/static/virtual_machines/", http.FileServer(statikFs))))
 
 	log.Printf("[INFO] Started API")
+	// 本当は panic させる必要がある
+	go e.Start("0.0.0.0:8080")
 	return grpcServer.Serve(lis)
 }

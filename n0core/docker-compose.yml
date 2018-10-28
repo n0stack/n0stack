@@ -18,6 +18,7 @@ services:
       - api
       - --etcd-endpoints=etcd:2379
     ports:
+      - "8080:8080"
       - "20180:20180"
     links:
       - etcd
