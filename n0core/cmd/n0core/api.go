@@ -17,7 +17,6 @@ import (
 	"github.com/n0stack/n0stack/n0proto/pool/v0"
 	"github.com/n0stack/n0stack/n0proto/provisioning/v0"
 
-	_ "github.com/n0stack/n0stack/n0core/pkg/api/provisioning/novnc"
 	"github.com/rakyll/statik/fs"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware"
@@ -155,7 +154,7 @@ func ServeAPI(ctx *cli.Context) error {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.GET("/api/v0/virtual_machines/:name/vncwebsocket", vma.ProxyWebsocket())
-	e.GET("/static/virtual_machines/", echo.WrapHandler(http.StripPrefix("/static/virtual_machines/", http.FileServer(statikFs))))
+	e.GET("/static/virtual_machines/*", echo.WrapHandler(http.StripPrefix("/static/virtual_machines/", http.FileServer(statikFs))))
 
 	log.Printf("[INFO] Started API")
 	// 本当は panic させる必要がある
