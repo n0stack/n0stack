@@ -165,7 +165,8 @@ func TestFetchBlockStorage(t *testing.T) {
 	}
 }
 
-// func TestApplyBlockStorageAboutErrors(t *testing.T) {}
+// url is blank
+// func TestFetchBlockStorageAboutErrors(t *testing.T) {}
 
 func TestBlockStorageAboutInUseState(t *testing.T) {
 	m := memory.NewMemoryDatastore()

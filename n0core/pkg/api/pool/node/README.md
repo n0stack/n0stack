@@ -94,7 +94,7 @@ limit_bytes: 10
 ```
 grpc_cli call localhost:20181 n0stack.pool.NodeService/ReleaseStorage '
 name: "test" 
-storage_name: "test-reserve" 
+storage_name: "ubuntu-1804-iso" 
 '
 ```
 

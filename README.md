@@ -27,14 +27,22 @@
 
 加えて、個人的に楽しいので可能な限り新しく面白い技術を採用していく。
 
-## n0proto
+## Components 
+
+![](docs/images/components.svg)
+
+### n0proto
 
 Protobuf definitions for all of n0stack services
 
-## n0core
+### n0ui
+
+Web UI for n0stack API
+
+### n0cli
+
+CLI for n0stack API
+
+### n0core
 
 The example for implementations about n0stack API
-
-## n0ui
-
-UI for n0stack API

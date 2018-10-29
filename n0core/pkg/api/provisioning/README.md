@@ -5,7 +5,7 @@
 ### BlockStorage
 
 ```
-grpc_cli call localhost:20183 n0stack.provisioning.BlockStorageService/CreateBlockStorage '
+grpc_cli call localhost:20180 n0stack.provisioning.BlockStorageService/CreateBlockStorage '
 name: "test-empty-volume"
 annotations {
   key: "n0core/provisioning/request_node_name"
@@ -60,8 +60,8 @@ grpc_cli call localhost:20183 n0stack.provisioning.BlockStorageService/SetInuseB
 ### Virtual machine
 
 ```
-grpc_cli call localhost:20184 n0stack.provisioning.VirtualMachineService/CreateVirtualMachine '
-name: "test-vm"
+grpc_cli call localhost:20180 n0stack.provisioning.VirtualMachineService/CreateVirtualMachine '
+name: "test-vm-2"
 annotations {
   key: "n0core/provisioning/request_node_name"
   value: "test"
@@ -72,7 +72,7 @@ limit_cpu_milli_core: 1000
 request_memory_bytes: 1073741824
 limit_memory_bytes: 1073741824
 
-block_storage_names: "test-ubuntu-volume"
+block_storage_names: "test-empty-volume"
 nics {
   network_name: "test-network"
 }
