@@ -17,6 +17,7 @@ vendor/
 .vscode/
 
 bin/
+.go-build/
 
 # using in docker-compose file
 **/sandbox/*
