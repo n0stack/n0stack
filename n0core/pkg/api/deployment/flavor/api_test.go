@@ -1,3 +1,5 @@
+// +build medium
+
 package flavor
 
 import (
@@ -81,7 +83,7 @@ func TestEmptyFlavor(t *testing.T) {
 	}
 }
 
-func TestApplyImage(t *testing.T) {
+func TestApplyFlavor(t *testing.T) {
 	m := memory.NewMemoryDatastore()
 	vma, vmconn, err := GetTestVirtualMachineAPI()
 	if err != nil {

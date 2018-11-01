@@ -18,16 +18,7 @@ up:
 
 # --- Build ---
 .PHONY: build
-build: build-builder build-n0proto-on-docker
-	docker run -it --rm \
-		-v $(PWD)/.go-build:/root/.cache/go-build/ \
-		-v $(PWD):/go/src/github.com/n0stack/n0stack \
-		-w /go/src/github.com/n0stack/n0stack \
-		-e GO111MODULE=on \
-		n0stack/build-go \
-			make vendor && \
-			make build-n0core && \
-			make build-n0cli
+build: build-builder build-n0proto-on-docker vendor build-on-docker
 
 .PHONY: build-n0core
 build-n0core:
