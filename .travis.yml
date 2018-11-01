@@ -3,8 +3,8 @@ services:
   - docker
 
 script:
-  - make build-docker
-  - docker run n0stack/n0core make analysis
+  - make build
+  - make test-small-on-docker
 
 
 notifications:

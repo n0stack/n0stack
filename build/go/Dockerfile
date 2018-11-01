@@ -11,3 +11,6 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 RUN go get -u golang.org/x/lint/golint
+
+ENV GO111MODULE=on
+ENV DISABLE_KVM=1

@@ -28,6 +28,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.5.1 // indirect
 	github.com/jonboulle/clockwork v0.1.0 // indirect
 	github.com/koding/websocketproxy v0.0.0-20180716164433-0fa3f994f6e7
+	github.com/kr/pretty v0.1.0 // indirect
 	github.com/labstack/echo v3.2.1+incompatible
 	github.com/labstack/gommon v0.2.7 // indirect
 	github.com/mattn/go-colorable v0.0.9 // indirect
@@ -43,7 +44,7 @@ require (
 	github.com/satori/go.uuid v1.2.0
 	github.com/shirou/gopsutil v2.18.10+incompatible
 	github.com/shirou/w32 v0.0.0-20160930032740-bb4de0191aa4 // indirect
-	github.com/sirupsen/logrus v1.1.1 // indirect
+	github.com/sirupsen/logrus v1.2.0 // indirect
 	github.com/soheilhy/cmux v0.1.4 // indirect
 	github.com/tmc/grpc-websocket-proxy v0.0.0-20171017195756-830351dc03c6 // indirect
 	github.com/ugorji/go/codec v0.0.0-20181022190402-e5e69e061d4f // indirect
@@ -58,8 +59,10 @@ require (
 	go.uber.org/zap v1.9.1
 	golang.org/x/crypto v0.0.0-20181030102418-4d3f4d9ffa16
 	golang.org/x/net v0.0.0-20181029044818-c44066c5c816
+	golang.org/x/sys v0.0.0-20181031143558-9b800f95dbbc // indirect
 	golang.org/x/time v0.0.0-20180412165947-fbb02b2291d2 // indirect
 	google.golang.org/genproto v0.0.0-20181029155118-b69ba1387ce2 // indirect
 	google.golang.org/grpc v1.16.0
+	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/yaml.v2 v2.2.1
 )

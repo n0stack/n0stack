@@ -1,20 +1,11 @@
 version: '3'
 services:
-  mock_agent:
-    image: n0stack/n0core
-    command:
-      - ./bin/n0core
-      - mock-agent
-      - --name=mock-node
-      - --advertise-address=mock_agent
-      - --node-api-endpoint=api:20180
-    links:
-      - api
-
   api:
-    image: n0stack/n0core
+    image: debian:buster
+    volumes:
+      - ./bin/:/n0stack
     command:
-      - ./bin/n0core
+      - /n0stack/n0core
       - api
       - --etcd-endpoints=etcd:2379
     ports:
@@ -22,6 +13,19 @@ services:
       - "20180:20180"
     links:
       - etcd
+
+  mock_agent:
+    image: debian:buster
+    volumes:
+      - ./bin/:/n0stack
+    command:
+      - /n0stack/n0core
+      - mock-agent
+      - --name=mock-node
+      - --advertise-address=mock_agent
+      - --node-api-endpoint=api:20180
+    links:
+      - api
 
   etcd:
     image: quay.io/coreos/etcd:v3.3
