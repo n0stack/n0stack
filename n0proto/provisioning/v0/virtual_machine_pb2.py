@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='n0stack.provisioning',
   syntax='proto3',
   serialized_options=_b('Z@github.com/n0stack/n0stack/n0proto/provisioning/v0;pprovisioning'),
-  serialized_pb=_b('\n%provisioning/v0/virtual_machine.proto\x12\x14n0stack.provisioning\x1a\x1bgoogle/protobuf/empty.proto\"o\n\x11VirtualMachineNIC\x12\x14\n\x0cnetwork_name\x18\x01 \x01(\t\x12\x18\n\x10hardware_address\x18\x02 \x01(\t\x12\x14\n\x0cipv4_address\x18\x03 \x01(\t\x12\x14\n\x0cipv6_address\x18\x04 \x01(\t\"\xea\x04\n\x0eVirtualMachine\x12\x0c\n\x04name\x18\x01 \x01(\t\x12J\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32\x35.n0stack.provisioning.VirtualMachine.AnnotationsEntry\x12\x1e\n\x16request_cpu_milli_core\x18\n \x01(\r\x12\x1c\n\x14limit_cpu_milli_core\x18\x0b \x01(\r\x12\x1c\n\x14request_memory_bytes\x18\x0c \x01(\x04\x12\x1a\n\x12limit_memory_bytes\x18\r \x01(\x04\x12\x1b\n\x13\x62lock_storage_names\x18\x0e \x03(\t\x12\x35\n\x04nics\x18\x0f \x03(\x0b\x32\'.n0stack.provisioning.VirtualMachineNIC\x12G\n\x05state\x18\x32 \x01(\x0e\x32\x38.n0stack.provisioning.VirtualMachine.VirtualMachineState\x12\x0c\n\x04uuid\x18\x33 \x01(\t\x12\x19\n\x11\x63ompute_node_name\x18\x34 \x01(\t\x12\x14\n\x0c\x63ompute_name\x18\x35 \x01(\t\x12\x1f\n\x17network_interface_names\x18\x36 \x03(\t\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"U\n\x13VirtualMachineState\x12\n\n\x06\x46\x41ILED\x10\x00\x12\x0b\n\x07UNKNOWN\x10\x01\x12\x0b\n\x07RUNNING\x10\x02\x12\x0c\n\x08SHUTDOWN\x10\x03\x12\n\n\x06PAUSED\x10\x04\"\x84\x03\n\x1b\x43reateVirtualMachineRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12W\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32\x42.n0stack.provisioning.CreateVirtualMachineRequest.AnnotationsEntry\x12\x1e\n\x16request_cpu_milli_core\x18\n \x01(\r\x12\x1c\n\x14limit_cpu_milli_core\x18\x0b \x01(\r\x12\x1c\n\x14request_memory_bytes\x18\x0c \x01(\x04\x12\x1a\n\x12limit_memory_bytes\x18\r \x01(\x04\x12\x1b\n\x13\x62lock_storage_names\x18\x0e \x03(\t\x12\x35\n\x04nics\x18\x0f \x03(\x0b\x32\'.n0stack.provisioning.VirtualMachineNIC\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x1c\n\x1aListVirtualMachinesRequest\"\\\n\x1bListVirtualMachinesResponse\x12=\n\x0fVirtualMachines\x18\x01 \x03(\x0b\x32$.n0stack.provisioning.VirtualMachine\"(\n\x18GetVirtualMachineRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"\x93\x02\n\x1bUpdateVirtualMachineRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12W\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32\x42.n0stack.provisioning.UpdateVirtualMachineRequest.AnnotationsEntry\x12\x1e\n\x16request_cpu_milli_core\x18\n \x01(\r\x12\x1c\n\x14request_memory_bytes\x18\x0c \x01(\x04\x12\x1b\n\x13\x62lock_storage_names\x18\x0e \x03(\t\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"+\n\x1b\x44\x65leteVirtualMachineRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\")\n\x19\x42ootVirtualMachineRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"9\n\x1bRebootVirtualMachineRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04hard\x18\x02 \x01(\x08\";\n\x1dShutdownVirtualMachineRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04hard\x18\x02 \x01(\x08\")\n\x19SaveVirtualMachineRequest\x12\x0c\n\x04name\x18\x01 \x01(\t2\x95\x08\n\x15VirtualMachineService\x12q\n\x14\x43reateVirtualMachine\x12\x31.n0stack.provisioning.CreateVirtualMachineRequest\x1a$.n0stack.provisioning.VirtualMachine\"\x00\x12|\n\x13ListVirtualMachines\x12\x30.n0stack.provisioning.ListVirtualMachinesRequest\x1a\x31.n0stack.provisioning.ListVirtualMachinesResponse\"\x00\x12k\n\x11GetVirtualMachine\x12..n0stack.provisioning.GetVirtualMachineRequest\x1a$.n0stack.provisioning.VirtualMachine\"\x00\x12q\n\x14UpdateVirtualMachine\x12\x31.n0stack.provisioning.UpdateVirtualMachineRequest\x1a$.n0stack.provisioning.VirtualMachine\"\x00\x12\x63\n\x14\x44\x65leteVirtualMachine\x12\x31.n0stack.provisioning.DeleteVirtualMachineRequest\x1a\x16.google.protobuf.Empty\"\x00\x12m\n\x12\x42ootVirtualMachine\x12/.n0stack.provisioning.BootVirtualMachineRequest\x1a$.n0stack.provisioning.VirtualMachine\"\x00\x12q\n\x14RebootVirtualMachine\x12\x31.n0stack.provisioning.RebootVirtualMachineRequest\x1a$.n0stack.provisioning.VirtualMachine\"\x00\x12u\n\x16ShutdownVirtualMachine\x12\x33.n0stack.provisioning.ShutdownVirtualMachineRequest\x1a$.n0stack.provisioning.VirtualMachine\"\x00\x12m\n\x12SaveVirtualMachine\x12/.n0stack.provisioning.SaveVirtualMachineRequest\x1a$.n0stack.provisioning.VirtualMachine\"\x00\x42\x42Z@github.com/n0stack/n0stack/n0proto/provisioning/v0;pprovisioningb\x06proto3')
+  serialized_pb=_b('\n%provisioning/v0/virtual_machine.proto\x12\x14n0stack.provisioning\x1a\x1bgoogle/protobuf/empty.proto\"o\n\x11VirtualMachineNIC\x12\x14\n\x0cnetwork_name\x18\x01 \x01(\t\x12\x18\n\x10hardware_address\x18\x02 \x01(\t\x12\x14\n\x0cipv4_address\x18\x03 \x01(\t\x12\x14\n\x0cipv6_address\x18\x04 \x01(\t\"\xea\x04\n\x0eVirtualMachine\x12\x0c\n\x04name\x18\x01 \x01(\t\x12J\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32\x35.n0stack.provisioning.VirtualMachine.AnnotationsEntry\x12\x1e\n\x16request_cpu_milli_core\x18\n \x01(\r\x12\x1c\n\x14limit_cpu_milli_core\x18\x0b \x01(\r\x12\x1c\n\x14request_memory_bytes\x18\x0c \x01(\x04\x12\x1a\n\x12limit_memory_bytes\x18\r \x01(\x04\x12\x1b\n\x13\x62lock_storage_names\x18\x0e \x03(\t\x12\x35\n\x04nics\x18\x0f \x03(\x0b\x32\'.n0stack.provisioning.VirtualMachineNIC\x12G\n\x05state\x18\x32 \x01(\x0e\x32\x38.n0stack.provisioning.VirtualMachine.VirtualMachineState\x12\x0c\n\x04uuid\x18\x33 \x01(\t\x12\x19\n\x11\x63ompute_node_name\x18\x34 \x01(\t\x12\x14\n\x0c\x63ompute_name\x18\x35 \x01(\t\x12\x1f\n\x17network_interface_names\x18\x36 \x03(\t\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"U\n\x13VirtualMachineState\x12\n\n\x06\x46\x41ILED\x10\x00\x12\x0b\n\x07UNKNOWN\x10\x01\x12\x0b\n\x07RUNNING\x10\x02\x12\x0c\n\x08SHUTDOWN\x10\x03\x12\n\n\x06PAUSED\x10\x04\"\x84\x03\n\x1b\x43reateVirtualMachineRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12W\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32\x42.n0stack.provisioning.CreateVirtualMachineRequest.AnnotationsEntry\x12\x1e\n\x16request_cpu_milli_core\x18\n \x01(\r\x12\x1c\n\x14limit_cpu_milli_core\x18\x0b \x01(\r\x12\x1c\n\x14request_memory_bytes\x18\x0c \x01(\x04\x12\x1a\n\x12limit_memory_bytes\x18\r \x01(\x04\x12\x1b\n\x13\x62lock_storage_names\x18\x0e \x03(\t\x12\x35\n\x04nics\x18\x0f \x03(\x0b\x32\'.n0stack.provisioning.VirtualMachineNIC\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x1c\n\x1aListVirtualMachinesRequest\"\\\n\x1bListVirtualMachinesResponse\x12=\n\x0fVirtualMachines\x18\x01 \x03(\x0b\x32$.n0stack.provisioning.VirtualMachine\"(\n\x18GetVirtualMachineRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"\x93\x02\n\x1bUpdateVirtualMachineRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12W\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32\x42.n0stack.provisioning.UpdateVirtualMachineRequest.AnnotationsEntry\x12\x1e\n\x16request_cpu_milli_core\x18\n \x01(\r\x12\x1c\n\x14request_memory_bytes\x18\x0c \x01(\x04\x12\x1b\n\x13\x62lock_storage_names\x18\x0e \x03(\t\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"+\n\x1b\x44\x65leteVirtualMachineRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\")\n\x19\x42ootVirtualMachineRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"9\n\x1bRebootVirtualMachineRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04hard\x18\x02 \x01(\x08\";\n\x1dShutdownVirtualMachineRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04hard\x18\x02 \x01(\x08\")\n\x19SaveVirtualMachineRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"\"\n\x12OpenConsoleRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"*\n\x13OpenConsoleResponse\x12\x13\n\x0b\x63onsole_url\x18\x01 \x01(\t2\xfb\x08\n\x15VirtualMachineService\x12q\n\x14\x43reateVirtualMachine\x12\x31.n0stack.provisioning.CreateVirtualMachineRequest\x1a$.n0stack.provisioning.VirtualMachine\"\x00\x12|\n\x13ListVirtualMachines\x12\x30.n0stack.provisioning.ListVirtualMachinesRequest\x1a\x31.n0stack.provisioning.ListVirtualMachinesResponse\"\x00\x12k\n\x11GetVirtualMachine\x12..n0stack.provisioning.GetVirtualMachineRequest\x1a$.n0stack.provisioning.VirtualMachine\"\x00\x12q\n\x14UpdateVirtualMachine\x12\x31.n0stack.provisioning.UpdateVirtualMachineRequest\x1a$.n0stack.provisioning.VirtualMachine\"\x00\x12\x63\n\x14\x44\x65leteVirtualMachine\x12\x31.n0stack.provisioning.DeleteVirtualMachineRequest\x1a\x16.google.protobuf.Empty\"\x00\x12m\n\x12\x42ootVirtualMachine\x12/.n0stack.provisioning.BootVirtualMachineRequest\x1a$.n0stack.provisioning.VirtualMachine\"\x00\x12q\n\x14RebootVirtualMachine\x12\x31.n0stack.provisioning.RebootVirtualMachineRequest\x1a$.n0stack.provisioning.VirtualMachine\"\x00\x12u\n\x16ShutdownVirtualMachine\x12\x33.n0stack.provisioning.ShutdownVirtualMachineRequest\x1a$.n0stack.provisioning.VirtualMachine\"\x00\x12m\n\x12SaveVirtualMachine\x12/.n0stack.provisioning.SaveVirtualMachineRequest\x1a$.n0stack.provisioning.VirtualMachine\"\x00\x12\x64\n\x0bOpenConsole\x12(.n0stack.provisioning.OpenConsoleRequest\x1a).n0stack.provisioning.OpenConsoleResponse\"\x00\x42\x42Z@github.com/n0stack/n0stack/n0proto/provisioning/v0;pprovisioningb\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,])
 
@@ -733,6 +733,68 @@ _SAVEVIRTUALMACHINEREQUEST = _descriptor.Descriptor(
   serialized_end=1910,
 )
 
+
+_OPENCONSOLEREQUEST = _descriptor.Descriptor(
+  name='OpenConsoleRequest',
+  full_name='n0stack.provisioning.OpenConsoleRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='name', full_name='n0stack.provisioning.OpenConsoleRequest.name', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1912,
+  serialized_end=1946,
+)
+
+
+_OPENCONSOLERESPONSE = _descriptor.Descriptor(
+  name='OpenConsoleResponse',
+  full_name='n0stack.provisioning.OpenConsoleResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='console_url', full_name='n0stack.provisioning.OpenConsoleResponse.console_url', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1948,
+  serialized_end=1990,
+)
+
 _VIRTUALMACHINE_ANNOTATIONSENTRY.containing_type = _VIRTUALMACHINE
 _VIRTUALMACHINE.fields_by_name['annotations'].message_type = _VIRTUALMACHINE_ANNOTATIONSENTRY
 _VIRTUALMACHINE.fields_by_name['nics'].message_type = _VIRTUALMACHINENIC
@@ -756,6 +818,8 @@ DESCRIPTOR.message_types_by_name['BootVirtualMachineRequest'] = _BOOTVIRTUALMACH
 DESCRIPTOR.message_types_by_name['RebootVirtualMachineRequest'] = _REBOOTVIRTUALMACHINEREQUEST
 DESCRIPTOR.message_types_by_name['ShutdownVirtualMachineRequest'] = _SHUTDOWNVIRTUALMACHINEREQUEST
 DESCRIPTOR.message_types_by_name['SaveVirtualMachineRequest'] = _SAVEVIRTUALMACHINEREQUEST
+DESCRIPTOR.message_types_by_name['OpenConsoleRequest'] = _OPENCONSOLEREQUEST
+DESCRIPTOR.message_types_by_name['OpenConsoleResponse'] = _OPENCONSOLERESPONSE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 VirtualMachineNIC = _reflection.GeneratedProtocolMessageType('VirtualMachineNIC', (_message.Message,), dict(
@@ -866,6 +930,20 @@ SaveVirtualMachineRequest = _reflection.GeneratedProtocolMessageType('SaveVirtua
   ))
 _sym_db.RegisterMessage(SaveVirtualMachineRequest)
 
+OpenConsoleRequest = _reflection.GeneratedProtocolMessageType('OpenConsoleRequest', (_message.Message,), dict(
+  DESCRIPTOR = _OPENCONSOLEREQUEST,
+  __module__ = 'provisioning.v0.virtual_machine_pb2'
+  # @@protoc_insertion_point(class_scope:n0stack.provisioning.OpenConsoleRequest)
+  ))
+_sym_db.RegisterMessage(OpenConsoleRequest)
+
+OpenConsoleResponse = _reflection.GeneratedProtocolMessageType('OpenConsoleResponse', (_message.Message,), dict(
+  DESCRIPTOR = _OPENCONSOLERESPONSE,
+  __module__ = 'provisioning.v0.virtual_machine_pb2'
+  # @@protoc_insertion_point(class_scope:n0stack.provisioning.OpenConsoleResponse)
+  ))
+_sym_db.RegisterMessage(OpenConsoleResponse)
+
 
 DESCRIPTOR._options = None
 _VIRTUALMACHINE_ANNOTATIONSENTRY._options = None
@@ -878,8 +956,8 @@ _VIRTUALMACHINESERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=1913,
-  serialized_end=2958,
+  serialized_start=1993,
+  serialized_end=3140,
   methods=[
   _descriptor.MethodDescriptor(
     name='CreateVirtualMachine',
@@ -960,6 +1038,15 @@ _VIRTUALMACHINESERVICE = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_SAVEVIRTUALMACHINEREQUEST,
     output_type=_VIRTUALMACHINE,
+    serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
+    name='OpenConsole',
+    full_name='n0stack.provisioning.VirtualMachineService.OpenConsole',
+    index=9,
+    containing_service=None,
+    input_type=_OPENCONSOLEREQUEST,
+    output_type=_OPENCONSOLERESPONSE,
     serialized_options=None,
   ),
 ])

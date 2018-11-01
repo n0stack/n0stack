@@ -60,6 +60,11 @@ class VirtualMachineServiceStub(object):
         request_serializer=provisioning_dot_v0_dot_virtual__machine__pb2.SaveVirtualMachineRequest.SerializeToString,
         response_deserializer=provisioning_dot_v0_dot_virtual__machine__pb2.VirtualMachine.FromString,
         )
+    self.OpenConsole = channel.unary_unary(
+        '/n0stack.provisioning.VirtualMachineService/OpenConsole',
+        request_serializer=provisioning_dot_v0_dot_virtual__machine__pb2.OpenConsoleRequest.SerializeToString,
+        response_deserializer=provisioning_dot_v0_dot_virtual__machine__pb2.OpenConsoleResponse.FromString,
+        )
 
 
 class VirtualMachineServiceServicer(object):
@@ -130,6 +135,13 @@ class VirtualMachineServiceServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def OpenConsole(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_VirtualMachineServiceServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -177,6 +189,11 @@ def add_VirtualMachineServiceServicer_to_server(servicer, server):
           servicer.SaveVirtualMachine,
           request_deserializer=provisioning_dot_v0_dot_virtual__machine__pb2.SaveVirtualMachineRequest.FromString,
           response_serializer=provisioning_dot_v0_dot_virtual__machine__pb2.VirtualMachine.SerializeToString,
+      ),
+      'OpenConsole': grpc.unary_unary_rpc_method_handler(
+          servicer.OpenConsole,
+          request_deserializer=provisioning_dot_v0_dot_virtual__machine__pb2.OpenConsoleRequest.FromString,
+          response_serializer=provisioning_dot_v0_dot_virtual__machine__pb2.OpenConsoleResponse.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

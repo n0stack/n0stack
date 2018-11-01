@@ -2,8 +2,9 @@ sudo: required
 services:
   - docker
 
+
 script:
-  - make build
+  - make all
   - make test-small-on-docker
 
 
