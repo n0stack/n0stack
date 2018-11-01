@@ -54,32 +54,41 @@ func convert(i interface{}) interface{} {
 	return i
 }
 
+// TODO :生成自動化
+func GetMessageType(s string, conn *grpc.ClientConn) (reflect.Type, reflect.Value, bool) {
+	var t reflect.Type
+	var v reflect.Value
+
+	switch s {
+	case "node", "Node":
+		t = reflect.TypeOf(ppool.NewNodeServiceClient(conn))
+		v = reflect.ValueOf(ppool.NewNodeServiceClient(conn))
+	case "network", "Network":
+		t = reflect.TypeOf(ppool.NewNetworkServiceClient(conn))
+		v = reflect.ValueOf(ppool.NewNetworkServiceClient(conn))
+	case "block_storage", "BlockStorage":
+		t = reflect.TypeOf(pprovisioning.NewBlockStorageServiceClient(conn))
+		v = reflect.ValueOf(pprovisioning.NewBlockStorageServiceClient(conn))
+	case "virtual_machine", "VirtualMachine":
+		t = reflect.TypeOf(pprovisioning.NewVirtualMachineServiceClient(conn))
+		v = reflect.ValueOf(pprovisioning.NewVirtualMachineServiceClient(conn))
+	case "image", "Image":
+		t = reflect.TypeOf(pdeployment.NewImageServiceClient(conn))
+		v = reflect.ValueOf(pdeployment.NewImageServiceClient(conn))
+	case "flavor", "Flavor":
+		t = reflect.TypeOf(pdeployment.NewFlavorServiceClient(conn))
+		v = reflect.ValueOf(pdeployment.NewFlavorServiceClient(conn))
+	default:
+		return nil, v, false
+	}
+
+	return t, v, true
+}
+
 // return response JSON bytes
 func (a Task) Do(conn *grpc.ClientConn) (proto.Message, error) {
-	var grpcCliType reflect.Type
-	var grpcCliValue reflect.Value
-
-	// TODO :生成自動化
-	switch a.Type {
-	case "node", "Node":
-		grpcCliType = reflect.TypeOf(ppool.NewNodeServiceClient(conn))
-		grpcCliValue = reflect.ValueOf(ppool.NewNodeServiceClient(conn))
-	case "network", "Network":
-		grpcCliType = reflect.TypeOf(ppool.NewNetworkServiceClient(conn))
-		grpcCliValue = reflect.ValueOf(ppool.NewNetworkServiceClient(conn))
-	case "block_storage", "BlockStorage":
-		grpcCliType = reflect.TypeOf(pprovisioning.NewBlockStorageServiceClient(conn))
-		grpcCliValue = reflect.ValueOf(pprovisioning.NewBlockStorageServiceClient(conn))
-	case "virtual_machine", "VirtualMachine":
-		grpcCliType = reflect.TypeOf(pprovisioning.NewVirtualMachineServiceClient(conn))
-		grpcCliValue = reflect.ValueOf(pprovisioning.NewVirtualMachineServiceClient(conn))
-	case "image", "Image":
-		grpcCliType = reflect.TypeOf(pdeployment.NewImageServiceClient(conn))
-		grpcCliValue = reflect.ValueOf(pdeployment.NewImageServiceClient(conn))
-	case "flavor", "Flavor":
-		grpcCliType = reflect.TypeOf(pdeployment.NewFlavorServiceClient(conn))
-		grpcCliValue = reflect.ValueOf(pdeployment.NewFlavorServiceClient(conn))
-	default:
+	grpcCliType, grpcCliValue, ok := GetMessageType(a.Type, conn)
+	if !ok {
 		return nil, fmt.Errorf("Resource type '%s' do not exist", a.Type)
 	}
 
