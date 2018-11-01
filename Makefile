@@ -116,18 +116,22 @@ analysis:
 	golint ./... | grep -v vendor # https://github.com/golang/lint/issues/320
 
 # TODO: check n0proto changes
-test-small: build-n0proto-on-docker
-	git diff --name-status --exit-code n0proto  # n0proto
-	go test -cover ./...  # n0core, n0cli
+test-small: test-small-n0proto test-small-go
 
-test-small-on-docker:
+test-small-on-docker: test-small-n0proto
 	docker run -it --rm \
 		-v $(PWD)/.go-build:/root/.cache/go-build/ \
 		-v $(PWD):/go/src/github.com/n0stack/n0stack \
 		-w /go/src/github.com/n0stack/n0stack \
 		-e GO111MODULE=off \
 		n0stack/build-go \
-			make test-small
+			make test-small-go
+
+test-small-n0proto: build-n0proto-on-docker
+	git diff --name-status --exit-code n0proto  # n0proto
+
+test-small-go:
+	go test -cover ./...  # n0core, n0cli
 
 test-medium: build-n0core-on-docker up-mock # with root, having dependency for external
 	sudo go test -tags=medium -cover ./...   # n0core, n0cli
