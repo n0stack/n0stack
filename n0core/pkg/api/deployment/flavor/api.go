@@ -114,9 +114,10 @@ func (a FlavorAPI) DeleteFlavor(ctx context.Context, req *pdeployment.DeleteFlav
 	return &empty.Empty{}, nil
 }
 
+// TODO: 異常系の処理
 func (a FlavorAPI) GenerateVirtualMachine(ctx context.Context, req *pdeployment.GenerateVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
 	prev := &pdeployment.Flavor{}
-	if err := a.dataStore.Get(req.VirtualMachineName, prev); err != nil {
+	if err := a.dataStore.Get(req.FlavorName, prev); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.VirtualMachineName)
 	}
