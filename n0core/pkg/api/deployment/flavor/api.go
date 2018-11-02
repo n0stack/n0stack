@@ -3,6 +3,7 @@ package flavor
 import (
 	"context"
 	"log"
+	"fmt"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/empty"
@@ -124,11 +125,13 @@ func (a FlavorAPI) GenerateVirtualMachine(ctx context.Context, req *pdeployment.
 		return nil, grpc.Errorf(codes.NotFound, "Flavor '%s' is not found", req.VirtualMachineName)
 	}
 
-	bs, err := a.imageAPI.GenerateBlockStorage(context.Background(), &pdeployment.GenerateBlockStorageRequest{
-		ImageName:    req.ImageName,
-		Tag:          req.ImageTag,
-		LimitBytes:   prev.LimitStorageBytes,
-		RequestBytes: req.RequestStorageBytes,
+	bsName := fmt.Sprintf("%s-%s", req.VirtualMachineName, req.ImageName)
+	_, err := a.imageAPI.GenerateBlockStorage(context.Background(), &pdeployment.GenerateBlockStorageRequest{
+		ImageName:        req.ImageName,
+		Tag:              req.ImageTag,
+		BlockStorageName: bsName,
+		LimitBytes:       prev.LimitStorageBytes,
+		RequestBytes:     req.RequestStorageBytes,
 	})
 	if err != nil {
 		log.Printf("Failed to generate blocksotrage: err='%s'", err.Error())
@@ -142,7 +145,7 @@ func (a FlavorAPI) GenerateVirtualMachine(ctx context.Context, req *pdeployment.
 		RequestCpuMilliCore: req.RequestCpuMilliCore,
 		LimitMemoryBytes:    prev.LimitMemoryBytes,
 		RequestMemoryBytes:  req.RequestMemoryBytes,
-		BlockStorageNames:   []string{bs.Name},
+		BlockStorageNames:   []string{bsName},
 		Nics: []*pprovisioning.VirtualMachineNIC{
 			&pprovisioning.VirtualMachineNIC{
 				NetworkName: prev.NetworkName,
