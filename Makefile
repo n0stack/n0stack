@@ -37,7 +37,7 @@ build-n0core-on-docker:
 
 .PHONY: build-n0cli
 build-n0cli:
-	go build -o bin/n0cli -v ./n0core/cmd/n0cli
+	go build -o bin/n0cli -v ./n0cli/cmd/n0cli
 
 .PHONY: build-n0cli-on-docker
 build-n0cli-on-docker:

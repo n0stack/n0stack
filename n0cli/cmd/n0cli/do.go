@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/n0stack/n0stack/n0core/pkg/dag"
+	"github.com/n0stack/n0stack/n0cli/pkg/dag"
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
 	yaml "gopkg.in/yaml.v2"

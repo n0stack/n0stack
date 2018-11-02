@@ -70,7 +70,6 @@ func (a FlavorAPI) GetFlavor(ctx context.Context, req *pdeployment.GetFlavorRequ
 }
 
 func (a FlavorAPI) ApplyFlavor(ctx context.Context, req *pdeployment.ApplyFlavorRequest) (*pdeployment.Flavor, error) {
-
 	res := &pdeployment.Flavor{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
