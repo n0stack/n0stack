@@ -206,6 +206,9 @@ func (a ImageAPI) GenerateBlockStorage(ctx context.Context, req *pdeployment.Gen
 	if prev.Tags == nil {
 		return nil, grpc.Errorf(codes.NotFound, "Tag '%s' is not found", req.Tag)
 	}
+	if _, ok := prev.Tags[req.Tag]; !ok {
+		return nil, grpc.Errorf(codes.NotFound, "Tag '%s' is not found", req.Tag)
+	}
 
 	bs, err := a.blockstorageAPI.CopyBlockStorage(context.Background(), &pprovisioning.CopyBlockStorageRequest{
 		SourceBlockStorage: prev.Tags[req.Tag],
