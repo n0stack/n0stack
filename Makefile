@@ -12,9 +12,10 @@ run-all-in-one: build-on-docker up
 		--base-directory=./sandbox/workdir
 
 .PHONY: up
-up:
+up: build-n0core-on-docker
 	mkdir -p sandbox
 	docker-compose up -d --scale mock_agent=0
+	docker-compose restart
 
 
 # --- Build ---
@@ -105,10 +106,13 @@ clean:
 	sudo rm -rf sandbox
 	sudo rm -rf vendor
 
-up-mock:
+up-mock: build-n0core-on-docker
 	mkdir -p sandbox
 	docker-compose up -d
+	docker-compose restart
 
+logs:
+	docker-compose logs -f api
 
 # --- Test ---
 analysis:
@@ -133,5 +137,5 @@ test-small-n0proto: build-n0proto-on-docker
 test-small-go:
 	go test -cover ./...  # n0core, n0cli
 
-test-medium: build-n0core-on-docker up-mock # with root, having dependency for external
+test-medium: up-mock # with root, having dependency for external
 	sudo go test -tags=medium -cover ./...   # n0core, n0cli
