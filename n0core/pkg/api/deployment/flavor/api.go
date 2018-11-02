@@ -135,7 +135,8 @@ func (a FlavorAPI) GenerateVirtualMachine(ctx context.Context, req *pdeployment.
 	})
 	if err != nil {
 		log.Printf("Failed to generate blocksotrage: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "")
+		return nil, err
+		// return nil, grpc.Errorf(codes.Internal, "")
 	}
 
 	res, err := a.vmAPI.CreateVirtualMachine(context.Background(), &pprovisioning.CreateVirtualMachineRequest{
