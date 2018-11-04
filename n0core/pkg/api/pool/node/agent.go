@@ -10,6 +10,7 @@ import (
 	"syscall"
 
 	"code.cloudfoundry.org/bytefmt"
+	"github.com/cenkalti/backoff"
 	"github.com/n0stack/n0stack/n0proto/pool/v0"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
@@ -107,12 +108,20 @@ func RegisterNodeToAPI(name, advertiseAddress, api string) error {
 
 	log.Printf("[INFO] Apply req: '%+v'", ar)
 
-	n, err = cli.ApplyNode(context.Background(), ar)
+	b := backoff.WithMaxRetries(backoff.NewExponentialBackOff(), 5)
+	err = backoff.Retry(func() error {
+		n, err = cli.ApplyNode(context.Background(), ar)
+		if err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] Applied Node to APi on registerNodeToAPI, Node:%v", n)
+
+		return nil
+	}, b)
 	if err != nil {
 		return err
 	}
-
-	log.Printf("[INFO] Applied Node to APi on registerNodeToAPI, Node:%v", n)
 
 	return nil
 }
