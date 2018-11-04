@@ -109,10 +109,11 @@ clean:
 up-mock: build-n0core-on-docker
 	mkdir -p sandbox
 	docker-compose up -d
-	docker-compose restart
+	docker-compose restart api
+	docker-compose restart mock_agent
 
 logs:
-	docker-compose logs -f api
+	docker-compose logs -f api mock_agent
 
 # --- Test ---
 analysis:
