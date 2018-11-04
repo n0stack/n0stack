@@ -91,7 +91,7 @@ func (a *BlockStorageAPI) CreateBlockStorage(ctx context.Context, req *pprovisio
 		Name:  req.Name,
 		Bytes: req.LimitBytes,
 	})
-	if err != nil && grpc.Code(err) != codes.AlreadyExists {
+	if err != nil {
 		log.Printf("Failed to create block_storage on node '%s': err='%s'", res.NodeName, err.Error()) // TODO: #89
 		goto ReleaseStorage
 	}
