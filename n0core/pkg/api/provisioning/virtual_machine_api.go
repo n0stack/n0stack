@@ -53,44 +53,54 @@ func CreateVirtualMachineAPI(ds datastore.Datastore, noa ppool.NodeServiceClient
 	return a, nil
 }
 
+func WrapRollbackError(err error) {
+	if err != nil {
+		log.Printf("[CRITICAL] Failed to rollback: err=\n%s", err.Error())
+	}
+}
+
+// WrapGrpcErrorf returns grpc.Errorf
+// in the case of 'Internal', logging message because the server has failed
+func WrapGrpcErrorf(c codes.Code, format string, a ...interface{}) error {
+	err := grpc.Errorf(c, format, a...)
+
+	if c == codes.Internal {
+		log.Printf("[WARNING] "+format, a...)
+	}
+	
+	return err
+}
+
 func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprovisioning.CreateVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
 	// validation
 	switch {
 	case req.Name == "":
-		return nil, grpc.Errorf(codes.InvalidArgument, "Set name")
+		return nil, WrapGrpcErrorf(codes.InvalidArgument, "Set name")
 
 	case req.LimitCpuMilliCore%1000 != 0:
-		return nil, grpc.Errorf(codes.InvalidArgument, "Make limit_cpu_milli_core '%d' a multiple of 1000", req.LimitCpuMilliCore)
+		return nil, WrapGrpcErrorf(codes.InvalidArgument, "Make limit_cpu_milli_core '%d' a multiple of 1000", req.LimitCpuMilliCore)
 
 	case req.RequestCpuMilliCore == 0 || req.RequestMemoryBytes == 0:
-		return nil, grpc.Errorf(codes.InvalidArgument, "Set request_*")
+		return nil, WrapGrpcErrorf(codes.InvalidArgument, "Set request_*")
 	}
 
 	prev := &pprovisioning.VirtualMachine{}
 	if err := a.dataStore.Get(req.Name, prev); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
+		return nil, WrapGrpcErrorf(codes.Internal, "Failed to get data for db: err='%s'", err.Error())
 	} else if prev.Name != "" {
-		return nil, grpc.Errorf(codes.AlreadyExists, "BlockStorage '%s' is already exists", req.Name)
+		return nil, WrapGrpcErrorf(codes.AlreadyExists, "BlockStorage '%s' is already exists", req.Name)
 	}
 
 	tx := transaction.Begin()
-
 	res := &pprovisioning.VirtualMachine{
 		Name:                req.Name,
 		Annotations:         req.Annotations,
-		RequestCpuMilliCore: req.RequestCpuMilliCore,
-		LimitCpuMilliCore:   req.LimitCpuMilliCore,
-		RequestMemoryBytes:  req.RequestMemoryBytes,
-		LimitMemoryBytes:    req.LimitMemoryBytes,
-		BlockStorageNames:   req.BlockStorageNames,
-		Nics:                req.Nics,
 	}
-	var err error
 	if res.Annotations == nil {
 		res.Annotations = make(map[string]string)
 	}
-
+	
+	var err error
 	var n *ppool.Node
 	if node, ok := req.Annotations[AnnotationRequestNodeName]; !ok {
 		n, err = a.nodeAPI.ScheduleCompute(context.Background(), &ppool.ScheduleComputeRequest{
@@ -104,7 +114,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 			LimitMemoryBytes:    req.LimitMemoryBytes,
 		})
 		if err != nil {
-			return nil, grpc.Errorf(grpc.Code(err), "Failed to ScheduleCompute: desc=%s", grpc.ErrorDesc(err))
+			return nil, WrapGrpcErrorf(grpc.Code(err), "Failed to ScheduleCompute: desc=%s", grpc.ErrorDesc(err))
 		}
 	} else {
 		n, err = a.nodeAPI.ReserveCompute(context.Background(), &ppool.ReserveComputeRequest{
@@ -119,7 +129,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 			LimitMemoryBytes:    req.LimitMemoryBytes,
 		})
 		if err != nil {
-			return nil, grpc.Errorf(grpc.Code(err), "Failed to ReserveCompute: desc=%s", grpc.ErrorDesc(err))
+			return nil, WrapGrpcErrorf(grpc.Code(err), "Failed to ReserveCompute: desc=%s", grpc.ErrorDesc(err))
 		}
 	}
 	tx.PushRollback(fmt.Sprintf("ReleaseCompute '%s'", req.Name), func() error {
@@ -131,23 +141,21 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 	})
 	res.ComputeName = req.Name
 	res.ComputeNodeName = n.Name
-	// res.RequestCpuMilliCore = n.ReservedComputes[res.ComputeName].
+	res.RequestCpuMilliCore = req.RequestCpuMilliCore
+	res.LimitCpuMilliCore = req.LimitCpuMilliCore
+	res.RequestMemoryBytes = req.RequestMemoryBytes
+	res.LimitMemoryBytes = req.LimitMemoryBytes
 
 	// errorについて考える
 	conn, err := a.nodeConnections.GetConnection(res.ComputeNodeName)
 	cli := NewVirtualMachineAgentServiceClient(conn)
 	if err != nil {
-		log.Printf("[WARNING] Failed to dial to node: err=%s", err.Error())
-		if err := tx.Rollback(); err != nil {
-			log.Printf("[CRITICAL] Failed to rollback: err=\n%s", err.Error())
-		}
-		return nil, grpc.Errorf(codes.Internal, "Failed to dial to node: err=%s", err.Error())
+		WrapRollbackError(tx.Rollback())
+		return nil, WrapGrpcErrorf(codes.Internal, "Failed to dial to node: err=%s", err.Error())
 	}
 	if conn == nil {
-		if err := tx.Rollback(); err != nil {
-			log.Printf("[CRITICAL] Failed to rollback: err=\n%s", err.Error())
-		}
-		return nil, grpc.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", res.ComputeNodeName)
+		WrapRollbackError(tx.Rollback())
+		return nil, WrapGrpcErrorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", res.ComputeNodeName)
 	}
 	defer conn.Close()
 
@@ -155,11 +163,8 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 	for i, n := range req.BlockStorageNames {
 		v, err := a.blockstorageAPI.SetInuseBlockStorage(context.Background(), &pprovisioning.SetInuseBlockStorageRequest{Name: n})
 		if err != nil {
-			log.Printf("Failed to SetInuseBlockStorage '%s': err='%s'", n, err.Error())
-			if err := tx.Rollback(); err != nil {
-				log.Printf("[CRITICAL] Failed to rollback: err=\n%s", err.Error())
-			}
-			return nil, grpc.Errorf(grpc.Code(err), "Failed to SetInuseBlockStorage: desc=%s", grpc.ErrorDesc(err))
+			WrapRollbackError(tx.Rollback())
+			return nil, WrapGrpcErrorf(grpc.Code(err), "Failed to SetInuseBlockStorage: desc=%s", grpc.ErrorDesc(err))
 		}
 		tx.PushRollback(fmt.Sprintf("SetAvailableBlockStorage '%s'", n), func() error {
 			_, err := a.blockstorageAPI.SetAvailableBlockStorage(context.Background(), &pprovisioning.SetAvailableBlockStorageRequest{Name: n})
@@ -172,6 +177,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 			BootIndex: uint32(i),
 		})
 	}
+	res.BlockStorageNames = req.BlockStorageNames
 
 	res.NetworkInterfaceNames = make([]string, len(req.Nics))
 	res.Nics = make([]*pprovisioning.VirtualMachineNIC, len(req.Nics))
@@ -188,11 +194,8 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 			Ipv6Address:     nic.Ipv6Address,
 		})
 		if err != nil {
-			log.Printf("Failed to ReserveNetworkInterface '%s': err='%s'", req.Name+strconv.Itoa(i), err.Error())
-			if err := tx.Rollback(); err != nil {
-				log.Printf("[CRITICAL] Failed to rollback: err=\n%s", err.Error())
-			}
-			return nil, grpc.Errorf(grpc.Code(err), "Failed to ReserveNetworkInterface: desc=%s", grpc.ErrorDesc(err))
+			WrapRollbackError(tx.Rollback())
+			return nil, WrapGrpcErrorf(grpc.Code(err), "Failed to ReserveNetworkInterface: desc=%s", grpc.ErrorDesc(err))
 		}
 		tx.PushRollback("", func() error {
 			_, err := a.networkAPI.ReleaseNetworkInterface(context.Background(), &ppool.ReleaseNetworkInterfaceRequest{
@@ -219,23 +222,21 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		Blockdev:    blockdev,
 	})
 	if err != nil {
-		log.Printf("Failed to CreateVirtualMachineAgent '%s': err='%s'", res.ComputeNodeName, err.Error()) // TODO: #89
-		if err := tx.Rollback(); err != nil {
-			log.Printf("[CRITICAL] Failed to rollback: err=\n%s", err.Error())
-		}
-		return nil, grpc.Errorf(grpc.Code(err), "Failed to CreateVirtualMachineAgent: desc=%s", grpc.ErrorDesc(err))
+		WrapRollbackError(tx.Rollback())
+		return nil, WrapGrpcErrorf(grpc.Code(err), "Failed to CreateVirtualMachineAgent: desc=%s", grpc.ErrorDesc(err))
 	}
+	tx.PushRollback("", func() error {
+		_, err := cli.DeleteVirtualMachineAgent(context.Background(), &DeleteVirtualMachineAgentRequest{Name: req.Name})
+		return err
+	})
 
 	res.Annotations[AnnotationVNCWebSocketPort] = strconv.Itoa(int(vm.WebsocketPort))
 	res.State = GetAPIStateFromAgentState(vm.State)
 	res.Uuid = vm.Uuid
 
 	if err := a.dataStore.Apply(req.Name, res); err != nil {
-		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
-		if err := tx.Rollback(); err != nil {
-			log.Printf("[CRITICAL] Failed to rollback: err=\n%s", err.Error())
-		}
-		return nil, grpc.Errorf(codes.Internal, "Failed to apply '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
+		WrapRollbackError(tx.Rollback())
+		return nil, WrapGrpcErrorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
 	}
 
 	return res, nil
