@@ -10,9 +10,9 @@ import (
 	"sync"
 
 	"github.com/golang/protobuf/jsonpb"
-	"github.com/n0stack/n0stack/n0proto/deployment/v0"
-	"github.com/n0stack/n0stack/n0proto/pool/v0"
-	"github.com/n0stack/n0stack/n0proto/provisioning/v0"
+	"github.com/n0stack/n0stack/n0proto.go/deployment/v0"
+	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
 
 	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"

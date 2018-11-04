@@ -9,7 +9,7 @@ import (
 	"code.cloudfoundry.org/bytefmt"
 	"github.com/google/go-cmp/cmp"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/memory"
-	"github.com/n0stack/n0stack/n0proto/pool/v0"
+	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 )

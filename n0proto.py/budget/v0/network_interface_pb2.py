@@ -18,8 +18,8 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='budget/v0/network_interface.proto',
   package='n0stack.budget',
   syntax='proto3',
-  serialized_options=_b('Z4github.com/n0stack/n0stack/n0proto/budget/v0;pbudget'),
-  serialized_pb=_b('\n!budget/v0/network_interface.proto\x12\x0en0stack.budget\"\xd4\x01\n\x10NetworkInterface\x12\x46\n\x0b\x61nnotations\x18\x01 \x03(\x0b\x32\x31.n0stack.budget.NetworkInterface.AnnotationsEntry\x12\x18\n\x10hardware_address\x18\x02 \x01(\t\x12\x14\n\x0cipv4_address\x18\x03 \x01(\t\x12\x14\n\x0cipv6_address\x18\x04 \x01(\t\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x42\x36Z4github.com/n0stack/n0stack/n0proto/budget/v0;pbudgetb\x06proto3')
+  serialized_options=_b('Z7github.com/n0stack/n0stack/n0proto.go/budget/v0;pbudget'),
+  serialized_pb=_b('\n!budget/v0/network_interface.proto\x12\x0en0stack.budget\"\xd4\x01\n\x10NetworkInterface\x12\x46\n\x0b\x61nnotations\x18\x01 \x03(\x0b\x32\x31.n0stack.budget.NetworkInterface.AnnotationsEntry\x12\x18\n\x10hardware_address\x18\x02 \x01(\t\x12\x14\n\x0cipv4_address\x18\x03 \x01(\t\x12\x14\n\x0cipv6_address\x18\x04 \x01(\t\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x42\x39Z7github.com/n0stack/n0stack/n0proto.go/budget/v0;pbudgetb\x06proto3')
 )
 
 

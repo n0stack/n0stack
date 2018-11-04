@@ -18,8 +18,8 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='budget/v0/compute.proto',
   package='n0stack.budget',
   syntax='proto3',
-  serialized_options=_b('Z4github.com/n0stack/n0stack/n0proto/budget/v0;pbudget'),
-  serialized_pb=_b('\n\x17\x62udget/v0/compute.proto\x12\x0en0stack.budget\"\xf4\x01\n\x07\x43ompute\x12=\n\x0b\x61nnotations\x18\x01 \x03(\x0b\x32(.n0stack.budget.Compute.AnnotationsEntry\x12\x1e\n\x16request_cpu_milli_core\x18\x02 \x01(\r\x12\x1c\n\x14limit_cpu_milli_core\x18\x03 \x01(\r\x12\x1c\n\x14request_memory_bytes\x18\x04 \x01(\x04\x12\x1a\n\x12limit_memory_bytes\x18\x05 \x01(\x04\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x42\x36Z4github.com/n0stack/n0stack/n0proto/budget/v0;pbudgetb\x06proto3')
+  serialized_options=_b('Z7github.com/n0stack/n0stack/n0proto.go/budget/v0;pbudget'),
+  serialized_pb=_b('\n\x17\x62udget/v0/compute.proto\x12\x0en0stack.budget\"\xf4\x01\n\x07\x43ompute\x12=\n\x0b\x61nnotations\x18\x01 \x03(\x0b\x32(.n0stack.budget.Compute.AnnotationsEntry\x12\x1e\n\x16request_cpu_milli_core\x18\x02 \x01(\r\x12\x1c\n\x14limit_cpu_milli_core\x18\x03 \x01(\r\x12\x1c\n\x14request_memory_bytes\x18\x04 \x01(\x04\x12\x1a\n\x12limit_memory_bytes\x18\x05 \x01(\x04\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x42\x39Z7github.com/n0stack/n0stack/n0proto.go/budget/v0;pbudgetb\x06proto3')
 )
 
 

@@ -4,7 +4,7 @@ import (
 	"net"
 	"testing"
 
-	"github.com/n0stack/n0stack/n0proto/budget/v0"
+	"github.com/n0stack/n0stack/n0proto.go/budget/v0"
 )
 
 func TestGenerateHardwareAddress(t *testing.T) {

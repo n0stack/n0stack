@@ -11,7 +11,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/memory"
-	"github.com/n0stack/n0stack/n0proto/pool/v0"
+	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
 )
 
 func TestEmptyNetwork(t *testing.T) {

@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/memberlist"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
-	"github.com/n0stack/n0stack/n0proto/pool/v0"
+	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
 )
 
 type NodeAPIEventDelegate struct {

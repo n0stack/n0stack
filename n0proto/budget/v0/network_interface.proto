@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/n0stack/n0stack/n0proto/budget/v0;pbudget";
+option go_package = "github.com/n0stack/n0stack/n0proto.go/budget/v0;pbudget";
 
 package n0stack.budget;
 

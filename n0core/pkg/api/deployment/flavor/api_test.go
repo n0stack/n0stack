@@ -10,8 +10,8 @@ import (
 	"code.cloudfoundry.org/bytefmt"
 	"github.com/google/go-cmp/cmp"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/memory"
-	"github.com/n0stack/n0stack/n0proto/deployment/v0"
-	"github.com/n0stack/n0stack/n0proto/provisioning/v0"
+	"github.com/n0stack/n0stack/n0proto.go/deployment/v0"
+	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 )
@@ -146,6 +146,7 @@ func TestApplyFlavor(t *testing.T) {
 	}
 }
 
+// TODO: network
 // func TestGenerateVirtualMachine(t *testing.T) {
 // 	m := memory.NewMemoryDatastore()
 // 	vma, vmconn, err := GetTestVirtualMachineAPI()
@@ -183,7 +184,7 @@ func TestApplyFlavor(t *testing.T) {
 // 		t.Fatalf("ApplyFlavor got error: err='%s'", err.Error())
 // 	}
 
-// 	res, err := fa.GenerateVirtualMachine(context.Background(), &pdeployment.GenerateVirtualMachineRequest{
+// 	_, err = fa.GenerateVirtualMachine(context.Background(), &pdeployment.GenerateVirtualMachineRequest{
 // 		FlavorName: f.Name,
 // 		VirtualMachineName: "generated_vm",
 // 		RequestCpuMilliCore: 100,
@@ -192,4 +193,7 @@ func TestApplyFlavor(t *testing.T) {
 // 		ImageName: "test-image",
 // 		ImageTag: "test-tag",
 // 	})
+// 	if err != nil {
+// 		t.Fatalf("GenerateVirtualMachine got error: err='%s'", err.Error())
+// 	}
 // }

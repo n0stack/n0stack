@@ -1,7 +1,7 @@
 package provisioning
 
 import (
-	"github.com/n0stack/n0stack/n0proto/provisioning/v0"
+	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
 
 	"github.com/n0stack/n0stack/n0core/pkg/driver/qemu"
 )

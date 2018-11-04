@@ -9,9 +9,9 @@ import (
 	"strconv"
 
 	"github.com/koding/websocketproxy"
-	"github.com/n0stack/n0stack/n0proto/pool/v0"
-	"github.com/n0stack/n0stack/n0proto/provisioning/v0"
-	"github.com/n0stack/n0stack/n0proto/pkg/transaction"
+	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
+	"github.com/n0stack/n0stack/n0proto.go/pkg/transaction"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/empty"
@@ -290,19 +290,17 @@ func (a *VirtualMachineAPI) UpdateVirtualMachine(ctx context.Context, req *pprov
 func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprovisioning.DeleteVirtualMachineRequest) (*empty.Empty, error) {
 	prev := &pprovisioning.VirtualMachine{}
 	if err := a.dataStore.Get(req.Name, prev); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-		} else if prev.Name == "" {
-		return nil, grpc.Errorf(codes.NotFound, "")
+		return nil, WrapGrpcErrorf(codes.Internal, "Failed to get '%s' from db: err='%s'", req.Name, err.Error())
+	} else if prev.Name == "" {
+		return nil, WrapGrpcErrorf(codes.NotFound, "")
 	}
 
 	conn, err := a.nodeConnections.GetConnection(prev.ComputeNodeName)
 	if err != nil {
-		log.Printf("[WARNING] Fail to dial to node: err=%v.", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "") // TODO: #89
+		return nil, WrapGrpcErrorf(codes.Internal, "") // TODO: #89
 	}
 	if conn == nil {
-		return nil, grpc.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", prev.ComputeNodeName)
+		return nil, WrapGrpcErrorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", prev.ComputeNodeName)
 	}
 	defer conn.Close()
 	cli := NewVirtualMachineAgentServiceClient(conn)
@@ -311,79 +309,40 @@ func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprov
 		Name:   req.Name,
 		Netdev: StructNetDev(prev.Nics, prev.NetworkInterfaceNames),
 	})
-	if err != nil {
-		log.Printf("Fail to delete virtual machine on node, err:%v.", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Fail to delete virtual machine on node") // TODO #89
+	if err != nil && grpc.Code(err) != codes.NotFound {
+		return nil, WrapGrpcErrorf(grpc.Code(err), "Failed to DeleteVirtualMachineAgent: desc=%s", grpc.ErrorDesc(err))
 	}
 
-	if err := a.releaseCompute(prev.ComputeNodeName, prev.ComputeName); err != nil {
-		return nil, err
+	_, err = a.nodeAPI.ReleaseCompute(context.Background(), &ppool.ReleaseComputeRequest{
+		NodeName:    prev.ComputeNodeName,
+		ComputeName: prev.ComputeName,
+	})
+	if err != nil && grpc.Code(err) != codes.NotFound {
+		return nil, WrapGrpcErrorf(grpc.Code(err), "Failed to ReleaseCompute: desc=%s", grpc.ErrorDesc(err))
 	}
 
-	if err := a.relaseBlockStorages(prev.BlockStorageNames); err != nil {
-		return nil, err
+	for i, nic := range prev.Nics {
+		_, err := a.networkAPI.ReleaseNetworkInterface(context.Background(), &ppool.ReleaseNetworkInterfaceRequest{
+			NetworkName:          nic.NetworkName,
+			NetworkInterfaceName: prev.NetworkInterfaceNames[i],
+		})
+		if err != nil && grpc.Code(err) != codes.NotFound {
+			return nil, WrapGrpcErrorf(grpc.Code(err), "Failed to ReleaseNetworkInterface: desc=%s", grpc.ErrorDesc(err))
+		}
 	}
-	
-	if err := a.releaseNics(prev.Nics, prev.NetworkInterfaceNames); err != nil {
-		return nil, err
+
+	for _, n := range prev.BlockStorageNames {
+		_, err := a.blockstorageAPI.SetAvailableBlockStorage(context.Background(), &pprovisioning.SetAvailableBlockStorageRequest{Name: n})
+		if err != nil {
+			return nil, WrapGrpcErrorf(grpc.Code(err), "Failed to SetAvailableBlockStorage: desc=%s", grpc.ErrorDesc(err))
+		}
 	}
 
 	if err := a.dataStore.Delete(req.Name); err != nil {
-		return nil, grpc.Errorf(codes.Internal, "message:Failed to delete from db.\tgot:%v", err.Error())
+		return nil, WrapGrpcErrorf(codes.Internal, "message:Failed to delete from db.\tgot:%v", err.Error())
 	}
 	
 	return &empty.Empty{}, nil
-}
-
-func (a VirtualMachineAPI) releaseCompute(node, compute string) error {
-	_, err := a.nodeAPI.ReleaseCompute(context.Background(), &ppool.ReleaseComputeRequest{
-		NodeName:    node,
-		ComputeName: compute,
-	})
-	if err != nil {
-		log.Printf("[ERROR] Failed to release compute '%s': %s", compute, err.Error())
-		
-		// Notfound でもとりあえず問題ないため、処理を続ける
-		if grpc.Code(err) != codes.NotFound {
-			return grpc.Errorf(codes.Internal, "Failed to release compute '%s': please retry", compute)
-		}
-	}
-	
-	return nil
-}
-
-func (a VirtualMachineAPI) releaseNics(nics []*pprovisioning.VirtualMachineNIC, networkInterfaces []string) error {
-	for i, nic := range nics {
-		_, err := a.networkAPI.ReleaseNetworkInterface(context.Background(), &ppool.ReleaseNetworkInterfaceRequest{
-			NetworkName:          nic.NetworkName,
-			NetworkInterfaceName: networkInterfaces[i],
-		})
-		if err != nil {
-			log.Printf("[ERROR] Failed to release network interface '%s': %s", networkInterfaces[i], err.Error())
-
-			// Notfound でもとりあえず問題ないため、処理を続ける
-			if grpc.Code(err) != codes.NotFound {
-				return grpc.Errorf(codes.Internal, "Failed to release network interface '%s': please check network interface on your own", networkInterfaces[i])
-			}
-		}
-	}
-
-	return nil
-}
-
-func (a VirtualMachineAPI) relaseBlockStorages(names []string) error {
-	for _, n := range names {
-		_, err := a.blockstorageAPI.SetAvailableBlockStorage(context.Background(), &pprovisioning.SetAvailableBlockStorageRequest{Name: n})
-		if err != nil {
-			log.Printf("Failed to get block storage '%s' from API: %s", n, err.Error())
-
-			if grpc.Code(err) != codes.NotFound {
-				return grpc.Errorf(codes.Internal, "Failed to get block storage '%s' as in use from API", n)
-			}
-		}
-	}
-
-	return nil
 }
 
 func (a *VirtualMachineAPI) BootVirtualMachine(ctx context.Context, req *pprovisioning.BootVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {

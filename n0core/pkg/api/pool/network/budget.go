@@ -6,7 +6,7 @@ import (
 	"hash/crc32"
 	"net"
 
-	"github.com/n0stack/n0stack/n0proto/budget/v0"
+	"github.com/n0stack/n0stack/n0proto.go/budget/v0"
 )
 
 func GenerateHardwareAddress(id string) net.HardwareAddr {

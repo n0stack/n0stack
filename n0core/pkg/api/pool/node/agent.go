@@ -11,7 +11,7 @@ import (
 
 	"code.cloudfoundry.org/bytefmt"
 	"github.com/cenkalti/backoff"
-	"github.com/n0stack/n0stack/n0proto/pool/v0"
+	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

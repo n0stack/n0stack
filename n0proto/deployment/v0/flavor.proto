@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/n0stack/n0stack/n0proto/deployment/v0;pdeployment";
+option go_package = "github.com/n0stack/n0stack/n0proto.go/deployment/v0;pdeployment";
 
 package n0stack.deployment;
 

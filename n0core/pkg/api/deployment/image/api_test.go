@@ -11,8 +11,8 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/memory"
-	"github.com/n0stack/n0stack/n0proto/deployment/v0"
-	"github.com/n0stack/n0stack/n0proto/provisioning/v0"
+	"github.com/n0stack/n0stack/n0proto.go/deployment/v0"
+	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 )

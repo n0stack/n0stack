@@ -13,18 +13,18 @@ import (
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
 	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/etcd"
-	"github.com/n0stack/n0stack/n0proto/deployment/v0"
-	"github.com/n0stack/n0stack/n0proto/pool/v0"
-	"github.com/n0stack/n0stack/n0proto/provisioning/v0"
+	"github.com/n0stack/n0stack/n0proto.go/deployment/v0"
+	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
 
 	"github.com/rakyll/statik/fs"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware"
-	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
+	// "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	"go.uber.org/zap"
+	// "go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
@@ -124,21 +124,21 @@ func ServeAPI(ctx *cli.Context) error {
 	}
 
 	// とりあえず log を表示するため利用する
-	zapLogger, err := zap.NewProduction()
-	if err != nil {
-		return err
-	}
+	// zapLogger, err := zap.NewProduction()
+	// if err != nil {
+	// 	return err
+	// }
 
 	grpcServer := grpc.NewServer(
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			grpc_recovery.StreamServerInterceptor(),
-			grpc_zap.StreamServerInterceptor(zapLogger),
+			// grpc_zap.StreamServerInterceptor(zapLogger),
 			// grpc_auth.StreamServerInterceptor(auth),
 			// grpc_prometheus.StreamServerInterceptor,
 		)),
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			grpc_recovery.UnaryServerInterceptor(),
-			grpc_zap.UnaryServerInterceptor(zapLogger),
+			// grpc_zap.UnaryServerInterceptor(zapLogger),
 			// grpc_auth.UnaryServerInterceptor(auth),
 			// grpc_prometheus.UnaryServerInterceptor,
 		)))

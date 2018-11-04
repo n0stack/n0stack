@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/url"
 
-	"github.com/n0stack/n0stack/n0proto/pool/v0"
-	"github.com/n0stack/n0stack/n0proto/provisioning/v0"
+	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
 	"github.com/pkg/errors"
 
 	"github.com/golang/protobuf/proto"
