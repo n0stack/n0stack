@@ -69,7 +69,7 @@ func TestApplyVirtualMachine(t *testing.T) {
 	}
 	defer neconn.Close()
 	bsa, bsconn, err := getTestBlockStorageAPI()
-	if err != nil {
+	if err != nil { 
 		t.Fatalf("Failed to connect block storage api: err='%s'", err.Error())
 	}
 	defer bsconn.Close()
@@ -116,7 +116,9 @@ func TestApplyVirtualMachine(t *testing.T) {
 		Nics: []*pprovisioning.VirtualMachineNIC{
 			&pprovisioning.VirtualMachineNIC{
 				NetworkName: "test-network",
-				// TODO: ipv4_addressが取れてない気がする
+				// TODO: 決め打ちなので恒常的に正しいとは限らない
+				Ipv4Address: "192.168.0.1",
+				HardwareAddress: "52:54:78:fe:71:fd",
 			},
 		},
 
