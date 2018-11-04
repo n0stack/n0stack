@@ -63,10 +63,13 @@ build-n0proto-on-docker:
 		-v `go env GOPATH`/src:/dst \
 		n0stack/build-grpc-go \
 			/entry_point.sh --go_out=plugins=grpc:/dst
+	sudo chown -R $(USER):$(USER) n0proto.go
 	docker run -it --rm \
 		-v $(PWD)/n0proto:/src \
+		-v $(PWD)/n0proto.py:/dst \
 		n0stack/build-grpc-py \
 			/entry_point.sh
+	sudo chown -R $(USER):$(USER) n0proto.py
 
 
 # -- Maintenance ---
