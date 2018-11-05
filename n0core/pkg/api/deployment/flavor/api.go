@@ -2,8 +2,8 @@ package flavor
 
 import (
 	"context"
-	"log"
 	"fmt"
+	"log"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/empty"
@@ -148,7 +148,7 @@ func (a FlavorAPI) GenerateVirtualMachine(ctx context.Context, req *pdeployment.
 		RequestMemoryBytes:  req.RequestMemoryBytes,
 		BlockStorageNames:   []string{bsName},
 		Nics: []*pprovisioning.VirtualMachineNIC{
-			&pprovisioning.VirtualMachineNIC{
+			{
 				NetworkName: prev.NetworkName,
 			},
 		},

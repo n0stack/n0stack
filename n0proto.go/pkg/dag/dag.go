@@ -125,7 +125,7 @@ func (a Task) Do(conn *grpc.ClientConn) (proto.Message, error) {
 func CheckDAG(tasks map[string]*Task) error {
 	result := 0
 
-	for k, _ := range tasks {
+	for k := range tasks {
 		tasks[k].child = make([]string, 0)
 		tasks[k].depends = len(tasks[k].DependsOn)
 	}
@@ -176,7 +176,7 @@ type ActionResult struct {
 
 // 出力で時間を出したほうがよさそう
 func DoDAG(tasks map[string]*Task, out io.Writer, conn *grpc.ClientConn) bool {
-	for k, _ := range tasks {
+	for k := range tasks {
 		tasks[k].child = make([]string, 0)
 		tasks[k].depends = len(tasks[k].DependsOn)
 	}

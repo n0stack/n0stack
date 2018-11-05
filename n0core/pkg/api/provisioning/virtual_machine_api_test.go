@@ -69,7 +69,7 @@ func TestApplyVirtualMachine(t *testing.T) {
 	}
 	defer neconn.Close()
 	bsa, bsconn, err := getTestBlockStorageAPI()
-	if err != nil { 
+	if err != nil {
 		t.Fatalf("Failed to connect block storage api: err='%s'", err.Error())
 	}
 	defer bsconn.Close()
@@ -114,18 +114,18 @@ func TestApplyVirtualMachine(t *testing.T) {
 		RequestMemoryBytes:  1 * bytefmt.GIGABYTE,
 		BlockStorageNames:   []string{"test-block-storage"},
 		Nics: []*pprovisioning.VirtualMachineNIC{
-			&pprovisioning.VirtualMachineNIC{
+			{
 				NetworkName: "test-network",
 				// TODO: 決め打ちなので恒常的に正しいとは限らない
-				Ipv4Address: "192.168.0.1",
+				Ipv4Address:     "192.168.0.1",
 				HardwareAddress: "52:54:78:fe:71:fd",
 			},
 		},
 
-		State:           pprovisioning.VirtualMachine_RUNNING,
-		ComputeNodeName: "mock-node",
-		ComputeName:     "test-virtual-machine",
-		Uuid:            "1d5fd196-b6c9-4f58-86f2-3ef227018e47",
+		State:                 pprovisioning.VirtualMachine_RUNNING,
+		ComputeNodeName:       "mock-node",
+		ComputeName:           "test-virtual-machine",
+		Uuid:                  "1d5fd196-b6c9-4f58-86f2-3ef227018e47",
 		NetworkInterfaceNames: []string{"test-virtual-machine0"},
 	}
 

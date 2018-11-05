@@ -33,17 +33,17 @@ func TestIsDAG(t *testing.T) {
 		{
 			"loop",
 			map[string]*Task{
-				"g1": &Task{
+				"g1": {
 					DependsOn: []string{
 						"g2",
 					},
 				},
-				"g2": &Task{
+				"g2": {
 					DependsOn: []string{
 						"g3",
 					},
 				},
-				"g3": &Task{
+				"g3": {
 					DependsOn: []string{
 						"g1",
 					},
@@ -54,17 +54,17 @@ func TestIsDAG(t *testing.T) {
 		{
 			"liner",
 			map[string]*Task{
-				"g1": &Task{
+				"g1": {
 					DependsOn: []string{
 						"g2",
 					},
 				},
-				"g2": &Task{
+				"g2": {
 					DependsOn: []string{
 						"g3",
 					},
 				},
-				"g3": &Task{},
+				"g3": {},
 			},
 			"",
 		},

@@ -9,9 +9,9 @@ import (
 	"strconv"
 
 	"github.com/koding/websocketproxy"
+	"github.com/n0stack/n0stack/n0proto.go/pkg/transaction"
 	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
 	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
-	"github.com/n0stack/n0stack/n0proto.go/pkg/transaction"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/empty"
@@ -67,7 +67,7 @@ func WrapGrpcErrorf(c codes.Code, format string, a ...interface{}) error {
 	if c == codes.Internal {
 		log.Printf("[WARNING] "+format, a...)
 	}
-	
+
 	return err
 }
 
@@ -93,13 +93,13 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 
 	tx := transaction.Begin()
 	res := &pprovisioning.VirtualMachine{
-		Name:                req.Name,
-		Annotations:         req.Annotations,
+		Name:        req.Name,
+		Annotations: req.Annotations,
 	}
 	if res.Annotations == nil {
 		res.Annotations = make(map[string]string)
 	}
-	
+
 	var err error
 	var n *ppool.Node
 	if node, ok := req.Annotations[AnnotationRequestNodeName]; !ok {
@@ -199,7 +199,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		}
 		tx.PushRollback("", func() error {
 			_, err := a.networkAPI.ReleaseNetworkInterface(context.Background(), &ppool.ReleaseNetworkInterfaceRequest{
-				NetworkName: nic.NetworkName,
+				NetworkName:          nic.NetworkName,
 				NetworkInterfaceName: niname,
 			})
 			return err
@@ -207,10 +207,10 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 
 		res.NetworkInterfaceNames[i] = niname
 		res.Nics[i] = &pprovisioning.VirtualMachineNIC{
-			NetworkName: nic.NetworkName,
+			NetworkName:     nic.NetworkName,
 			HardwareAddress: network.ReservedNetworkInterfaces[niname].HardwareAddress,
-			Ipv4Address: network.ReservedNetworkInterfaces[niname].Ipv4Address,
-			Ipv6Address: network.ReservedNetworkInterfaces[niname].Ipv6Address,
+			Ipv4Address:     network.ReservedNetworkInterfaces[niname].Ipv4Address,
+			Ipv6Address:     network.ReservedNetworkInterfaces[niname].Ipv6Address,
 		}
 	}
 
@@ -242,7 +242,6 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 	return res, nil
 }
 
-
 func (a *VirtualMachineAPI) ListVirtualMachines(ctx context.Context, req *pprovisioning.ListVirtualMachinesRequest) (*pprovisioning.ListVirtualMachinesResponse, error) {
 	res := &pprovisioning.ListVirtualMachinesResponse{}
 	f := func(s int) []proto.Message {
@@ -255,7 +254,7 @@ func (a *VirtualMachineAPI) ListVirtualMachines(ctx context.Context, req *pprovi
 		for i, v := range res.VirtualMachines {
 			m[i] = v
 		}
-		
+
 		return m
 	}
 
@@ -341,7 +340,7 @@ func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprov
 	if err := a.dataStore.Delete(req.Name); err != nil {
 		return nil, WrapGrpcErrorf(codes.Internal, "message:Failed to delete from db.\tgot:%v", err.Error())
 	}
-	
+
 	return &empty.Empty{}, nil
 }
 

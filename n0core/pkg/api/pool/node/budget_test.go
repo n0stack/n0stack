@@ -57,7 +57,7 @@ func TestCheckCompute(t *testing.T) {
 				RequestMemoryBytes:  1024 * 10,
 			},
 			reserved: map[string]*pbudget.Compute{
-				"hoge": &pbudget.Compute{
+				"hoge": {
 					RequestCpuMilliCore: 1,
 				},
 			},
@@ -105,7 +105,7 @@ func TestCheckCompute(t *testing.T) {
 				RequestMemoryBytes:  1024,
 			},
 			reserved: map[string]*pbudget.Compute{
-				"hoge": &pbudget.Compute{
+				"hoge": {
 					RequestCpuMilliCore: 1,
 				},
 			},
@@ -153,7 +153,7 @@ func TestCheckStorage(t *testing.T) {
 			req:   1024,
 			total: 1024 * 10,
 			reserved: map[string]*pbudget.Storage{
-				"hoge": &pbudget.Storage{
+				"hoge": {
 					RequestBytes: 1024,
 				},
 			},
@@ -171,7 +171,7 @@ func TestCheckStorage(t *testing.T) {
 			req:   1024,
 			total: 1024,
 			reserved: map[string]*pbudget.Storage{
-				"hoge": &pbudget.Storage{
+				"hoge": {
 					RequestBytes: 1024,
 				},
 			},

@@ -25,7 +25,7 @@ func TestScheduleNewIPv4(t *testing.T) {
 	}{
 		{
 			map[string]*pbudget.NetworkInterface{
-				"hoge": &pbudget.NetworkInterface{
+				"hoge": {
 					Ipv4Address: "192.168.0.1",
 				},
 			},
@@ -33,10 +33,10 @@ func TestScheduleNewIPv4(t *testing.T) {
 		},
 		{
 			map[string]*pbudget.NetworkInterface{
-				"foo": &pbudget.NetworkInterface{
+				"foo": {
 					Ipv4Address: "192.168.0.1",
 				},
-				"bar": &pbudget.NetworkInterface{
+				"bar": {
 					Ipv4Address: "192.168.0.2",
 				},
 			},

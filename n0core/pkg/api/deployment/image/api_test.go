@@ -131,7 +131,7 @@ func TestImageAboutRegister(t *testing.T) {
 		Name:    "test-network",
 		Version: 1,
 		RegisteredBlockStorages: []*pdeployment.Image_RegisteredBlockStorage{
-			&pdeployment.Image_RegisteredBlockStorage{
+			{
 				BlockStorageName: "test-image",
 			},
 		},
@@ -247,7 +247,7 @@ func TestImageAboutTag(t *testing.T) {
 		Name:    "test-network",
 		Version: 1,
 		RegisteredBlockStorages: []*pdeployment.Image_RegisteredBlockStorage{
-			&pdeployment.Image_RegisteredBlockStorage{
+			{
 				BlockStorageName: "test-image",
 			},
 		},
