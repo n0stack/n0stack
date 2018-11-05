@@ -106,7 +106,7 @@ func (q *Qemu) virtioBlkPCIAdd(devID, driveID string, bootIndex uint) error {
 		return err
 	}
 
-	bs, err = q.qmp.Run(bs)
+	_, err = q.qmp.Run(bs)
 	if err != nil {
 		return err
 	}
@@ -173,7 +173,7 @@ func (q *Qemu) scsiCDAdd(devID, driveID string, bootIndex uint) error {
 		return err
 	}
 
-	bs, err = q.qmp.Run(bs)
+	_, err = q.qmp.Run(bs)
 	if err != nil {
 		return err
 	}

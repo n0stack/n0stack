@@ -85,7 +85,7 @@ func (q *Qemu) virtioNetPCIAdd(devID, netdevID string, mac net.HardwareAddr) err
 		return err
 	}
 
-	bs, err = q.qmp.Run(bs)
+	_, err = q.qmp.Run(bs)
 	if err != nil {
 		return err
 	}
