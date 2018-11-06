@@ -136,10 +136,11 @@ test-small-on-docker: test-small-n0proto
 			make test-small-go
 
 test-small-n0proto: build-n0proto-on-docker
-	git diff --name-status --exit-code n0proto  # n0proto
+	git diff --name-status --exit-code n0proto.py
+	git diff --name-status --exit-code n0proto.go
 
 test-small-go:
-	go test -cover ./...  # n0core, n0cli
+	go test -cover ./...
 
 test-medium: up-mock # with root, having dependency for external
 	sudo go test -tags=medium -cover ./...   # n0core, n0cli
