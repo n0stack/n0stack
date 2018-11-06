@@ -15,7 +15,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/digitalocean/go-libvirt v0.0.0-20181025154719-83daaa03c8ba // indirect
 	github.com/digitalocean/go-qemu v0.0.0-20171219175440-d5e8dbfd06fd
-	github.com/ghodss/yaml v1.0.0 // indirect
+	github.com/ghodss/yaml v1.0.0
 	github.com/go-ole/go-ole v1.2.1 // indirect
 	github.com/gogo/protobuf v1.1.1 // indirect
 	github.com/golang/groupcache v0.0.0-20181024230925-c65c006176ff // indirect

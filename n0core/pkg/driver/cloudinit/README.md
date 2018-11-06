@@ -6,9 +6,14 @@
 
 ## Dependency packages
 
-- cloud-image-utils
+- genisoimage
 
 ```sh
 apt install -y \
-    cloud-image-utils
+    genisoimage
 ```
+
+## Support distributions
+
+- Ubuntu 18.04
+- CentOS 7
