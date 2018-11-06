@@ -50,6 +50,7 @@ service VirtualMachineAgentService {
 
 message CreateVirtualMachineAgentRequest {
   string name = 1;
+  string uuid = 2;
 
   uint32 vcpus = 4;
   uint64 memory_bytes = 5;

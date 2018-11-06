@@ -29,6 +29,12 @@ build-n0core:
 .PHONY: build-n0core-on-docker
 build-n0core-on-docker:
 	docker run -it --rm \
+		-v $(PWD)/n0core:/src:ro \
+		-v `go env GOPATH`/src:/dst \
+		n0stack/build-grpc-go \
+			/entry_point.sh --go_out=plugins=grpc:/dst
+	sudo chown -R $(USER) n0core
+	docker run -it --rm \
 		-v $(PWD)/.go-build:/root/.cache/go-build/ \
 		-v $(PWD):/go/src/github.com/n0stack/n0stack \
 		-w /go/src/github.com/n0stack/n0stack \
@@ -63,13 +69,13 @@ build-n0proto-on-docker:
 		-v `go env GOPATH`/src:/dst \
 		n0stack/build-grpc-go \
 			/entry_point.sh --go_out=plugins=grpc:/dst
-	sudo chown -R $(USER):$(USER) n0proto.go
+	sudo chown -R $(USER) n0proto.go
 	docker run -it --rm \
 		-v $(PWD)/n0proto:/src:ro \
 		-v $(PWD)/n0proto.py:/dst \
 		n0stack/build-grpc-py \
 			/entry_point.sh
-	sudo chown -R $(USER):$(USER) n0proto.py
+	sudo chown -R $(USER) n0proto.py
 
 
 # -- Maintenance ---
@@ -89,6 +95,7 @@ vendor-on-docker:
 		-e GO111MODULE=on \
 		n0stack/build-go \
 			make vendor
+	sudo chown -R $(USER) vendor
 
 .PHONY: update-go
 update-go:

@@ -56,7 +56,7 @@ func TestEmptyVirtualMachine(t *testing.T) {
 	}
 }
 
-func TestApplyVirtualMachine(t *testing.T) {
+func TestCreateVirtualMachine(t *testing.T) {
 	m := memory.NewMemoryDatastore()
 	noa, noconn, err := getTestNodeAPI()
 	if err != nil {
@@ -121,11 +121,11 @@ func TestApplyVirtualMachine(t *testing.T) {
 				HardwareAddress: "52:54:78:fe:71:fd",
 			},
 		},
+		Uuid:                  "1d5fd196-b6c9-4f58-86f2-3ef227018e47",
 
 		State:                 pprovisioning.VirtualMachine_RUNNING,
 		ComputeNodeName:       "mock-node",
 		ComputeName:           "test-virtual-machine",
-		Uuid:                  "1d5fd196-b6c9-4f58-86f2-3ef227018e47",
 		NetworkInterfaceNames: []string{"test-virtual-machine0"},
 	}
 
@@ -138,6 +138,7 @@ func TestApplyVirtualMachine(t *testing.T) {
 		RequestMemoryBytes:  vm.RequestMemoryBytes,
 		BlockStorageNames:   vm.BlockStorageNames,
 		Nics:                vm.Nics,
+		Uuid:                vm.Uuid,
 	})
 	if err != nil {
 		t.Errorf("Failed to create virtual machine: err='%s'", err.Error())

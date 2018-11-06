@@ -53,6 +53,7 @@ func CreateVirtualMachineAPI(ds datastore.Datastore, noa ppool.NodeServiceClient
 	return a, nil
 }
 
+// TODO: こいつらは外出しして、共有ライブラリとして使えるようにする
 func WrapRollbackError(err error) {
 	if err != nil {
 		log.Printf("[CRITICAL] Failed to rollback: err=\n%s", err.Error())
@@ -216,6 +217,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 
 	vm, err := cli.CreateVirtualMachineAgent(context.Background(), &CreateVirtualMachineAgentRequest{
 		Name:        req.Name,
+		Uuid:        req.Uuid,
 		Vcpus:       req.LimitCpuMilliCore / 1000,
 		MemoryBytes: req.LimitMemoryBytes,
 		Netdev:      StructNetDev(req.Nics, res.NetworkInterfaceNames),

@@ -65,7 +65,17 @@ func (a VirtualMachineAgentAPI) GetWorkDirectory(name string) (string, error) {
 }
 
 func (a VirtualMachineAgentAPI) CreateVirtualMachineAgent(ctx context.Context, req *CreateVirtualMachineAgentRequest) (res *VirtualMachineAgent, errRes error) {
-	id := uuid.NewV5(N0coreVirtualMachineNamespace, req.Name)
+	var id uuid.UUID
+	if req.Uuid == "" {
+		id = uuid.NewV5(N0coreVirtualMachineNamespace, req.Name)
+	} else {
+		var err error
+		id, err = uuid.FromString(req.Uuid)
+		if err != nil {
+			return nil, WrapGrpcErrorf(codes.InvalidArgument, "Set valid uuid: %s", err.Error())
+		}
+	}
+
 	q, err := qemu.OpenQemu(&id)
 	if err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Failed to open qemu process: %s", err.Error())
