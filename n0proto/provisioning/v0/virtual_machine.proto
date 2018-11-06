@@ -21,12 +21,17 @@ message VirtualMachine {
 
   uint32 request_cpu_milli_core = 10;
   uint32 limit_cpu_milli_core = 11;
-
+  
   uint64 request_memory_bytes = 12;
   uint64 limit_memory_bytes = 13;
-
+  
   repeated string block_storage_names = 14;
   repeated VirtualMachineNIC nics = 15;
+
+  string uuid = 16;
+
+  string login_username = 17;
+  repeated string ssh_authorized_keys = 18;
 
   enum VirtualMachineState {
     // falied state because failed some process on API.
@@ -41,8 +46,6 @@ message VirtualMachine {
     PAUSED = 4;
   }
   VirtualMachineState state = 50;
-
-  string uuid = 51;
 
   string compute_node_name = 52;
   string compute_name = 53;
@@ -85,6 +88,11 @@ message CreateVirtualMachineRequest {
 
   repeated string block_storage_names = 14;
   repeated VirtualMachineNIC nics = 15;
+
+  string uuid = 16;
+
+  string login_user_name = 17;
+  repeated string authorized_keys = 18;
 }
 
 message ListVirtualMachinesRequest {}
