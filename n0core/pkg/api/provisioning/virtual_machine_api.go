@@ -205,7 +205,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 				NetworkName:     n.NetworkName,
 				HardwareAddress: n.HardwareAddress,
 				Ipv4AddressCidr: fmt.Sprintf("%s/%d", n.Ipv4Address, m),
-				// Ipv4Gateway: ,
+				// Ipv4Gateway: "192.168.0.254",
 				Nameservers: []string{"8.8.8.8"}, // TODO: 取るようにする
 			}
 		}

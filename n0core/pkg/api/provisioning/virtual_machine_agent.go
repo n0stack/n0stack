@@ -187,7 +187,7 @@ func (a VirtualMachineAgentAPI) CreateVirtualMachineAgent(ctx context.Context, r
 
 	parsedKeys := make([]ssh.PublicKey, len(req.SshAuthorizedKeys))
 	for i, k := range req.SshAuthorizedKeys {
-		parsedKeys[i], err = ssh.ParsePublicKey([]byte(k))
+		parsedKeys[i], _, _, _, err = ssh.ParseAuthorizedKey([]byte(k))
 		if err != nil {
 			WrapRollbackError(tx.Rollback())
 			return nil, WrapGrpcErrorf(codes.InvalidArgument, "ssh_authorized_keys is invalid: value='%s', err='%s'", k, err.Error())
@@ -195,7 +195,7 @@ func (a VirtualMachineAgentAPI) CreateVirtualMachineAgent(ctx context.Context, r
 	}
 
 	c := configdrive.StructConfig(req.LoginUsername, req.Name, parsedKeys, eth)
-	p, err := c.Generate(a.baseDirectory)
+	p, err := c.Generate(wd)
 	if err != nil {
 		WrapRollbackError(tx.Rollback())
 		return nil, WrapGrpcErrorf(codes.Internal, "Failed to generate cloudinit configdrive:  err='%s'", err.Error())
@@ -206,7 +206,7 @@ func (a VirtualMachineAgentAPI) CreateVirtualMachineAgent(ctx context.Context, r
 			Scheme: "file",
 			Path:   p,
 		}).String(),
-		BootIndex: 30, // MEMO: 適当
+		BootIndex: 50, // MEMO: 適当
 	})
 
 	for _, bd := range req.Blockdev {
@@ -224,9 +224,16 @@ func (a VirtualMachineAgentAPI) CreateVirtualMachineAgent(ctx context.Context, r
 
 		// この条件は雑
 		if i.Info.Format == "raw" {
-			if err := q.AttachISO(bd.Name, u, uint(bd.BootIndex)); err != nil {
-				WrapRollbackError(tx.Rollback())
-				return nil, WrapGrpcErrorf(codes.Internal, "Failed to attach iso '%s': err='%s'", u.Path, err.Error())
+			if bd.BootIndex < 3 {
+				if err := q.AttachISO(bd.Name, u, uint(bd.BootIndex)); err != nil {
+					WrapRollbackError(tx.Rollback())
+					return nil, WrapGrpcErrorf(codes.Internal, "Failed to attach iso '%s': err='%s'", u.Path, err.Error())
+				}
+			} else {
+				if err := q.AttachRaw(bd.Name, u, uint(bd.BootIndex)); err != nil {
+					WrapRollbackError(tx.Rollback())
+					return nil, WrapGrpcErrorf(codes.Internal, "Failed to attach raw '%s': err='%s'", u.Path, err.Error())
+				}
 			}
 		} else {
 			if err := q.AttachQcow2(bd.Name, u, uint(bd.BootIndex)); err != nil {
