@@ -72,9 +72,13 @@ type CloudConfigEthernet struct {
 	// NameSearch  []string
 }
 
-func StructConfig(user, hostname string, key ssh.PublicKey, eth []*CloudConfigEthernet) *CloudConfig {
+func StructConfig(user, hostname string, keys []ssh.PublicKey, eth []*CloudConfigEthernet) *CloudConfig {
 	c := &CloudConfig{}
 
+	ks := make([]string, len(keys))
+	for i, k := range keys {
+		ks[i] = string(ssh.MarshalAuthorizedKey(k))
+	}
 	c.Userdata.Users = []cloudConfigUser{
 		{
 			user,
@@ -83,9 +87,7 @@ func StructConfig(user, hostname string, key ssh.PublicKey, eth []*CloudConfigEt
 			[]string{
 				"ALL=(ALL) NOPASSWD:ALL",
 			},
-			[]string{
-				string(ssh.MarshalAuthorizedKey(key)),
-			},
+			ks,
 			true,
 		},
 	}
