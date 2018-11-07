@@ -16,7 +16,7 @@ type cloudConfigUser struct {
 	Groups            string   `yaml:"groups"`
 	Shell             string   `yaml:"shell"`
 	Sudo              []string `yaml:"sudo"`
-	SSHAuthorizedKeys []string `yaml:"ssh-authorized-keys"`
+	SSHAuthorizedKeys []string `yaml:"ssh-authorized-keys,omitempty"`
 	LockPasswd        bool     `yaml:"lock_passwd"`
 	// Passwd            string   `yaml:"passwd"` // mkpasswd --method=SHA-512 --rounds=4096
 }
@@ -29,16 +29,16 @@ type cloudNetworkSubnet struct {
 	Type       string   `yaml:"type"`
 	Address    net.IP   `yaml:"address"`
 	NetMask    net.IP   `yaml:"netmask"`
-	Gateway    net.IP   `yaml:"gateway"`
-	DnsServers []net.IP `yaml:"dns_nameservers"`
-	DnsSearch  []string `yaml:"dns_search"`
+	Gateway    net.IP   `yaml:"gateway,omitempty"`
+	DnsServers []net.IP `yaml:"dns_nameservers,omitempty"`
+	DnsSearch  []string `yaml:"dns_search,omitempty"`
 }
 
 type cloudNetworkConfig struct {
 	Type       string                `yaml:"type"`
 	Name       string                `yaml:"name"`
 	MacAddress string                `yaml:"mac_address"`
-	Subnets    []*cloudNetworkSubnet `yaml:"subnets"`
+	Subnets    []*cloudNetworkSubnet `yaml:"subnets,omitempty"`
 }
 
 type CloudConfig struct {
@@ -51,7 +51,7 @@ type CloudConfig struct {
 	}
 	NetworkConfig struct {
 		Version int                   `yaml:"version"`
-		Config  []*cloudNetworkConfig `yaml:"configs"`
+		Config  []*cloudNetworkConfig `yaml:"config"`
 	}
 
 	isoPath           string
