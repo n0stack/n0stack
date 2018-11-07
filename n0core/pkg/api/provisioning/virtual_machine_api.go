@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -51,25 +52,6 @@ func CreateVirtualMachineAPI(ds datastore.Datastore, noa ppool.NodeServiceClient
 	}
 
 	return a, nil
-}
-
-// TODO: こいつらは外出しして、共有ライブラリとして使えるようにする
-func WrapRollbackError(err error) {
-	if err != nil {
-		log.Printf("[CRITICAL] Failed to rollback: err=\n%s", err.Error())
-	}
-}
-
-// WrapGrpcErrorf returns grpc.Errorf
-// in the case of 'Internal', logging message because the server has failed
-func WrapGrpcErrorf(c codes.Code, format string, a ...interface{}) error {
-	err := grpc.Errorf(c, format, a...)
-
-	if c == codes.Internal {
-		log.Printf("[WARNING] "+format, a...)
-	}
-
-	return err
 }
 
 func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprovisioning.CreateVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
@@ -180,6 +162,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 	}
 	res.BlockStorageNames = req.BlockStorageNames
 
+	netdev := make([]*NetDev, len(req.Nics))
 	res.NetworkInterfaceNames = make([]string, len(req.Nics))
 	res.Nics = make([]*pprovisioning.VirtualMachineNIC, len(req.Nics))
 	for i, nic := range req.Nics {
@@ -213,15 +196,30 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 			Ipv4Address:     network.ReservedNetworkInterfaces[niname].Ipv4Address,
 			Ipv6Address:     network.ReservedNetworkInterfaces[niname].Ipv6Address,
 		}
+
+		_, ipn, _ := net.ParseCIDR(network.Ipv4Cidr)
+		m, _ := ipn.Mask.Size()
+		for i, n := range res.Nics {
+			netdev[i] = &NetDev{
+				Name:            niname,
+				NetworkName:     n.NetworkName,
+				HardwareAddress: n.HardwareAddress,
+				Ipv4AddressCidr: fmt.Sprintf("%s/%d", n.Ipv4Address, m),
+				// Ipv4Gateway: ,
+				Nameservers: []string{"8.8.8.8"}, // TODO: 取るようにする
+			}
+		}
 	}
 
 	vm, err := cli.CreateVirtualMachineAgent(context.Background(), &CreateVirtualMachineAgentRequest{
-		Name:        req.Name,
-		Uuid:        req.Uuid,
-		Vcpus:       req.LimitCpuMilliCore / 1000,
-		MemoryBytes: req.LimitMemoryBytes,
-		Netdev:      StructNetDev(req.Nics, res.NetworkInterfaceNames),
-		Blockdev:    blockdev,
+		Name:              req.Name,
+		Uuid:              req.Uuid,
+		Vcpus:             req.LimitCpuMilliCore / 1000,
+		MemoryBytes:       req.LimitMemoryBytes,
+		Netdev:            netdev,
+		Blockdev:          blockdev,
+		LoginUsername:     req.LoginUsername,
+		SshAuthorizedKeys: req.SshAuthorizedKeys,
 	})
 	if err != nil {
 		WrapRollbackError(tx.Rollback())
@@ -306,9 +304,18 @@ func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprov
 	defer conn.Close()
 	cli := NewVirtualMachineAgentServiceClient(conn)
 
+	netdev := make([]*NetDev, len(prev.Nics))
+	for i, n := range prev.Nics {
+		netdev[i] = &NetDev{
+			Name:            prev.NetworkInterfaceNames[i],
+			NetworkName:     n.NetworkName,
+			HardwareAddress: n.HardwareAddress,
+		}
+	}
+
 	_, err = cli.DeleteVirtualMachineAgent(context.Background(), &DeleteVirtualMachineAgentRequest{
 		Name:   req.Name,
-		Netdev: StructNetDev(prev.Nics, prev.NetworkInterfaceNames),
+		Netdev: netdev,
 	})
 	if err != nil && grpc.Code(err) != codes.NotFound {
 		return nil, WrapGrpcErrorf(grpc.Code(err), "Failed to DeleteVirtualMachineAgent: desc=%s", grpc.ErrorDesc(err))

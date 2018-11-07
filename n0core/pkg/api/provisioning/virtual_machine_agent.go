@@ -2,20 +2,23 @@ package provisioning
 
 import (
 	"context"
+	"fmt"
+	"golang.org/x/crypto/ssh"
 	"log"
 	"net"
 	"net/url"
 	"os"
 	"path/filepath"
 
-	"github.com/n0stack/n0stack/n0core/pkg/driver/qemu_img"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/n0stack/n0stack/n0core/pkg/driver/cloudinit/configdrive"
 	"github.com/n0stack/n0stack/n0core/pkg/driver/iproute2"
 	"github.com/n0stack/n0stack/n0core/pkg/driver/qemu"
+	"github.com/n0stack/n0stack/n0core/pkg/driver/qemu_img"
+	"github.com/n0stack/n0stack/n0proto.go/pkg/transaction"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 )
@@ -33,6 +36,7 @@ func init() {
 
 type VirtualMachineAgentAPI struct {
 	baseDirectory string
+	cloudinit     []*configdrive.CloudConfig
 }
 
 func CreateVirtualMachineAgentAPI(basedir string) (*VirtualMachineAgentAPI, error) {
@@ -64,7 +68,7 @@ func (a VirtualMachineAgentAPI) GetWorkDirectory(name string) (string, error) {
 	return p, nil
 }
 
-func (a VirtualMachineAgentAPI) CreateVirtualMachineAgent(ctx context.Context, req *CreateVirtualMachineAgentRequest) (res *VirtualMachineAgent, errRes error) {
+func (a VirtualMachineAgentAPI) CreateVirtualMachineAgent(ctx context.Context, req *CreateVirtualMachineAgentRequest) (*VirtualMachineAgent, error) {
 	var id uuid.UUID
 	if req.Uuid == "" {
 		id = uuid.NewV5(N0coreVirtualMachineNamespace, req.Name)
@@ -76,100 +80,169 @@ func (a VirtualMachineAgentAPI) CreateVirtualMachineAgent(ctx context.Context, r
 		}
 	}
 
-	q, err := qemu.OpenQemu(&id)
-	if err != nil {
-		return nil, grpc.Errorf(codes.Internal, "Failed to open qemu process: %s", err.Error())
-	}
-	if q.IsRunning() {
-		return nil, grpc.Errorf(codes.AlreadyExists, "")
-	}
+	tx := transaction.Begin()
+	websocket := qemu.GetNewListenPort(VNCWebSocketPortOffset)
 
 	wd, err := a.GetWorkDirectory(req.Name)
 	if err != nil {
-		return nil, grpc.Errorf(codes.Internal, "Failed to get working directory '%s'", wd)
+		return nil, WrapGrpcErrorf(codes.Internal, "Failed to get working directory '%s'", wd)
 	}
-	websocket := qemu.GetNewListenPort(VNCWebSocketPortOffset)
+
+	q, err := qemu.OpenQemu(&id)
+	if err != nil {
+		return nil, WrapGrpcErrorf(codes.Internal, "Failed to open qemu process: %s", err.Error())
+	}
+	if q.IsRunning() {
+		return nil, WrapGrpcErrorf(codes.AlreadyExists, "")
+	}
 
 	if err := q.Start(req.Name, filepath.Join(wd, QMPMonitorSocketFile), websocket, req.Vcpus, req.MemoryBytes); err != nil {
-		log.Printf("Failed to start qemu process: err=%s", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to start qemu process")
+		return nil, WrapGrpcErrorf(codes.Internal, "Failed to start qemu process: err=%s", err.Error())
 	}
 	defer q.Close()
+	tx.PushRollback("delete Qemu", func() error {
+		return q.Delete()
+	})
 
 	createdNetdev := []*NetDev{}
-	for _, nd := range req.Netdev {
+	eth := make([]*configdrive.CloudConfigEthernet, len(req.Netdev))
+	for i, nd := range req.Netdev {
 		b, err := iproute2.NewBridge(TrimNetdevName(nd.NetworkName))
 		if err != nil {
-			log.Printf("Failed to create bridge '%s': err='%s'", nd.NetworkName, err.Error())
-			errRes = grpc.Errorf(codes.Internal, "") // TODO #89
-			goto DeleteNetDev
+			WrapRollbackError(tx.Rollback())
+			return nil, WrapGrpcErrorf(codes.Internal, "Failed to create bridge '%s': err='%s'", nd.NetworkName, err.Error())
 		}
 
 		t, err := iproute2.NewTap(TrimNetdevName(nd.Name))
 		if err != nil {
-			log.Printf("Failed to create tap '%s': err='%s'", nd.Name, err.Error())
-			errRes = grpc.Errorf(codes.Internal, "") // TODO #89
-			goto DeleteNetDev
+			WrapRollbackError(tx.Rollback())
+			return nil, WrapGrpcErrorf(codes.Internal, "Failed to create tap '%s': err='%s'", nd.Name, err.Error())
 		}
 		createdNetdev = append(createdNetdev, nd)
 
 		if err := t.SetMaster(b); err != nil {
-			log.Printf("Failed to set master of tap '%s' as '%s': err='%s'", t.Name(), b.Name(), err.Error())
-			errRes = grpc.Errorf(codes.Internal, "") // TODO #89
-			goto DeleteNetDev
+			WrapRollbackError(tx.Rollback())
+			return nil, WrapGrpcErrorf(codes.Internal, "Failed to set master of tap '%s' as '%s': err='%s'", t.Name(), b.Name(), err.Error())
 		}
 
 		hw, err := net.ParseMAC(nd.HardwareAddress)
 		if err != nil {
-			errRes = grpc.Errorf(codes.InvalidArgument, "Hardware address '%s' is invalid on netdev '%s'", nd.HardwareAddress, nd.Name)
-			goto DeleteNetDev
+			WrapRollbackError(tx.Rollback())
+			return nil, WrapGrpcErrorf(codes.Internal, "Hardware address '%s' is invalid on netdev '%s'", nd.HardwareAddress, nd.Name)
 		}
 
 		if err := q.AttachTap(nd.Name, t.Name(), hw); err != nil {
-			log.Printf("Failed to attach tap: err='%s'", err.Error())
-			errRes = grpc.Errorf(codes.Internal, "Failed to attach tap")
-			goto DeleteNetDev
+			WrapRollbackError(tx.Rollback())
+			return nil, WrapGrpcErrorf(codes.Internal, "Failed to attach tap: err='%s'", err.Error())
+		}
+
+		tx.PushRollback("delete created netdev", func() error {
+			if err := t.Delete(); err != nil {
+				return fmt.Errorf("Failed to delete tap '%s': err='%s'", nd.Name, err.Error())
+			}
+
+			links, err := b.ListSlaves()
+			if err != nil {
+				return fmt.Errorf("Failed to list links of bridge '%s': err='%s'", nd.NetworkName, err.Error())
+			}
+
+			// TODO: 以下遅い気がする
+			i := 0
+			for _, l := range links {
+				if _, err := iproute2.NewTap(l); err == nil {
+					i++
+				}
+			}
+			if i == 0 {
+				if err := b.Delete(); err != nil {
+					return fmt.Errorf("Failed to delete bridge '%s': err='%s'", b.Name(), err.Error())
+				}
+			}
+
+			return nil
+		})
+
+		ip, ipn, err := net.ParseCIDR(nd.Ipv4AddressCidr)
+		if err != nil {
+			WrapRollbackError(tx.Rollback())
+			return nil, WrapGrpcErrorf(codes.InvalidArgument, "Set valid ipv4_address_cidr: value='%s', err='%s'", nd.Ipv4AddressCidr, err.Error())
+		}
+		hwaddr, err := net.ParseMAC(nd.HardwareAddress)
+		if err != nil {
+			WrapRollbackError(tx.Rollback())
+			return nil, WrapGrpcErrorf(codes.InvalidArgument, "Set valid hardware_address: value='%s', err='%s'", nd.HardwareAddress, err.Error())
+		}
+		nameservers := make([]net.IP, len(nd.Nameservers))
+		for i, n := range nd.Nameservers {
+			nameservers[i] = net.ParseIP(n)
+		}
+		eth[i] = &configdrive.CloudConfigEthernet{
+			MacAddress:  hwaddr,
+			Address4:    ip,
+			Network4:    ipn,
+			Gateway4:    net.ParseIP(nd.Ipv4Gateway),
+			NameServers: nameservers,
 		}
 	}
+
+	parsedKeys := make([]ssh.PublicKey, len(req.SshAuthorizedKeys))
+	for i, k := range req.SshAuthorizedKeys {
+		parsedKeys[i], err = ssh.ParsePublicKey([]byte(k))
+		if err != nil {
+			WrapRollbackError(tx.Rollback())
+			return nil, WrapGrpcErrorf(codes.InvalidArgument, "ssh_authorized_keys is invalid: value='%s', err='%s'", k, err.Error())
+		}
+	}
+
+	c := configdrive.StructConfig(req.LoginUsername, req.Name, parsedKeys, eth)
+	p, err := c.Generate(a.baseDirectory)
+	if err != nil {
+		WrapRollbackError(tx.Rollback())
+		return nil, WrapGrpcErrorf(codes.Internal, "Failed to generate cloudinit configdrive:  err='%s'", err.Error())
+	}
+	req.Blockdev = append(req.Blockdev, &BlockDev{
+		Name: "configdrive",
+		Url: (&url.URL{
+			Scheme: "file",
+			Path:   p,
+		}).String(),
+		BootIndex: 30, // MEMO: 適当
+	})
 
 	for _, bd := range req.Blockdev {
 		u, err := url.Parse(bd.Url)
 		if err != nil {
-			errRes = grpc.Errorf(codes.InvalidArgument, "url '%s' is invalid url: '%s'", bd.Url, err.Error())
-			goto DeleteNetDev
+			WrapRollbackError(tx.Rollback())
+			return nil, WrapGrpcErrorf(codes.InvalidArgument, "url '%s' is invalid url: '%s'", bd.Url, err.Error())
 		}
 
 		i, err := img.OpenQemuImg(u.Path)
 		if err != nil {
-			log.Printf("Failed to open qemu image: err='%s'", err.Error())
-			errRes = grpc.Errorf(codes.Internal, "") // TODO #89
-			goto DeleteNetDev
+			WrapRollbackError(tx.Rollback())
+			return nil, WrapGrpcErrorf(codes.Internal, "Failed to open qemu image: err='%s'", err.Error())
 		}
 
 		// この条件は雑
 		if i.Info.Format == "raw" {
 			if err := q.AttachISO(bd.Name, u, uint(bd.BootIndex)); err != nil {
-				log.Printf("Failed to attach iso '%s': err='%s'", u.Path, err.Error())
-				errRes = grpc.Errorf(codes.Internal, "") // TODO #89
-				goto DeleteNetDev
+				WrapRollbackError(tx.Rollback())
+				return nil, WrapGrpcErrorf(codes.Internal, "Failed to attach iso '%s': err='%s'", u.Path, err.Error())
 			}
 		} else {
 			if err := q.AttachQcow2(bd.Name, u, uint(bd.BootIndex)); err != nil {
-				log.Printf("Failed to attach image '%s': err='%s'", u.String(), err.Error())
-				errRes = grpc.Errorf(codes.Internal, "") // TODO #89
-				goto DeleteNetDev
+				WrapRollbackError(tx.Rollback())
+				return nil, WrapGrpcErrorf(codes.Internal, "Failed to attach image '%s': err='%s'", u.String(), err.Error())
 			}
 		}
 	}
 
 	if err := q.Boot(); err != nil {
-		log.Printf("Failed to boot qemu: err=%s", err.Error())
-		errRes = grpc.Errorf(codes.Internal, "Failed to boot qemu")
-		goto DeleteNetDev
+		WrapRollbackError(tx.Rollback())
+		return nil, WrapGrpcErrorf(codes.Internal, "Failed to boot qemu: err=%s", err.Error())
 
 	}
 
-	res = &VirtualMachineAgent{
+	res := &VirtualMachineAgent{
 		Name:          req.Name,
 		Uuid:          id.String(),
 		Vcpus:         req.Vcpus,
@@ -179,59 +252,13 @@ func (a VirtualMachineAgentAPI) CreateVirtualMachineAgent(ctx context.Context, r
 		WebsocketPort: uint32(websocket),
 	}
 	if s, err := q.Status(); err != nil {
-		errRes = grpc.Errorf(codes.Internal, "Failed to get status")
-		goto DeleteNetDev
+		WrapRollbackError(tx.Rollback())
+		return nil, WrapGrpcErrorf(codes.Internal, "Failed to get status")
 	} else {
 		res.State = GetAgentStateFromQemuState(s)
 	}
 
-	return
-
-DeleteNetDev:
-	if err := q.Delete(); err != nil {
-		log.Printf("Failed to delete qemu: err=%s", err.Error())
-	}
-
-	for _, nd := range createdNetdev {
-		t, err := iproute2.NewTap(TrimNetdevName(nd.Name))
-		if err != nil {
-			log.Printf("Failed to create tap '%s': err='%s'", nd.Name, err.Error())
-			return nil, grpc.Errorf(codes.Internal, "") // TODO #89
-		}
-
-		if err := t.Delete(); err != nil {
-			log.Printf("Failed to delete tap '%s': err='%s'", nd.Name, err.Error())
-			return nil, grpc.Errorf(codes.Internal, "") // TODO #89
-		}
-
-		b, err := iproute2.NewBridge(TrimNetdevName(nd.NetworkName))
-		if err != nil {
-			log.Printf("Failed to create bridge '%s': err='%s'", nd.NetworkName, err.Error())
-			return nil, grpc.Errorf(codes.Internal, "") // TODO #89
-		}
-
-		links, err := b.ListSlaves()
-		if err != nil {
-			log.Printf("Failed to list links of bridge '%s': err='%s'", nd.NetworkName, err.Error())
-			return nil, grpc.Errorf(codes.Internal, "") // TODO #89
-		}
-
-		// TODO: 以下遅い気がする
-		i := 0
-		for _, l := range links {
-			if _, err := iproute2.NewTap(l); err == nil {
-				i++
-			}
-		}
-		if i == 0 {
-			if err := b.Delete(); err != nil {
-				log.Printf("Failed to delete bridge '%s': err='%s'", b.Name(), err.Error())
-				return nil, grpc.Errorf(codes.Internal, "") // TODO #89
-			}
-		}
-	}
-
-	return
+	return res, nil
 }
 
 func (a VirtualMachineAgentAPI) DeleteVirtualMachineAgent(ctx context.Context, req *DeleteVirtualMachineAgentRequest) (*empty.Empty, error) {

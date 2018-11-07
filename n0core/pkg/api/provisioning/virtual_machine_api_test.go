@@ -121,7 +121,7 @@ func TestCreateVirtualMachine(t *testing.T) {
 				HardwareAddress: "52:54:78:fe:71:fd",
 			},
 		},
-		Uuid:                  "1d5fd196-b6c9-4f58-86f2-3ef227018e47",
+		Uuid: "1d5fd196-b6c9-4f58-86f2-3ef227018e47",
 
 		State:                 pprovisioning.VirtualMachine_RUNNING,
 		ComputeNodeName:       "mock-node",

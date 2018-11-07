@@ -55,16 +55,3 @@ func TrimNetdevName(name string) string {
 
 	return name[:15]
 }
-
-func StructNetDev(nics []*pprovisioning.VirtualMachineNIC, names []string) []*NetDev {
-	nd := make([]*NetDev, 0, len(nics))
-	for i, n := range nics {
-		nd = append(nd, &NetDev{
-			Name:            names[i],
-			NetworkName:     n.NetworkName,
-			HardwareAddress: n.HardwareAddress,
-		})
-	}
-
-	return nd
-}
