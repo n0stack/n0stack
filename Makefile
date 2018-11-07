@@ -4,7 +4,7 @@ GOCMD=go
 
 
 # --- Deployment ---
-run-all-in-one: build-on-docker up
+run-all-in-one: build-n0core-on-docker up
 	sudo bin/n0core agent \
 		--name=run-all-in-one \
 		--advertise-address=10.20.180.1 \
@@ -131,7 +131,6 @@ analysis:
 	gofmt -d -s `find ./ -name "*.go" | grep -v vendor`
 	golint ./... | grep -v vendor # https://github.com/golang/lint/issues/320
 
-# TODO: check n0proto changes
 test-small: test-small-n0proto test-small-go
 
 test-small-on-docker: test-small-n0proto
