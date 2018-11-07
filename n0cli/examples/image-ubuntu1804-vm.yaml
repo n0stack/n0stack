@@ -1,0 +1,67 @@
+DeleteVirtualMachine:
+  type: VirtualMachine
+  action: DeleteVirtualMachine
+  args:
+    name: test-ubuntu
+  ignore_error: true
+
+DeleteBlockStorage:
+  type: BlockStorage
+  action: DeleteBlockStorage
+  args:
+    name: test-ubuntu
+  depends_on:
+    - DeleteVirtualMachine
+  ignore_error: true
+
+GenerateBlockStorage:
+  type: Image
+  action: GenerateBlockStorage
+  args:
+    image_name: cloudimage-ubuntu
+    tag: "1804"
+    block_storage_name: test-ubuntu
+    annotations:
+      n0core/provisioning/request_node_name: run-all-in-one
+    request_bytes: 1073741824
+    limit_bytes: 10737418240
+  depends_on:
+    - DeleteBlockStorage
+
+ApplyNetwork:
+  type: Network
+  action: ApplyNetwork
+  args:
+    name: test-network
+    ipv4_cidr: 192.168.0.0/24
+
+CreateVirtualMachine:
+  type: VirtualMachine
+  action: CreateVirtualMachine
+  args:
+    name: test-ubuntu
+    annotations:
+      n0core/provisioning/request_node_name: run-all-in-one
+    request_cpu_milli_core: 10
+    limit_cpu_milli_core: 1000
+    request_memory_bytes: 1073741824
+    limit_memory_bytes: 1073741824
+    block_storage_names:
+      - test-ubuntu
+    nics:
+      - network_name: test-network
+    uuid: 056d2ccd-0c4c-44dc-a2c8-39a9d394b51f
+    login_username: test
+    ssh_authorized_keys:
+      - ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBITowPn2Ol1eCvXN5XV+Lb6jfXzgDbXyEdtayadDUJtFrcN2m2mjC1B20VBAoJcZtSYkmjrllS06Q26Te5sTYvE= testkey
+  depends_on:
+    - GenerateBlockStorage
+    - ApplyNetwork
+
+OpenConsole:
+  type: VirtualMachine
+  action: OpenConsole
+  args:
+    name: test-ubuntu
+  depends_on:
+    - CreateVirtualMachine
