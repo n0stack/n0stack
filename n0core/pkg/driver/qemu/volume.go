@@ -30,6 +30,24 @@ func (q Qemu) AttachQcow2(label string, filepath *url.URL, index uint) error {
 	return nil
 }
 
+func (q Qemu) AttachRaw(label string, filepath *url.URL, index uint) error {
+	driveID := fmt.Sprintf("drive-%s", label)
+	devID := fmt.Sprintf("virtio-blk-%s", label)
+
+	// check to create drive
+
+	if err := q.rawBlockdevAdd(driveID, filepath, false); err != nil {
+		return fmt.Errorf("Failed to run rawBlockdevAdd: err='%s'", err.Error())
+	}
+
+	if err := q.virtioBlkPCIAdd(devID, driveID, index); err != nil {
+		return fmt.Errorf("Failed to create virtio block device: err='%s'", err.Error())
+	}
+
+	return nil
+}
+
+// TODO: 動作が怪しい
 func (q Qemu) AttachISO(label string, filepath *url.URL, index uint) error {
 	driveID := fmt.Sprintf("drive-scsi0-cd-%s", label)
 	devID := fmt.Sprintf("scsi0-cd-%s", label)
