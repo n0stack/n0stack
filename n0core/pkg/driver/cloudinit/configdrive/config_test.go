@@ -22,7 +22,7 @@ func TestGenerateISO(t *testing.T) {
 			net.ParseIP("192.168.122.1"),
 		},
 	}
-	c := StructConfig("user", "host", key, []*CloudConfigEthernet{e})
+	c := StructConfig("user", "host", []ssh.PublicKey{key}, []*CloudConfigEthernet{e})
 
 	f, err := c.Generate(".")
 	if err != nil {
