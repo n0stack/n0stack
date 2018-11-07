@@ -226,13 +226,15 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		return nil, WrapGrpcErrorf(grpc.Code(err), "Failed to CreateVirtualMachineAgent: desc=%s", grpc.ErrorDesc(err))
 	}
 	tx.PushRollback("", func() error {
-		_, err := cli.DeleteVirtualMachineAgent(context.Background(), &DeleteVirtualMachineAgentRequest{Name: req.Name})
+		_, err := cli.DeleteVirtualMachineAgent(context.Background(), &DeleteVirtualMachineAgentRequest{Uuid: req.Uuid})
 		return err
 	})
 
 	res.Annotations[AnnotationVNCWebSocketPort] = strconv.Itoa(int(vm.WebsocketPort))
 	res.State = GetAPIStateFromAgentState(vm.State)
 	res.Uuid = vm.Uuid
+	res.LoginUsername = req.LoginUsername
+	res.SshAuthorizedKeys = req.SshAuthorizedKeys
 
 	if err := a.dataStore.Apply(req.Name, res); err != nil {
 		WrapRollbackError(tx.Rollback())
@@ -314,10 +316,10 @@ func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprov
 	}
 
 	_, err = cli.DeleteVirtualMachineAgent(context.Background(), &DeleteVirtualMachineAgentRequest{
-		Name:   req.Name,
+		Uuid:   prev.Uuid,
 		Netdev: netdev,
 	})
-	if err != nil && grpc.Code(err) != codes.NotFound {
+	if err != nil {
 		return nil, WrapGrpcErrorf(grpc.Code(err), "Failed to DeleteVirtualMachineAgent: desc=%s", grpc.ErrorDesc(err))
 	}
 
@@ -325,7 +327,7 @@ func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprov
 		NodeName:    prev.ComputeNodeName,
 		ComputeName: prev.ComputeName,
 	})
-	if err != nil && grpc.Code(err) != codes.NotFound {
+	if err != nil {
 		return nil, WrapGrpcErrorf(grpc.Code(err), "Failed to ReleaseCompute: desc=%s", grpc.ErrorDesc(err))
 	}
 
@@ -334,7 +336,7 @@ func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprov
 			NetworkName:          nic.NetworkName,
 			NetworkInterfaceName: prev.NetworkInterfaceNames[i],
 		})
-		if err != nil && grpc.Code(err) != codes.NotFound {
+		if err != nil {
 			return nil, WrapGrpcErrorf(grpc.Code(err), "Failed to ReleaseNetworkInterface: desc=%s", grpc.ErrorDesc(err))
 		}
 	}
@@ -373,7 +375,7 @@ func (a *VirtualMachineAPI) BootVirtualMachine(ctx context.Context, req *pprovis
 	defer conn.Close()
 	cli := NewVirtualMachineAgentServiceClient(conn)
 
-	vm, err := cli.BootVirtualMachineAgent(context.Background(), &BootVirtualMachineAgentRequest{Name: req.Name})
+	vm, err := cli.BootVirtualMachineAgent(context.Background(), &BootVirtualMachineAgentRequest{Uuid: res.Uuid})
 	if err != nil {
 		log.Printf("Fail to boot on node, err:%v.", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Fail to boot block storage on node") // TODO #89
@@ -409,7 +411,7 @@ func (a *VirtualMachineAPI) RebootVirtualMachine(ctx context.Context, req *pprov
 	cli := NewVirtualMachineAgentServiceClient(conn)
 
 	vm, err := cli.RebootVirtualMachineAgent(context.Background(), &RebootVirtualMachineAgentRequest{
-		Name: req.Name,
+		Uuid: res.Uuid,
 		Hard: req.Hard,
 	})
 	if err != nil {
@@ -447,7 +449,7 @@ func (a *VirtualMachineAPI) ShutdownVirtualMachine(ctx context.Context, req *ppr
 	cli := NewVirtualMachineAgentServiceClient(conn)
 
 	vm, err := cli.ShutdownVirtualMachineAgent(context.Background(), &ShutdownVirtualMachineAgentRequest{
-		Name: req.Name,
+		Uuid: res.Uuid,
 		Hard: req.Hard,
 	})
 	if err != nil {

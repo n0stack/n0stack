@@ -69,21 +69,21 @@ message CreateVirtualMachineAgentRequest {
 }
 
 message DeleteVirtualMachineAgentRequest {
-  string name = 1;
+  string uuid = 1;
 
   // TODO: netdev の情報を QMP から取るまでは、とりあえず渡してもらう
   repeated NetDev netdev = 7;
 }
 
 message BootVirtualMachineAgentRequest {
-  string name = 1;
+  string uuid = 1;
 }
 message BootVirtualMachineAgentResponse {
   VirtualMachineAgentState state = 1;
 }
 
 message RebootVirtualMachineAgentRequest {
-  string name = 1;
+  string uuid = 1;
 
   bool hard = 2;
 }
@@ -92,7 +92,7 @@ message RebootVirtualMachineAgentResponse {
 }
 
 message ShutdownVirtualMachineAgentRequest {
-  string name = 1;
+  string uuid = 1;
 
   bool hard = 2;
 }

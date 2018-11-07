@@ -269,7 +269,11 @@ func (a VirtualMachineAgentAPI) CreateVirtualMachineAgent(ctx context.Context, r
 }
 
 func (a VirtualMachineAgentAPI) DeleteVirtualMachineAgent(ctx context.Context, req *DeleteVirtualMachineAgentRequest) (*empty.Empty, error) {
-	id := uuid.NewV5(N0coreVirtualMachineNamespace, req.Name)
+	id, err := uuid.FromString(req.Uuid)
+	if err != nil {
+		return nil, WrapGrpcErrorf(codes.InvalidArgument, "Set valid uuid: value='%s', err='%s'", req.Uuid, err.Error())
+	}
+
 	q, err := qemu.OpenQemu(&id)
 	if err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Failed to open qemu process: %s", err.Error())
@@ -325,7 +329,11 @@ func (a VirtualMachineAgentAPI) DeleteVirtualMachineAgent(ctx context.Context, r
 }
 
 func (a VirtualMachineAgentAPI) BootVirtualMachineAgent(ctx context.Context, req *BootVirtualMachineAgentRequest) (*BootVirtualMachineAgentResponse, error) {
-	id := uuid.NewV5(N0coreVirtualMachineNamespace, req.Name)
+	id, err := uuid.FromString(req.Uuid)
+	if err != nil {
+		return nil, WrapGrpcErrorf(codes.InvalidArgument, "Set valid uuid: value='%s', err='%s'", req.Uuid, err.Error())
+	}
+
 	q, err := qemu.OpenQemu(&id)
 	if err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Failed to open qemu process: %s", err.Error())
@@ -350,7 +358,11 @@ func (a VirtualMachineAgentAPI) BootVirtualMachineAgent(ctx context.Context, req
 }
 
 func (a VirtualMachineAgentAPI) RebootVirtualMachineAgent(ctx context.Context, req *RebootVirtualMachineAgentRequest) (*RebootVirtualMachineAgentResponse, error) {
-	id := uuid.NewV5(N0coreVirtualMachineNamespace, req.Name)
+	id, err := uuid.FromString(req.Uuid)
+	if err != nil {
+		return nil, WrapGrpcErrorf(codes.InvalidArgument, "Set valid uuid: value='%s', err='%s'", req.Uuid, err.Error())
+	}
+
 	q, err := qemu.OpenQemu(&id)
 	if err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Failed to open qemu process: %s", err.Error())
@@ -379,7 +391,11 @@ func (a VirtualMachineAgentAPI) RebootVirtualMachineAgent(ctx context.Context, r
 }
 
 func (a VirtualMachineAgentAPI) ShutdownVirtualMachineAgent(ctx context.Context, req *ShutdownVirtualMachineAgentRequest) (*ShutdownVirtualMachineAgentResponse, error) {
-	id := uuid.NewV5(N0coreVirtualMachineNamespace, req.Name)
+	id, err := uuid.FromString(req.Uuid)
+	if err != nil {
+		return nil, WrapGrpcErrorf(codes.InvalidArgument, "Set valid uuid: value='%s', err='%s'", req.Uuid, err.Error())
+	}
+
 	q, err := qemu.OpenQemu(&id)
 	if err != nil {
 		return nil, grpc.Errorf(codes.Internal, "Failed to open qemu process: %s", err.Error())
