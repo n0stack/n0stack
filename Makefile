@@ -111,16 +111,17 @@ update-novnc:
 .PHONY: clean
 clean:
 	# go clean
+	docker-compose down
 	sudo rm -rf .go-build
 	sudo rm -rf bin
 	sudo rm -rf sandbox
-	sudo rm -rf vendor
+	# sudo rm -rf vendor
 
 up-mock: build-n0core-on-docker
 	mkdir -p sandbox
 	docker-compose up -d
-	docker-compose restart api
-	docker-compose restart mock_agent
+	docker-compose restart api # reload binary
+	docker-compose restart mock_agent # reload binary
 
 logs:
 	docker-compose logs -f api mock_agent
