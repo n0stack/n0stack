@@ -24,8 +24,9 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-const AnnotationVNCWebSocketPort = "n0core/provisioning/virtual_machine_vnc_websocket_port"
-const AnnotationVirtualMachineReserve = "n0core/provisioning/virtual_machine_name"
+const AnnotationVNCWebSocketPort = "n0core/provisioning/virtual_machine/vnc_websocket_port"
+const AnnotationVirtualMachineReserving = "n0core/provisioning/virtual_machine/virtual_machine/name"
+const AnnotationNetworkInterfaceGateway = "n0core/provisioning/virtual_machine/gateway"
 
 type VirtualMachineAPI struct {
 	dataStore datastore.Datastore
@@ -89,7 +90,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		n, err = a.nodeAPI.ScheduleCompute(context.Background(), &ppool.ScheduleComputeRequest{
 			ComputeName: req.Name,
 			Annotations: map[string]string{
-				AnnotationVirtualMachineReserve: req.Name,
+				AnnotationVirtualMachineReserving: req.Name,
 			},
 			RequestCpuMilliCore: req.RequestCpuMilliCore,
 			LimitCpuMilliCore:   req.LimitCpuMilliCore,
@@ -104,7 +105,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 			NodeName:    node,
 			ComputeName: req.Name,
 			Annotations: map[string]string{
-				AnnotationVirtualMachineReserve: req.Name,
+				AnnotationVirtualMachineReserving: req.Name,
 			},
 			RequestCpuMilliCore: req.RequestCpuMilliCore,
 			LimitCpuMilliCore:   req.LimitCpuMilliCore,
@@ -171,7 +172,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 			NetworkName:          nic.NetworkName,
 			NetworkInterfaceName: niname,
 			Annotations: map[string]string{
-				AnnotationVirtualMachineReserve: req.Name,
+				AnnotationVirtualMachineReserving: req.Name,
 			},
 			HardwareAddress: nic.HardwareAddress,
 			Ipv4Address:     nic.Ipv4Address,
@@ -197,17 +198,22 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 			Ipv6Address:     network.ReservedNetworkInterfaces[niname].Ipv6Address,
 		}
 
+		gateway := ""
+		for _, ni := range network.ReservedNetworkInterfaces {
+			if v, ok := ni.Annotations[AnnotationNetworkInterfaceGateway]; ok {
+				gateway = v
+			}
+		}
 		_, ipn, _ := net.ParseCIDR(network.Ipv4Cidr)
 		m, _ := ipn.Mask.Size()
-		for i, n := range res.Nics {
-			netdev[i] = &NetDev{
-				Name:            niname,
-				NetworkName:     n.NetworkName,
-				HardwareAddress: n.HardwareAddress,
-				Ipv4AddressCidr: fmt.Sprintf("%s/%d", n.Ipv4Address, m),
-				// Ipv4Gateway: "192.168.0.254",
-				Nameservers: []string{"8.8.8.8"}, // TODO: 取るようにする
-			}
+		netdev[i] = &NetDev{
+			Name:            niname,
+			NetworkName:     nic.NetworkName,
+			HardwareAddress: nic.HardwareAddress,
+			Ipv4AddressCidr: fmt.Sprintf("%s/%d", nic.Ipv4Address, m),
+			Ipv4Gateway:     gateway,
+			Nameservers:     []string{"8.8.8.8"}, // TODO: 取るようにする
+			// TODO: domain searchはnetworkのdomainから取る
 		}
 	}
 
