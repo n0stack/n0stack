@@ -101,6 +101,10 @@ func (a *BlockStorageAgentAPI) FetchBlockStorage(ctx context.Context, req *Fetch
 		}
 	}
 
+	if err := i.Resize(req.Bytes); err != nil {
+		return nil, WrapGrpcErrorf(codes.Internal, "Failed to Resize qemu image: err='%s'", err.Error())
+	}
+
 	return res, nil
 }
 
