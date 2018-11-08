@@ -15,7 +15,13 @@ run-all-in-one: build-n0core-on-docker up
 up: build-n0core-on-docker
 	mkdir -p sandbox
 	docker-compose up -d --scale mock_agent=0
-	docker-compose restart
+	docker-compose restart api # reload binary
+
+up-mock: build-n0core-on-docker
+	mkdir -p sandbox
+	docker-compose up -d
+	docker-compose restart api # reload binary
+	docker-compose restart mock_agent # reload binary
 
 
 # --- Build ---
@@ -112,16 +118,10 @@ update-novnc:
 clean:
 	# go clean
 	docker-compose down
-	sudo rm -rf .go-build
+	# sudo rm -rf .go-build
 	sudo rm -rf bin
 	sudo rm -rf sandbox
 	# sudo rm -rf vendor
-
-up-mock: build-n0core-on-docker
-	mkdir -p sandbox
-	docker-compose up -d
-	docker-compose restart api # reload binary
-	docker-compose restart mock_agent # reload binary
 
 logs:
 	docker-compose logs -f api mock_agent
