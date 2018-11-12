@@ -1,0 +1,48 @@
+version: 2
+jobs:
+  versioning:
+    docker:
+      - image: circleci/golang:1.11
+    working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
+    master: master
+    steps:
+      - checkout
+      - run:
+          name: git-configure
+          command: |
+            git config --global user.name "n0stack bot"
+            git config --global user.email "h-otter@outlook.jp"
+            echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+      - restore_cache:
+          keys:
+            - vendor-master
+      - run:
+          name: vendoring
+          command: make vendor
+      - run:
+          name: increment version
+          command: make versioning
+      - run:
+          name: push
+          command: |
+            git add -f VERSION
+            git commit -m "increment version [skip ci]"
+            git push origin master
+      - save_cache:
+          key: vendor-master
+          paths:
+            - vendor
+workflows:
+  version: 2
+  all:
+    jobs:
+      # - build:
+      # - test:
+      #     requires:
+      #       - build
+      - versioning:
+          # requires:
+          #   - test
+          filters:
+            branches:
+              only: master
