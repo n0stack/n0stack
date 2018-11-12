@@ -12,7 +12,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-// TODO: 複数ファイルを連結して処理できるようにしたい `n0ctl do foo.yaml bar.yaml` みたいな
+// TODO: 複数ファイルを連結して処理できるようにしたい `n0cli do foo.yaml bar.yaml` みたいな
 func Do(ctx *cli.Context) error {
 	if ctx.NArg() == 1 {
 		return do(ctx)

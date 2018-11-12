@@ -1,4 +1,4 @@
-# n0ctl
+# n0cli
 
 CLI for end-user
 
@@ -7,11 +7,11 @@ CLI for end-user
 ## Example
 
 ```sh
-% n0core/bin/n0ctl get network
+% n0core/bin/n0cli get network
 get.go:122: [DEBUG] Connected to 'localhost:20180'
 got error response: rpc error: code = NotFound desc =
 
-% n0core/bin/n0ctl do n0core/examples/n0ctl/get.yaml
+% n0core/bin/n0cli do n0core/examples/n0cli/get.yaml
 do.go:44: [DEBUG] Connected to 'localhost:20180'
 ---> Task 'g3' is started
 dag.go:169: [DEBUG] Task 'g3' is started: &{ResourceType:Node Action:ListNodes Args:map[] DependOn:[] child:[g1 g2] depends:0}
@@ -56,7 +56,7 @@ dag.go:205: [DEBUG] Task 'g2' is started: &{ResourceType:Node Action:GetNode Arg
 }
 DAG tasks are completed
 
-% bin/n0ctl get network
+% bin/n0cli get network
 get.go:122: [DEBUG] Connected to 'localhost:20180'
 {
   "networks": [

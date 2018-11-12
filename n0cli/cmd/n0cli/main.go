@@ -11,7 +11,7 @@ import (
 
 func main() {
 	app := cli.NewApp()
-	app.Name = "n0ctl"
+	app.Name = "n0cli"
 	// app.Usage = ""
 	// app.Version = "0.1.2" // CIで取るようにする
 
@@ -25,7 +25,7 @@ func main() {
 				cli.StringFlag{
 					Name:   "api-endpoint",
 					Value:  "localhost:20180",
-					EnvVar: "N0CTL_API_ENDPOINT",
+					EnvVar: "N0CLI_API_ENDPOINT",
 				},
 			},
 		},
@@ -38,7 +38,7 @@ func main() {
 				cli.StringFlag{
 					Name:   "api-endpoint",
 					Value:  "localhost:20180",
-					EnvVar: "N0CTL_API_ENDPOINT",
+					EnvVar: "N0CLI_API_ENDPOINT",
 				},
 			},
 		},
@@ -83,7 +83,7 @@ func main() {
 				cli.StringFlag{
 					Name:   "api-endpoint",
 					Value:  "localhost:20180",
-					EnvVar: "N0CTL_API_ENDPOINT",
+					EnvVar: "N0CLIS_API_ENDPOINT",
 				},
 			},
 		},
