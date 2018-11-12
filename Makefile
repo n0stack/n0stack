@@ -132,8 +132,7 @@ logs:
 	docker-compose logs -f api mock_agent
 
 versioning:
-	bin/versioning commit -write
-	git add -f VERSION
+	bin/versioning increment -write
 
 
 # --- Test ---

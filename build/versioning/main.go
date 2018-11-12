@@ -53,7 +53,7 @@ func Print(ctx *cli.Context) error {
 
 	return nil
 }
-func Commit(ctx *cli.Context) error {
+func Increment(ctx *cli.Context) error {
 	write := ctx.Bool("write")
 
 	v, err := getCurrentVersion(VERSION_FILE)
@@ -88,9 +88,9 @@ func main() {
 
 	app.Commands = []cli.Command{
 		{
-			Name:   "commit",
-			Usage:  "versioning commit -write",
-			Action: Commit,
+			Name:   "increment",
+			Usage:  "versioning increment -write",
+			Action: Increment,
 			Flags: []cli.Flag{
 				cli.BoolFlag{
 					Name: "write",
