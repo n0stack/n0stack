@@ -84,9 +84,9 @@ build-n0proto-on-docker:
 			/entry_point.sh
 	sudo chown -R $(USER) n0proto.py
 
-.PHONY: build-versioning
-build-versioning:
-	go build -o bin/versioning -ldflags "-X main.version=$(VERSION)" -v ./build/versioning
+.PHONY: build-n0version
+build-n0version:
+	go build -o bin/n0version -ldflags "-X main.version=$(VERSION)" -v ./build/n0version
 
 
 # -- Maintenance ---
@@ -131,8 +131,8 @@ clean:
 logs:
 	docker-compose logs -f api mock_agent
 
-versioning:
-	bin/versioning increment -write
+increment:
+	bin/n0version increment -write
 
 
 # --- Test ---

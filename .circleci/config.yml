@@ -17,8 +17,10 @@ jobs:
           keys:
             - vendor-master
       - run:
-          name: vendoring
-          command: GO111MODULE=on make vendor
+          name: build version
+          command: |
+            GO111MODULE=on make vendor
+            make build-n0version
       - run:
           name: increment version
           command: make versioning
