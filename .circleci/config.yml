@@ -18,7 +18,7 @@ jobs:
             - vendor-master
       - run:
           name: vendoring
-          command: make vendor
+          command: GO111MODULE=on make vendor
       - run:
           name: increment version
           command: make versioning
