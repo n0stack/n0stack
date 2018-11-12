@@ -23,7 +23,7 @@ jobs:
             make build-n0version
       - run:
           name: increment version
-          command: make versioning
+          command: make increment
       - run:
           name: push
           command: |
