@@ -1,5 +1,9 @@
 # Tools
 
+## Circle CI
+
+- バージョンのインクリメント
+
 ## Travis CI
 
 - test-small と一応すべてのビルドができるか確認している

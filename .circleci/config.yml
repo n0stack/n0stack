@@ -7,6 +7,9 @@ jobs:
     master: master
     steps:
       - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "b5:40:bd:39:2d:5b:2d:2c:f0:98:98:22:2d:97:56:b9"
       - run:
           name: git-configure
           command: |
