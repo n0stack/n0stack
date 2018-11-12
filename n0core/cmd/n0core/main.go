@@ -101,7 +101,7 @@ func main() {
 	log.SetFlags(log.Lshortfile | log.Ltime | log.Lmicroseconds)
 
 	if err := app.Run(os.Args); err != nil {
-		log.Fatalf("Failed to start process, err:%v", err.Error())
+		log.Fatalf("Failed to start process, err:%s\n", err.Error())
 		os.Exit(1)
 	}
 }

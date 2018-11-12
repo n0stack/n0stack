@@ -81,7 +81,7 @@ func main() {
 	log.SetOutput(ioutil.Discard)
 
 	if err := app.Run(os.Args); err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to command: %v", err.Error())
+		fmt.Fprintf(os.Stderr, "Failed to command: %s\n", err.Error())
 		os.Exit(1)
 	}
 }
