@@ -208,9 +208,9 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		m, _ := ipn.Mask.Size()
 		netdev[i] = &NetDev{
 			Name:            niname,
-			NetworkName:     nic.NetworkName,
+			NetworkName:     res.Nics[i].NetworkName,
 			HardwareAddress: res.Nics[i].HardwareAddress,
-			Ipv4AddressCidr: fmt.Sprintf("%s/%d", nic.Ipv4Address, m),
+			Ipv4AddressCidr: fmt.Sprintf("%s/%d", res.Nics[i].Ipv4Address, m),
 			Ipv4Gateway:     gateway,
 			Nameservers:     []string{"8.8.8.8"}, // TODO: 取るようにする
 			// TODO: domain searchはnetworkのdomainから取る
