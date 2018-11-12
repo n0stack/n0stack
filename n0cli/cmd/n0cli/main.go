@@ -83,7 +83,7 @@ func main() {
 				cli.StringFlag{
 					Name:   "api-endpoint",
 					Value:  "localhost:20180",
-					EnvVar: "N0CLIS_API_ENDPOINT",
+					EnvVar: "N0CLI_API_ENDPOINT",
 				},
 			},
 		},
