@@ -26,7 +26,7 @@ func delete(ctx *cli.Context) error {
 	resourceType := ctx.Args().Get(0)
 	resourceName := ctx.Args().Get(1)
 
-	endpoint := ctx.String("api-endpoint")
+	endpoint := ctx.GlobalString("api-endpoint")
 	conn, err := grpc.Dial(endpoint, grpc.WithInsecure())
 	if err != nil {
 		return err

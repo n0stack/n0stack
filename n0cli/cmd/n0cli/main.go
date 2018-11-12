@@ -9,38 +9,33 @@ import (
 	"github.com/urfave/cli"
 )
 
+var version = "undefined"
+
 func main() {
 	app := cli.NewApp()
 	app.Name = "n0cli"
+	app.Version = version
 	// app.Usage = ""
-	// app.Version = "0.1.2" // CIで取るようにする
 
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:   "api-endpoint",
+			Value:  "localhost:20180",
+			EnvVar: "N0CLI_API_ENDPOINT",
+		},
+	}
 	app.Commands = []cli.Command{
 		{
 			Name:      "get",
 			Usage:     "Get resource if set resource name, List resources if not set",
 			ArgsUsage: "[resource type] [resource name]",
 			Action:    Get,
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:   "api-endpoint",
-					Value:  "localhost:20180",
-					EnvVar: "N0CLI_API_ENDPOINT",
-				},
-			},
 		},
 		{
 			Name:      "delete",
 			Usage:     "Delete resource",
 			ArgsUsage: "[resource type] [resource name]",
 			Action:    Delete,
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:   "api-endpoint",
-					Value:  "localhost:20180",
-					EnvVar: "N0CLI_API_ENDPOINT",
-				},
-			},
 		},
 		{
 			Name:  "do",
@@ -79,13 +74,6 @@ func main() {
 			`,
 			ArgsUsage: "[file name]",
 			Action:    Do,
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:   "api-endpoint",
-					Value:  "localhost:20180",
-					EnvVar: "N0CLI_API_ENDPOINT",
-				},
-			},
 		},
 	}
 

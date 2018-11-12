@@ -35,7 +35,7 @@ func do(ctx *cli.Context) error {
 		return err
 	}
 
-	endpoint := ctx.String("api-endpoint")
+	endpoint := ctx.GlobalString("api-endpoint")
 	conn, err := grpc.Dial(endpoint, grpc.WithInsecure())
 	if err != nil {
 		return err

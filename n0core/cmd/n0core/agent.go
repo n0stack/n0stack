@@ -62,6 +62,6 @@ func ServeAgent(ctx *cli.Context) error {
 		return err
 	}
 
-	log.Printf("[INFO] Started API")
+	log.Printf("[INFO] Started API: version=%s", version)
 	return grpcServer.Serve(lis)
 }

@@ -7,6 +7,8 @@ import (
 	"github.com/urfave/cli"
 )
 
+var version = "undefined"
+
 func main() {
 	hostname, err := os.Hostname()
 	if err != nil {
@@ -15,8 +17,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "n0core"
-	// app.Usage = ""
-	app.Version = "0.1.2" // CIで取るようにする
+	app.Version = version
 
 	app.Commands = []cli.Command{
 		{
@@ -101,5 +102,6 @@ func main() {
 
 	if err := app.Run(os.Args); err != nil {
 		log.Fatalf("Failed to start process, err:%v", err.Error())
+		os.Exit(1)
 	}
 }

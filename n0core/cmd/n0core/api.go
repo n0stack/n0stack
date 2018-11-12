@@ -24,6 +24,7 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+
 	// "go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -156,7 +157,7 @@ func ServeAPI(ctx *cli.Context) error {
 	e.GET("/api/v0/virtual_machines/:name/vncwebsocket", vma.ProxyWebsocket())
 	e.GET("/static/virtual_machines/*", echo.WrapHandler(http.StripPrefix("/static/virtual_machines/", http.FileServer(statikFs))))
 
-	log.Printf("[INFO] Started API")
+	log.Printf("[INFO] Started API: version=%s", version)
 	// 本当は panic させる必要がある
 	go e.Start("0.0.0.0:8080")
 	return grpcServer.Serve(lis)
