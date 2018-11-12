@@ -18,14 +18,14 @@ func Begin() *Transaction {
 	return &Transaction{}
 }
 
-func (tx Transaction) PushRollback(name string, f func() error) {
+func (tx *Transaction) PushRollback(name string, f func() error) {
 	tx.stack = append(tx.stack, &RollbackTask{
 		Name: name,
 		Func: f,
 	})
 }
 
-func (tx Transaction) PopRollback() *RollbackTask {
+func (tx *Transaction) PopRollback() *RollbackTask {
 	l := len(tx.stack)
 	if l == 0 {
 		return nil
@@ -37,7 +37,7 @@ func (tx Transaction) PopRollback() *RollbackTask {
 	return ret
 }
 
-func (tx Transaction) Rollback() error {
+func (tx *Transaction) Rollback() error {
 	errMes := ""
 
 	for r := tx.PopRollback(); r != nil; r = tx.PopRollback() {

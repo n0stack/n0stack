@@ -182,7 +182,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 			WrapRollbackError(tx.Rollback())
 			return nil, WrapGrpcErrorf(grpc.Code(err), "Failed to ReserveNetworkInterface: desc=%s", grpc.ErrorDesc(err))
 		}
-		tx.PushRollback("", func() error {
+		tx.PushRollback("ReleaseNetworkInterface", func() error {
 			_, err := a.networkAPI.ReleaseNetworkInterface(context.Background(), &ppool.ReleaseNetworkInterfaceRequest{
 				NetworkName:          nic.NetworkName,
 				NetworkInterfaceName: niname,
