@@ -48,22 +48,36 @@ func ServeAPI(ctx *cli.Context) error {
 	}
 	defer conn.Close()
 
-	ds, err := etcd.NewEtcdDatastore(etcdEndpoints)
+	nods, err := etcd.NewEtcdDatastore(etcdEndpoints)
 	if err != nil {
 		return err
 	}
-	defer ds.Close()
-
-	noa := node.CreateNodeAPI(ds)
+	defer nods.Close()
+	noa := node.CreateNodeAPI(nods)
 	noc := ppool.NewNodeServiceClient(conn)
 
-	nea := network.CreateNetworkAPI(ds)
+	neds, err := etcd.NewEtcdDatastore(etcdEndpoints)
+	if err != nil {
+		return err
+	}
+	defer neds.Close()
+	nea := network.CreateNetworkAPI(neds)
 	nec := ppool.NewNetworkServiceClient(conn)
 
-	bsa := provisioning.CreateBlockStorageAPI(ds, noc)
+	bsds, err := etcd.NewEtcdDatastore(etcdEndpoints)
+	if err != nil {
+		return err
+	}
+	defer bsds.Close()
+	bsa := provisioning.CreateBlockStorageAPI(bsds, noc)
 	bsc := pprovisioning.NewBlockStorageServiceClient(conn)
 
-	vma := provisioning.CreateVirtualMachineAPI(ds, noc, nec, bsc)
+	vmds, err := etcd.NewEtcdDatastore(etcdEndpoints)
+	if err != nil {
+		return err
+	}
+	defer vmds.Close()
+	vma := provisioning.CreateVirtualMachineAPI(vmds, noc, nec, bsc)
 	vmc := pprovisioning.NewVirtualMachineServiceClient(conn)
 
 	statikFs, err := fs.New()
@@ -71,10 +85,20 @@ func ServeAPI(ctx *cli.Context) error {
 		return err
 	}
 
-	ia := image.CreateImageAPI(ds, bsc)
+	ids, err := etcd.NewEtcdDatastore(etcdEndpoints)
+	if err != nil {
+		return err
+	}
+	defer ids.Close()
+	ia := image.CreateImageAPI(ids, bsc)
 	ic := pdeployment.NewImageServiceClient(conn)
 
-	fa := flavor.CreateFlavorAPI(ds, vmc, ic)
+	fds, err := etcd.NewEtcdDatastore(etcdEndpoints)
+	if err != nil {
+		return err
+	}
+	defer fds.Close()
+	fa := flavor.CreateFlavorAPI(fds, vmc, ic)
 
 	// とりあえず log を表示するため利用する
 	// zapLogger, err := zap.NewProduction()
