@@ -34,7 +34,7 @@ const (
 	AnnotationBlockStorageReserve = "n0core/provisioning/block_storage_name"
 )
 
-func CreateBlockStorageAPI(ds datastore.Datastore, na ppool.NodeServiceClient) (*BlockStorageAPI, error) {
+func CreateBlockStorageAPI(ds datastore.Datastore, na ppool.NodeServiceClient) *BlockStorageAPI {
 	nc := &node.NodeConnections{
 		NodeAPI: na,
 	}
@@ -46,7 +46,7 @@ func CreateBlockStorageAPI(ds datastore.Datastore, na ppool.NodeServiceClient) (
 	}
 	a.dataStore.AddPrefix("block_storage")
 
-	return a, nil
+	return a
 }
 
 func (a *BlockStorageAPI) CreateBlockStorage(ctx context.Context, req *pprovisioning.CreateBlockStorageRequest) (*pprovisioning.BlockStorage, error) {

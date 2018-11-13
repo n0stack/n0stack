@@ -39,7 +39,7 @@ type VirtualMachineAPI struct {
 	nodeConnections *node.NodeConnections
 }
 
-func CreateVirtualMachineAPI(ds datastore.Datastore, noa ppool.NodeServiceClient, nea ppool.NetworkServiceClient, bsa pprovisioning.BlockStorageServiceClient) (*VirtualMachineAPI, error) {
+func CreateVirtualMachineAPI(ds datastore.Datastore, noa ppool.NodeServiceClient, nea ppool.NetworkServiceClient, bsa pprovisioning.BlockStorageServiceClient) *VirtualMachineAPI {
 	nc := &node.NodeConnections{
 		NodeAPI: noa,
 	}
@@ -53,7 +53,7 @@ func CreateVirtualMachineAPI(ds datastore.Datastore, noa ppool.NodeServiceClient
 	}
 	a.dataStore.AddPrefix("virtual_machine")
 
-	return a, nil
+	return a
 }
 
 func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprovisioning.CreateVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {

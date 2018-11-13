@@ -20,13 +20,13 @@ type NetworkAPI struct {
 	dataStore datastore.Datastore
 }
 
-func CreateNetworkAPI(ds datastore.Datastore) (*NetworkAPI, error) {
+func CreateNetworkAPI(ds datastore.Datastore) *NetworkAPI {
 	a := &NetworkAPI{
 		dataStore: ds,
 	}
 	a.dataStore.AddPrefix("network")
 
-	return a, nil
+	return a
 }
 
 func (a NetworkAPI) ListNetworks(ctx context.Context, req *ppool.ListNetworksRequest) (*ppool.ListNetworksResponse, error) {
@@ -57,6 +57,10 @@ func (a NetworkAPI) ListNetworks(ctx context.Context, req *ppool.ListNetworksReq
 }
 
 func (a NetworkAPI) GetNetwork(ctx context.Context, req *ppool.GetNetworkRequest) (*ppool.Network, error) {
+	if req.Name == "" {
+		return nil, grpc.Errorf(codes.InvalidArgument, "Set name")
+	}
+
 	res := &ppool.Network{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())

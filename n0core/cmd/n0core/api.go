@@ -54,28 +54,16 @@ func ServeAPI(ctx *cli.Context) error {
 	}
 	defer ds.Close()
 
-	noa, err := node.CreateNodeAPI(ds)
-	if err != nil {
-		return err
-	}
+	noa := node.CreateNodeAPI(ds)
 	noc := ppool.NewNodeServiceClient(conn)
 
-	nea, err := network.CreateNetworkAPI(ds)
-	if err != nil {
-		return err
-	}
+	nea := network.CreateNetworkAPI(ds)
 	nec := ppool.NewNetworkServiceClient(conn)
 
-	bsa, err := provisioning.CreateBlockStorageAPI(ds, noc)
-	if err != nil {
-		return err
-	}
+	bsa := provisioning.CreateBlockStorageAPI(ds, noc)
 	bsc := pprovisioning.NewBlockStorageServiceClient(conn)
 
-	vma, err := provisioning.CreateVirtualMachineAPI(ds, noc, nec, bsc)
-	if err != nil {
-		return err
-	}
+	vma := provisioning.CreateVirtualMachineAPI(ds, noc, nec, bsc)
 	vmc := pprovisioning.NewVirtualMachineServiceClient(conn)
 
 	statikFs, err := fs.New()
@@ -83,16 +71,10 @@ func ServeAPI(ctx *cli.Context) error {
 		return err
 	}
 
-	ia, err := image.CreateImageAPI(ds, bsc)
-	if err != nil {
-		return err
-	}
+	ia := image.CreateImageAPI(ds, bsc)
 	ic := pdeployment.NewImageServiceClient(conn)
 
-	fa, err := flavor.CreateFlavorAPI(ds, vmc, ic)
-	if err != nil {
-		return err
-	}
+	fa := flavor.CreateFlavorAPI(ds, vmc, ic)
 
 	// とりあえず log を表示するため利用する
 	// zapLogger, err := zap.NewProduction()

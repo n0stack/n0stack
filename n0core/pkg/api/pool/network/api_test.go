@@ -1,5 +1,3 @@
-// +build medium
-
 package network
 
 import (
@@ -9,17 +7,42 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/google/go-cmp/cmp"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/memory"
 	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
 )
 
-func TestEmptyNetwork(t *testing.T) {
+type MockNetworkAPI struct {
+	a *NetworkAPI
+}
+
+func NewMockNetworkAPI(datastore *memory.MemoryDatastore) ppool.NetworkServiceClient {
+	n := CreateNetworkAPI(datastore)
+	return &MockNetworkAPI{n}
+}
+func (a MockNetworkAPI) ListNetworks(ctx context.Context, in *ppool.ListNetworksRequest, opts ...grpc.CallOption) (*ppool.ListNetworksResponse, error) {
+	return a.a.ListNetworks(ctx, in)
+}
+func (a MockNetworkAPI) GetNetwork(ctx context.Context, in *ppool.GetNetworkRequest, opts ...grpc.CallOption) (*ppool.Network, error) {
+	return a.a.GetNetwork(ctx, in)
+}
+func (a MockNetworkAPI) ApplyNetwork(ctx context.Context, in *ppool.ApplyNetworkRequest, opts ...grpc.CallOption) (*ppool.Network, error) {
+	return a.a.ApplyNetwork(ctx, in)
+}
+func (a MockNetworkAPI) DeleteNetwork(ctx context.Context, in *ppool.DeleteNetworkRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+	return a.a.DeleteNetwork(ctx, in)
+}
+func (a MockNetworkAPI) ReserveNetworkInterface(ctx context.Context, in *ppool.ReserveNetworkInterfaceRequest, opts ...grpc.CallOption) (*ppool.Network, error) {
+	return a.a.ReserveNetworkInterface(ctx, in)
+}
+func (a MockNetworkAPI) ReleaseNetworkInterface(ctx context.Context, in *ppool.ReleaseNetworkInterfaceRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+	return a.a.ReleaseNetworkInterface(ctx, in)
+}
+
+func TestListNetworkAboutEmpty(t *testing.T) {
 	m := memory.NewMemoryDatastore()
-	na, err := CreateNetworkAPI(m)
-	if err != nil {
-		t.Fatalf("Failed to create Network API: err='%s'", err.Error())
-	}
+	na := NewMockNetworkAPI(m)
 
 	listRes, err := na.ListNetworks(context.Background(), &ppool.ListNetworksRequest{})
 	if err != nil && grpc.Code(err) != codes.NotFound {
@@ -28,22 +51,53 @@ func TestEmptyNetwork(t *testing.T) {
 	if listRes != nil {
 		t.Errorf("ListNetworks do not return nil: res='%s'", listRes)
 	}
+}
 
-	getRes, err := na.GetNetwork(context.Background(), &ppool.GetNetworkRequest{})
-	if err != nil && grpc.Code(err) != codes.NotFound {
-		t.Errorf("GetNetwork got error, not NotFound: err='%s'", err.Error())
+func TestGetNetworkAboutError(t *testing.T) {
+	m := memory.NewMemoryDatastore()
+	na := NewMockNetworkAPI(m)
+
+	cases := []struct {
+		name    string
+		req     *ppool.GetNetworkRequest
+		res     *ppool.Network
+		errCode codes.Code
+	}{
+		{
+			"empty",
+			&ppool.GetNetworkRequest{
+				Name: "",
+			},
+			nil,
+			codes.InvalidArgument,
+		},
+		{
+			"not found",
+			&ppool.GetNetworkRequest{
+				Name: "hogehoge",
+			},
+			nil,
+			codes.NotFound,
+		},
 	}
-	if getRes != nil {
-		t.Errorf("GetNetwork do not return nil: res='%s'", listRes)
+
+	for _, c := range cases {
+		res, err := na.GetNetwork(context.Background(), c.req)
+		if err == nil {
+			t.Errorf("[%s] GetNetwork do not get error", c.name)
+		} else if grpc.Code(err) != c.errCode {
+			t.Errorf("[%s] GetNetwork get wrong error: want='%v', have='%v'", c.name, c.errCode, grpc.Code(err))
+		}
+
+		if res != c.res {
+			t.Errorf("[%s] GetNetwork is incorrect: want='%v', have='%v'", c.name, c.res, res)
+		}
 	}
 }
 
 func TestApplyNetwork(t *testing.T) {
 	m := memory.NewMemoryDatastore()
-	na, err := CreateNetworkAPI(m)
-	if err != nil {
-		t.Fatalf("Failed to create Network API: err='%s'", err.Error())
-	}
+	na := NewMockNetworkAPI(m)
 
 	n := &ppool.Network{
 		Name:     "test-network",
@@ -88,12 +142,11 @@ func TestApplyNetwork(t *testing.T) {
 	}
 }
 
+// func TestNetworkInterfaceAboutErrors(t *testing.T) {}
+
 func TestNetworkAboutNetworkInterface(t *testing.T) {
 	m := memory.NewMemoryDatastore()
-	na, err := CreateNetworkAPI(m)
-	if err != nil {
-		t.Fatalf("Failed to create Network API: err='%s'", err.Error())
-	}
+	na := NewMockNetworkAPI(m)
 
 	n := &ppool.Network{
 		Name:     "test-network",
@@ -103,7 +156,7 @@ func TestNetworkAboutNetworkInterface(t *testing.T) {
 		State:    ppool.Network_AVAILABLE,
 	}
 
-	_, err = na.ApplyNetwork(context.Background(), &ppool.ApplyNetworkRequest{
+	_, err := na.ApplyNetwork(context.Background(), &ppool.ApplyNetworkRequest{
 		Name:     "test-network",
 		Ipv4Cidr: "192.168.0.0/30",
 		Domain:   "test.local",

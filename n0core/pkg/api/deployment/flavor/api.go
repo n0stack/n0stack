@@ -20,7 +20,7 @@ type FlavorAPI struct {
 	imageAPI  pdeployment.ImageServiceClient
 }
 
-func CreateFlavorAPI(ds datastore.Datastore, vma pprovisioning.VirtualMachineServiceClient, ia pdeployment.ImageServiceClient) (*FlavorAPI, error) {
+func CreateFlavorAPI(ds datastore.Datastore, vma pprovisioning.VirtualMachineServiceClient, ia pdeployment.ImageServiceClient) *FlavorAPI {
 	a := &FlavorAPI{
 		dataStore: ds,
 		vmAPI:     vma,
@@ -28,7 +28,7 @@ func CreateFlavorAPI(ds datastore.Datastore, vma pprovisioning.VirtualMachineSer
 	}
 	a.dataStore.AddPrefix("flavor")
 
-	return a, nil
+	return a
 }
 
 func (a FlavorAPI) ListFlavors(ctx context.Context, req *pdeployment.ListFlavorsRequest) (*pdeployment.ListFlavorsResponse, error) {

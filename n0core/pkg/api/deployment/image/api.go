@@ -19,14 +19,14 @@ type ImageAPI struct {
 	blockstorageAPI pprovisioning.BlockStorageServiceClient
 }
 
-func CreateImageAPI(ds datastore.Datastore, bsa pprovisioning.BlockStorageServiceClient) (*ImageAPI, error) {
+func CreateImageAPI(ds datastore.Datastore, bsa pprovisioning.BlockStorageServiceClient) *ImageAPI {
 	a := &ImageAPI{
 		dataStore:       ds,
 		blockstorageAPI: bsa,
 	}
 	a.dataStore.AddPrefix("image")
 
-	return a, nil
+	return a
 }
 
 func (a ImageAPI) ListImages(ctx context.Context, req *pdeployment.ListImagesRequest) (*pdeployment.ListImagesResponse, error) {

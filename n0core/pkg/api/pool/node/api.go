@@ -19,7 +19,7 @@ type NodeAPI struct {
 	// list      *memberlist.Memberlist
 }
 
-func CreateNodeAPI(ds datastore.Datastore) (*NodeAPI, error) {
+func CreateNodeAPI(ds datastore.Datastore) *NodeAPI {
 	a := &NodeAPI{
 		dataStore: ds,
 	}
@@ -42,7 +42,7 @@ func CreateNodeAPI(ds datastore.Datastore) (*NodeAPI, error) {
 	// 	}
 	// }
 
-	return a, nil
+	return a
 }
 
 func (a NodeAPI) ListNodes(ctx context.Context, req *ppool.ListNodesRequest) (*ppool.ListNodesResponse, error) {
