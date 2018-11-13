@@ -23,10 +23,11 @@ func getEndpoint() []string {
 }
 
 func TestApplyAndDelete(t *testing.T) {
-	e, err := NewEtcdDatastore("test", getEndpoint())
+	e, err := NewEtcdDatastore(getEndpoint())
 	if err != nil {
 		t.Fatalf("Failed to connect etcd: err='%s'", err.Error())
 	}
+	e.AddPrefix("test")
 
 	k := "test"
 	v := &datastore.Test{Name: "hoge"}
@@ -44,11 +45,12 @@ func TestApplyAndDelete(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-	e, err := NewEtcdDatastore("test", getEndpoint())
+	e, err := NewEtcdDatastore(getEndpoint())
 	if err != nil {
 		t.Fatalf("Failed to connect etcd: err='%s'", err.Error())
 	}
 	defer e.Close()
+	e.AddPrefix("test")
 
 	k := "test"
 	v := &datastore.Test{Name: "hoge"}
@@ -67,11 +69,12 @@ func TestGet(t *testing.T) {
 }
 
 func TestList(t *testing.T) {
-	e, err := NewEtcdDatastore("test", getEndpoint())
+	e, err := NewEtcdDatastore(getEndpoint())
 	if err != nil {
 		t.Fatalf("Failed to connect etcd: err='%s'", err.Error())
 	}
 	defer e.Close()
+	e.AddPrefix("test")
 
 	k := "test"
 	v := &datastore.Test{Name: "hoge"}
@@ -106,11 +109,12 @@ func TestList(t *testing.T) {
 }
 
 func TestEmpty(t *testing.T) {
-	e, err := NewEtcdDatastore("test", getEndpoint())
+	e, err := NewEtcdDatastore(getEndpoint())
 	if err != nil {
 		t.Fatalf("Failed to connect etcd: err='%s'", err.Error())
 	}
 	defer e.Close()
+	e.AddPrefix("test")
 
 	k := "test"
 	resGet := &datastore.Test{}

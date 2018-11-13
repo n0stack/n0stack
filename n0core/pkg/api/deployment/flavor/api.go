@@ -26,6 +26,7 @@ func CreateFlavorAPI(ds datastore.Datastore, vma pprovisioning.VirtualMachineSer
 		vmAPI:     vma,
 		imageAPI:  ia,
 	}
+	a.dataStore.AddPrefix("flavor")
 
 	return a, nil
 }

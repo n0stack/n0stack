@@ -7,10 +7,16 @@ import (
 type MemoryDatastore struct {
 	// 本当は `proto.Message` を入れたいが、何故か中身がなかったのでとりあえずシリアライズする
 	Data map[string][]byte
+
+	prefix string
 }
 
 func NewMemoryDatastore() *MemoryDatastore {
 	return &MemoryDatastore{Data: map[string][]byte{}}
+}
+
+func (m *MemoryDatastore) AddPrefix(prefix string) {
+	m.prefix = m.prefix + prefix + "/"
 }
 
 func (m MemoryDatastore) List(f func(length int) []proto.Message) error {
@@ -30,7 +36,7 @@ func (m MemoryDatastore) List(f func(length int) []proto.Message) error {
 }
 
 func (m MemoryDatastore) Get(name string, pb proto.Message) error {
-	v, ok := m.Data[name]
+	v, ok := m.Data[m.prefix+name]
 	if !ok {
 		pb = nil
 		return nil
@@ -50,17 +56,16 @@ func (m MemoryDatastore) Apply(name string, pb proto.Message) error {
 		return err
 	}
 
-	m.Data[name] = s
+	m.Data[m.prefix+name] = s
 
 	return nil
 }
 
 func (m MemoryDatastore) Delete(name string) error {
 	var ok bool
-	_, ok = m.Data[name]
-
+	_, ok = m.Data[m.prefix+name]
 	if ok {
-		delete(m.Data, name)
+		delete(m.Data, m.prefix+name)
 		return nil
 	}
 

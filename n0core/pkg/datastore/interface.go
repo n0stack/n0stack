@@ -5,6 +5,8 @@ import (
 )
 
 type Datastore interface {
+	AddPrefix(prefix string)
+
 	List(f func(length int) []proto.Message) error
 
 	// if result is empty, set pb as nil.

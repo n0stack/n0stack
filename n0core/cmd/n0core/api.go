@@ -48,49 +48,31 @@ func ServeAPI(ctx *cli.Context) error {
 	}
 	defer conn.Close()
 
-	noe, err := etcd.NewEtcdDatastore("node", etcdEndpoints)
+	ds, err := etcd.NewEtcdDatastore(etcdEndpoints)
 	if err != nil {
 		return err
 	}
-	defer noe.Close()
+	defer ds.Close()
 
-	noa, err := node.CreateNodeAPI(noe)
+	noa, err := node.CreateNodeAPI(ds)
 	if err != nil {
 		return err
 	}
 	noc := ppool.NewNodeServiceClient(conn)
 
-	nee, err := etcd.NewEtcdDatastore("network", etcdEndpoints)
-	if err != nil {
-		return err
-	}
-	defer nee.Close()
-
-	nea, err := network.CreateNetworkAPI(nee)
+	nea, err := network.CreateNetworkAPI(ds)
 	if err != nil {
 		return err
 	}
 	nec := ppool.NewNetworkServiceClient(conn)
 
-	bse, err := etcd.NewEtcdDatastore("block_storage", etcdEndpoints)
-	if err != nil {
-		return err
-	}
-	defer bse.Close()
-
-	bsa, err := provisioning.CreateBlockStorageAPI(bse, noc)
+	bsa, err := provisioning.CreateBlockStorageAPI(ds, noc)
 	if err != nil {
 		return err
 	}
 	bsc := pprovisioning.NewBlockStorageServiceClient(conn)
 
-	vme, err := etcd.NewEtcdDatastore("virtual_machine", etcdEndpoints)
-	if err != nil {
-		return err
-	}
-	defer vme.Close()
-
-	vma, err := provisioning.CreateVirtualMachineAPI(vme, noc, nec, bsc)
+	vma, err := provisioning.CreateVirtualMachineAPI(ds, noc, nec, bsc)
 	if err != nil {
 		return err
 	}
@@ -101,25 +83,13 @@ func ServeAPI(ctx *cli.Context) error {
 		return err
 	}
 
-	ie, err := etcd.NewEtcdDatastore("image", etcdEndpoints)
-	if err != nil {
-		return err
-	}
-	defer ie.Close()
-
-	ia, err := image.CreateImageAPI(ie, bsc)
+	ia, err := image.CreateImageAPI(ds, bsc)
 	if err != nil {
 		return err
 	}
 	ic := pdeployment.NewImageServiceClient(conn)
 
-	fe, err := etcd.NewEtcdDatastore("flavor", etcdEndpoints)
-	if err != nil {
-		return err
-	}
-	defer ie.Close()
-
-	fa, err := flavor.CreateFlavorAPI(fe, vmc, ic)
+	fa, err := flavor.CreateFlavorAPI(ds, vmc, ic)
 	if err != nil {
 		return err
 	}

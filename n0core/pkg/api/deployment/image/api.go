@@ -24,6 +24,7 @@ func CreateImageAPI(ds datastore.Datastore, bsa pprovisioning.BlockStorageServic
 		dataStore:       ds,
 		blockstorageAPI: bsa,
 	}
+	a.dataStore.AddPrefix("image")
 
 	return a, nil
 }

@@ -51,6 +51,7 @@ func CreateVirtualMachineAPI(ds datastore.Datastore, noa ppool.NodeServiceClient
 		blockstorageAPI: bsa,
 		nodeConnections: nc,
 	}
+	a.dataStore.AddPrefix("virtual_machine")
 
 	return a, nil
 }

@@ -19,7 +19,7 @@ const (
 	etcdRequestTimeout = 10 * time.Second
 )
 
-func NewEtcdDatastore(service string, endpoints []string) (*EtcdDatastore, error) {
+func NewEtcdDatastore(endpoints []string) (*EtcdDatastore, error) {
 	e := &EtcdDatastore{}
 
 	var err error
@@ -31,11 +31,13 @@ func NewEtcdDatastore(service string, endpoints []string) (*EtcdDatastore, error
 		return nil, err
 	}
 
-	e.client.KV = namespace.NewKV(e.client.KV, service+"/")
-	e.client.Watcher = namespace.NewWatcher(e.client.Watcher, service+"/")
-	e.client.Lease = namespace.NewLease(e.client.Lease, service+"/")
-
 	return e, nil
+}
+
+func (d *EtcdDatastore) AddPrefix(prefix string) {
+	d.client.KV = namespace.NewKV(d.client.KV, prefix+"/")
+	d.client.Watcher = namespace.NewWatcher(d.client.Watcher, prefix+"/")
+	d.client.Lease = namespace.NewLease(d.client.Lease, prefix+"/")
 }
 
 func (d EtcdDatastore) List(f func(int) []proto.Message) error {

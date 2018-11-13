@@ -23,6 +23,7 @@ func CreateNodeAPI(ds datastore.Datastore) (*NodeAPI, error) {
 	a := &NodeAPI{
 		dataStore: ds,
 	}
+	a.dataStore.AddPrefix("node")
 
 	// c := memberlist.DefaultLANConfig()
 	// c.Events = &NodeAPIEventDelegate{ds: ds}

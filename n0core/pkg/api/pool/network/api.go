@@ -24,6 +24,7 @@ func CreateNetworkAPI(ds datastore.Datastore) (*NetworkAPI, error) {
 	a := &NetworkAPI{
 		dataStore: ds,
 	}
+	a.dataStore.AddPrefix("network")
 
 	return a, nil
 }
@@ -69,6 +70,10 @@ func (a NetworkAPI) GetNetwork(ctx context.Context, req *ppool.GetNetworkRequest
 }
 
 func (a NetworkAPI) ApplyNetwork(ctx context.Context, req *ppool.ApplyNetworkRequest) (*ppool.Network, error) {
+	if _, _, err := net.ParseCIDR(req.Ipv4Cidr); err != nil {
+		return nil, grpc.Errorf(codes.InvalidArgument, "Field 'ipv4_cidr' is invalid : %s", err.Error())
+	}
+
 	res := &ppool.Network{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
@@ -85,10 +90,6 @@ func (a NetworkAPI) ApplyNetwork(ctx context.Context, req *ppool.ApplyNetworkReq
 	res.Ipv4Cidr = req.Ipv4Cidr
 	res.Ipv6Cidr = req.Ipv6Cidr
 	res.Domain = req.Domain
-
-	if _, _, err := net.ParseCIDR(req.Ipv4Cidr); err != nil {
-		return nil, grpc.Errorf(codes.InvalidArgument, "Field 'ipv4_cidr' is invalid : %s", err.Error())
-	}
 
 	res.State = ppool.Network_AVAILABLE
 	if err := a.dataStore.Apply(req.Name, res); err != nil {
