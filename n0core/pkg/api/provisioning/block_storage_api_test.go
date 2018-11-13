@@ -22,10 +22,7 @@ func TestEmptyBlockStorage(t *testing.T) {
 	}
 	defer conn.Close()
 
-	bsa, err := CreateBlockStorageAPI(m, na)
-	if err != nil {
-		t.Fatalf("Failed to create block storage API: err='%s'", err.Error())
-	}
+	bsa := CreateBlockStorageAPI(m, na)
 
 	listRes, err := bsa.ListBlockStorages(context.Background(), &pprovisioning.ListBlockStoragesRequest{})
 	if err != nil && grpc.Code(err) != codes.NotFound {
@@ -52,10 +49,7 @@ func TestCreateBlockStorage(t *testing.T) {
 	}
 	defer nconn.Close()
 
-	bsa, err := CreateBlockStorageAPI(m, na)
-	if err != nil {
-		t.Fatalf("Failed to create block storage API: err='%s'", err.Error())
-	}
+	bsa := CreateBlockStorageAPI(m, na)
 
 	bs := &pprovisioning.BlockStorage{
 		Name: "test-block-storage",
@@ -113,10 +107,7 @@ func TestFetchBlockStorage(t *testing.T) {
 	}
 	defer nconn.Close()
 
-	bsa, err := CreateBlockStorageAPI(m, na)
-	if err != nil {
-		t.Fatalf("Failed to create block storage API: err='%s'", err.Error())
-	}
+	bsa := CreateBlockStorageAPI(m, na)
 
 	bs := &pprovisioning.BlockStorage{
 		Name: "test-block-storage",
@@ -178,10 +169,7 @@ func TestBlockStorageAboutInUseState(t *testing.T) {
 	}
 	defer nconn.Close()
 
-	bsa, err := CreateBlockStorageAPI(m, na)
-	if err != nil {
-		t.Fatalf("Failed to create block storage API: err='%s'", err.Error())
-	}
+	bsa := CreateBlockStorageAPI(m, na)
 
 	bs := &pprovisioning.BlockStorage{
 		Name: "test-block-storage",
@@ -243,10 +231,7 @@ func TestBlockStorageAboutProtectedState(t *testing.T) {
 	}
 	defer nconn.Close()
 
-	bsa, err := CreateBlockStorageAPI(m, na)
-	if err != nil {
-		t.Fatalf("Failed to create block storage API: err='%s'", err.Error())
-	}
+	bsa := CreateBlockStorageAPI(m, na)
 
 	bs := &pprovisioning.BlockStorage{
 		Name: "test-block-storage",
@@ -308,10 +293,7 @@ func TestBlockCopyStorage(t *testing.T) {
 	}
 	defer nconn.Close()
 
-	bsa, err := CreateBlockStorageAPI(m, na)
-	if err != nil {
-		t.Fatalf("Failed to create block storage API: err='%s'", err.Error())
-	}
+	bsa := CreateBlockStorageAPI(m, na)
 
 	bs := &pprovisioning.BlockStorage{
 		Name: "test-block-storage",

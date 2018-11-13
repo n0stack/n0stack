@@ -34,10 +34,7 @@ func TestEmptyVirtualMachine(t *testing.T) {
 	}
 	defer bsconn.Close()
 
-	vma, err := CreateVirtualMachineAPI(m, noa, nea, bsa)
-	if err != nil {
-		t.Fatalf("Failed to create virtual machine API: err='%s'", err.Error())
-	}
+	vma := CreateVirtualMachineAPI(m, noa, nea, bsa)
 
 	listRes, err := vma.ListVirtualMachines(context.Background(), &pprovisioning.ListVirtualMachinesRequest{})
 	if err != nil && grpc.Code(err) != codes.NotFound {
@@ -74,10 +71,7 @@ func TestCreateVirtualMachine(t *testing.T) {
 	}
 	defer bsconn.Close()
 
-	vma, err := CreateVirtualMachineAPI(m, noa, nea, bsa)
-	if err != nil {
-		t.Fatalf("Failed to create virtual machine API: err='%s'", err.Error())
-	}
+	vma := CreateVirtualMachineAPI(m, noa, nea, bsa)
 
 	ne, err := nea.ApplyNetwork(context.Background(), &ppool.ApplyNetworkRequest{
 		Name:     "test-network",

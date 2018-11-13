@@ -41,10 +41,7 @@ func TestEmptyImage(t *testing.T) {
 	}
 	defer bsconn.Close()
 
-	ia, err := CreateImageAPI(m, bsa)
-	if err != nil {
-		t.Fatalf("Failed to create Image API: err='%s'", err.Error())
-	}
+	ia := CreateImageAPI(m, bsa)
 
 	listRes, err := ia.ListImages(context.Background(), &pdeployment.ListImagesRequest{})
 	if err != nil && grpc.Code(err) != codes.NotFound {
@@ -71,10 +68,7 @@ func TestApplyImage(t *testing.T) {
 	}
 	defer bsconn.Close()
 
-	ia, err := CreateImageAPI(m, bsa)
-	if err != nil {
-		t.Fatalf("Failed to create Image API: err='%s'", err.Error())
-	}
+	ia := CreateImageAPI(m, bsa)
 
 	i := &pdeployment.Image{
 		Name:    "test-network",
@@ -122,10 +116,7 @@ func TestImageAboutRegister(t *testing.T) {
 	}
 	defer bsconn.Close()
 
-	ia, err := CreateImageAPI(m, bsa)
-	if err != nil {
-		t.Fatalf("Failed to create Image API: err='%s'", err.Error())
-	}
+	ia := CreateImageAPI(m, bsa)
 
 	i := &pdeployment.Image{
 		Name:    "test-network",
@@ -238,10 +229,7 @@ func TestImageAboutTag(t *testing.T) {
 	}
 	defer bsconn.Close()
 
-	ia, err := CreateImageAPI(m, bsa)
-	if err != nil {
-		t.Fatalf("Failed to create Image API: err='%s'", err.Error())
-	}
+	ia := CreateImageAPI(m, bsa)
 
 	i := &pdeployment.Image{
 		Name:    "test-network",

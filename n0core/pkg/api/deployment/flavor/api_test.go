@@ -61,10 +61,7 @@ func TestEmptyFlavor(t *testing.T) {
 	}
 	defer iconn.Close()
 
-	fa, err := CreateFlavorAPI(m, vma, ia)
-	if err != nil {
-		t.Fatalf("Failed to create Flavor API: err='%s'", err.Error())
-	}
+	fa := CreateFlavorAPI(m, vma, ia)
 
 	listRes, err := fa.ListFlavors(context.Background(), &pdeployment.ListFlavorsRequest{})
 	if err != nil && grpc.Code(err) != codes.NotFound {
@@ -96,10 +93,7 @@ func TestApplyFlavor(t *testing.T) {
 	}
 	defer iconn.Close()
 
-	fa, err := CreateFlavorAPI(m, vma, ia)
-	if err != nil {
-		t.Fatalf("Failed to create Flavor API: err='%s'", err.Error())
-	}
+	fa := CreateFlavorAPI(m, vma, ia)
 
 	f := &pdeployment.Flavor{
 		Name: "test",

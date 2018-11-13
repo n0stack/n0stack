@@ -22,7 +22,7 @@ The principles about tests on n0stack.
 
 - coverage n0core/pkg/api without agent > 70 %
 - coverage n0core/pkg/api with agent > 50 %
-- coverage n0core/pkg/datastore/memory > 80 %
+- coverage n0core/pkg/datastore/memory > 70 %
 
 ### medium
 
@@ -40,7 +40,9 @@ The principles about tests on n0stack.
 
 ## TODO
 
-- [ ] 現状のテストが通るようにする
+- [x] 現状のテストが通るようにする
 - [ ] 各 API のモックの作成と差し替え
 - [ ] Agent からロジックの切り出し
+- [ ] Agent のモック作成
+- [ ] medium -> small に
 - [ ] API のテストを書いていく

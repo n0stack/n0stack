@@ -16,10 +16,7 @@ import (
 
 func TestEmptyNode(t *testing.T) {
 	m := memory.NewMemoryDatastore()
-	na, err := CreateNodeAPI(m)
-	if err != nil {
-		t.Fatalf("Failed to create Node API: err='%s'", err.Error())
-	}
+	na := CreateNodeAPI(m)
 
 	listRes, err := na.ListNodes(context.Background(), &ppool.ListNodesRequest{})
 	if err != nil && grpc.Code(err) != codes.NotFound {
@@ -40,10 +37,7 @@ func TestEmptyNode(t *testing.T) {
 
 func TestApplyNode(t *testing.T) {
 	m := memory.NewMemoryDatastore()
-	na, err := CreateNodeAPI(m)
-	if err != nil {
-		t.Fatalf("Failed to create Node API: err='%s'", err.Error())
-	}
+	na := CreateNodeAPI(m)
 
 	n := &ppool.Node{
 		Name:    "test-node",
@@ -116,10 +110,7 @@ func TestApplyNode(t *testing.T) {
 
 func TestNodeAboutCompute(t *testing.T) {
 	m := memory.NewMemoryDatastore()
-	na, err := CreateNodeAPI(m)
-	if err != nil {
-		t.Fatalf("Failed to create Node API: err='%s'", err.Error())
-	}
+	na := CreateNodeAPI(m)
 
 	n := &ppool.Node{
 		Name:    "test-node",
@@ -142,7 +133,7 @@ func TestNodeAboutCompute(t *testing.T) {
 		State: ppool.Node_Ready,
 	}
 
-	_, err = na.ApplyNode(context.Background(), &ppool.ApplyNodeRequest{
+	_, err := na.ApplyNode(context.Background(), &ppool.ApplyNodeRequest{
 		Name: "test-node",
 
 		Address:     "10.0.0.1",
@@ -296,10 +287,7 @@ func TestNodeAboutCompute(t *testing.T) {
 
 func TestNodeAboutStorage(t *testing.T) {
 	m := memory.NewMemoryDatastore()
-	na, err := CreateNodeAPI(m)
-	if err != nil {
-		t.Fatalf("Failed to create Node API: err='%s'", err.Error())
-	}
+	na := CreateNodeAPI(m)
 
 	n := &ppool.Node{
 		Name:    "test-node",
@@ -322,7 +310,7 @@ func TestNodeAboutStorage(t *testing.T) {
 		State: ppool.Node_Ready,
 	}
 
-	_, err = na.ApplyNode(context.Background(), &ppool.ApplyNodeRequest{
+	_, err := na.ApplyNode(context.Background(), &ppool.ApplyNodeRequest{
 		Name: "test-node",
 
 		Address:     "10.0.0.1",
