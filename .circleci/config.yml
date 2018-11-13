@@ -31,7 +31,7 @@ jobs:
           name: push
           command: |
             git add -f VERSION
-            git commit -m "increment version for $(cat VERSION) [skip ci]"
+            git commit -m "increment version to $(cat VERSION) [skip ci]"
             git push origin master
       - save_cache:
           key: vendor-master
