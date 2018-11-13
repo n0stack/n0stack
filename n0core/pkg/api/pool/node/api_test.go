@@ -16,7 +16,7 @@ import (
 
 func TestEmptyNode(t *testing.T) {
 	m := memory.NewMemoryDatastore()
-	na := CreateNodeAPI(m)
+	na := NewMockNodeAPI(m)
 
 	listRes, err := na.ListNodes(context.Background(), &ppool.ListNodesRequest{})
 	if err != nil && grpc.Code(err) != codes.NotFound {
@@ -37,7 +37,7 @@ func TestEmptyNode(t *testing.T) {
 
 func TestApplyNode(t *testing.T) {
 	m := memory.NewMemoryDatastore()
-	na := CreateNodeAPI(m)
+	na := NewMockNodeAPI(m)
 
 	n := &ppool.Node{
 		Name:    "test-node",
@@ -110,7 +110,7 @@ func TestApplyNode(t *testing.T) {
 
 func TestNodeAboutCompute(t *testing.T) {
 	m := memory.NewMemoryDatastore()
-	na := CreateNodeAPI(m)
+	na := NewMockNodeAPI(m)
 
 	n := &ppool.Node{
 		Name:    "test-node",
@@ -287,7 +287,7 @@ func TestNodeAboutCompute(t *testing.T) {
 
 func TestNodeAboutStorage(t *testing.T) {
 	m := memory.NewMemoryDatastore()
-	na := CreateNodeAPI(m)
+	na := NewMockNodeAPI(m)
 
 	n := &ppool.Node{
 		Name:    "test-node",
