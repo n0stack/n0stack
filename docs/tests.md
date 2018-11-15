@@ -27,6 +27,7 @@ The principles about tests on n0stack.
 ### medium
 
 - integration test about side effect on standalone
+- gRPC fuzzing about logic
 
 #### Goal
 
