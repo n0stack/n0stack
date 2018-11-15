@@ -291,7 +291,7 @@ func (a *BlockStorageAPI) CopyBlockStorage(ctx context.Context, req *pprovisioni
 	var dstNode *ppool.Node
 	var ok bool
 	if res.NodeName, ok = res.Annotations[AnnotationRequestNodeName]; !ok {
-		dstNode, err = a.nodeAPI.ScheduleStorage(context.Background(), &ppool.ScheduleStorageRequest{
+		dstNode, err = a.nodeAPI.ScheduleStorage(ctx, &ppool.ScheduleStorageRequest{
 			StorageName: res.StorageName,
 			Annotations: map[string]string{
 				AnnotationBlockStorageReserve: res.Name,
@@ -300,7 +300,7 @@ func (a *BlockStorageAPI) CopyBlockStorage(ctx context.Context, req *pprovisioni
 			LimitBytes:   res.LimitBytes,
 		})
 	} else {
-		dstNode, err = a.nodeAPI.ReserveStorage(context.Background(), &ppool.ReserveStorageRequest{
+		dstNode, err = a.nodeAPI.ReserveStorage(ctx, &ppool.ReserveStorageRequest{
 			NodeName:    res.NodeName,
 			StorageName: res.StorageName,
 			Annotations: map[string]string{
@@ -315,7 +315,7 @@ func (a *BlockStorageAPI) CopyBlockStorage(ctx context.Context, req *pprovisioni
 		return nil, WrapGrpcErrorf(codes.Internal, errors.Wrap(err, "Failed to reserve storage").Error())
 	}
 	tx.PushRollback("Release storage", func() error {
-		_, err = a.nodeAPI.ReleaseStorage(context.Background(), &ppool.ReleaseStorageRequest{
+		_, err = a.nodeAPI.ReleaseStorage(ctx, &ppool.ReleaseStorageRequest{
 			NodeName:    res.NodeName,
 			StorageName: res.StorageName,
 		})
@@ -329,7 +329,7 @@ func (a *BlockStorageAPI) CopyBlockStorage(ctx context.Context, req *pprovisioni
 	}
 	defer conn.Close()
 
-	v, err := cli.FetchBlockStorage(context.Background(), &FetchBlockStorageRequest{
+	v, err := cli.FetchBlockStorage(ctx, &FetchBlockStorageRequest{
 		Name:      req.Name,
 		Bytes:     req.LimitBytes,
 		SourceUrl: srcUrl.String(),
