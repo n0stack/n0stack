@@ -248,7 +248,11 @@ ReleaseStorage:
 }
 
 func (a *BlockStorageAPI) CopyBlockStorage(ctx context.Context, req *pprovisioning.CopyBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
-	if req.RequestBytes == 0 {
+	switch {
+	case req.Name == "":
+		return nil, WrapGrpcErrorf(codes.InvalidArgument, "Set 'name'")
+
+	case req.RequestBytes == 0:
 		return nil, grpc.Errorf(codes.InvalidArgument, "Set 'request_bytes'")
 	}
 
@@ -281,9 +285,6 @@ func (a *BlockStorageAPI) CopyBlockStorage(ctx context.Context, req *pprovisioni
 	res.Annotations = req.Annotations
 	res.RequestBytes = req.RequestBytes
 	res.LimitBytes = req.LimitBytes
-	if res.Annotations == nil {
-		res.Annotations = make(map[string]string)
-	}
 
 	tx := transaction.Begin()
 
