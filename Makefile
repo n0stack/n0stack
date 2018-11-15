@@ -124,8 +124,8 @@ clean:
 	# go clean
 	docker-compose down
 	# sudo rm -rf .go-build
-	sudo rm -rf bin
-	sudo rm -rf sandbox
+	sudo rm -rf bin/*
+	sudo rm -rf sandbox/*
 	# sudo rm -rf vendor
 
 logs:
@@ -156,7 +156,7 @@ test-small-n0proto: build-n0proto-on-docker
 	git diff --name-status --exit-code n0proto.go
 
 test-small-go:
-	go test -cover ./...
+	go test -race -cover ./...
 
 test-medium: up-mock # with root, having dependency for external
-	sudo go test -tags=medium -cover ./...   # n0core, n0cli
+	sudo go test -race -tags=medium -cover ./...   # n0core, n0cli
