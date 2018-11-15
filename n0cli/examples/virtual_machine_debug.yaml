@@ -1,0 +1,102 @@
+DeleteVirtualMachine:
+  type: VirtualMachine
+  action: DeleteVirtualMachine
+  args:
+    name: debug
+    annotations:
+      n0core/provisioning/request_node_name: run-all-in-one
+  ignore_error: true
+
+ReleaseCompute:
+  type: Node
+  action: ReleaseCompute
+  args:
+    node_name: run-all-in-one
+    compute_name: debug
+  depends_on:
+    - DeleteVirtualMachine
+  ignore_error: true
+
+SetBlockStorage:
+  type: BlockStorage
+  action: SetAvailableBlockStorage
+  args:
+    name: debug
+  depends_on:
+    - DeleteVirtualMachine
+  ignore_error: true
+
+DeleteBlockStorage:
+  type: BlockStorage
+  action: DeleteBlockStorage
+  args:
+    name: debug
+  depends_on:
+    - SetBlockStorage
+  ignore_error: true
+
+GenerateBlockStorage:
+  type: Image
+  action: GenerateBlockStorage
+  args:
+    image_name: cloudimage-ubuntu
+    tag: "1804"
+    block_storage_name: debug
+    annotations:
+      n0core/provisioning/request_node_name: run-all-in-one
+    request_bytes: 1073741824
+    limit_bytes: 10737418240
+  depends_on:
+    - DeleteBlockStorage
+
+DeleteNetwork:
+  type: Network
+  action: DeleteNetwork
+  args:
+    name: debug_network
+  depends_on:
+    - DeleteVirtualMachine
+  ignore_error: true
+
+ApplyNetwork:
+  type: Network
+  action: ApplyNetwork
+  args:
+    name: debug_network
+    ipv4_cidr: 192.168.0.0/24
+    annotations:
+      n0core/provisioning/request_node_name: run-all-in-one
+  depends_on:
+    - DeleteNetwork
+
+CreateVirtualMachine:
+  type: VirtualMachine
+  action: CreateVirtualMachine
+  args:
+    name: debug
+    annotations:
+      n0core/provisioning/request_node_name: run-all-in-one
+    request_cpu_milli_core: 10
+    limit_cpu_milli_core: 1000
+    request_memory_bytes: 1073741824
+    limit_memory_bytes: 1073741824
+    block_storage_names:
+      - debug
+    nics:
+      - network_name: debug_network
+    uuid: 056d2ccd-0c4c-44dc-a2c8-39a9d394b51f
+    login_username: ictsc
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC/ybjovYjUqWzfcUd5hh8GRb7eULAnYFq4eecErTzpDHAIoriWj0rpEJdI5uY6CgoYOst9EtAIZrWInBWYRfBIU1dwa04wfh71j7oR36xZUOyWV15uHNAl+tPy/VUJ/DdMFYNzKqe8PhVnTt7A99wiXTg2G77IMopwxipum+3IWHLa2n4fUynyqyOBqmbG9N/rzAZ1nnOhhymdZWlcIzvQDQsER8+EaKypJSERU3A/ssMA7/oCPz7fHCLk6CtNiTm9LhFLiEei+nLolfI/IydRlSoBJl08WGTrMft4haxdc2pm4w4nj7g+XfJhmDPThaPlU9EzX1mhwYKyWyyN/w4j ictsc@ictsc-m4-04
+  depends_on:
+    - ReleaseCompute
+    - GenerateBlockStorage
+    - ApplyNetwork
+
+OpenConsole:
+  type: VirtualMachine
+  action: OpenConsole
+  args:
+    name: debug
+  depends_on:
+    - CreateVirtualMachine

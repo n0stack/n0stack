@@ -78,7 +78,7 @@ func ServeAgent(ctx *cli.Context) error {
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	e.Static("/api/block_storage/files", bbs)
+	e.Static(provisioning.DownloadBlockStorageHTTPPrefix, bbs)
 
 	if err := node.RegisterNodeToAPI(nodeName, advertiseAddress, nodeAPI); err != nil {
 		return err
