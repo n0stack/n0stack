@@ -1,7 +1,7 @@
 # n0stack
 
 [![Build Status](https://travis-ci.org/n0stack/n0stack.svg?branch=master)](https://travis-ci.org/n0stack/n0stack)
-[![CircleCI](https://circleci.com/gh/n0stack/n0stack/tree/master.svg?style=svg)](https://circleci.com/gh/n0stack/n0stack/tree/master)
+[![CircleCI](https://circleci.com/gh/n0stack/n0stack/tree/master.svg?style=shield)](https://circleci.com/gh/n0stack/n0stack/tree/master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/n0stack/n0stack)](https://goreportcard.com/report/github.com/n0stack/n0stack)
 [![Maintainability](https://api.codeclimate.com/v1/badges/5d855a7314486bf9aa2f/maintainability)](https://codeclimate.com/github/n0stack/n0stack/maintainability)
 [![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)](https://opensource.org/licenses/BSD-2-Clause)
