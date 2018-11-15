@@ -189,9 +189,9 @@ func TestImageAboutRegister(t *testing.T) {
 		ImageName:        i.Name,
 		Tag:              "test-tag",
 		BlockStorageName: "generated-image",
-		// Annotations:      bs.Annotations,
-		RequestBytes: 10 * bytefmt.MEGABYTE,
-		LimitBytes:   10 * bytefmt.GIGABYTE,
+		Annotations:      bs.Annotations,
+		RequestBytes:     10 * bytefmt.MEGABYTE,
+		LimitBytes:       10 * bytefmt.GIGABYTE,
 	})
 	if err != nil {
 		t.Errorf("Failed to generate BlockStorageAPI got error: err='%s'", err.Error())
