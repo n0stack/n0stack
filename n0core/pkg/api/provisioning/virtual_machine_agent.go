@@ -3,12 +3,13 @@ package provisioning
 import (
 	"context"
 	"fmt"
-	"golang.org/x/crypto/ssh"
 	"log"
 	"net"
 	"net/url"
 	"os"
 	"path/filepath"
+
+	"golang.org/x/crypto/ssh"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -16,6 +17,7 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/n0stack/n0stack/n0core/pkg/driver/cloudinit/configdrive"
 	"github.com/n0stack/n0stack/n0core/pkg/driver/iproute2"
+	"github.com/n0stack/n0stack/n0core/pkg/driver/iptables"
 	"github.com/n0stack/n0stack/n0core/pkg/driver/qemu"
 	"github.com/n0stack/n0stack/n0core/pkg/driver/qemu_img"
 	"github.com/n0stack/n0stack/n0proto.go/pkg/transaction"
@@ -162,6 +164,7 @@ func (a VirtualMachineAgentAPI) CreateVirtualMachineAgent(ctx context.Context, r
 			return nil
 		})
 
+		// Cloudinit settings
 		ip, ipn, err := net.ParseCIDR(nd.Ipv4AddressCidr)
 		if err != nil {
 			WrapRollbackError(tx.Rollback())
@@ -182,6 +185,24 @@ func (a VirtualMachineAgentAPI) CreateVirtualMachineAgent(ctx context.Context, r
 			Network4:    ipn,
 			Gateway4:    net.ParseIP(nd.Ipv4Gateway),
 			NameServers: nameservers,
+		}
+
+		// Gateway settings
+		if nd.Ipv4Gateway != "" {
+			mask, _ := ipn.Mask.Size()
+			gatewayIP := fmt.Sprintf("%s/%d", nd.Ipv4Gateway, mask)
+			if err := b.SetAddress(gatewayIP); err != nil {
+				WrapRollbackError(tx.Rollback())
+				return nil, WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to set gateway IP to bridge: value=%s", gatewayIP).Error())
+			}
+
+			if iptables.CreateMasqueradeRule(b.Name(), ipn.String()); err != nil {
+				WrapRollbackError(tx.Rollback())
+				return nil, WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to create masquerade rule").Error())
+			}
+			tx.PushRollback("delete masquerade rule", func() error {
+				return iptables.DeleteMasqueradeRule(b.Name(), ipn.String())
+			})
 		}
 	}
 
@@ -321,6 +342,17 @@ func (a VirtualMachineAgentAPI) DeleteVirtualMachineAgent(ctx context.Context, r
 			if err := b.Delete(); err != nil {
 				log.Printf("Failed to delete bridge '%s': err='%s'", b.Name(), err.Error())
 				return nil, grpc.Errorf(codes.Internal, "") // TODO #89
+			}
+
+			// gateway settings
+			if nd.Ipv4Gateway != "" {
+				_, ipn, err := net.ParseCIDR(nd.Ipv4AddressCidr)
+				if err != nil {
+					return nil, WrapGrpcErrorf(codes.InvalidArgument, "Set valid ipv4_address_cidr: value='%s', err='%s'", nd.Ipv4AddressCidr, err.Error())
+				}
+				if err := iptables.DeleteMasqueradeRule(b.Name(), ipn.String()); err != nil {
+					return nil, WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to delete masquerade rule").Error())
+				}
 			}
 		}
 	}
