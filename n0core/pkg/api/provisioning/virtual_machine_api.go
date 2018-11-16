@@ -1,6 +1,7 @@
 package provisioning
 
 import (
+	"github.com/n0stack/n0stack/n0core/pkg/tools/net"
 	"context"
 	"fmt"
 	"log"
@@ -9,15 +10,15 @@ import (
 	"net/url"
 	"strconv"
 
+	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/koding/websocketproxy"
+	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
+	"github.com/n0stack/n0stack/n0core/pkg/datastore"
 	"github.com/n0stack/n0stack/n0proto.go/pkg/transaction"
 	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
 	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
-
-	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
-	"github.com/n0stack/n0stack/n0core/pkg/datastore"
+	"github.com/pkg/errors"
 
 	"github.com/labstack/echo"
 	"google.golang.org/grpc"
@@ -53,6 +54,26 @@ func CreateVirtualMachineAPI(ds datastore.Datastore, noa ppool.NodeServiceClient
 	}
 
 	return a
+}
+
+func (a *VirtualMachineAPI) addDefaultGateway(ctx context.Context, network *ppool.Network) (string, error) {
+	_, ipn, err := net.ParseCIDR(network.Ipv4Cidr)
+	if err != nil {
+		return "", errors.Wrap(err, "Invalid CIDR in network")
+	}
+
+	ip := nettools.GetEndIP(ipn)
+
+	a.networkAPI.ReserveNetworkInterface(ctx, &ppool.ReserveNetworkInterfaceRequest{
+		NetworkName: network.Name,
+		NetworkInterfaceName: "default-gateway",
+		Ipv4Address: ip.String(),
+		Annotations: map[string]string{
+			AnnotationNetworkInterfaceGateway: "true",
+		},
+	})
+
+	return ip.String(), nil
 }
 
 func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprovisioning.CreateVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
@@ -198,13 +219,19 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 			Ipv6Address:     network.ReservedNetworkInterfaces[niname].Ipv6Address,
 		}
 
+		_, ipn, _ := net.ParseCIDR(network.Ipv4Cidr)
 		gateway := ""
 		for _, ni := range network.ReservedNetworkInterfaces {
 			if v, ok := ni.Annotations[AnnotationNetworkInterfaceGateway]; ok {
 				gateway = v
 			}
 		}
-		_, ipn, _ := net.ParseCIDR(network.Ipv4Cidr)
+		if gateway == "" {
+			if gateway, err = a.addDefaultGateway(ctx, network); err != nil {
+				return nil, WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to add default gateway").Error())
+			}
+		}
+
 		m, _ := ipn.Mask.Size()
 		netdev[i] = &NetDev{
 			Name:            niname,

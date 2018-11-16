@@ -85,9 +85,9 @@ CreateVirtualMachine:
     nics:
       - network_name: debug_network
     uuid: 056d2ccd-0c4c-44dc-a2c8-39a9d394b51f
-    login_username: ictsc
+    login_username: test
     ssh_authorized_keys:
-      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC/ybjovYjUqWzfcUd5hh8GRb7eULAnYFq4eecErTzpDHAIoriWj0rpEJdI5uY6CgoYOst9EtAIZrWInBWYRfBIU1dwa04wfh71j7oR36xZUOyWV15uHNAl+tPy/VUJ/DdMFYNzKqe8PhVnTt7A99wiXTg2G77IMopwxipum+3IWHLa2n4fUynyqyOBqmbG9N/rzAZ1nnOhhymdZWlcIzvQDQsER8+EaKypJSERU3A/ssMA7/oCPz7fHCLk6CtNiTm9LhFLiEei+nLolfI/IydRlSoBJl08WGTrMft4haxdc2pm4w4nj7g+XfJhmDPThaPlU9EzX1mhwYKyWyyN/w4j ictsc@ictsc-m4-04
+      - ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBITowPn2Ol1eCvXN5XV+Lb6jfXzgDbXyEdtayadDUJtFrcN2m2mjC1B20VBAoJcZtSYkmjrllS06Q26Te5sTYvE= testkey
   depends_on:
     - ReleaseCompute
     - GenerateBlockStorage
