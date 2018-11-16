@@ -52,3 +52,24 @@ func TestMemoryDatastore(t *testing.T) {
 		t.Errorf("Failed to delete: err='%s'", err.Error())
 	}
 }
+
+func TestCheckDataIsSame(t *testing.T) {
+	m := NewMemoryDatastore()
+
+	prefix := "prefix"
+	withPrefix := m.AddPrefix(prefix)
+
+	k := "test"
+	v := &datastore.Test{Name: "value"}
+
+	if err := withPrefix.Apply(k, v); err != nil {
+		t.Fatalf("Failed to apply: err='%s'", err.Error())
+	}
+	e := &datastore.Test{}
+	if err := m.Get("prefix/"+k, e); err != nil {
+		t.Errorf("Failed to get: err=%s", err.Error())
+	}
+	if e == nil || e.Name != v.Name {
+		t.Errorf("Response is invalid")
+	}
+}
