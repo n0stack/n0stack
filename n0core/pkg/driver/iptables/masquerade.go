@@ -7,6 +7,7 @@ import (
 
 func structMasqueradeRule(bridgeName, network string) (string, string, []string) {
 	return "nat", "POSTROUTING", []string{
+		"!",
 		"-o",
 		bridgeName,
 		"-s",
