@@ -93,6 +93,9 @@ func (b *Bridge) Up() error {
 }
 
 // ip addr replace $addr dev $name
+// Golang の net ライブラリはCIDRを一つの型として扱えるものがないので、stringを受け取る
+// Example:
+// 		192.168.0.1/24
 func (b *Bridge) SetAddress(addr string) error {
 	a, err := netlink.ParseAddr(addr)
 	if err != nil {
