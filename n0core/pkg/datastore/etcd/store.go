@@ -6,12 +6,14 @@ import (
 
 	"github.com/coreos/etcd/clientv3"
 	"github.com/coreos/etcd/clientv3/namespace"
+	"github.com/n0stack/n0stack/n0core/pkg/datastore"
 
 	"github.com/golang/protobuf/proto"
 )
 
 type EtcdDatastore struct {
-	client *clientv3.Client
+	client clientv3.KV
+	conn   *clientv3.Client
 }
 
 const (
@@ -23,7 +25,7 @@ func NewEtcdDatastore(endpoints []string) (*EtcdDatastore, error) {
 	e := &EtcdDatastore{}
 
 	var err error
-	e.client, err = clientv3.New(clientv3.Config{
+	e.conn, err = clientv3.New(clientv3.Config{
 		Endpoints:   endpoints,
 		DialTimeout: etcdDialTimeout,
 	})
@@ -31,13 +33,16 @@ func NewEtcdDatastore(endpoints []string) (*EtcdDatastore, error) {
 		return nil, err
 	}
 
+	e.client = e.conn.KV
+
 	return e, nil
 }
 
-func (d *EtcdDatastore) AddPrefix(prefix string) {
-	d.client.KV = namespace.NewKV(d.client.KV, prefix+"/")
-	d.client.Watcher = namespace.NewWatcher(d.client.Watcher, prefix+"/")
-	d.client.Lease = namespace.NewLease(d.client.Lease, prefix+"/")
+func (d *EtcdDatastore) AddPrefix(prefix string) datastore.Datastore {
+	return &EtcdDatastore{
+		client: namespace.NewKV(d.client, prefix+"/"),
+		conn:   d.conn,
+	}
 }
 
 func (d EtcdDatastore) List(f func(int) []proto.Message) error {
@@ -112,5 +117,5 @@ func (d EtcdDatastore) Delete(name string) error {
 }
 
 func (d EtcdDatastore) Close() error {
-	return d.client.Close()
+	return d.conn.Close()
 }

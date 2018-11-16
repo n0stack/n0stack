@@ -5,7 +5,7 @@ import (
 )
 
 type Datastore interface {
-	AddPrefix(prefix string)
+	AddPrefix(prefix string) Datastore
 
 	List(f func(length int) []proto.Message) error
 

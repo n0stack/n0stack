@@ -21,9 +21,8 @@ type NodeAPI struct {
 
 func CreateNodeAPI(ds datastore.Datastore) *NodeAPI {
 	a := &NodeAPI{
-		dataStore: ds,
+		dataStore: ds.AddPrefix("node"),
 	}
-	a.dataStore.AddPrefix("node")
 
 	// c := memberlist.DefaultLANConfig()
 	// c.Events = &NodeAPIEventDelegate{ds: ds}

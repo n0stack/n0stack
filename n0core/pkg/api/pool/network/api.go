@@ -22,9 +22,8 @@ type NetworkAPI struct {
 
 func CreateNetworkAPI(ds datastore.Datastore) *NetworkAPI {
 	a := &NetworkAPI{
-		dataStore: ds,
+		dataStore: ds.AddPrefix("network"),
 	}
-	a.dataStore.AddPrefix("network")
 
 	return a
 }

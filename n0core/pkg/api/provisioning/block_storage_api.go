@@ -45,11 +45,10 @@ func CreateBlockStorageAPI(ds datastore.Datastore, na ppool.NodeServiceClient) *
 	}
 
 	a := &BlockStorageAPI{
-		dataStore:       ds,
+		dataStore:       ds.AddPrefix("block_storage"),
 		nodeAPI:         na,
 		nodeConnections: nc,
 	}
-	a.dataStore.AddPrefix("block_storage")
 
 	return a
 }

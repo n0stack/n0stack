@@ -21,10 +21,9 @@ type ImageAPI struct {
 
 func CreateImageAPI(ds datastore.Datastore, bsa pprovisioning.BlockStorageServiceClient) *ImageAPI {
 	a := &ImageAPI{
-		dataStore:       ds,
+		dataStore:       ds.AddPrefix("image"),
 		blockstorageAPI: bsa,
 	}
-	a.dataStore.AddPrefix("image")
 
 	return a
 }

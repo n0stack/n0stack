@@ -22,11 +22,10 @@ type FlavorAPI struct {
 
 func CreateFlavorAPI(ds datastore.Datastore, vma pprovisioning.VirtualMachineServiceClient, ia pdeployment.ImageServiceClient) *FlavorAPI {
 	a := &FlavorAPI{
-		dataStore: ds,
+		dataStore: ds.AddPrefix("flavor"),
 		vmAPI:     vma,
 		imageAPI:  ia,
 	}
-	a.dataStore.AddPrefix("flavor")
 
 	return a
 }

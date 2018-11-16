@@ -2,6 +2,7 @@ package memory
 
 import (
 	"github.com/golang/protobuf/proto"
+	"github.com/n0stack/n0stack/n0core/pkg/datastore"
 )
 
 type MemoryDatastore struct {
@@ -15,8 +16,11 @@ func NewMemoryDatastore() *MemoryDatastore {
 	return &MemoryDatastore{Data: map[string][]byte{}}
 }
 
-func (m *MemoryDatastore) AddPrefix(prefix string) {
-	m.prefix = m.prefix + prefix + "/"
+func (m *MemoryDatastore) AddPrefix(prefix string) datastore.Datastore {
+	return &MemoryDatastore{
+		Data:   m.Data,
+		prefix: m.prefix + prefix + "/",
+	}
 }
 
 func (m MemoryDatastore) List(f func(length int) []proto.Message) error {
