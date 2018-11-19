@@ -1,7 +1,6 @@
 package provisioning
 
 import (
-	"github.com/n0stack/n0stack/n0core/pkg/tools/net"
 	"context"
 	"fmt"
 	"log"
@@ -54,26 +53,6 @@ func CreateVirtualMachineAPI(ds datastore.Datastore, noa ppool.NodeServiceClient
 	}
 
 	return a
-}
-
-func (a *VirtualMachineAPI) addDefaultGateway(ctx context.Context, network *ppool.Network) (string, error) {
-	_, ipn, err := net.ParseCIDR(network.Ipv4Cidr)
-	if err != nil {
-		return "", errors.Wrap(err, "Invalid CIDR in network")
-	}
-
-	ip := nettools.GetEndIP(ipn)
-
-	a.networkAPI.ReserveNetworkInterface(ctx, &ppool.ReserveNetworkInterfaceRequest{
-		NetworkName: network.Name,
-		NetworkInterfaceName: "default-gateway",
-		Ipv4Address: ip.String(),
-		Annotations: map[string]string{
-			AnnotationNetworkInterfaceGateway: "true",
-		},
-	})
-
-	return ip.String(), nil
 }
 
 func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprovisioning.CreateVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {

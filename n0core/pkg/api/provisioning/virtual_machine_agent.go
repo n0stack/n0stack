@@ -20,6 +20,7 @@ import (
 	"github.com/n0stack/n0stack/n0core/pkg/driver/iptables"
 	"github.com/n0stack/n0stack/n0core/pkg/driver/qemu"
 	"github.com/n0stack/n0stack/n0core/pkg/driver/qemu_img"
+	"github.com/n0stack/n0stack/n0core/pkg/tools/net"
 	"github.com/n0stack/n0stack/n0proto.go/pkg/transaction"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
@@ -109,13 +110,13 @@ func (a VirtualMachineAgentAPI) CreateVirtualMachineAgent(ctx context.Context, r
 	createdNetdev := []*NetDev{}
 	eth := make([]*configdrive.CloudConfigEthernet, len(req.Netdev))
 	for i, nd := range req.Netdev {
-		b, err := iproute2.NewBridge(TrimNetdevName(nd.NetworkName))
+		b, err := iproute2.NewBridge(nettools.StructLinuxNetdevName(nd.NetworkName))
 		if err != nil {
 			WrapRollbackError(tx.Rollback())
 			return nil, WrapGrpcErrorf(codes.Internal, "Failed to create bridge '%s': err='%s'", nd.NetworkName, err.Error())
 		}
 
-		t, err := iproute2.NewTap(TrimNetdevName(nd.Name))
+		t, err := iproute2.NewTap(nettools.StructLinuxNetdevName(nd.Name))
 		if err != nil {
 			WrapRollbackError(tx.Rollback())
 			return nil, WrapGrpcErrorf(codes.Internal, "Failed to create tap '%s': err='%s'", nd.Name, err.Error())
@@ -308,7 +309,7 @@ func (a VirtualMachineAgentAPI) DeleteVirtualMachineAgent(ctx context.Context, r
 	}
 
 	for _, nd := range req.Netdev {
-		t, err := iproute2.NewTap(TrimNetdevName(nd.Name))
+		t, err := iproute2.NewTap(nettools.StructLinuxNetdevName(nd.Name))
 		if err != nil {
 			log.Printf("Failed to create tap '%s': err='%s'", nd.Name, err.Error())
 			return nil, grpc.Errorf(codes.Internal, "") // TODO #89
@@ -319,7 +320,7 @@ func (a VirtualMachineAgentAPI) DeleteVirtualMachineAgent(ctx context.Context, r
 			return nil, grpc.Errorf(codes.Internal, "") // TODO #89
 		}
 
-		b, err := iproute2.NewBridge(TrimNetdevName(nd.NetworkName))
+		b, err := iproute2.NewBridge(nettools.StructLinuxNetdevName(nd.NetworkName))
 		if err != nil {
 			log.Printf("Failed to create bridge '%s': err='%s'", nd.NetworkName, err.Error())
 			return nil, grpc.Errorf(codes.Internal, "") // TODO #89

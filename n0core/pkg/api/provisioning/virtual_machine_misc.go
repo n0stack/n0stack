@@ -1,9 +1,14 @@
 package provisioning
 
 import (
-	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
+	"context"
+	"net"
 
 	"github.com/n0stack/n0stack/n0core/pkg/driver/qemu"
+	"github.com/n0stack/n0stack/n0core/pkg/tools/net"
+	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
+	"github.com/pkg/errors"
 )
 
 func GetAPIStateFromAgentState(s VirtualMachineAgentState) pprovisioning.VirtualMachine_VirtualMachineState {
@@ -47,11 +52,22 @@ func GetAgentStateFromQemuState(s qemu.Status) VirtualMachineAgentState {
 	return VirtualMachineAgentState_UNKNOWN
 }
 
-// TrimNetdevName trim network device name because Linux network device can use 15 characters.
-func TrimNetdevName(name string) string {
-	if len(name) <= 15 {
-		return name
+func (a *VirtualMachineAPI) addDefaultGateway(ctx context.Context, network *ppool.Network) (string, error) {
+	_, ipn, err := net.ParseCIDR(network.Ipv4Cidr)
+	if err != nil {
+		return "", errors.Wrap(err, "Invalid CIDR in network")
 	}
 
-	return name[:15]
+	ip := nettools.GetEndIP(ipn)
+
+	a.networkAPI.ReserveNetworkInterface(ctx, &ppool.ReserveNetworkInterfaceRequest{
+		NetworkName:          network.Name,
+		NetworkInterfaceName: "default-gateway",
+		Ipv4Address:          ip.String(),
+		Annotations: map[string]string{
+			AnnotationNetworkInterfaceGateway: "true",
+		},
+	})
+
+	return ip.String(), nil
 }
