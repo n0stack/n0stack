@@ -30,14 +30,12 @@ type BlockStorageAPI struct {
 	nodeConnections *node.NodeConnections
 }
 
-const (
-	// Create のときに自動生成、消されると困る
-	AnnotationBlockStorageURL = "n0core/provisioning/block_storage_url"
+// Create のときに自動生成、消されると困る
+const AnnotationBlockStorageURL = "n0core/provisioning/block_storage/url"
 
-	AnnotationBlockStorageReserve = "n0core/provisioning/block_storage_name"
+const AnnotationBlockStorageReservedBy = "n0core/provisioning/block_storage/reserved_by"
 
-	DownloadBlockStorageHTTPPrefix = "/api/block_storage/files"
-)
+const DownloadBlockStorageHTTPPrefix = "/api/block_storage/files"
 
 func CreateBlockStorageAPI(ds datastore.Datastore, na ppool.NodeServiceClient) *BlockStorageAPI {
 	nc := &node.NodeConnections{
@@ -294,7 +292,7 @@ func (a *BlockStorageAPI) CopyBlockStorage(ctx context.Context, req *pprovisioni
 		dstNode, err = a.nodeAPI.ScheduleStorage(ctx, &ppool.ScheduleStorageRequest{
 			StorageName: res.StorageName,
 			Annotations: map[string]string{
-				AnnotationBlockStorageReserve: res.Name,
+				AnnotationBlockStorageReservedBy: res.Name,
 			},
 			RequestBytes: res.RequestBytes,
 			LimitBytes:   res.LimitBytes,
@@ -304,7 +302,7 @@ func (a *BlockStorageAPI) CopyBlockStorage(ctx context.Context, req *pprovisioni
 			NodeName:    res.NodeName,
 			StorageName: res.StorageName,
 			Annotations: map[string]string{
-				AnnotationBlockStorageReserve: res.Name,
+				AnnotationBlockStorageReservedBy: res.Name,
 			},
 			RequestBytes: res.RequestBytes,
 			LimitBytes:   res.LimitBytes,
@@ -558,7 +556,7 @@ func (a BlockStorageAPI) reserveStorage(name string, annotations map[string]stri
 		n, err = a.nodeAPI.ScheduleStorage(context.Background(), &ppool.ScheduleStorageRequest{
 			StorageName: name,
 			Annotations: map[string]string{
-				AnnotationBlockStorageReserve: name,
+				AnnotationBlockStorageReservedBy: name,
 			},
 			RequestBytes: req,
 			LimitBytes:   limit,
@@ -567,7 +565,7 @@ func (a BlockStorageAPI) reserveStorage(name string, annotations map[string]stri
 		n, err = a.nodeAPI.ReserveStorage(context.Background(), &ppool.ReserveStorageRequest{
 			NodeName: node,
 			Annotations: map[string]string{
-				AnnotationBlockStorageReserve: name,
+				AnnotationBlockStorageReservedBy: name,
 			},
 			StorageName:  name,
 			RequestBytes: req,

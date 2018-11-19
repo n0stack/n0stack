@@ -65,7 +65,7 @@ func (a *VirtualMachineAPI) addDefaultGateway(ctx context.Context, network *ppoo
 		NetworkInterfaceName: "default-gateway",
 		Ipv4Address:          ip.String(),
 		Annotations: map[string]string{
-			AnnotationNetworkInterfaceGateway: "true",
+			AnnotationVirtualMachineVncWebSocketPort: "true",
 		},
 	})
 

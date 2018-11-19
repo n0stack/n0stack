@@ -24,9 +24,10 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-const AnnotationVNCWebSocketPort = "n0core/provisioning/virtual_machine/vnc_websocket_port"
-const AnnotationVirtualMachineReserving = "n0core/provisioning/virtual_machine/virtual_machine/name"
-const AnnotationNetworkInterfaceGateway = "n0core/provisioning/virtual_machine/gateway"
+const AnnotationVirtualMachineVncWebSocketPort = "n0core/provisioning/virtual_machine/vnc_websocket_port"
+const AnnotationComputeReservedBy = "n0core/provisioning/virtual_machine/virtual_machine/reserved_by"
+const AnnotationNetworkInterfaceIsGateway = "n0core/provisioning/virtual_machine/is_gateway"
+const AnnotationNetworkVlanID = "n0core/provisioning/virtual_machine/vlan_id"
 
 type VirtualMachineAPI struct {
 	dataStore datastore.Datastore
@@ -90,7 +91,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		n, err = a.nodeAPI.ScheduleCompute(context.Background(), &ppool.ScheduleComputeRequest{
 			ComputeName: req.Name,
 			Annotations: map[string]string{
-				AnnotationVirtualMachineReserving: req.Name,
+				AnnotationComputeReservedBy: req.Name,
 			},
 			RequestCpuMilliCore: req.RequestCpuMilliCore,
 			LimitCpuMilliCore:   req.LimitCpuMilliCore,
@@ -105,7 +106,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 			NodeName:    node,
 			ComputeName: req.Name,
 			Annotations: map[string]string{
-				AnnotationVirtualMachineReserving: req.Name,
+				AnnotationComputeReservedBy: req.Name,
 			},
 			RequestCpuMilliCore: req.RequestCpuMilliCore,
 			LimitCpuMilliCore:   req.LimitCpuMilliCore,
@@ -172,7 +173,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 			NetworkName:          nic.NetworkName,
 			NetworkInterfaceName: niname,
 			Annotations: map[string]string{
-				AnnotationVirtualMachineReserving: req.Name,
+				AnnotationComputeReservedBy: req.Name,
 			},
 			HardwareAddress: nic.HardwareAddress,
 			Ipv4Address:     nic.Ipv4Address,
@@ -201,7 +202,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		_, ipn, _ := net.ParseCIDR(network.Ipv4Cidr)
 		gateway := ""
 		for _, ni := range network.ReservedNetworkInterfaces {
-			if v, ok := ni.Annotations[AnnotationNetworkInterfaceGateway]; ok {
+			if v, ok := ni.Annotations[AnnotationVirtualMachineVncWebSocketPort]; ok {
 				gateway = v
 			}
 		}
@@ -242,7 +243,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		return err
 	})
 
-	res.Annotations[AnnotationVNCWebSocketPort] = strconv.Itoa(int(vm.WebsocketPort))
+	res.Annotations[AnnotationNetworkInterfaceIsGateway] = strconv.Itoa(int(vm.WebsocketPort))
 	res.State = GetAPIStateFromAgentState(vm.State)
 	res.Uuid = vm.Uuid
 	res.LoginUsername = req.LoginUsername
@@ -523,7 +524,7 @@ func (a *VirtualMachineAPI) ProxyWebsocket() func(echo.Context) error {
 		}
 
 		nodeIP := node.Address
-		websocketPort, err := strconv.Atoi(vm.Annotations[AnnotationVNCWebSocketPort])
+		websocketPort, err := strconv.Atoi(vm.Annotations[AnnotationNetworkInterfaceIsGateway])
 		if err != nil {
 			return err
 		}
