@@ -25,6 +25,7 @@ message NetDev {
   string ipv4_address_cidr = 4;
   string ipv4_gateway = 5;
   repeated string nameservers = 6;
+  uint32 vlan_id = 7;
 }
 message VirtualMachineAgent {
   string name = 1;

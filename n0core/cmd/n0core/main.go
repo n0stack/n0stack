@@ -68,6 +68,9 @@ func main() {
 					Name:  "base-directory",
 					Value: "/var/lib/n0core",
 				},
+				cli.StringFlag{
+					Name: "vlan-external-interface",
+				},
 			},
 		},
 		{
