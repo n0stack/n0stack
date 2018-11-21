@@ -35,7 +35,7 @@ func delete(ctx *cli.Context) error {
 	log.Printf("[DEBUG] Connected to '%s'\n", endpoint)
 
 	switch resourceType {
-	case "node":
+	case "Node", "node":
 		cl := ppool.NewNodeServiceClient(conn)
 		res, err := cl.DeleteNode(context.Background(), &ppool.DeleteNodeRequest{Name: resourceName})
 		if err != nil {
@@ -45,7 +45,7 @@ func delete(ctx *cli.Context) error {
 
 		marshaler.Marshal(os.Stdout, res)
 
-	case "network":
+	case "Network", "network":
 		cl := ppool.NewNetworkServiceClient(conn)
 		res, err := cl.DeleteNetwork(context.Background(), &ppool.DeleteNetworkRequest{Name: resourceName})
 		if err != nil {
@@ -55,7 +55,7 @@ func delete(ctx *cli.Context) error {
 
 		marshaler.Marshal(os.Stdout, res)
 
-	case "block_storage":
+	case "BlockStorage", "block_storage":
 		cl := pprovisioning.NewBlockStorageServiceClient(conn)
 		res, err := cl.DeleteBlockStorage(context.Background(), &pprovisioning.DeleteBlockStorageRequest{Name: resourceName})
 		if err != nil {
@@ -65,7 +65,7 @@ func delete(ctx *cli.Context) error {
 
 		marshaler.Marshal(os.Stdout, res)
 
-	case "virtual_machine":
+	case "VirtualMachine", "virtual_machine":
 		cl := pprovisioning.NewVirtualMachineServiceClient(conn)
 		res, err := cl.DeleteVirtualMachine(context.Background(), &pprovisioning.DeleteVirtualMachineRequest{Name: resourceName})
 		if err != nil {
@@ -75,7 +75,7 @@ func delete(ctx *cli.Context) error {
 
 		marshaler.Marshal(os.Stdout, res)
 
-	case "image":
+	case "Image", "image":
 		cl := pdeployment.NewImageServiceClient(conn)
 		res, err := cl.DeleteImage(context.Background(), &pdeployment.DeleteImageRequest{Name: resourceName})
 		if err != nil {
@@ -85,7 +85,7 @@ func delete(ctx *cli.Context) error {
 
 		marshaler.Marshal(os.Stdout, res)
 
-	case "flavor":
+	case "Flavor", "flavor":
 		cl := pdeployment.NewFlavorServiceClient(conn)
 		res, err := cl.DeleteFlavor(context.Background(), &pdeployment.DeleteFlavorRequest{Name: resourceName})
 		if err != nil {

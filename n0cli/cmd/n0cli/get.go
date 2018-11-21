@@ -37,7 +37,7 @@ func get(ctx *cli.Context) error {
 	log.Printf("[DEBUG] Connected to '%s'\n", endpoint)
 
 	switch resourceType {
-	case "node":
+	case "Node", "node":
 		cl := ppool.NewNodeServiceClient(conn)
 		res, err := cl.GetNode(context.Background(), &ppool.GetNodeRequest{Name: resourceName})
 		if err != nil {
@@ -47,7 +47,7 @@ func get(ctx *cli.Context) error {
 
 		marshaler.Marshal(os.Stdout, res)
 
-	case "network":
+	case "Network", "network":
 		cl := ppool.NewNetworkServiceClient(conn)
 		res, err := cl.GetNetwork(context.Background(), &ppool.GetNetworkRequest{Name: resourceName})
 		if err != nil {
@@ -57,7 +57,7 @@ func get(ctx *cli.Context) error {
 
 		marshaler.Marshal(os.Stdout, res)
 
-	case "block_storage":
+	case "BlockStorage", "block_storage":
 		cl := pprovisioning.NewBlockStorageServiceClient(conn)
 		res, err := cl.GetBlockStorage(context.Background(), &pprovisioning.GetBlockStorageRequest{Name: resourceName})
 		if err != nil {
@@ -67,7 +67,7 @@ func get(ctx *cli.Context) error {
 
 		marshaler.Marshal(os.Stdout, res)
 
-	case "virtual_machine":
+	case "VirtualMachine", "virtual_machine":
 		cl := pprovisioning.NewVirtualMachineServiceClient(conn)
 		res, err := cl.GetVirtualMachine(context.Background(), &pprovisioning.GetVirtualMachineRequest{Name: resourceName})
 		if err != nil {
@@ -77,7 +77,7 @@ func get(ctx *cli.Context) error {
 
 		marshaler.Marshal(os.Stdout, res)
 
-	case "image":
+	case "Image", "image":
 		cl := pdeployment.NewImageServiceClient(conn)
 		res, err := cl.GetImage(context.Background(), &pdeployment.GetImageRequest{Name: resourceName})
 		if err != nil {
@@ -87,7 +87,7 @@ func get(ctx *cli.Context) error {
 
 		marshaler.Marshal(os.Stdout, res)
 
-	case "flavor":
+	case "Flavor", "flavor":
 		cl := pdeployment.NewFlavorServiceClient(conn)
 		res, err := cl.GetFlavor(context.Background(), &pdeployment.GetFlavorRequest{Name: resourceName})
 		if err != nil {
@@ -116,7 +116,7 @@ func list(ctx *cli.Context) error {
 	log.Printf("[DEBUG] Connected to '%s'\n", endpoint)
 
 	switch resourceType {
-	case "node":
+	case "Node", "node":
 		cl := ppool.NewNodeServiceClient(conn)
 		res, err := cl.ListNodes(context.Background(), &ppool.ListNodesRequest{})
 		if err != nil {
@@ -126,7 +126,7 @@ func list(ctx *cli.Context) error {
 
 		marshaler.Marshal(os.Stdout, res)
 
-	case "network":
+	case "Network", "network":
 		cl := ppool.NewNetworkServiceClient(conn)
 		res, err := cl.ListNetworks(context.Background(), &ppool.ListNetworksRequest{})
 		if err != nil {
@@ -136,7 +136,7 @@ func list(ctx *cli.Context) error {
 
 		marshaler.Marshal(os.Stdout, res)
 
-	case "block_storage":
+	case "BlockStorage", "block_storage":
 		cl := pprovisioning.NewBlockStorageServiceClient(conn)
 		res, err := cl.ListBlockStorages(context.Background(), &pprovisioning.ListBlockStoragesRequest{})
 		if err != nil {
@@ -146,7 +146,7 @@ func list(ctx *cli.Context) error {
 
 		marshaler.Marshal(os.Stdout, res)
 
-	case "virtual_machine":
+	case "VirtualMachine", "virtual_machine":
 		cl := pprovisioning.NewVirtualMachineServiceClient(conn)
 		res, err := cl.ListVirtualMachines(context.Background(), &pprovisioning.ListVirtualMachinesRequest{})
 		if err != nil {
@@ -156,7 +156,7 @@ func list(ctx *cli.Context) error {
 
 		marshaler.Marshal(os.Stdout, res)
 
-	case "image":
+	case "Image", "image":
 		cl := pdeployment.NewImageServiceClient(conn)
 		res, err := cl.ListImages(context.Background(), &pdeployment.ListImagesRequest{})
 		if err != nil {
@@ -166,7 +166,7 @@ func list(ctx *cli.Context) error {
 
 		marshaler.Marshal(os.Stdout, res)
 
-	case "flavor":
+	case "Flavor", "flavor":
 		cl := pdeployment.NewFlavorServiceClient(conn)
 		res, err := cl.ListFlavors(context.Background(), &pdeployment.ListFlavorsRequest{})
 		if err != nil {
