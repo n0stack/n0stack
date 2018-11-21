@@ -12,7 +12,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
-	"github.com/n0stack/n0stack/n0core/pkg/tools/net"
+	"github.com/n0stack/n0stack/n0core/pkg/util/net"
 	"github.com/n0stack/n0stack/n0proto.go/budget/v0"
 	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
 )

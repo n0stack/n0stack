@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/n0stack/n0stack/n0core/pkg/tools/net"
+	"github.com/n0stack/n0stack/n0core/pkg/util/net"
 	"github.com/n0stack/n0stack/n0proto.go/budget/v0"
 )
 

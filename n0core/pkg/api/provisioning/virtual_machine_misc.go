@@ -5,7 +5,7 @@ import (
 	"net"
 
 	"github.com/n0stack/n0stack/n0core/pkg/driver/qemu"
-	"github.com/n0stack/n0stack/n0core/pkg/tools/net"
+	"github.com/n0stack/n0stack/n0core/pkg/util/net"
 	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
 	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
 	"github.com/pkg/errors"

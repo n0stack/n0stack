@@ -20,7 +20,7 @@ import (
 	"github.com/n0stack/n0stack/n0core/pkg/driver/iptables"
 	"github.com/n0stack/n0stack/n0core/pkg/driver/qemu"
 	"github.com/n0stack/n0stack/n0core/pkg/driver/qemu_img"
-	"github.com/n0stack/n0stack/n0core/pkg/tools/net"
+	"github.com/n0stack/n0stack/n0core/pkg/util/net"
 	"github.com/n0stack/n0stack/n0proto.go/pkg/transaction"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
