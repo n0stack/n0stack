@@ -3,7 +3,7 @@ package deploy
 import "testing"
 
 func TestReadSelf(t *testing.T) {
-	d := &Deployer{
+	d := &RemoteDeployer{
 		targetDirectory: "/var/lib/n0core",
 	}
 

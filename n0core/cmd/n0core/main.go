@@ -71,6 +71,38 @@ func main() {
 			},
 		},
 		{
+			Name:  "deploy",
+			Usage: "",
+			Subcommands: []cli.Command{
+				{
+					Name:   "agent",
+					Action: DeployAgent,
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:  "base-directory",
+							Value: "/var/lib/n0core",
+						},
+					},
+				},
+			},
+		},
+		{
+			Name:  "install",
+			Usage: "",
+			Subcommands: []cli.Command{
+				{
+					Name:   "agent",
+					Action: InstallAgent,
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:  "base-directory",
+							Value: "/var/lib/n0core",
+						},
+					},
+				},
+			},
+		},
+		{
 			Name:   "mock-agent",
 			Usage:  "",
 			Action: ServeMockAgent,

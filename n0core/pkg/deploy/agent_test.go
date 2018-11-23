@@ -7,7 +7,7 @@ import (
 )
 
 func TestCreateAgentUnit(t *testing.T) {
-	d := &Deployer{
+	d := &LocalDeployer{
 		targetDirectory: "/var/lib/n0core",
 	}
 

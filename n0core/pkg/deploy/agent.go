@@ -8,7 +8,14 @@ import (
 	"github.com/coreos/go-systemd/unit"
 )
 
-func (d Deployer) CreateAgentUnit(args string) []byte {
+var AgentRequiredPackages = []string{
+	"cloud-image-utils",
+	"iproute2",
+	"qemu-kvm",
+	"qemu-utils",
+}
+
+func (d LocalDeployer) CreateAgentUnit(args string) []byte {
 	u := []*unit.UnitOption{
 		{
 			Section: "Unit",
