@@ -124,7 +124,7 @@ clean:
 	# go clean
 	docker-compose down
 	# sudo rm -rf .go-build
-	sudo rm -rf bin/*
+	# sudo rm -rf bin/*
 	sudo rm -rf sandbox/*
 	# sudo rm -rf vendor
 

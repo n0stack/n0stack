@@ -3,19 +3,11 @@ package deploy
 import (
 	"bytes"
 	"fmt"
-	"path/filepath"
 
 	"github.com/coreos/go-systemd/unit"
 )
 
-var AgentRequiredPackages = []string{
-	"cloud-image-utils",
-	"iproute2",
-	"qemu-kvm",
-	"qemu-utils",
-}
-
-func (d LocalDeployer) CreateAgentUnit(args string) []byte {
+func (d LocalDeployer) CreateAgentUnit(self, args string) []byte {
 	u := []*unit.UnitOption{
 		{
 			Section: "Unit",
@@ -35,7 +27,7 @@ func (d LocalDeployer) CreateAgentUnit(args string) []byte {
 		{
 			Section: "Service",
 			Name:    "ExecStart",
-			Value:   fmt.Sprintf("%s agent %s", filepath.Join(d.targetDirectory, "n0core"), args),
+			Value:   fmt.Sprintf("%s agent %s", self, args),
 		},
 		{
 			Section: "Service",

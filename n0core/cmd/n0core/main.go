@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -75,12 +76,16 @@ func main() {
 			Usage: "",
 			Subcommands: []cli.Command{
 				{
-					Name:   "agent",
-					Action: DeployAgent,
+					Name:      "agent",
+					Action:    DeployAgent,
+					ArgsUsage: "[user]@[hostname] [agent options]",
 					Flags: []cli.Flag{
 						cli.StringFlag{
 							Name:  "base-directory",
 							Value: "/var/lib/n0core",
+						},
+						cli.StringFlag{
+							Name: "identity-file, i",
 						},
 					},
 				},
@@ -97,6 +102,9 @@ func main() {
 						cli.StringFlag{
 							Name:  "base-directory",
 							Value: "/var/lib/n0core",
+						},
+						cli.StringFlag{
+							Name: "arguments",
 						},
 					},
 				},
@@ -133,7 +141,7 @@ func main() {
 	log.SetFlags(log.Lshortfile | log.Ltime | log.Lmicroseconds)
 
 	if err := app.Run(os.Args); err != nil {
-		log.Fatalf("Failed to start process, err:%s\n", err.Error())
+		fmt.Fprintf(os.Stderr, "Failed to start process, err:%s\n", err.Error())
 		os.Exit(1)
 	}
 }

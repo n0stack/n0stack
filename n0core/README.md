@@ -15,57 +15,31 @@
 - Ubuntu 18.04 LTS (Bionic Beaver)
 - Golang 1.10
 
-## How to develop
+## How to deploy
 
-### Install libraries
+### API
 
-```sh
-make dep
+```
+cd ..
+make up
 ```
 
-#### Upgrade libraries
+### Agent
 
-```sh
-make dep-update
+#### Remote
+
+- rootでログインできる必要がある
+- sftp でバイナリを送り、 systemd サービスを起動する
+- ファイルは `/var/lib/n0core` に送られ、シンボリックリンクが貼られる
+
+```
+bin/n0core deploy agent -i id_ecdsa root@$node_id -name vm-host1 -advertise-address=$node_id -node-api-endpoint=$api_address:20180
 ```
 
-### Build
+#### Local
 
-```sh
-make build
-make build-docker
-make build-proto
 ```
-
-### Tests
-
-#### small
-
-- only localhost
-- short time
-
-```sh
-make test-small
-make test-small-v
-make test-small-docker
-```
-
-#### medium
-
-- with root
-- having dependency for outside
-
-```sh
-make test-medium
-make test-medium-v
-make test-medium-without-root
-make test-medium-without-external
-```
-
-### Run all in one
-
-```sh
-make run-all-in-one
+bin/n0core install agent -a "-name vm-host1 -advertise-address=$node_id -node-api-endpoint=$api_address:20180"
 ```
 
 ## Dependency map

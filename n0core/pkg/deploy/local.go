@@ -5,6 +5,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
+	"syscall"
 
 	"github.com/pkg/errors"
 )
@@ -39,12 +41,18 @@ func (d LocalDeployer) SaveFile(body []byte, path string, permission os.FileMode
 		filename := filepath.Base(path)
 		target = filepath.Join(d.targetDirectory, filename)
 
+		if _, err := os.Lstat(path); err == nil {
+			if err := os.Remove(path); err != nil {
+				return errors.Wrap(err, "Failed to remove old symbolic link")
+			}
+		}
+
 		if err := os.Symlink(target, path); err != nil {
 			return errors.Wrap(err, "Failed to create symbolic link")
 		}
 	}
 
-	file, err := os.OpenFile(target, os.O_CREATE|os.O_RDWR, permission)
+	file, err := os.OpenFile(target, os.O_CREATE|os.O_RDWR|os.O_TRUNC, permission)
 	if err != nil {
 		return errors.Wrap(err, "Failed to create new file")
 	}
@@ -57,30 +65,106 @@ func (d LocalDeployer) SaveFile(body []byte, path string, permission os.FileMode
 	return nil
 }
 
-func (d LocalDeployer) RestartDaemon(daemon string) error {
-	// sess, err := d.ssh.NewSession()
-	// if err != nil {
-	// 	return errors.Wrap(err, "Failed to create new session")
-	// }
-	// defer sess.Close()
+func (d LocalDeployer) LinkSelf(path string) error {
+	self, err := filepath.Abs(os.Args[0])
+	if err != nil {
+		return errors.Wrap(err, "Failed to get self absolute path")
+	}
 
-	// reload := "systemctl daemon-reload"
-	// if out, err := sess.CombinedOutput(reload); err != nil {
-	// 	if ee, ok := err.(*ssh.ExitError); ok {
-	// 		return fmt.Errorf("'daemon-reload' exit status is not 0: code=%d, output=\n%s", ee.ExitStatus(), string(out))
-	// 	}
+	dst, err := filepath.Abs(path)
+	if err != nil {
+		return errors.Wrap(err, "Failed to get destination absolute path")
+	}
 
-	// 	return errors.Wrapf(err, "Failed to command '%s'", reload)
-	// }
+	if _, err := os.Lstat(dst); err == nil {
+		if err := os.Remove(dst); err != nil {
+			return errors.Wrap(err, "Failed to remove old symbolic link")
+		}
+	}
 
-	// restart := fmt.Sprintf("systemctl restart %s", daemon)
-	// if out, err := sess.CombinedOutput(restart); err != nil {
-	// 	if ee, ok := err.(*ssh.ExitError); ok {
-	// 		return fmt.Errorf("'restart' exit status is not 0: code=%d, output=\n%s", ee.ExitStatus(), string(out))
-	// 	}
+	if err := os.Symlink(self, dst); err != nil {
+		return errors.Wrap(err, "Failed to create symbolic link")
+	}
 
-	// 	return errors.Wrapf(err, "Failed to command '%s'", restart)
-	// }
+	return nil
+}
+
+func (d LocalDeployer) RestartDaemon(daemon string, stdout, stderr io.Writer) error {
+	cmd := []string{
+		"systemctl",
+		"daemon-reload",
+	}
+
+	c := exec.Command(cmd[0], cmd[1:]...)
+	c.Stdout = stdout
+	c.Stderr = stderr
+	if err := c.Run(); err != nil {
+		return errors.Wrapf(err, "Failed to command '%s'", strings.Join(cmd, " "))
+	}
+
+	cmd = []string{
+		"systemctl",
+		"restart",
+		daemon,
+	}
+	c = exec.Command(cmd[0], cmd[1:]...)
+	c.Stdout = stdout
+	c.Stderr = stderr
+	if err := c.Run(); err != nil {
+		return errors.Wrapf(err, "Failed to command '%s'", strings.Join(cmd, " "))
+	}
+
+	cmd = []string{
+		"systemctl",
+		"enable",
+		daemon,
+	}
+	c = exec.Command(cmd[0], cmd[1:]...)
+	c.Stdout = stdout
+	c.Stderr = stderr
+	if err := c.Run(); err != nil {
+		return errors.Wrapf(err, "Failed to command '%s'", strings.Join(cmd, " "))
+	}
+
+	return nil
+}
+
+func (d LocalDeployer) DaemonStatus(daemon string, stdout, stderr io.Writer) error {
+	cmd := []string{
+		"systemctl",
+		"status",
+		daemon,
+	}
+	c := exec.Command(cmd[0], cmd[1:]...)
+	c.Stdout = stdout
+	c.Stderr = stderr
+	if err := c.Run(); err != nil {
+		return errors.Wrapf(err, "Failed to command '%s'", strings.Join(cmd, " "))
+	}
+
+	return nil
+}
+
+func (d LocalDeployer) StopDaemon(daemon string, stdout, stderr io.Writer) error {
+	cmd := []string{
+		"systemctl",
+		"stop",
+		daemon,
+	}
+	c := exec.Command(cmd[0], cmd[1:]...)
+	c.Stdout = stdout
+	c.Stderr = stderr
+	if err := c.Run(); err != nil {
+		if ee, ok := err.(*exec.ExitError); ok {
+			if status, ok := ee.Sys().(syscall.WaitStatus); ok {
+				if status.ExitStatus() != 5 { // Failed to stop n0core-agent.service: Unit n0core-agent.service not loaded.
+					return errors.Wrapf(err, "Failed to command '%s'", strings.Join(cmd, " "))
+				}
+			}
+		} else {
+			return errors.Wrapf(err, "Failed to command '%s'", strings.Join(cmd, " "))
+		}
+	}
 
 	return nil
 }

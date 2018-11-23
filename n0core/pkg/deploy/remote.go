@@ -62,6 +62,12 @@ func (d RemoteDeployer) SendFile(body []byte, path string, permission os.FileMod
 		}
 	}
 
+	if _, err := client.Stat(target); err == nil {
+		if err := client.Remove(target); err != nil {
+			return errors.Wrap(err, "Failed to delete target")
+		}
+	}
+
 	file, err := client.Create(target)
 	if err != nil {
 		return errors.Wrap(err, "Failed to create new file")

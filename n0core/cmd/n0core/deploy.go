@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/n0stack/n0stack/n0core/pkg/deploy"
@@ -11,8 +12,6 @@ import (
 	"github.com/urfave/cli"
 	"golang.org/x/crypto/ssh"
 )
-
-const systemdAgentUnitPath = "/etc/systemd/system/n0core-agent.service"
 
 func DeployAgent(ctx *cli.Context) error {
 	if ctx.NArg() < 1 {
@@ -57,8 +56,8 @@ func DeployAgent(ctx *cli.Context) error {
 		return err
 	}
 
-	binLocation := "/usr/bin/n0core"
-	fmt.Printf("Sending self to %s...\n", binLocation)
+	binLocation := "n0core." + version
+	fmt.Printf("---> [DEPLOY] Sending self to %s...\n", binLocation)
 	self, err := d.ReadSelf()
 	if err != nil {
 		return err
@@ -67,8 +66,8 @@ func DeployAgent(ctx *cli.Context) error {
 		return err
 	}
 
-	cmd := fmt.Sprintf("%s install agent -base-directory %s %s", binLocation, target, args)
-	fmt.Printf("Running install '%s'...\n", cmd)
+	cmd := fmt.Sprintf("%s install agent -base-directory %s -arguments '%s'", filepath.Join(target, binLocation), target, args)
+	fmt.Printf("---> [DEPLOY] Running install '%s'...\n", cmd)
 	if err := d.Command(cmd, os.Stdout, os.Stderr); err != nil {
 		return err
 	}
