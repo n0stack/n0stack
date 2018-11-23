@@ -38,9 +38,10 @@ func ServeAgent(ctx *cli.Context) error {
 	nodeName := ctx.String("name")
 	advertiseAddress := ctx.String("advertise-address")
 	nodeAPI := ctx.String("node-api-endpoint")
+	vlanInterface := ctx.String("vlan-external-interface")
 
 	bvm := filepath.Join(baseDirectory, "virtual_machine")
-	vma, err := provisioning.CreateVirtualMachineAgentAPI(bvm)
+	vma, err := provisioning.CreateVirtualMachineAgentAPI(bvm, vlanInterface)
 	if err != nil {
 		return err
 	}

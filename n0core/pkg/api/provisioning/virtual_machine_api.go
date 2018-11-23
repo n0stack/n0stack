@@ -199,6 +199,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 			Ipv6Address:     network.ReservedNetworkInterfaces[niname].Ipv6Address,
 		}
 
+		// gateway
 		_, ipn, _ := net.ParseCIDR(network.Ipv4Cidr)
 		gateway := ""
 		for _, ni := range network.ReservedNetworkInterfaces {
@@ -221,6 +222,16 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 			Ipv4Gateway:     gateway,
 			Nameservers:     []string{"8.8.8.8"}, // TODO: 取るようにする
 			// TODO: domain searchはnetworkのdomainから取る
+		}
+
+		// vlan
+		if vlan, ok := network.Annotations[AnnotationNetworkVlanID]; ok {
+			id, err := strconv.ParseUint(vlan, 10, 32)
+			if err != nil {
+				return nil, WrapGrpcErrorf(codes.InvalidArgument, errors.Wrapf(err, "Failed to parse: key='%s', value='%s'", AnnotationNetworkVlanID, vlan).Error())
+			}
+
+			netdev[i].VlanId = uint32(id)
 		}
 	}
 

@@ -39,10 +39,11 @@ func init() {
 
 type VirtualMachineAgentAPI struct {
 	baseDirectory string
-	cloudinit     []*configdrive.CloudConfig
+
+	externalInterface *iproute2.Interface
 }
 
-func CreateVirtualMachineAgentAPI(basedir string) (*VirtualMachineAgentAPI, error) {
+func CreateVirtualMachineAgentAPI(basedir string, exInterface string) (*VirtualMachineAgentAPI, error) {
 	b, err := filepath.Abs(basedir)
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed to get absolute path")
@@ -54,8 +55,14 @@ func CreateVirtualMachineAgentAPI(basedir string) (*VirtualMachineAgentAPI, erro
 		}
 	}
 
+	i, err := iproute2.GetInterface(exInterface)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Failed to get external interface")
+	}
+
 	return &VirtualMachineAgentAPI{
-		baseDirectory: b,
+		baseDirectory:     b,
+		externalInterface: i,
 	}, nil
 }
 
@@ -116,6 +123,18 @@ func (a VirtualMachineAgentAPI) CreateVirtualMachineAgent(ctx context.Context, r
 			return nil, WrapGrpcErrorf(codes.Internal, "Failed to create bridge '%s': err='%s'", nd.NetworkName, err.Error())
 		}
 
+		if nd.VlanId != 0 && a.externalInterface != nil {
+			v, err := iproute2.NewVlan(a.externalInterface, int(nd.VlanId))
+			if err != nil {
+				WrapRollbackError(tx.Rollback())
+				return nil, WrapGrpcErrorf(codes.Internal, "Failed to create vlan: err='%s'", err.Error())
+			}
+			if err := v.SetMaster(b); err != nil {
+				WrapRollbackError(tx.Rollback())
+				return nil, WrapGrpcErrorf(codes.Internal, "Failed for vlan to set master: err='%s'", err.Error())
+			}
+		}
+
 		t, err := iproute2.NewTap(nettools.StructLinuxNetdevName(nd.Name))
 		if err != nil {
 			WrapRollbackError(tx.Rollback())
@@ -157,6 +176,18 @@ func (a VirtualMachineAgentAPI) CreateVirtualMachineAgent(ctx context.Context, r
 				}
 			}
 			if i == 0 {
+				if nd.VlanId != 0 && a.externalInterface != nil {
+					v, err := iproute2.NewVlan(a.externalInterface, int(nd.VlanId))
+					if err != nil {
+						WrapRollbackError(tx.Rollback())
+						return fmt.Errorf("Failed to create vlan: err='%s'", err.Error())
+					}
+
+					if err := v.Delete(); err != nil {
+						return fmt.Errorf("Failed to delete vlan '%s': err='%s'", v.Name(), err.Error())
+					}
+				}
+
 				if err := b.Delete(); err != nil {
 					return fmt.Errorf("Failed to delete bridge '%s': err='%s'", b.Name(), err.Error())
 				}
@@ -340,6 +371,16 @@ func (a VirtualMachineAgentAPI) DeleteVirtualMachineAgent(ctx context.Context, r
 			}
 		}
 		if i == 0 {
+			if nd.VlanId != 0 && a.externalInterface != nil {
+				v, err := iproute2.NewVlan(a.externalInterface, int(nd.VlanId))
+				if err != nil {
+					return nil, WrapGrpcErrorf(codes.Internal, errors.Wrap(err, "Failed to create vlan interface").Error())
+				}
+				if err := v.Delete(); err != nil {
+					return nil, WrapGrpcErrorf(codes.Internal, errors.Wrap(err, "Failed to delete vlan interface").Error())
+				}
+			}
+
 			if err := b.Delete(); err != nil {
 				log.Printf("Failed to delete bridge '%s': err='%s'", b.Name(), err.Error())
 				return nil, grpc.Errorf(codes.Internal, "") // TODO #89

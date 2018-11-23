@@ -9,12 +9,12 @@ import (
 type Vlan struct {
 	name string
 	id   int
-	i    Interface
+	i    *Interface
 
 	link netlink.Link
 }
 
-func NewVlan(i Interface, id int) (*Vlan, error) {
+func NewVlan(i *Interface, id int) (*Vlan, error) {
 	v := &Vlan{
 		name: fmt.Sprintf("%s.%d", i.Name(), id),
 		id:   id,
