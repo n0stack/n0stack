@@ -39,6 +39,7 @@ func NewVlan(i *Interface, id int) (*Vlan, error) {
 func (v *Vlan) createVlan() error {
 	l := netlink.NewLinkAttrs()
 	l.Name = v.name
+	l.ParentIndex = v.i.link.Attrs().Index
 	v.link = &netlink.Vlan{
 		LinkAttrs: l,
 		VlanId:    v.id,
