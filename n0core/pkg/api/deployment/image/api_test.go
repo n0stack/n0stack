@@ -176,6 +176,17 @@ func TestImageAboutRegister(t *testing.T) {
 	if diff := cmp.Diff(i, regRes); diff != "" {
 		t.Errorf("RegisterBlockStorage response is wrong: diff=(-want +got)\n%s", diff)
 	}
+	_, err = ia.RegisterBlockStorage(context.Background(), &pdeployment.RegisterBlockStorageRequest{
+		ImageName:        i.Name,
+		BlockStorageName: bs.Name,
+		Tags: []string{
+			"test-tag",
+		},
+	})
+	if err == nil {
+		t.Errorf("Second RegisterBlockStorage got no error")
+	}
+
 
 	rbs, err := bsa.GetBlockStorage(context.Background(), &pprovisioning.GetBlockStorageRequest{Name: bs.Name})
 	if err != nil {

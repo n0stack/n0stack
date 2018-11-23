@@ -508,7 +508,7 @@ func (a *BlockStorageAPI) SetInuseBlockStorage(ctx context.Context, req *pprovis
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
 
-	if res.State != pprovisioning.BlockStorage_AVAILABLE && res.State != pprovisioning.BlockStorage_IN_USE {
+	if res.State != pprovisioning.BlockStorage_AVAILABLE {
 		return nil, grpc.Errorf(codes.FailedPrecondition, "Can change state to IN_USE when only AVAILABLE")
 	}
 	res.State = pprovisioning.BlockStorage_IN_USE
@@ -528,7 +528,7 @@ func (a *BlockStorageAPI) SetProtectedBlockStorage(ctx context.Context, req *ppr
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
 
-	if res.State != pprovisioning.BlockStorage_AVAILABLE && res.State != pprovisioning.BlockStorage_PROTECTED {
+	if res.State != pprovisioning.BlockStorage_AVAILABLE {
 		return nil, grpc.Errorf(codes.FailedPrecondition, "Can change state to PROTECTED when only AVAILABLE")
 	}
 	res.State = pprovisioning.BlockStorage_PROTECTED

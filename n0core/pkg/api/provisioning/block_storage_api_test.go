@@ -211,8 +211,8 @@ func TestBlockStorageAboutInUseState(t *testing.T) {
 		t.Errorf("[Invalid: IN_USE -> PROTECTED] SetProtectedBlockStorage got error, not FailedPrecondition: err='%s'", err.Error())
 	}
 	_, err = bsa.SetInuseBlockStorage(context.Background(), &pprovisioning.SetInuseBlockStorageRequest{Name: bs.Name})
-	if err != nil {
-		t.Errorf("[Valid: IN_USE -> IN_USE] SetInuseBlockStorage got error: err='%s'", err.Error())
+	if err == nil {
+		t.Errorf("[Inalid: IN_USE -> IN_USE] SetInuseBlockStorage got no error")
 	}
 	available, err := bsa.SetAvailableBlockStorage(context.Background(), &pprovisioning.SetAvailableBlockStorageRequest{Name: bs.Name})
 	if err != nil {
@@ -273,8 +273,8 @@ func TestBlockStorageAboutProtectedState(t *testing.T) {
 		t.Errorf("[InValid: PROTECTED -> IN_USE] SetInuseBlockStorage got error: err='%s'", err.Error())
 	}
 	_, err = bsa.SetProtectedBlockStorage(context.Background(), &pprovisioning.SetProtectedBlockStorageRequest{Name: bs.Name})
-	if err != nil {
-		t.Errorf("[Valid: PROTECTED -> PROTECTED] SetProtectedBlockStorage got error, not FailedPrecondition: err='%s'", err.Error())
+	if err == nil {
+		t.Errorf("[Valid: PROTECTED -> PROTECTED] SetProtectedBlockStorage got no error")
 	}
 	available, err := bsa.SetAvailableBlockStorage(context.Background(), &pprovisioning.SetAvailableBlockStorageRequest{Name: bs.Name})
 	if err != nil {
