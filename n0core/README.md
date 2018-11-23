@@ -33,13 +33,13 @@ make up
 - ファイルは `/var/lib/n0core` に送られ、シンボリックリンクが貼られる
 
 ```
-bin/n0core deploy agent -i id_ecdsa root@$node_id -name vm-host1 -advertise-address=$node_id -node-api-endpoint=$api_address:20180
+bin/n0core deploy agent -i id_ecdsa root@$node_ip -name vm-host1 -advertise-address=$node_ip -node-api-endpoint=$api_address:20180
 ```
 
 #### Local
 
 ```
-bin/n0core install agent -a "-name vm-host1 -advertise-address=$node_id -node-api-endpoint=$api_address:20180"
+bin/n0core install agent -a "-name vm-host1 -advertise-address=$node_ip -node-api-endpoint=$api_address:20180"
 ```
 
 ## Dependency map
