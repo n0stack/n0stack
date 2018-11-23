@@ -16,13 +16,13 @@ vendor/
 **/debug
 .vscode/
 
-bin/
+# bin/
 .go-build/
 
 # using in docker-compose file
-**/sandbox/*
+**/sandbox
 
-n0proto/middleware
+middleware
 **/*.iso
 **/*.img
 
@@ -139,5 +139,7 @@ venv.bak/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+bazel-*
 
 VERSION
