@@ -19,11 +19,12 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "n0core"
 	app.Version = version
+	app.EnableBashCompletion = true
 
 	app.Commands = []cli.Command{
 		{
 			Name:   "api",
-			Usage:  "",
+			Usage:  "Daemon which provide n0stack cluster API",
 			Action: ServeAPI,
 			Flags: []cli.Flag{
 				cli.StringFlag{
@@ -42,7 +43,7 @@ func main() {
 		},
 		{
 			Name:   "agent",
-			Usage:  "",
+			Usage:  "Daemon which administrate n0stack cluster node",
 			Action: ServeAgent,
 			Flags: []cli.Flag{
 				cli.StringFlag{
@@ -73,7 +74,7 @@ func main() {
 		},
 		{
 			Name:  "deploy",
-			Usage: "",
+			Usage: "Deploy n0core to remote host with ssh",
 			Subcommands: []cli.Command{
 				{
 					Name:      "agent",
@@ -93,7 +94,7 @@ func main() {
 		},
 		{
 			Name:  "install",
-			Usage: "",
+			Usage: "Install n0core on localhost",
 			Subcommands: []cli.Command{
 				{
 					Name:   "agent",
