@@ -2,7 +2,9 @@ package provisioning
 
 import (
 	"context"
+	"fmt"
 
+	"code.cloudfoundry.org/bytefmt"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/memory"
@@ -15,11 +17,26 @@ type MockBlockStorageAPI struct {
 	NodeAPI *node.MockNodeAPI
 }
 
+var factroyIndex = 0
+
 func NewMockBlcokStorageAPI(datastore *memory.MemoryDatastore) *MockBlockStorageAPI {
 	na := node.NewMockNodeAPI(datastore)
 
 	a := CreateBlockStorageAPI(datastore, na)
 	return &MockBlockStorageAPI{a, na}
+}
+
+func (a MockBlockStorageAPI) FactoryBlockStorage(ctx context.Context, nodeName string) (*pprovisioning.BlockStorage, error) {
+	factroyIndex++
+
+	return a.api.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
+		Name: fmt.Sprintf("factory-network%d", factroyIndex),
+		Annotations: map[string]string{
+			AnnotationRequestNodeName: nodeName,
+		},
+		LimitBytes:   10 * bytefmt.GIGABYTE,
+		RequestBytes: 10 * bytefmt.GIGABYTE,
+	})
 }
 
 func (a MockBlockStorageAPI) CreateBlockStorage(ctx context.Context, in *pprovisioning.CreateBlockStorageRequest, opts ...grpc.CallOption) (*pprovisioning.BlockStorage, error) {

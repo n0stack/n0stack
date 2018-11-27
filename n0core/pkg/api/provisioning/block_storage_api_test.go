@@ -24,11 +24,15 @@ func upMock(ctx context.Context, address string) error {
 
 	grpcServer := grpc.NewServer()
 	RegisterBlockStorageAgentServiceServer(grpcServer, &MockBlockStorageAgentAPI{})
+	RegisterVirtualMachineAgentServiceServer(grpcServer, &MockVirtualMachineAgentAPI{})
 	return grpcServer.Serve(lis)
 }
 
 func TestEmptyBlockStorage(t *testing.T) {
 	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
 	m := memory.NewMemoryDatastore()
 	bsa := NewMockBlcokStorageAPI(m)
 
@@ -51,6 +55,9 @@ func TestEmptyBlockStorage(t *testing.T) {
 
 func TestCreateBlockStorage(t *testing.T) {
 	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
 	m := memory.NewMemoryDatastore()
 	bsa := NewMockBlcokStorageAPI(m)
 
@@ -110,6 +117,9 @@ func TestCreateBlockStorage(t *testing.T) {
 
 func TestFetchBlockStorage(t *testing.T) {
 	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
 	m := memory.NewMemoryDatastore()
 	bsa := NewMockBlcokStorageAPI(m)
 
@@ -173,6 +183,9 @@ func TestFetchBlockStorage(t *testing.T) {
 
 func TestBlockStorageAboutInUseState(t *testing.T) {
 	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
 	m := memory.NewMemoryDatastore()
 	bsa := NewMockBlcokStorageAPI(m)
 
@@ -235,6 +248,9 @@ func TestBlockStorageAboutInUseState(t *testing.T) {
 
 func TestBlockStorageAboutProtectedState(t *testing.T) {
 	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
 	m := memory.NewMemoryDatastore()
 	bsa := NewMockBlcokStorageAPI(m)
 
@@ -297,6 +313,9 @@ func TestBlockStorageAboutProtectedState(t *testing.T) {
 
 func TestCopyBlockStorage(t *testing.T) {
 	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
 	m := memory.NewMemoryDatastore()
 	bsa := NewMockBlcokStorageAPI(m)
 

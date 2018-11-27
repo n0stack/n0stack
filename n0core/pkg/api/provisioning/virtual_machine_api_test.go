@@ -1,5 +1,3 @@
-// +build medium
-
 package provisioning
 
 import (
@@ -9,7 +7,7 @@ import (
 	"code.cloudfoundry.org/bytefmt"
 	"github.com/google/go-cmp/cmp"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/memory"
-	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	"github.com/n0stack/n0stack/n0core/pkg/util/net"
 	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
 
 	"google.golang.org/grpc"
@@ -17,26 +15,14 @@ import (
 )
 
 func TestEmptyVirtualMachine(t *testing.T) {
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
 	m := memory.NewMemoryDatastore()
-	noa, noconn, err := getTestNodeAPI()
-	if err != nil {
-		t.Fatalf("Failed to connect node api: err='%s'", err.Error())
-	}
-	defer noconn.Close()
-	nea, neconn, err := getTestNetworkAPI()
-	if err != nil {
-		t.Fatalf("Failed to connect network api: err='%s'", err.Error())
-	}
-	defer neconn.Close()
-	bsa, bsconn, err := getTestBlockStorageAPI()
-	if err != nil {
-		t.Fatalf("Failed to connect block storage api: err='%s'", err.Error())
-	}
-	defer bsconn.Close()
+	vma := NewMockVirtualMachineAPI(m)
 
-	vma := CreateVirtualMachineAPI(m, noa, nea, bsa)
-
-	listRes, err := vma.ListVirtualMachines(context.Background(), &pprovisioning.ListVirtualMachinesRequest{})
+	listRes, err := vma.ListVirtualMachines(ctx, &pprovisioning.ListVirtualMachinesRequest{})
 	if err != nil && grpc.Code(err) != codes.NotFound {
 		t.Errorf("ListVirtualMachines got error, not NotFound: err='%s'", err.Error())
 	}
@@ -44,7 +30,7 @@ func TestEmptyVirtualMachine(t *testing.T) {
 		t.Errorf("ListVirtualMachines do not return nil: res='%s'", listRes)
 	}
 
-	getRes, err := vma.GetVirtualMachine(context.Background(), &pprovisioning.GetVirtualMachineRequest{})
+	getRes, err := vma.GetVirtualMachine(ctx, &pprovisioning.GetVirtualMachineRequest{})
 	if err != nil && grpc.Code(err) != codes.NotFound {
 		t.Errorf("GetVirtualMachine got error, not NotFound: err='%s'", err.Error())
 	}
@@ -54,76 +40,58 @@ func TestEmptyVirtualMachine(t *testing.T) {
 }
 
 func TestCreateVirtualMachine(t *testing.T) {
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
 	m := memory.NewMemoryDatastore()
-	noa, noconn, err := getTestNodeAPI()
-	if err != nil {
-		t.Fatalf("Failed to connect node api: err='%s'", err.Error())
-	}
-	defer noconn.Close()
-	nea, neconn, err := getTestNetworkAPI()
-	if err != nil {
-		t.Fatalf("Failed to connect network api: err='%s'", err.Error())
-	}
-	defer neconn.Close()
-	bsa, bsconn, err := getTestBlockStorageAPI()
-	if err != nil {
-		t.Fatalf("Failed to connect block storage api: err='%s'", err.Error())
-	}
-	defer bsconn.Close()
+	vma := NewMockVirtualMachineAPI(m)
 
-	vma := CreateVirtualMachineAPI(m, noa, nea, bsa)
-
-	ne, err := nea.ApplyNetwork(context.Background(), &ppool.ApplyNetworkRequest{
-		Name:     "test-network",
-		Ipv4Cidr: "192.168.0.0/30",
-		Domain:   "test.local",
-	})
+	mnode, err := vma.NodeAPI.SetupMockNode(ctx)
 	if err != nil {
-		t.Fatalf("Failed to apply network: err='%s'", err.Error())
+		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
 	}
-	defer nea.DeleteNetwork(context.Background(), &ppool.DeleteNetworkRequest{Name: ne.Name})
+	go vma.UpMockAgent(ctx, mnode.Address)
 
-	bs, err := bsa.CreateBlockStorage(context.Background(), &pprovisioning.CreateBlockStorageRequest{
-		Name: "test-block-storage",
-		Annotations: map[string]string{
-			AnnotationRequestNodeName: "mock-node",
-		},
-		RequestBytes: 1 * bytefmt.GIGABYTE,
-		LimitBytes:   1 * bytefmt.GIGABYTE,
-	})
+	network, err := vma.NetworkAPI.FactoryNetwork(ctx)
 	if err != nil {
-		t.Fatalf("Failed to create block storage: err='%s'", err.Error())
+		t.Fatalf("Failed to factory network: err='%s'", err.Error())
 	}
-	defer bsa.DeleteBlockStorage(context.Background(), &pprovisioning.DeleteBlockStorageRequest{Name: bs.Name})
+	ip := nettools.ParseCIDR(network.Ipv4Cidr)
+
+	bs, err := vma.BlockStorageAPI.FactoryBlockStorage(ctx, mnode.Name)
+	if err != nil {
+		t.Fatalf("Failed to factory bloclstorage: err='%s'", err.Error())
+	}
 
 	vm := &pprovisioning.VirtualMachine{
 		Name: "test-virtual-machine",
 		Annotations: map[string]string{
-			AnnotationRequestNodeName: "mock-node",
+			AnnotationRequestNodeName: mnode.Name,
 		},
 
 		LimitCpuMilliCore:   1000,
 		RequestCpuMilliCore: 100,
 		LimitMemoryBytes:    1 * bytefmt.GIGABYTE,
 		RequestMemoryBytes:  1 * bytefmt.GIGABYTE,
-		BlockStorageNames:   []string{"test-block-storage"},
+		BlockStorageNames:   []string{bs.Name},
 		Nics: []*pprovisioning.VirtualMachineNIC{
 			{
-				NetworkName: "test-network",
+				NetworkName: network.Name,
 				// TODO: 決め打ちなので恒常的に正しいとは限らない
-				Ipv4Address:     "192.168.0.1",
+				Ipv4Address:     ip.Next().IP().String(),
 				HardwareAddress: "52:54:78:fe:71:fd",
 			},
 		},
 		Uuid: "1d5fd196-b6c9-4f58-86f2-3ef227018e47",
 
 		State:                 pprovisioning.VirtualMachine_RUNNING,
-		ComputeNodeName:       "mock-node",
+		ComputeNodeName:       mnode.Name,
 		ComputeName:           "test-virtual-machine",
 		NetworkInterfaceNames: []string{"test-virtual-machine0"},
 	}
 
-	createRes, err := vma.CreateVirtualMachine(context.Background(), &pprovisioning.CreateVirtualMachineRequest{
+	createRes, err := vma.CreateVirtualMachine(ctx, &pprovisioning.CreateVirtualMachineRequest{
 		Name:                vm.Name,
 		Annotations:         vm.Annotations,
 		LimitCpuMilliCore:   vm.LimitCpuMilliCore,
@@ -135,7 +103,7 @@ func TestCreateVirtualMachine(t *testing.T) {
 		Uuid:                vm.Uuid,
 	})
 	if err != nil {
-		t.Errorf("Failed to create virtual machine: err='%s'", err.Error())
+		t.Fatalf("Failed to create virtual machine: err='%s'", err.Error())
 	}
 	createRes.XXX_sizecache = 0
 	createRes.Nics[0].XXX_sizecache = 0
@@ -143,7 +111,7 @@ func TestCreateVirtualMachine(t *testing.T) {
 		t.Errorf("CreateVirtualMachine response is wrong: diff=(-want +got)\n%s", diff)
 	}
 
-	listRes, err := vma.ListVirtualMachines(context.Background(), &pprovisioning.ListVirtualMachinesRequest{})
+	listRes, err := vma.ListVirtualMachines(ctx, &pprovisioning.ListVirtualMachinesRequest{})
 	if err != nil {
 		t.Errorf("ListVirtualMachines got error: err='%s'", err.Error())
 	}
@@ -151,7 +119,7 @@ func TestCreateVirtualMachine(t *testing.T) {
 		t.Errorf("ListVirtualMachines return wrong length: res='%s', want=1", listRes)
 	}
 
-	getRes, err := vma.GetVirtualMachine(context.Background(), &pprovisioning.GetVirtualMachineRequest{Name: vm.Name})
+	getRes, err := vma.GetVirtualMachine(ctx, &pprovisioning.GetVirtualMachineRequest{Name: vm.Name})
 	if err != nil {
 		t.Errorf("GetVirtualMachine got error: err='%s'", err.Error())
 	}
@@ -160,7 +128,7 @@ func TestCreateVirtualMachine(t *testing.T) {
 		t.Errorf("GetVirtualMachine response is wrong: diff=(-want +got)\n%s", diff)
 	}
 
-	if _, err := vma.DeleteVirtualMachine(context.Background(), &pprovisioning.DeleteVirtualMachineRequest{Name: vm.Name}); err != nil {
+	if _, err := vma.DeleteVirtualMachine(ctx, &pprovisioning.DeleteVirtualMachineRequest{Name: vm.Name}); err != nil {
 		t.Errorf("DeleteVirtualMachine got error: err='%s'", err.Error())
 	}
 }

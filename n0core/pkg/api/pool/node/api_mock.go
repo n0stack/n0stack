@@ -23,9 +23,9 @@ func (a MockNodeAPI) SetupMockNode(ctx context.Context) (*ppool.Node, error) {
 	return a.ApplyNode(ctx, &ppool.ApplyNodeRequest{
 		Name:          "mocked",
 		Address:       "127.0.20.180",
-		CpuMilliCores: 1000,
-		MemoryBytes:   10 * bytefmt.GIGABYTE,
-		StorageBytes:  10 * bytefmt.GIGABYTE,
+		CpuMilliCores: 16000,
+		MemoryBytes:   64 * bytefmt.GIGABYTE,
+		StorageBytes:  100 * bytefmt.GIGABYTE,
 	})
 }
 
