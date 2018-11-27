@@ -1,6 +1,8 @@
 package memory
 
 import (
+	"strings"
+
 	"github.com/golang/protobuf/proto"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
 )
@@ -24,10 +26,20 @@ func (m *MemoryDatastore) AddPrefix(prefix string) datastore.Datastore {
 }
 
 func (m MemoryDatastore) List(f func(length int) []proto.Message) error {
-	pb := f(len(m.Data))
+	l := 0
+	for k, _ := range m.Data {
+		if !strings.HasPrefix(k, m.prefix) {
+			l++
+		}
+	}
 
+	pb := f(l)
 	i := 0
-	for _, v := range m.Data {
+	for k, v := range m.Data {
+		if !strings.HasPrefix(k, m.prefix) {
+			continue
+		}
+
 		err := proto.Unmarshal(v, pb[i])
 		if err != nil {
 			return err

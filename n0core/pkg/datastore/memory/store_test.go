@@ -72,4 +72,31 @@ func TestCheckDataIsSame(t *testing.T) {
 	if e == nil || e.Name != v.Name {
 		t.Errorf("Response is invalid")
 	}
+
+	k2 := "test"
+	v2 := &datastore.Test{Name: "value"}
+	if err := m.Apply(k2, v2); err != nil {
+		t.Fatalf("Failed to apply secondaly: err='%s'", err.Error())
+	}
+
+	res := []*datastore.Test{}
+	f := func(s int) []proto.Message {
+		res = make([]*datastore.Test, s)
+		for i := range res {
+			res[i] = &datastore.Test{}
+		}
+
+		m := make([]proto.Message, s)
+		for i, v := range res {
+			m[i] = v
+		}
+
+		return m
+	}
+	if err := withPrefix.List(f); err != nil {
+		t.Errorf("Failed to list: err='%s'", err.Error())
+	}
+	if len(res) != 1 {
+		t.Errorf("Number of listed keys is mismatch: have='%d', want='%d'", len(res), 1)
+	}
 }
