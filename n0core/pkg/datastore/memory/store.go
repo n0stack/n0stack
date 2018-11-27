@@ -28,7 +28,7 @@ func (m *MemoryDatastore) AddPrefix(prefix string) datastore.Datastore {
 func (m MemoryDatastore) List(f func(length int) []proto.Message) error {
 	l := 0
 	for k, _ := range m.Data {
-		if !strings.HasPrefix(k, m.prefix) {
+		if strings.HasPrefix(k, m.prefix) {
 			l++
 		}
 	}
