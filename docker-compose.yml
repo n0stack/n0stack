@@ -15,20 +15,6 @@ services:
     links:
       - etcd
 
-  mock_agent:
-    image: debian:buster
-    volumes:
-      - ./bin/:/n0stack
-    command:
-      - /n0stack/n0core
-      - serve
-      - mock-agent
-      - --name=mock-node
-      - --advertise-address=mock_agent
-      - --node-api-endpoint=api:20180
-    links:
-      - api
-
   etcd:
     image: quay.io/coreos/etcd:v3.3
     volumes:

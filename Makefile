@@ -11,12 +11,6 @@ up: build-n0core-on-docker
 	docker-compose up -d --scale mock_agent=0
 	docker-compose restart api # reload binary
 
-up-mock: build-n0core-on-docker
-	mkdir -p sandbox
-	docker-compose up -d
-	docker-compose restart api # reload binary
-	docker-compose restart mock_agent # reload binary
-
 
 # --- Build ---
 .PHONY: all
@@ -151,5 +145,5 @@ test-small-n0proto: build-n0proto-on-docker
 test-small-go:
 	go test -race -cover ./...
 
-test-medium: up-mock # with root, having dependency for external
+test-medium: up # with root, having dependency for external
 	sudo go test -race -tags=medium -cover ./...   # n0core, n0cli

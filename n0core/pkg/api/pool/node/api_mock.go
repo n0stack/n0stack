@@ -14,6 +14,8 @@ type MockNodeAPI struct {
 	a *NodeAPI
 }
 
+const MockNodeIP = "127.0.20.180"
+
 func NewMockNodeAPI(datastore *memory.MemoryDatastore) *MockNodeAPI {
 	a := CreateNodeAPI(datastore)
 	return &MockNodeAPI{a}
@@ -22,7 +24,7 @@ func NewMockNodeAPI(datastore *memory.MemoryDatastore) *MockNodeAPI {
 func (a MockNodeAPI) SetupMockNode(ctx context.Context) (*ppool.Node, error) {
 	return a.ApplyNode(ctx, &ppool.ApplyNodeRequest{
 		Name:          "mocked",
-		Address:       "127.0.20.180",
+		Address:       MockNodeIP,
 		CpuMilliCores: 16000,
 		MemoryBytes:   64 * bytefmt.GIGABYTE,
 		StorageBytes:  100 * bytefmt.GIGABYTE,
