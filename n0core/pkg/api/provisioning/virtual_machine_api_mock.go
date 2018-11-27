@@ -2,8 +2,6 @@ package provisioning
 
 import (
 	"context"
-	"fmt"
-	"net"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/network"
@@ -27,21 +25,6 @@ func NewMockVirtualMachineAPI(datastore *memory.MemoryDatastore) *MockVirtualMac
 
 	a := CreateVirtualMachineAPI(datastore, noa, nea, bsa)
 	return &MockVirtualMachineAPI{a, noa, nea, bsa}
-}
-
-// どうもサービスが始まるまでのタイムラグがあるせいで、性能の悪いデバイスでは安定性が悪い
-// TODO: 上位層が使いにくくなっているので変える
-func (a MockVirtualMachineAPI) UpMockAgent(ctx context.Context, address string) error {
-	addr := fmt.Sprintf("%s:%d", address, 20181)
-	lis, err := net.Listen("tcp", addr)
-	if err != nil {
-		return err
-	}
-
-	grpcServer := grpc.NewServer()
-	RegisterBlockStorageAgentServiceServer(grpcServer, &MockBlockStorageAgentAPI{})
-	RegisterVirtualMachineAgentServiceServer(grpcServer, &MockVirtualMachineAgentAPI{})
-	return grpcServer.Serve(lis)
 }
 
 func (a MockVirtualMachineAPI) CreateVirtualMachine(ctx context.Context, in *pprovisioning.CreateVirtualMachineRequest, opts ...grpc.CallOption) (*pprovisioning.VirtualMachine, error) {

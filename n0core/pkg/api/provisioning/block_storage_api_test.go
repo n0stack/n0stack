@@ -2,8 +2,6 @@ package provisioning
 
 import (
 	"context"
-	"fmt"
-	"net"
 	"testing"
 
 	"code.cloudfoundry.org/bytefmt"
@@ -13,20 +11,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 )
-
-// どうもサービスが始まるまでのタイムラグがあるせいで、性能の悪いデバイスでは安定性が悪い
-func upMock(ctx context.Context, address string) error {
-	a := fmt.Sprintf("%s:%d", address, 20181)
-	lis, err := net.Listen("tcp", a)
-	if err != nil {
-		return err
-	}
-
-	grpcServer := grpc.NewServer()
-	RegisterBlockStorageAgentServiceServer(grpcServer, &MockBlockStorageAgentAPI{})
-	RegisterVirtualMachineAgentServiceServer(grpcServer, &MockVirtualMachineAgentAPI{})
-	return grpcServer.Serve(lis)
-}
 
 func TestEmptyBlockStorage(t *testing.T) {
 	ctx := context.Background()
@@ -65,8 +49,6 @@ func TestCreateBlockStorage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
 	}
-	go upMock(ctx, mnode.Address)
-
 	bs := &pprovisioning.BlockStorage{
 		Name: "test-block-storage",
 		Annotations: map[string]string{
@@ -127,7 +109,6 @@ func TestFetchBlockStorage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
 	}
-	go upMock(ctx, mnode.Address)
 
 	bs := &pprovisioning.BlockStorage{
 		Name: "test-block-storage",
@@ -193,7 +174,6 @@ func TestBlockStorageAboutInUseState(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
 	}
-	go upMock(ctx, mnode.Address)
 
 	bs := &pprovisioning.BlockStorage{
 		Name: "test-block-storage",
@@ -258,7 +238,6 @@ func TestBlockStorageAboutProtectedState(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
 	}
-	go upMock(ctx, mnode.Address)
 
 	bs := &pprovisioning.BlockStorage{
 		Name: "test-block-storage",
@@ -323,7 +302,6 @@ func TestCopyBlockStorage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
 	}
-	go upMock(ctx, mnode.Address)
 
 	bs := &pprovisioning.BlockStorage{
 		Name: "test-block-storage",

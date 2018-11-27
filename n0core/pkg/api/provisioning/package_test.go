@@ -1,57 +1,28 @@
 package provisioning
 
 import (
-	"os"
+	"fmt"
+	"net"
 
-	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
-	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
+	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
 	"google.golang.org/grpc"
 )
 
-func getTestNodeAPI() (ppool.NodeServiceClient, *grpc.ClientConn, error) {
-	endpoint := ""
-	if value, ok := os.LookupEnv("NODE_API_ENDPOINT"); ok {
-		endpoint = value
-	} else {
-		endpoint = "localhost:20180"
-	}
-
-	conn, err := grpc.Dial(endpoint, grpc.WithInsecure())
+// どうもサービスが始まるまでのタイムラグがあるせいで、性能の悪いデバイスでは安定性が悪い
+// TODO: 上位層が使いにくくなっているので変える
+func UpMockAgent(address string) error {
+	addr := fmt.Sprintf("%s:%d", address, 20181)
+	lis, err := net.Listen("tcp", addr)
 	if err != nil {
-		return nil, nil, err
+		return err
 	}
 
-	return ppool.NewNodeServiceClient(conn), conn, nil
+	grpcServer := grpc.NewServer()
+	RegisterBlockStorageAgentServiceServer(grpcServer, &MockBlockStorageAgentAPI{})
+	RegisterVirtualMachineAgentServiceServer(grpcServer, &MockVirtualMachineAgentAPI{})
+	return grpcServer.Serve(lis)
 }
 
-func getTestNetworkAPI() (ppool.NetworkServiceClient, *grpc.ClientConn, error) {
-	endpoint := ""
-	if value, ok := os.LookupEnv("NETWORK_API_ENDPOINT"); ok {
-		endpoint = value
-	} else {
-		endpoint = "localhost:20180"
-	}
-
-	conn, err := grpc.Dial(endpoint, grpc.WithInsecure())
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return ppool.NewNetworkServiceClient(conn), conn, nil
-}
-
-func getTestBlockStorageAPI() (pprovisioning.BlockStorageServiceClient, *grpc.ClientConn, error) {
-	endpoint := ""
-	if value, ok := os.LookupEnv("BLOCK_STORAGE_API_ENDPOINT"); ok {
-		endpoint = value
-	} else {
-		endpoint = "localhost:20180"
-	}
-
-	conn, err := grpc.Dial(endpoint, grpc.WithInsecure())
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return pprovisioning.NewBlockStorageServiceClient(conn), conn, nil
+func init() {
+	go UpMockAgent(node.MockNodeIP)
 }

@@ -51,7 +51,6 @@ func TestCreateVirtualMachine(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
 	}
-	go vma.UpMockAgent(ctx, mnode.Address)
 
 	network, err := vma.NetworkAPI.FactoryNetwork(ctx)
 	if err != nil {
