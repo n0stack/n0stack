@@ -1,9 +1,9 @@
-// +build medium
-
 package provisioning
 
 import (
 	"context"
+	"fmt"
+	"net"
 	"testing"
 
 	"code.cloudfoundry.org/bytefmt"
@@ -14,17 +14,25 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-func TestEmptyBlockStorage(t *testing.T) {
-	m := memory.NewMemoryDatastore()
-	na, conn, err := getTestNodeAPI()
+// どうもサービスが始まるまでのタイムラグがあるせいで、性能の悪いデバイスでは安定性が悪い
+func upMock(ctx context.Context, address string) error {
+	a := fmt.Sprintf("%s:%d", address, 20181)
+	lis, err := net.Listen("tcp", a)
 	if err != nil {
-		t.Fatalf("Failed to connect node api: err='%s'", err.Error())
+		return err
 	}
-	defer conn.Close()
 
-	bsa := CreateBlockStorageAPI(m, na)
+	grpcServer := grpc.NewServer()
+	RegisterBlockStorageAgentServiceServer(grpcServer, &MockBlockStorageAgentAPI{})
+	return grpcServer.Serve(lis)
+}
 
-	listRes, err := bsa.ListBlockStorages(context.Background(), &pprovisioning.ListBlockStoragesRequest{})
+func TestEmptyBlockStorage(t *testing.T) {
+	ctx := context.Background()
+	m := memory.NewMemoryDatastore()
+	bsa := NewMockBlcokStorageAPI(m)
+
+	listRes, err := bsa.ListBlockStorages(ctx, &pprovisioning.ListBlockStoragesRequest{})
 	if err != nil && grpc.Code(err) != codes.NotFound {
 		t.Errorf("ListBlockStorages got error, not NotFound: err='%s'", err.Error())
 	}
@@ -32,7 +40,7 @@ func TestEmptyBlockStorage(t *testing.T) {
 		t.Errorf("ListBlockStorages do not return nil: res='%s'", listRes)
 	}
 
-	getRes, err := bsa.GetBlockStorage(context.Background(), &pprovisioning.GetBlockStorageRequest{})
+	getRes, err := bsa.GetBlockStorage(ctx, &pprovisioning.GetBlockStorageRequest{})
 	if err != nil && grpc.Code(err) != codes.NotFound {
 		t.Errorf("GetBlockStorage got error, not NotFound: err='%s'", err.Error())
 	}
@@ -42,28 +50,29 @@ func TestEmptyBlockStorage(t *testing.T) {
 }
 
 func TestCreateBlockStorage(t *testing.T) {
+	ctx := context.Background()
 	m := memory.NewMemoryDatastore()
-	na, nconn, err := getTestNodeAPI()
-	if err != nil {
-		t.Fatalf("Failed to connect node api: err='%s'", err.Error())
-	}
-	defer nconn.Close()
+	bsa := NewMockBlcokStorageAPI(m)
 
-	bsa := CreateBlockStorageAPI(m, na)
+	mnode, err := bsa.NodeAPI.SetupMockNode(ctx)
+	if err != nil {
+		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
+	}
+	go upMock(ctx, mnode.Address)
 
 	bs := &pprovisioning.BlockStorage{
 		Name: "test-block-storage",
 		Annotations: map[string]string{
-			AnnotationRequestNodeName: "mock-node",
+			AnnotationRequestNodeName: mnode.Name,
 		},
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
 		State:        pprovisioning.BlockStorage_AVAILABLE,
-		NodeName:     "mock-node",
+		NodeName:     mnode.Name,
 		StorageName:  "test-block-storage",
 	}
 
-	createRes, err := bsa.CreateBlockStorage(context.Background(), &pprovisioning.CreateBlockStorageRequest{
+	createRes, err := bsa.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
 		Name:         bs.Name,
 		Annotations:  bs.Annotations,
 		RequestBytes: bs.RequestBytes,
@@ -78,7 +87,7 @@ func TestCreateBlockStorage(t *testing.T) {
 		t.Errorf("CreateBlockStorage response is wrong: diff=(-want +got)\n%s", diff)
 	}
 
-	listRes, err := bsa.ListBlockStorages(context.Background(), &pprovisioning.ListBlockStoragesRequest{})
+	listRes, err := bsa.ListBlockStorages(ctx, &pprovisioning.ListBlockStoragesRequest{})
 	if err != nil {
 		t.Errorf("ListBlockStorages got error: err='%s'", err.Error())
 	}
@@ -86,7 +95,7 @@ func TestCreateBlockStorage(t *testing.T) {
 		t.Errorf("ListBlockStorages return wrong length: res='%s', want=1", listRes)
 	}
 
-	getRes, err := bsa.GetBlockStorage(context.Background(), &pprovisioning.GetBlockStorageRequest{Name: bs.Name})
+	getRes, err := bsa.GetBlockStorage(ctx, &pprovisioning.GetBlockStorageRequest{Name: bs.Name})
 	if err != nil {
 		t.Errorf("GetBlockStorage got error: err='%s'", err.Error())
 	}
@@ -94,34 +103,35 @@ func TestCreateBlockStorage(t *testing.T) {
 		t.Errorf("GetBlockStorage response is wrong: diff=(-want +got)\n%s", diff)
 	}
 
-	if _, err := bsa.DeleteBlockStorage(context.Background(), &pprovisioning.DeleteBlockStorageRequest{Name: bs.Name}); err != nil {
+	if _, err := bsa.DeleteBlockStorage(ctx, &pprovisioning.DeleteBlockStorageRequest{Name: bs.Name}); err != nil {
 		t.Errorf("DeleteBlockStorage got error: err='%s'", err.Error())
 	}
 }
 
 func TestFetchBlockStorage(t *testing.T) {
+	ctx := context.Background()
 	m := memory.NewMemoryDatastore()
-	na, nconn, err := getTestNodeAPI()
-	if err != nil {
-		t.Fatalf("Failed to connect node api: err='%s'", err.Error())
-	}
-	defer nconn.Close()
+	bsa := NewMockBlcokStorageAPI(m)
 
-	bsa := CreateBlockStorageAPI(m, na)
+	mnode, err := bsa.NodeAPI.SetupMockNode(ctx)
+	if err != nil {
+		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
+	}
+	go upMock(ctx, mnode.Address)
 
 	bs := &pprovisioning.BlockStorage{
 		Name: "test-block-storage",
 		Annotations: map[string]string{
-			AnnotationRequestNodeName: "mock-node",
+			AnnotationRequestNodeName: mnode.Name,
 		},
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
 		State:        pprovisioning.BlockStorage_AVAILABLE,
-		NodeName:     "mock-node",
+		NodeName:     mnode.Name,
 		StorageName:  "test-block-storage",
 	}
 
-	createRes, err := bsa.FetchBlockStorage(context.Background(), &pprovisioning.FetchBlockStorageRequest{
+	createRes, err := bsa.FetchBlockStorage(ctx, &pprovisioning.FetchBlockStorageRequest{
 		Name:         bs.Name,
 		Annotations:  bs.Annotations,
 		RequestBytes: bs.RequestBytes,
@@ -137,7 +147,7 @@ func TestFetchBlockStorage(t *testing.T) {
 		t.Errorf("CreateBlockStorage response is wrong: diff=(-want +got)\n%s", diff)
 	}
 
-	listRes, err := bsa.ListBlockStorages(context.Background(), &pprovisioning.ListBlockStoragesRequest{})
+	listRes, err := bsa.ListBlockStorages(ctx, &pprovisioning.ListBlockStoragesRequest{})
 	if err != nil {
 		t.Errorf("ListBlockStorages got error: err='%s'", err.Error())
 	}
@@ -145,7 +155,7 @@ func TestFetchBlockStorage(t *testing.T) {
 		t.Errorf("ListBlockStorages return wrong length: res='%s', want=1", listRes)
 	}
 
-	getRes, err := bsa.GetBlockStorage(context.Background(), &pprovisioning.GetBlockStorageRequest{Name: bs.Name})
+	getRes, err := bsa.GetBlockStorage(ctx, &pprovisioning.GetBlockStorageRequest{Name: bs.Name})
 	if err != nil {
 		t.Errorf("GetBlockStorage got error: err='%s'", err.Error())
 	}
@@ -153,7 +163,7 @@ func TestFetchBlockStorage(t *testing.T) {
 		t.Errorf("GetBlockStorage response is wrong: diff=(-want +got)\n%s", diff)
 	}
 
-	if _, err := bsa.DeleteBlockStorage(context.Background(), &pprovisioning.DeleteBlockStorageRequest{Name: bs.Name}); err != nil {
+	if _, err := bsa.DeleteBlockStorage(ctx, &pprovisioning.DeleteBlockStorageRequest{Name: bs.Name}); err != nil {
 		t.Errorf("DeleteBlockStorage got error: err='%s'", err.Error())
 	}
 }
@@ -162,28 +172,29 @@ func TestFetchBlockStorage(t *testing.T) {
 // func TestFetchBlockStorageAboutErrors(t *testing.T) {}
 
 func TestBlockStorageAboutInUseState(t *testing.T) {
+	ctx := context.Background()
 	m := memory.NewMemoryDatastore()
-	na, nconn, err := getTestNodeAPI()
-	if err != nil {
-		t.Fatalf("Failed to connect node api: err='%s'", err.Error())
-	}
-	defer nconn.Close()
+	bsa := NewMockBlcokStorageAPI(m)
 
-	bsa := CreateBlockStorageAPI(m, na)
+	mnode, err := bsa.NodeAPI.SetupMockNode(ctx)
+	if err != nil {
+		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
+	}
+	go upMock(ctx, mnode.Address)
 
 	bs := &pprovisioning.BlockStorage{
 		Name: "test-block-storage",
 		Annotations: map[string]string{
-			AnnotationRequestNodeName: "mock-node",
+			AnnotationRequestNodeName: mnode.Name,
 		},
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
 		State:        pprovisioning.BlockStorage_AVAILABLE,
-		NodeName:     "mock-node",
+		NodeName:     mnode.Name,
 		StorageName:  "test-block-storage",
 	}
 
-	_, err = bsa.CreateBlockStorage(context.Background(), &pprovisioning.CreateBlockStorageRequest{
+	_, err = bsa.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
 		Name:         bs.Name,
 		Annotations:  bs.Annotations,
 		RequestBytes: bs.RequestBytes,
@@ -192,29 +203,28 @@ func TestBlockStorageAboutInUseState(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create block storage: err='%s'", err.Error())
 	}
-	defer bsa.DeleteBlockStorage(context.Background(), &pprovisioning.DeleteBlockStorageRequest{Name: bs.Name})
 
-	inuse, err := bsa.SetInuseBlockStorage(context.Background(), &pprovisioning.SetInuseBlockStorageRequest{Name: bs.Name})
+	inuse, err := bsa.SetInuseBlockStorage(ctx, &pprovisioning.SetInuseBlockStorageRequest{Name: bs.Name})
 	if err != nil {
 		t.Errorf("[Valid: AVAILABLE -> IN_USE] SetInuseBlockStorage got error: err='%s'", err.Error())
 	}
 	if inuse.State != pprovisioning.BlockStorage_IN_USE {
 		t.Errorf("[Valid: AVAILABLE -> IN_USE] SetInuseBlockStorage response wrong state: want=%+v, have=%+v", pprovisioning.BlockStorage_IN_USE, inuse.State)
 	}
-	getRes, _ := bsa.GetBlockStorage(context.Background(), &pprovisioning.GetBlockStorageRequest{Name: bs.Name})
+	getRes, _ := bsa.GetBlockStorage(ctx, &pprovisioning.GetBlockStorageRequest{Name: bs.Name})
 	if getRes.State != pprovisioning.BlockStorage_IN_USE {
 		t.Errorf("[Valid: AVAILABLE -> IN_USE] SetInuseBlockStorage store wrong state: want=%+v, have=%+v", pprovisioning.BlockStorage_IN_USE, getRes.State)
 	}
 
-	_, err = bsa.SetProtectedBlockStorage(context.Background(), &pprovisioning.SetProtectedBlockStorageRequest{Name: bs.Name})
+	_, err = bsa.SetProtectedBlockStorage(ctx, &pprovisioning.SetProtectedBlockStorageRequest{Name: bs.Name})
 	if err != nil && grpc.Code(err) != codes.FailedPrecondition {
 		t.Errorf("[Invalid: IN_USE -> PROTECTED] SetProtectedBlockStorage got error, not FailedPrecondition: err='%s'", err.Error())
 	}
-	_, err = bsa.SetInuseBlockStorage(context.Background(), &pprovisioning.SetInuseBlockStorageRequest{Name: bs.Name})
+	_, err = bsa.SetInuseBlockStorage(ctx, &pprovisioning.SetInuseBlockStorageRequest{Name: bs.Name})
 	if err == nil {
 		t.Errorf("[Inalid: IN_USE -> IN_USE] SetInuseBlockStorage got no error")
 	}
-	available, err := bsa.SetAvailableBlockStorage(context.Background(), &pprovisioning.SetAvailableBlockStorageRequest{Name: bs.Name})
+	available, err := bsa.SetAvailableBlockStorage(ctx, &pprovisioning.SetAvailableBlockStorageRequest{Name: bs.Name})
 	if err != nil {
 		t.Errorf("[Valid: IN_USE -> AVAILABLE] SetAvailableBlockStorage got error: err='%s'", err.Error())
 	}
@@ -224,28 +234,29 @@ func TestBlockStorageAboutInUseState(t *testing.T) {
 }
 
 func TestBlockStorageAboutProtectedState(t *testing.T) {
+	ctx := context.Background()
 	m := memory.NewMemoryDatastore()
-	na, nconn, err := getTestNodeAPI()
-	if err != nil {
-		t.Fatalf("Failed to connect node api: err='%s'", err.Error())
-	}
-	defer nconn.Close()
+	bsa := NewMockBlcokStorageAPI(m)
 
-	bsa := CreateBlockStorageAPI(m, na)
+	mnode, err := bsa.NodeAPI.SetupMockNode(ctx)
+	if err != nil {
+		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
+	}
+	go upMock(ctx, mnode.Address)
 
 	bs := &pprovisioning.BlockStorage{
 		Name: "test-block-storage",
 		Annotations: map[string]string{
-			AnnotationRequestNodeName: "mock-node",
+			AnnotationRequestNodeName: mnode.Name,
 		},
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
 		State:        pprovisioning.BlockStorage_AVAILABLE,
-		NodeName:     "mock-node",
+		NodeName:     mnode.Name,
 		StorageName:  "test-block-storage",
 	}
 
-	_, err = bsa.CreateBlockStorage(context.Background(), &pprovisioning.CreateBlockStorageRequest{
+	_, err = bsa.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
 		Name:         bs.Name,
 		Annotations:  bs.Annotations,
 		RequestBytes: bs.RequestBytes,
@@ -254,29 +265,28 @@ func TestBlockStorageAboutProtectedState(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create block storage: err='%s'", err.Error())
 	}
-	defer bsa.DeleteBlockStorage(context.Background(), &pprovisioning.DeleteBlockStorageRequest{Name: bs.Name})
 
-	protected, err := bsa.SetProtectedBlockStorage(context.Background(), &pprovisioning.SetProtectedBlockStorageRequest{Name: bs.Name})
+	protected, err := bsa.SetProtectedBlockStorage(ctx, &pprovisioning.SetProtectedBlockStorageRequest{Name: bs.Name})
 	if err != nil {
 		t.Errorf("[Valid: AVAILABLE -> PROTECTED] SetProtectedBlockStorage got error: err='%s'", err.Error())
 	}
 	if protected.State != pprovisioning.BlockStorage_PROTECTED {
 		t.Errorf("[Valid: AVAILABLE -> PROTECTED] SetProtectedBlockStorage response wrong state: want=%+v, have=%+v", pprovisioning.BlockStorage_PROTECTED, protected.State)
 	}
-	getRes, _ := bsa.GetBlockStorage(context.Background(), &pprovisioning.GetBlockStorageRequest{Name: bs.Name})
+	getRes, _ := bsa.GetBlockStorage(ctx, &pprovisioning.GetBlockStorageRequest{Name: bs.Name})
 	if getRes.State != pprovisioning.BlockStorage_PROTECTED {
 		t.Errorf("[Valid: AVAILABLE -> PROTECTED] SetInuseBlockStorage store wrong state: want=%+v, have=%+v", pprovisioning.BlockStorage_PROTECTED, getRes.State)
 	}
 
-	_, err = bsa.SetInuseBlockStorage(context.Background(), &pprovisioning.SetInuseBlockStorageRequest{Name: bs.Name})
+	_, err = bsa.SetInuseBlockStorage(ctx, &pprovisioning.SetInuseBlockStorageRequest{Name: bs.Name})
 	if err != nil && grpc.Code(err) != codes.FailedPrecondition {
 		t.Errorf("[InValid: PROTECTED -> IN_USE] SetInuseBlockStorage got error: err='%s'", err.Error())
 	}
-	_, err = bsa.SetProtectedBlockStorage(context.Background(), &pprovisioning.SetProtectedBlockStorageRequest{Name: bs.Name})
+	_, err = bsa.SetProtectedBlockStorage(ctx, &pprovisioning.SetProtectedBlockStorageRequest{Name: bs.Name})
 	if err == nil {
 		t.Errorf("[Valid: PROTECTED -> PROTECTED] SetProtectedBlockStorage got no error")
 	}
-	available, err := bsa.SetAvailableBlockStorage(context.Background(), &pprovisioning.SetAvailableBlockStorageRequest{Name: bs.Name})
+	available, err := bsa.SetAvailableBlockStorage(ctx, &pprovisioning.SetAvailableBlockStorageRequest{Name: bs.Name})
 	if err != nil {
 		t.Errorf("[Valid: PROTECTED -> AVAILABLE] SetAvailableBlockStorage got error: err='%s'", err.Error())
 	}
@@ -285,29 +295,30 @@ func TestBlockStorageAboutProtectedState(t *testing.T) {
 	}
 }
 
-func TestBlockCopyStorage(t *testing.T) {
+func TestCopyBlockStorage(t *testing.T) {
+	ctx := context.Background()
 	m := memory.NewMemoryDatastore()
-	na, nconn, err := getTestNodeAPI()
-	if err != nil {
-		t.Fatalf("Failed to connect node api: err='%s'", err.Error())
-	}
-	defer nconn.Close()
+	bsa := NewMockBlcokStorageAPI(m)
 
-	bsa := CreateBlockStorageAPI(m, na)
+	mnode, err := bsa.NodeAPI.SetupMockNode(ctx)
+	if err != nil {
+		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
+	}
+	go upMock(ctx, mnode.Address)
 
 	bs := &pprovisioning.BlockStorage{
 		Name: "test-block-storage",
 		Annotations: map[string]string{
-			AnnotationRequestNodeName: "mock-node",
+			AnnotationRequestNodeName: mnode.Name,
 		},
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
 		State:        pprovisioning.BlockStorage_AVAILABLE,
-		NodeName:     "mock-node",
+		NodeName:     mnode.Name,
 		StorageName:  "test-block-storage",
 	}
 
-	src, err := bsa.CreateBlockStorage(context.Background(), &pprovisioning.CreateBlockStorageRequest{
+	src, err := bsa.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
 		Name:         "source",
 		Annotations:  bs.Annotations,
 		RequestBytes: bs.RequestBytes,
@@ -316,9 +327,8 @@ func TestBlockCopyStorage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create block storage: err='%s'", err.Error())
 	}
-	defer bsa.DeleteBlockStorage(context.Background(), &pprovisioning.DeleteBlockStorageRequest{Name: src.Name})
 
-	copyRes, err := bsa.CopyBlockStorage(context.Background(), &pprovisioning.CopyBlockStorageRequest{
+	copyRes, err := bsa.CopyBlockStorage(ctx, &pprovisioning.CopyBlockStorageRequest{
 		Name:         bs.Name,
 		Annotations:  bs.Annotations,
 		RequestBytes: bs.RequestBytes,
@@ -329,14 +339,13 @@ func TestBlockCopyStorage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create block storage: err='%s'", err.Error())
 	}
-	defer bsa.DeleteBlockStorage(context.Background(), &pprovisioning.DeleteBlockStorageRequest{Name: bs.Name})
 
 	copyRes.XXX_sizecache = 0
 	if diff := cmp.Diff(bs, copyRes); diff != "" {
 		t.Errorf("CreateBlockStorage response is wrong: diff=(-want +got)\n%s", diff)
 	}
 
-	listRes, err := bsa.ListBlockStorages(context.Background(), &pprovisioning.ListBlockStoragesRequest{})
+	listRes, err := bsa.ListBlockStorages(ctx, &pprovisioning.ListBlockStoragesRequest{})
 	if err != nil {
 		t.Errorf("ListBlockStorages got error: err='%s'", err.Error())
 	}
@@ -344,7 +353,7 @@ func TestBlockCopyStorage(t *testing.T) {
 		t.Errorf("ListBlockStorages return wrong length: res='%s', want=1", listRes)
 	}
 
-	getRes, err := bsa.GetBlockStorage(context.Background(), &pprovisioning.GetBlockStorageRequest{Name: bs.Name})
+	getRes, err := bsa.GetBlockStorage(ctx, &pprovisioning.GetBlockStorageRequest{Name: bs.Name})
 	if err != nil {
 		t.Errorf("GetBlockStorage got error: err='%s'", err.Error())
 	}
@@ -352,7 +361,7 @@ func TestBlockCopyStorage(t *testing.T) {
 		t.Errorf("GetBlockStorage response is wrong: diff=(-want +got)\n%s", diff)
 	}
 
-	if _, err := bsa.DeleteBlockStorage(context.Background(), &pprovisioning.DeleteBlockStorageRequest{Name: bs.Name}); err != nil {
+	if _, err := bsa.DeleteBlockStorage(ctx, &pprovisioning.DeleteBlockStorageRequest{Name: bs.Name}); err != nil {
 		t.Errorf("DeleteBlockStorage got error: err='%s'", err.Error())
 	}
 }

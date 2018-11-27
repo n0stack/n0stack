@@ -3,6 +3,7 @@ package node
 import (
 	"context"
 
+	"code.cloudfoundry.org/bytefmt"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/memory"
 	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
@@ -13,9 +14,19 @@ type MockNodeAPI struct {
 	a *NodeAPI
 }
 
-func NewMockNodeAPI(datastore *memory.MemoryDatastore) ppool.NodeServiceClient {
+func NewMockNodeAPI(datastore *memory.MemoryDatastore) *MockNodeAPI {
 	a := CreateNodeAPI(datastore)
 	return &MockNodeAPI{a}
+}
+
+func (a MockNodeAPI) SetupMockNode(ctx context.Context) (*ppool.Node, error) {
+	return a.ApplyNode(ctx, &ppool.ApplyNodeRequest{
+		Name:          "mocked",
+		Address:       "127.0.20.180",
+		CpuMilliCores: 1000,
+		MemoryBytes:   10 * bytefmt.GIGABYTE,
+		StorageBytes:  10 * bytefmt.GIGABYTE,
+	})
 }
 
 func (a MockNodeAPI) ListNodes(ctx context.Context, in *ppool.ListNodesRequest, opts ...grpc.CallOption) (*ppool.ListNodesResponse, error) {

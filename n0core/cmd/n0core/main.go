@@ -79,7 +79,7 @@ func main() {
 				},
 				{
 					Name:   "mock-agent",
-					Usage:  "use on test, removed side effect",
+					Usage:  "[DEPRECATED] use on test, removed side effect",
 					Action: ServeMockAgent,
 					Flags: []cli.Flag{
 						cli.StringFlag{
