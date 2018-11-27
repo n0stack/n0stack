@@ -47,7 +47,8 @@ func InstallAgent(ctx *cli.Context) error {
 	}
 
 	fmt.Println("---> [INSTALL] Preparing systemd unit...")
-	systemd := d.CreateAgentUnit(binLocation, args)
+	cmd := fmt.Sprintf("%s serve agent %s", binLocation, args)
+	systemd := d.CreateAgentUnit(cmd)
 	if err := d.SaveFile(systemd, systemdAgentUnitPath, 0644); err != nil {
 		return errors.Wrap(err, "Failed to save systemd unit file")
 	}

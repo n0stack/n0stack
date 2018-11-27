@@ -6,6 +6,7 @@ services:
       - ./bin/:/n0stack
     command:
       - /n0stack/n0core
+      - serve
       - api
       - --etcd-endpoints=etcd:2379
     ports:
@@ -20,6 +21,7 @@ services:
       - ./bin/:/n0stack
     command:
       - /n0stack/n0core
+      - serve
       - mock-agent
       - --name=mock-node
       - --advertise-address=mock_agent

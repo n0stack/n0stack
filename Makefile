@@ -5,13 +5,6 @@ VERSION=$(shell cat VERSION)
 
 
 # --- Deployment ---
-run-all-in-one: build-n0core-on-docker up
-	sudo bin/n0core agent \
-		--name=run-all-in-one \
-		--advertise-address=10.20.180.1 \
-		--node-api-endpoint=localhost:20180 \
-		--base-directory=./sandbox/workdir
-
 .PHONY: up
 up: build-n0core-on-docker
 	mkdir -p sandbox

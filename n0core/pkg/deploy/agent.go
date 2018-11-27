@@ -2,12 +2,11 @@ package deploy
 
 import (
 	"bytes"
-	"fmt"
 
 	"github.com/coreos/go-systemd/unit"
 )
 
-func (d LocalDeployer) CreateAgentUnit(self, args string) []byte {
+func (d LocalDeployer) CreateAgentUnit(command string) []byte {
 	u := []*unit.UnitOption{
 		{
 			Section: "Unit",
@@ -27,7 +26,7 @@ func (d LocalDeployer) CreateAgentUnit(self, args string) []byte {
 		{
 			Section: "Service",
 			Name:    "ExecStart",
-			Value:   fmt.Sprintf("%s agent %s", self, args),
+			Value:   command,
 		},
 		{
 			Section: "Service",
