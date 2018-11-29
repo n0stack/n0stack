@@ -34,11 +34,10 @@ message VirtualMachine {
   repeated string ssh_authorized_keys = 18;
 
   enum VirtualMachineState {
-    // falied state because failed some process on API.
-    FAILED = 0;
-
     // unknown state because failed to connect for scheduled node after RUNNING.
-    UNKNOWN = 1;
+    UNKNOWN = 0;
+    // working API
+    PENDING = 1;
 
     // running vm
     RUNNING = 2;

@@ -18,11 +18,10 @@ message BlockStorage {
   // bool cd = 4;
 
   enum BlockStorageState {
-    // falied state because failed some process on API.
-    FAILED = 0;
-
-    // unknown state because failed to connect for scheduled node after RUNNING.
-    UNKNOWN = 1;
+    // unknown state because failed to connect for scheduled node after RUNNING
+    UNKNOWN = 0;
+    // working API
+    PENDING = 1;
 
     AVAILABLE = 2;
     IN_USE = 3;

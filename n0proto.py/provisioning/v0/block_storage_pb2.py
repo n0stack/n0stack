@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='n0stack.provisioning',
   syntax='proto3',
   serialized_options=_b('ZCgithub.com/n0stack/n0stack/n0proto.go/provisioning/v0;pprovisioning'),
-  serialized_pb=_b('\n#provisioning/v0/block_storage.proto\x12\x14n0stack.provisioning\x1a\x1bgoogle/protobuf/empty.proto\"\x8c\x03\n\x0c\x42lockStorage\x12\x0c\n\x04name\x18\x01 \x01(\t\x12H\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32\x33.n0stack.provisioning.BlockStorage.AnnotationsEntry\x12\x15\n\rrequest_bytes\x18\n \x01(\x04\x12\x13\n\x0blimit_bytes\x18\x0b \x01(\x04\x12\x43\n\x05state\x18\x32 \x01(\x0e\x32\x34.n0stack.provisioning.BlockStorage.BlockStorageState\x12\x11\n\tnode_name\x18\x34 \x01(\t\x12\x14\n\x0cstorage_name\x18\x35 \x01(\t\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"V\n\x11\x42lockStorageState\x12\n\n\x06\x46\x41ILED\x10\x00\x12\x0b\n\x07UNKNOWN\x10\x01\x12\r\n\tAVAILABLE\x10\x02\x12\n\n\x06IN_USE\x10\x03\x12\r\n\tPROTECTED\x10\x04\"!\n\x11\x42lockStorageChunk\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"\xe0\x01\n\x19\x43reateBlockStorageRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12U\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32@.n0stack.provisioning.CreateBlockStorageRequest.AnnotationsEntry\x12\x15\n\rrequest_bytes\x18\n \x01(\x04\x12\x13\n\x0blimit_bytes\x18\x0b \x01(\x04\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xf2\x01\n\x18\x46\x65tchBlockStorageRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12T\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32?.n0stack.provisioning.FetchBlockStorageRequest.AnnotationsEntry\x12\x15\n\rrequest_bytes\x18\n \x01(\x04\x12\x13\n\x0blimit_bytes\x18\x0b \x01(\x04\x12\x12\n\nsource_url\x18\x64 \x01(\t\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xbd\x03\n\x19UploadBlockStorageRequest\x12^\n\x08metadata\x18\x01 \x01(\x0b\x32J.n0stack.provisioning.UploadBlockStorageRequest.UploadBlockStorageMetadataH\x00\x12\x38\n\x05\x63hunk\x18\x02 \x01(\x0b\x32\'.n0stack.provisioning.BlockStorageChunkH\x00\x1a\xfc\x01\n\x1aUploadBlockStorageMetadata\x12\x0c\n\x04name\x18\x01 \x01(\t\x12p\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32[.n0stack.provisioning.UploadBlockStorageRequest.UploadBlockStorageMetadata.AnnotationsEntry\x12\x15\n\rrequest_bytes\x18\n \x01(\x04\x12\x13\n\x0blimit_bytes\x18\x0b \x01(\x04\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x42\x07\n\x05value\"\xfa\x01\n\x17\x43opyBlockStorageRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12S\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32>.n0stack.provisioning.CopyBlockStorageRequest.AnnotationsEntry\x12\x15\n\rrequest_bytes\x18\n \x01(\x04\x12\x13\n\x0blimit_bytes\x18\x0b \x01(\x04\x12\x1c\n\x14source_block_storage\x18\x64 \x01(\t\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x1a\n\x18ListBlockStoragesRequest\"V\n\x19ListBlockStoragesResponse\x12\x39\n\rBlockStorages\x18\x01 \x03(\x0b\x32\".n0stack.provisioning.BlockStorage\"&\n\x16GetBlockStorageRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"\xe0\x01\n\x19UpdateBlockStorageRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12U\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32@.n0stack.provisioning.UpdateBlockStorageRequest.AnnotationsEntry\x12\x15\n\rrequest_bytes\x18\n \x01(\x04\x12\x13\n\x0blimit_bytes\x18\x0b \x01(\x04\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\")\n\x19\x44\x65leteBlockStorageRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"+\n\x1bSetInuseBlockStorageRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"/\n\x1fSetAvailableBlockStorageRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"/\n\x1fSetProtectedBlockStorageRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"+\n\x1b\x44ownloadBlockStorageRequest\x12\x0c\n\x04name\x18\x01 \x01(\t2\xe6\x08\n\x13\x42lockStorageService\x12k\n\x12\x43reateBlockStorage\x12/.n0stack.provisioning.CreateBlockStorageRequest\x1a\".n0stack.provisioning.BlockStorage\"\x00\x12i\n\x11\x46\x65tchBlockStorage\x12..n0stack.provisioning.FetchBlockStorageRequest\x1a\".n0stack.provisioning.BlockStorage\"\x00\x12g\n\x10\x43opyBlockStorage\x12-.n0stack.provisioning.CopyBlockStorageRequest\x1a\".n0stack.provisioning.BlockStorage\"\x00\x12v\n\x11ListBlockStorages\x12..n0stack.provisioning.ListBlockStoragesRequest\x1a/.n0stack.provisioning.ListBlockStoragesResponse\"\x00\x12\x65\n\x0fGetBlockStorage\x12,.n0stack.provisioning.GetBlockStorageRequest\x1a\".n0stack.provisioning.BlockStorage\"\x00\x12k\n\x12UpdateBlockStorage\x12/.n0stack.provisioning.UpdateBlockStorageRequest\x1a\".n0stack.provisioning.BlockStorage\"\x00\x12_\n\x12\x44\x65leteBlockStorage\x12/.n0stack.provisioning.DeleteBlockStorageRequest\x1a\x16.google.protobuf.Empty\"\x00\x12o\n\x14SetInuseBlockStorage\x12\x31.n0stack.provisioning.SetInuseBlockStorageRequest\x1a\".n0stack.provisioning.BlockStorage\"\x00\x12w\n\x18SetAvailableBlockStorage\x12\x35.n0stack.provisioning.SetAvailableBlockStorageRequest\x1a\".n0stack.provisioning.BlockStorage\"\x00\x12w\n\x18SetProtectedBlockStorage\x12\x35.n0stack.provisioning.SetProtectedBlockStorageRequest\x1a\".n0stack.provisioning.BlockStorage\"\x00\x42\x45ZCgithub.com/n0stack/n0stack/n0proto.go/provisioning/v0;pprovisioningb\x06proto3')
+  serialized_pb=_b('\n#provisioning/v0/block_storage.proto\x12\x14n0stack.provisioning\x1a\x1bgoogle/protobuf/empty.proto\"\x8d\x03\n\x0c\x42lockStorage\x12\x0c\n\x04name\x18\x01 \x01(\t\x12H\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32\x33.n0stack.provisioning.BlockStorage.AnnotationsEntry\x12\x15\n\rrequest_bytes\x18\n \x01(\x04\x12\x13\n\x0blimit_bytes\x18\x0b \x01(\x04\x12\x43\n\x05state\x18\x32 \x01(\x0e\x32\x34.n0stack.provisioning.BlockStorage.BlockStorageState\x12\x11\n\tnode_name\x18\x34 \x01(\t\x12\x14\n\x0cstorage_name\x18\x35 \x01(\t\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"W\n\x11\x42lockStorageState\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0b\n\x07PENDING\x10\x01\x12\r\n\tAVAILABLE\x10\x02\x12\n\n\x06IN_USE\x10\x03\x12\r\n\tPROTECTED\x10\x04\"!\n\x11\x42lockStorageChunk\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"\xe0\x01\n\x19\x43reateBlockStorageRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12U\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32@.n0stack.provisioning.CreateBlockStorageRequest.AnnotationsEntry\x12\x15\n\rrequest_bytes\x18\n \x01(\x04\x12\x13\n\x0blimit_bytes\x18\x0b \x01(\x04\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xf2\x01\n\x18\x46\x65tchBlockStorageRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12T\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32?.n0stack.provisioning.FetchBlockStorageRequest.AnnotationsEntry\x12\x15\n\rrequest_bytes\x18\n \x01(\x04\x12\x13\n\x0blimit_bytes\x18\x0b \x01(\x04\x12\x12\n\nsource_url\x18\x64 \x01(\t\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xbd\x03\n\x19UploadBlockStorageRequest\x12^\n\x08metadata\x18\x01 \x01(\x0b\x32J.n0stack.provisioning.UploadBlockStorageRequest.UploadBlockStorageMetadataH\x00\x12\x38\n\x05\x63hunk\x18\x02 \x01(\x0b\x32\'.n0stack.provisioning.BlockStorageChunkH\x00\x1a\xfc\x01\n\x1aUploadBlockStorageMetadata\x12\x0c\n\x04name\x18\x01 \x01(\t\x12p\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32[.n0stack.provisioning.UploadBlockStorageRequest.UploadBlockStorageMetadata.AnnotationsEntry\x12\x15\n\rrequest_bytes\x18\n \x01(\x04\x12\x13\n\x0blimit_bytes\x18\x0b \x01(\x04\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x42\x07\n\x05value\"\xfa\x01\n\x17\x43opyBlockStorageRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12S\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32>.n0stack.provisioning.CopyBlockStorageRequest.AnnotationsEntry\x12\x15\n\rrequest_bytes\x18\n \x01(\x04\x12\x13\n\x0blimit_bytes\x18\x0b \x01(\x04\x12\x1c\n\x14source_block_storage\x18\x64 \x01(\t\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x1a\n\x18ListBlockStoragesRequest\"V\n\x19ListBlockStoragesResponse\x12\x39\n\rBlockStorages\x18\x01 \x03(\x0b\x32\".n0stack.provisioning.BlockStorage\"&\n\x16GetBlockStorageRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"\xe0\x01\n\x19UpdateBlockStorageRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12U\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32@.n0stack.provisioning.UpdateBlockStorageRequest.AnnotationsEntry\x12\x15\n\rrequest_bytes\x18\n \x01(\x04\x12\x13\n\x0blimit_bytes\x18\x0b \x01(\x04\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\")\n\x19\x44\x65leteBlockStorageRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"+\n\x1bSetInuseBlockStorageRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"/\n\x1fSetAvailableBlockStorageRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"/\n\x1fSetProtectedBlockStorageRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"+\n\x1b\x44ownloadBlockStorageRequest\x12\x0c\n\x04name\x18\x01 \x01(\t2\xe6\x08\n\x13\x42lockStorageService\x12k\n\x12\x43reateBlockStorage\x12/.n0stack.provisioning.CreateBlockStorageRequest\x1a\".n0stack.provisioning.BlockStorage\"\x00\x12i\n\x11\x46\x65tchBlockStorage\x12..n0stack.provisioning.FetchBlockStorageRequest\x1a\".n0stack.provisioning.BlockStorage\"\x00\x12g\n\x10\x43opyBlockStorage\x12-.n0stack.provisioning.CopyBlockStorageRequest\x1a\".n0stack.provisioning.BlockStorage\"\x00\x12v\n\x11ListBlockStorages\x12..n0stack.provisioning.ListBlockStoragesRequest\x1a/.n0stack.provisioning.ListBlockStoragesResponse\"\x00\x12\x65\n\x0fGetBlockStorage\x12,.n0stack.provisioning.GetBlockStorageRequest\x1a\".n0stack.provisioning.BlockStorage\"\x00\x12k\n\x12UpdateBlockStorage\x12/.n0stack.provisioning.UpdateBlockStorageRequest\x1a\".n0stack.provisioning.BlockStorage\"\x00\x12_\n\x12\x44\x65leteBlockStorage\x12/.n0stack.provisioning.DeleteBlockStorageRequest\x1a\x16.google.protobuf.Empty\"\x00\x12o\n\x14SetInuseBlockStorage\x12\x31.n0stack.provisioning.SetInuseBlockStorageRequest\x1a\".n0stack.provisioning.BlockStorage\"\x00\x12w\n\x18SetAvailableBlockStorage\x12\x35.n0stack.provisioning.SetAvailableBlockStorageRequest\x1a\".n0stack.provisioning.BlockStorage\"\x00\x12w\n\x18SetProtectedBlockStorage\x12\x35.n0stack.provisioning.SetProtectedBlockStorageRequest\x1a\".n0stack.provisioning.BlockStorage\"\x00\x42\x45ZCgithub.com/n0stack/n0stack/n0proto.go/provisioning/v0;pprovisioningb\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,])
 
@@ -33,11 +33,11 @@ _BLOCKSTORAGE_BLOCKSTORAGESTATE = _descriptor.EnumDescriptor(
   file=DESCRIPTOR,
   values=[
     _descriptor.EnumValueDescriptor(
-      name='FAILED', index=0, number=0,
+      name='UNKNOWN', index=0, number=0,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='UNKNOWN', index=1, number=1,
+      name='PENDING', index=1, number=1,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
@@ -56,7 +56,7 @@ _BLOCKSTORAGE_BLOCKSTORAGESTATE = _descriptor.EnumDescriptor(
   containing_type=None,
   serialized_options=None,
   serialized_start=401,
-  serialized_end=487,
+  serialized_end=488,
 )
 _sym_db.RegisterEnumDescriptor(_BLOCKSTORAGE_BLOCKSTORAGESTATE)
 
@@ -168,7 +168,7 @@ _BLOCKSTORAGE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=91,
-  serialized_end=487,
+  serialized_end=488,
 )
 
 
@@ -198,8 +198,8 @@ _BLOCKSTORAGECHUNK = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=489,
-  serialized_end=522,
+  serialized_start=490,
+  serialized_end=523,
 )
 
 
@@ -287,8 +287,8 @@ _CREATEBLOCKSTORAGEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=525,
-  serialized_end=749,
+  serialized_start=526,
+  serialized_end=750,
 )
 
 
@@ -383,8 +383,8 @@ _FETCHBLOCKSTORAGEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=752,
-  serialized_end=994,
+  serialized_start=753,
+  serialized_end=995,
 )
 
 
@@ -472,8 +472,8 @@ _UPLOADBLOCKSTORAGEREQUEST_UPLOADBLOCKSTORAGEMETADATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1181,
-  serialized_end=1433,
+  serialized_start=1182,
+  serialized_end=1434,
 )
 
 _UPLOADBLOCKSTORAGEREQUEST = _descriptor.Descriptor(
@@ -512,8 +512,8 @@ _UPLOADBLOCKSTORAGEREQUEST = _descriptor.Descriptor(
       name='value', full_name='n0stack.provisioning.UploadBlockStorageRequest.value',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=997,
-  serialized_end=1442,
+  serialized_start=998,
+  serialized_end=1443,
 )
 
 
@@ -608,8 +608,8 @@ _COPYBLOCKSTORAGEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1445,
-  serialized_end=1695,
+  serialized_start=1446,
+  serialized_end=1696,
 )
 
 
@@ -632,8 +632,8 @@ _LISTBLOCKSTORAGESREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1697,
-  serialized_end=1723,
+  serialized_start=1698,
+  serialized_end=1724,
 )
 
 
@@ -663,8 +663,8 @@ _LISTBLOCKSTORAGESRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1725,
-  serialized_end=1811,
+  serialized_start=1726,
+  serialized_end=1812,
 )
 
 
@@ -694,8 +694,8 @@ _GETBLOCKSTORAGEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1813,
-  serialized_end=1851,
+  serialized_start=1814,
+  serialized_end=1852,
 )
 
 
@@ -783,8 +783,8 @@ _UPDATEBLOCKSTORAGEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1854,
-  serialized_end=2078,
+  serialized_start=1855,
+  serialized_end=2079,
 )
 
 
@@ -814,8 +814,8 @@ _DELETEBLOCKSTORAGEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2080,
-  serialized_end=2121,
+  serialized_start=2081,
+  serialized_end=2122,
 )
 
 
@@ -845,8 +845,8 @@ _SETINUSEBLOCKSTORAGEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2123,
-  serialized_end=2166,
+  serialized_start=2124,
+  serialized_end=2167,
 )
 
 
@@ -876,8 +876,8 @@ _SETAVAILABLEBLOCKSTORAGEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2168,
-  serialized_end=2215,
+  serialized_start=2169,
+  serialized_end=2216,
 )
 
 
@@ -907,8 +907,8 @@ _SETPROTECTEDBLOCKSTORAGEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2217,
-  serialized_end=2264,
+  serialized_start=2218,
+  serialized_end=2265,
 )
 
 
@@ -938,8 +938,8 @@ _DOWNLOADBLOCKSTORAGEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2266,
-  serialized_end=2309,
+  serialized_start=2267,
+  serialized_end=2310,
 )
 
 _BLOCKSTORAGE_ANNOTATIONSENTRY.containing_type = _BLOCKSTORAGE
@@ -1159,8 +1159,8 @@ _BLOCKSTORAGESERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=2312,
-  serialized_end=3438,
+  serialized_start=2313,
+  serialized_end=3439,
   methods=[
   _descriptor.MethodDescriptor(
     name='CreateBlockStorage',
