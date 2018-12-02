@@ -8,8 +8,6 @@ import (
 	"google.golang.org/grpc"
 )
 
-// どうもサービスが始まるまでのタイムラグがあるせいで、性能の悪いデバイスでは安定性が悪い
-// TODO: 上位層が使いにくくなっているので変える
 func UpMockAgent(address string) error {
 	addr := fmt.Sprintf("%s:%d", address, 20181)
 	lis, err := net.Listen("tcp", addr)
@@ -19,7 +17,6 @@ func UpMockAgent(address string) error {
 
 	grpcServer := grpc.NewServer()
 	RegisterBlockStorageAgentServiceServer(grpcServer, &MockBlockStorageAgentAPI{})
-	RegisterVirtualMachineAgentServiceServer(grpcServer, &MockVirtualMachineAgentAPI{})
 	return grpcServer.Serve(lis)
 }
 
