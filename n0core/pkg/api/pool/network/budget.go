@@ -29,7 +29,7 @@ func CheckConflictIPv4(request net.IP, reserved map[string]*pbudget.NetworkInter
 // O(len(reserved) ^ 2) なので要修正
 func ScheduleNewIPv4(cidr *net.IPNet, reserved map[string]*pbudget.NetworkInterface) net.IP {
 	// escape network address and broadcast address
-	for ip := nettools.NextIP(cidr.IP); cidr.Contains(nettools.NextIP(ip)); ip = nettools.NextIP(ip) {
+	for ip := netutil.NextIP(cidr.IP); cidr.Contains(netutil.NextIP(ip)); ip = netutil.NextIP(ip) {
 		if err := CheckConflictIPv4(ip, reserved); err == nil {
 			return ip
 		}

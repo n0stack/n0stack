@@ -157,7 +157,7 @@ func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.Rese
 
 	var reqHW net.HardwareAddr
 	if req.HardwareAddress == "" {
-		reqHW = nettools.GenerateHardwareAddress(fmt.Sprintf("%s/%s", req.NetworkName, req.NetworkInterfaceName))
+		reqHW = netutil.GenerateHardwareAddress(fmt.Sprintf("%s/%s", req.NetworkName, req.NetworkInterfaceName))
 	} else {
 		var err error
 		reqHW, err = net.ParseMAC(req.HardwareAddress)

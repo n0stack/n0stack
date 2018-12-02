@@ -58,7 +58,7 @@ func (a *VirtualMachineAPI) addDefaultGateway(ctx context.Context, network *ppoo
 		return "", errors.Wrap(err, "Invalid CIDR in network")
 	}
 
-	ip := nettools.GetEndIP(ipn)
+	ip := netutil.GetEndIP(ipn)
 
 	a.networkAPI.ReserveNetworkInterface(ctx, &ppool.ReserveNetworkInterfaceRequest{
 		NetworkName:          network.Name,

@@ -56,7 +56,7 @@ func TestCreateVirtualMachine(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to factory network: err='%s'", err.Error())
 	}
-	ip := nettools.ParseCIDR(network.Ipv4Cidr)
+	ip := netutil.ParseCIDR(network.Ipv4Cidr)
 
 	bs, err := vma.BlockStorageAPI.FactoryBlockStorage(ctx, mnode.Name)
 	if err != nil {
