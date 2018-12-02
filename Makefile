@@ -104,7 +104,7 @@ update-novnc:
 	go get -v github.com/rakyll/statik
 	rm -rf /tmp/novnc
 	git clone --depth 1 https://github.com/novnc/noVNC /tmp/novnc
-	statik -p provisioning -Z -f -src /tmp/novnc -dest pkg/api
+	statik -p virtualmachine -Z -f -src /tmp/novnc -dest ./n0core/pkg/api/provisioning
 
 .PHONY: clean
 clean:

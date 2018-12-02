@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+option go_package = "github.com/n0stack/n0stack/n0core/pkg/api/provisioning/virtualmachine;virtualmachine";
+
+package n0stack.internal.n0core.provisioning.virtual_machine;
+
+import "google/protobuf/empty.proto";
+
+
+service VirtualMachineAgentService {
+  rpc BootVirtualMachine(BootVirtualMachineRequest) returns (BootVirtualMachineResponse) {}
+  rpc RebootVirtualMachine(RebootVirtualMachineRequest) returns (RebootVirtualMachineResponse) {}
+  rpc ShutdownVirtualMachine(ShutdownVirtualMachineRequest) returns (ShutdownVirtualMachineResponse) {}
+  
+  rpc DeleteVirtualMachine(DeleteVirtualMachineRequest) returns (google.protobuf.Empty) {}
+}
+
+
+enum VirtualMachineState {
+  FAILED = 0;
+  UNKNOWN = 1;
+  SHUTDOWN = 2;
+  RUNNING = 3;
+  PAUSED = 4;
+}
+message BlockDev {
+  string name = 1;
+  string url = 2;
+  uint32 boot_index = 3;
+}
+message NetDev {
+  string name = 1;
+  string network_name = 2;
+  string hardware_address = 3;
+  string ipv4_address_cidr = 4;
+  string ipv4_gateway = 5;
+  repeated string nameservers = 6;
+}
+
+message BootVirtualMachineRequest {
+  string name = 1;
+  string uuid = 2;
+
+  uint32 vcpus = 3;
+  uint64 memory_bytes = 4;
+  
+  repeated BlockDev blockdevs = 5;
+  repeated NetDev netdevs = 6;
+  
+  string login_username = 7;
+  repeated string ssh_authorized_keys = 8;
+}
+message BootVirtualMachineResponse {
+  VirtualMachineState state = 1;
+  uint32 websocket_port = 2;
+}
+
+message RebootVirtualMachineRequest {
+  string name = 1;
+  
+  bool hard = 2;
+}
+message RebootVirtualMachineResponse {
+  VirtualMachineState state = 1;
+}
+
+message ShutdownVirtualMachineRequest {
+  string name = 1;
+  
+  bool hard = 2;
+}
+message ShutdownVirtualMachineResponse {
+  VirtualMachineState state = 1;
+}
+
+message DeleteVirtualMachineRequest {
+  string name = 1;
+
+  // TODO: netdev の情報を QMP から取るまでは、とりあえず渡してもらう
+  repeated NetDev netdevs = 8;
+}

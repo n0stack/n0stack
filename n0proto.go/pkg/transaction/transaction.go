@@ -51,3 +51,7 @@ func (tx *Transaction) Rollback() error {
 	}
 	return nil
 }
+
+func (tx *Transaction) Commit() {
+	tx.stack = make([]*RollbackTask, 0)
+}
