@@ -66,6 +66,7 @@ func GetTotalCPUMilliCores() uint32 {
 }
 
 // TODO: エラーハンドリング適当
+// TODO: versionをとる
 func RegisterNodeToAPI(name, advertiseAddress, api string) error {
 	conn, err := grpc.Dial(api, grpc.WithInsecure())
 	if err != nil {
