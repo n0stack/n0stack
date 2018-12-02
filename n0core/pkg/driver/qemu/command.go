@@ -18,7 +18,7 @@ type Qemu struct {
 	proc *process.Process
 
 	// args
-	id      *uuid.UUID
+	name    string
 	qmpPath string
 	isKVM   bool
 
@@ -26,9 +26,9 @@ type Qemu struct {
 	m   *raw.Monitor
 }
 
-func OpenQemu(id *uuid.UUID) (*Qemu, error) {
+func OpenQemu(name string) (*Qemu, error) {
 	q := &Qemu{
-		id:    id,
+		name:  name,
 		isKVM: true,
 	}
 
@@ -144,7 +144,7 @@ func (q *Qemu) Delete() error {
 	return nil
 }
 
-func (q *Qemu) Start(name, qmpPath string, vncWebsocketPort uint16, vcpus uint32, memory uint64) error {
+func (q *Qemu) Start(id uuid.UUID, qmpPath string, vncWebsocketPort uint16, vcpus uint32, memory uint64) error {
 	qmpPath, err := filepath.Abs(qmpPath)
 	if err != nil {
 		return fmt.Errorf("Failed to get absolute path of qmpPath: err='%s'", err.Error())
@@ -155,9 +155,9 @@ func (q *Qemu) Start(name, qmpPath string, vncWebsocketPort uint16, vcpus uint32
 
 		// -- QEMU metadata --
 		"-uuid",
-		q.id.String(),
+		id.String(),
 		"-name",
-		fmt.Sprintf("guest=%s,debug-threads=on", name),
+		fmt.Sprintf("guest=%s,debug-threads=on", q.name),
 		"-msg",
 		"timestamp=on",
 

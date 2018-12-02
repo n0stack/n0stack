@@ -13,7 +13,7 @@ import (
 )
 
 func (q *Qemu) init() error {
-	if err := q.findProcess(q.id.String()); err != nil {
+	if err := q.findProcess(q.name); err != nil {
 		return fmt.Errorf("Failed to find process: err='%s'", err.Error())
 	}
 

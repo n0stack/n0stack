@@ -1,6 +1,9 @@
 package transaction
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+)
 
 type RollbackTask struct {
 	Name string
@@ -50,6 +53,12 @@ func (tx *Transaction) Rollback() error {
 		return fmt.Errorf(errMes)
 	}
 	return nil
+}
+
+func (tx *Transaction) RollbackWithLog() {
+	if err := tx.Rollback(); err != nil {
+		log.Printf("[CRITICAL] Failed to rollback: err=\n%s", err.Error())
+	}
 }
 
 func (tx *Transaction) Commit() {

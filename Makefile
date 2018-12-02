@@ -116,7 +116,7 @@ clean:
 	# sudo rm -rf vendor
 
 logs:
-	docker-compose logs -f api mock_agent
+	docker-compose logs -f api
 
 increment:
 	bin/n0version increment -write

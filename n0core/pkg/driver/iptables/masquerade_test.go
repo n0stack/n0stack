@@ -3,6 +3,7 @@
 package iptables
 
 import (
+	"net"
 	"testing"
 
 	"github.com/n0stack/n0stack/n0core/pkg/driver/iproute2"
@@ -19,11 +20,12 @@ func TestMasquerade(t *testing.T) {
 		t.Fatalf("failed to set address to bridge: err='%s'", err.Error())
 	}
 
-	if err := CreateMasqueradeRule(b.Name(), "172.31.255.0/24"); err != nil {
+	_, n, _ := net.ParseCIDR("172.31.255.0/24")
+	if err := CreateMasqueradeRule(b.Name(), n); err != nil {
 		t.Errorf("Failed to create masquerade rule: err='%s'", err.Error())
 	}
 
-	if err := DeleteMasqueradeRule(b.Name(), "172.31.255.0/24"); err != nil {
+	if err := DeleteMasqueradeRule(b.Name(), n); err != nil {
 		t.Errorf("Failed to delete masquerade rule: err='%s'", err.Error())
 	}
 }

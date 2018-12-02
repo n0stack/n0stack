@@ -14,6 +14,7 @@ import (
 	"github.com/labstack/echo/middleware"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
 	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning"
+	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/virtualmachine"
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -40,7 +41,7 @@ func ServeAgent(ctx *cli.Context) error {
 	nodeAPI := ctx.String("node-api-endpoint")
 
 	bvm := filepath.Join(baseDirectory, "virtual_machine")
-	vma, err := provisioning.CreateVirtualMachineAgentAPI(bvm)
+	vma, err := virtualmachine.CreateVirtualMachineAgent(bvm)
 	if err != nil {
 		return err
 	}
@@ -72,7 +73,7 @@ func ServeAgent(ctx *cli.Context) error {
 		)),
 	)
 	provisioning.RegisterBlockStorageAgentServiceServer(grpcServer, va)
-	provisioning.RegisterVirtualMachineAgentServiceServer(grpcServer, vma)
+	virtualmachine.RegisterVirtualMachineAgentServiceServer(grpcServer, vma)
 	reflection.Register(grpcServer)
 
 	e := echo.New()

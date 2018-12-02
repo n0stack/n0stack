@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/virtualmachine"
 	"github.com/n0stack/n0stack/n0core/pkg/api/deployment/flavor"
 	"github.com/n0stack/n0stack/n0core/pkg/api/deployment/image"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/network"
@@ -77,7 +78,7 @@ func ServeAPI(ctx *cli.Context) error {
 		return err
 	}
 	defer vmds.Close()
-	vma := provisioning.CreateVirtualMachineAPI(vmds, noc, nec, bsc)
+	vma := virtualmachine.CreateVirtualMachineAPI(vmds, noc, nec, bsc)
 	vmc := pprovisioning.NewVirtualMachineServiceClient(conn)
 
 	statikFs, err := fs.New()

@@ -1,23 +1,25 @@
 package iptables
 
 import (
+	"net"
+
 	"github.com/coreos/go-iptables/iptables"
 	"github.com/pkg/errors"
 )
 
-func structMasqueradeRule(bridgeName, network string) (string, string, []string) {
+func structMasqueradeRule(bridgeName string, network *net.IPNet) (string, string, []string) {
 	return "nat", "POSTROUTING", []string{
 		"!",
 		"-o",
 		bridgeName,
 		"-s",
-		network,
+		network.String(),
 		"-j",
 		"MASQUERADE",
 	}
 }
 
-func CreateMasqueradeRule(bridgeName, network string) error {
+func CreateMasqueradeRule(bridgeName string, network *net.IPNet) error {
 	ipt, err := iptables.New()
 	if err != nil {
 		return errors.Wrapf(err, "Failed to create iptables instance")
@@ -39,7 +41,7 @@ func CreateMasqueradeRule(bridgeName, network string) error {
 	return nil
 }
 
-func DeleteMasqueradeRule(bridgeName, network string) error {
+func DeleteMasqueradeRule(bridgeName string, network *net.IPNet) error {
 	ipt, err := iptables.New()
 	if err != nil {
 		return errors.Wrapf(err, "Failed to create iptables instance")

@@ -29,7 +29,7 @@ func TestAttachTap(t *testing.T) {
 	i.SetMaster(b)
 
 	id, _ := uuid.FromString("5fd6c569-172f-4b25-84cd-b76cc336cfdd")
-	q, err := OpenQemu(&id)
+	q, err := OpenQemu("test")
 	if err != nil {
 		t.Fatalf("Failed to open qemu: err='%s'", err.Error())
 	}
@@ -40,7 +40,7 @@ func TestAttachTap(t *testing.T) {
 	}
 
 	m, _ := bytefmt.ToBytes("512M")
-	if err := q.Start("test", "monitor.sock", 10000, 1, m); err != nil {
+	if err := q.Start(id, "monitor.sock", 10000, 1, m); err != nil {
 		t.Fatalf("Failed to start process: err='%s'", err.Error())
 	}
 

@@ -18,7 +18,6 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
-	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning"
 	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/block_storage"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
 	"github.com/n0stack/n0stack/n0core/pkg/util/grpc"
@@ -63,7 +62,7 @@ func (a *VirtualMachineAPI) addDefaultGateway(ctx context.Context, network *ppoo
 		NetworkInterfaceName: "default-gateway",
 		Ipv4Address:          ip.String(),
 		Annotations: map[string]string{
-			provisioning.AnnotationVirtualMachineVncWebSocketPort: "true",
+			AnnotationVirtualMachineVncWebSocketPort: "true",
 		},
 	})
 
@@ -117,7 +116,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 	}
 
 	tx := transaction.Begin()
-	defer transaction.WrapRollbackError(tx.Rollback())
+	defer tx.RollbackWithLog()
 
 	vm := &pprovisioning.VirtualMachine{
 		Name:        req.Name,
@@ -144,14 +143,16 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		if err := a.dataStore.Get(vm.Name, prev); err != nil {
 			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get data for db: err='%s'", err.Error())
 		} else if prev.Name != "" {
-			return nil, grpcutil.WrapGrpcErrorf(codes.AlreadyExists, "BlockStorage '%s' is already exists", vm.Name)
+			return nil, grpcutil.WrapGrpcErrorf(codes.AlreadyExists, "VirtualMachine '%s' is already exists", vm.Name)
 		}
 
-		unlock, err := a.lockOptimistically(vm)
-		if err != nil {
-			return nil, err
+		vm.State = pprovisioning.VirtualMachine_PENDING
+		if err := a.dataStore.Apply(vm.Name, vm); err != nil {
+			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
 		}
-		tx.PushRollback("free optimistic lock", unlock)
+		tx.PushRollback("free optimistic lock", func() error {
+			return a.dataStore.Delete(vm.Name)
+		})
 	}
 
 	{
@@ -317,6 +318,21 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 
 	tx.Commit()
 	return vm, nil
+}
+
+func GetAPIStateFromAgentState(s VirtualMachineState) pprovisioning.VirtualMachine_VirtualMachineState {
+	switch s {
+	case VirtualMachineState_SHUTDOWN:
+		return pprovisioning.VirtualMachine_SHUTDOWN
+
+	case VirtualMachineState_RUNNING:
+		return pprovisioning.VirtualMachine_RUNNING
+
+	case VirtualMachineState_PAUSED:
+		return pprovisioning.VirtualMachine_PAUSED
+	}
+
+	return pprovisioning.VirtualMachine_UNKNOWN
 }
 
 func (a *VirtualMachineAPI) ListVirtualMachines(ctx context.Context, req *pprovisioning.ListVirtualMachinesRequest) (*pprovisioning.ListVirtualMachinesResponse, error) {
