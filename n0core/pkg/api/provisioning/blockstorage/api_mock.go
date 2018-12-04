@@ -1,4 +1,4 @@
-package provisioning
+package blockstorage
 
 import (
 	"context"
@@ -32,7 +32,7 @@ func (a MockBlockStorageAPI) FactoryBlockStorage(ctx context.Context, nodeName s
 	return a.api.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
 		Name: fmt.Sprintf("factory-network%d", factroyIndex),
 		Annotations: map[string]string{
-			AnnotationRequestNodeName: nodeName,
+			AnnotationBlockStorageRequestNodeName: nodeName,
 		},
 		LimitBytes:   10 * bytefmt.GIGABYTE,
 		RequestBytes: 10 * bytefmt.GIGABYTE,

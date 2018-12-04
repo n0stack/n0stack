@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/virtualmachine"
 	"github.com/n0stack/n0stack/n0core/pkg/api/deployment/flavor"
 	"github.com/n0stack/n0stack/n0core/pkg/api/deployment/image"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/network"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
-	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning"
+	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/blockstorage"
+	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/virtualmachine"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/etcd"
 	"github.com/n0stack/n0stack/n0proto.go/deployment/v0"
 	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
@@ -70,7 +70,7 @@ func ServeAPI(ctx *cli.Context) error {
 		return err
 	}
 	defer bsds.Close()
-	bsa := provisioning.CreateBlockStorageAPI(bsds, noc)
+	bsa := blockstorage.CreateBlockStorageAPI(bsds, noc)
 	bsc := pprovisioning.NewBlockStorageServiceClient(conn)
 
 	vmds, err := etcd.NewEtcdDatastore(etcdEndpoints)

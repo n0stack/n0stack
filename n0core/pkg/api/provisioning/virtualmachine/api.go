@@ -18,7 +18,7 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
-	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/block_storage"
+	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/blockstorage"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
 	"github.com/n0stack/n0stack/n0core/pkg/util/grpc"
 	"github.com/n0stack/n0stack/n0core/pkg/util/net"
@@ -308,7 +308,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 			return err
 		})
 
-		vm.Annotations[AnnotationNetworkInterfaceIsGateway] = strconv.Itoa(int(res.WebsocketPort))
+		vm.Annotations[AnnotationVirtualMachineVncWebSocketPort] = strconv.Itoa(int(res.WebsocketPort))
 		vm.State = GetAPIStateFromAgentState(res.State)
 	}
 
@@ -380,11 +380,31 @@ func (a *VirtualMachineAPI) UpdateVirtualMachine(ctx context.Context, req *pprov
 }
 
 func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprovisioning.DeleteVirtualMachineRequest) (*empty.Empty, error) {
+	tx := transaction.Begin()
+	defer tx.RollbackWithLog()
+
 	vm := &pprovisioning.VirtualMachine{}
-	if err := a.dataStore.Get(req.Name, vm); err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get '%s' from db: err='%s'", req.Name, err.Error())
-	} else if vm.Name == "" {
-		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "")
+	{
+		if err := a.dataStore.Get(req.Name, vm); err != nil {
+			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get '%s' from db: err='%s'", req.Name, err.Error())
+		} else if vm.Name == "" {
+			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "")
+		}
+
+		if vm.State == pprovisioning.VirtualMachine_PENDING {
+			return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "VirtualMachine '%s' is pending", req.Name)
+		}
+
+		current := vm.State
+		vm.State = pprovisioning.VirtualMachine_PENDING
+		if err := a.dataStore.Apply(vm.Name, vm); err != nil {
+			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
+		}
+		vm.State = current
+		tx.PushRollback("free optimistic lock", func() error {
+			vm.State = current
+			return a.dataStore.Apply(vm.Name, vm)
+		})
 	}
 
 	{
@@ -445,6 +465,7 @@ func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprov
 		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "message:Failed to delete from db.\tgot:%v", err.Error())
 	}
 
+	tx.Commit()
 	return &empty.Empty{}, nil
 }
 

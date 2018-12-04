@@ -1,4 +1,4 @@
-package provisioning
+package blockstorage
 
 import (
 	"context"
@@ -52,7 +52,7 @@ func TestCreateBlockStorage(t *testing.T) {
 	bs := &pprovisioning.BlockStorage{
 		Name: "test-block-storage",
 		Annotations: map[string]string{
-			AnnotationRequestNodeName: mnode.Name,
+			AnnotationBlockStorageRequestNodeName: mnode.Name,
 		},
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
@@ -113,7 +113,7 @@ func TestFetchBlockStorage(t *testing.T) {
 	bs := &pprovisioning.BlockStorage{
 		Name: "test-block-storage",
 		Annotations: map[string]string{
-			AnnotationRequestNodeName: mnode.Name,
+			AnnotationBlockStorageRequestNodeName: mnode.Name,
 		},
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
@@ -178,7 +178,7 @@ func TestBlockStorageAboutInUseState(t *testing.T) {
 	bs := &pprovisioning.BlockStorage{
 		Name: "test-block-storage",
 		Annotations: map[string]string{
-			AnnotationRequestNodeName: mnode.Name,
+			AnnotationBlockStorageRequestNodeName: mnode.Name,
 		},
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
@@ -242,7 +242,7 @@ func TestBlockStorageAboutProtectedState(t *testing.T) {
 	bs := &pprovisioning.BlockStorage{
 		Name: "test-block-storage",
 		Annotations: map[string]string{
-			AnnotationRequestNodeName: mnode.Name,
+			AnnotationBlockStorageRequestNodeName: mnode.Name,
 		},
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
@@ -306,7 +306,7 @@ func TestCopyBlockStorage(t *testing.T) {
 	bs := &pprovisioning.BlockStorage{
 		Name: "test-block-storage",
 		Annotations: map[string]string{
-			AnnotationRequestNodeName: mnode.Name,
+			AnnotationBlockStorageRequestNodeName: mnode.Name,
 		},
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,

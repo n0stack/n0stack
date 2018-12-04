@@ -8,7 +8,7 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/network"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
-	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning"
+	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/blockstorage"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/memory"
 	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
 	"google.golang.org/grpc"
@@ -18,7 +18,7 @@ type MockVirtualMachineAPI struct {
 	api             *VirtualMachineAPI
 	NodeAPI         *node.MockNodeAPI
 	NetworkAPI      *network.MockNetworkAPI
-	BlockStorageAPI *provisioning.MockBlockStorageAPI
+	BlockStorageAPI *blockstorage.MockBlockStorageAPI
 }
 
 // どうもサービスが始まるまでのタイムラグがあるせいで、性能の悪いデバイスでは安定性が悪い
@@ -31,7 +31,7 @@ func UpMockAgent(address string) error {
 	}
 
 	grpcServer := grpc.NewServer()
-	provisioning.RegisterBlockStorageAgentServiceServer(grpcServer, &provisioning.MockBlockStorageAgentAPI{})
+	blockstorage.RegisterBlockStorageAgentServiceServer(grpcServer, &blockstorage.MockBlockStorageAgentAPI{})
 	RegisterVirtualMachineAgentServiceServer(grpcServer, &VirtualMachineAgentMock{})
 	return grpcServer.Serve(lis)
 }
@@ -39,7 +39,7 @@ func UpMockAgent(address string) error {
 func NewMockVirtualMachineAPI(datastore *memory.MemoryDatastore) *MockVirtualMachineAPI {
 	noa := node.NewMockNodeAPI(datastore)
 	nea := network.NewMockNetworkAPI(datastore)
-	bsa := provisioning.NewMockBlcokStorageAPI(datastore)
+	bsa := blockstorage.NewMockBlcokStorageAPI(datastore)
 
 	a := CreateVirtualMachineAPI(datastore, noa, nea, bsa)
 	return &MockVirtualMachineAPI{a, noa, nea, bsa}

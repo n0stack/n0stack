@@ -13,7 +13,7 @@ import (
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
-	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning"
+	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/blockstorage"
 	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/virtualmachine"
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
@@ -47,7 +47,7 @@ func ServeAgent(ctx *cli.Context) error {
 	}
 
 	bbs := filepath.Join(baseDirectory, "block_storage")
-	va, err := provisioning.CreateBlockStorageAgentAPI(bbs)
+	va, err := blockstorage.CreateBlockStorageAgentAPI(bbs)
 	if err != nil {
 		return err
 	}
@@ -72,14 +72,14 @@ func ServeAgent(ctx *cli.Context) error {
 			// grpc_prometheus.UnaryServerInterceptor,
 		)),
 	)
-	provisioning.RegisterBlockStorageAgentServiceServer(grpcServer, va)
+	blockstorage.RegisterBlockStorageAgentServiceServer(grpcServer, va)
 	virtualmachine.RegisterVirtualMachineAgentServiceServer(grpcServer, vma)
 	reflection.Register(grpcServer)
 
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	e.Static(provisioning.DownloadBlockStorageHTTPPrefix, bbs)
+	e.Static(blockstorage.DownloadBlockStorageHTTPPrefix, bbs)
 
 	if err := node.RegisterNodeToAPI(nodeName, advertiseAddress, nodeAPI); err != nil {
 		return err

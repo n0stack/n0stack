@@ -120,7 +120,7 @@ func main() {
 		},
 	}
 
-	log.SetFlags(log.Lshortfile | log.Ltime | log.Lmicroseconds)
+	log.SetFlags(log.Llongfile | log.Ltime | log.Lmicroseconds)
 
 	if err := app.Run(os.Args); err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to start process, err:%s\n", err.Error())

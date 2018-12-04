@@ -1,7 +1,7 @@
 // +build medium
 // +build !without_external
 
-package provisioning
+package blockstorage
 
 import (
 	"context"
@@ -32,9 +32,7 @@ func TestAgentCreateEmptyBlockStorage(t *testing.T) {
 		t.Fatalf("CreateEmptyBlockStorage got error: err=%s", err.Error())
 	}
 	if diff := cmp.Diff(&CreateEmptyBlockStorageResponse{
-		Name:  name,
-		Bytes: size,
-		Path:  path,
+		Path: path,
 	}, createRes); diff != "" {
 		t.Errorf("CreateEmptyBlockStorage response is wrong: diff=(-want +got)\n%s", diff)
 	}
@@ -65,9 +63,7 @@ func TestAgentFetchBlockStorage(t *testing.T) {
 		t.Fatalf("[http] FetchBlockStorage got error: err=%s", err.Error())
 	}
 	if diff := cmp.Diff(&FetchBlockStorageResponse{
-		Name:  name,
-		Bytes: size,
-		Path:  path,
+		Path: path,
 	}, fetchRes); diff != "" {
 		t.Errorf("[http] FetchBlockStorage response is wrong: diff=(-want +got)\n%s", diff)
 	}
@@ -86,9 +82,7 @@ func TestAgentFetchBlockStorage(t *testing.T) {
 		t.Fatalf("[file] FetchBlockStorage got error: err=%s", err.Error())
 	}
 	if diff := cmp.Diff(&FetchBlockStorageResponse{
-		Name:  fname,
-		Bytes: size,
-		Path:  fpath,
+		Path: fpath,
 	}, ffetchRes); diff != "" {
 		t.Errorf("[file] FetchBlockStorage response is wrong: diff=(-want +got)\n%s", diff)
 	}
