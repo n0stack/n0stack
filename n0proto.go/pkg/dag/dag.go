@@ -237,9 +237,9 @@ func DoDAG(tasks map[string]*Task, out io.Writer, conn *grpc.ClientConn) bool {
 			res, _ := Marshaler.MarshalToString(r.Res)
 
 			if failed {
-				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s', which was requested until failed, is finished\n--- Response ---\n%s\n", done, total, r.Name, res)
+				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s', which was requested until failed, is finished\n%s\n\n", done, total, r.Name, res)
 			} else {
-				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s' is finished\n--- Response ---\n%s\n", done, total, r.Name, res)
+				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s' is finished\n%s\n\n", done, total, r.Name, res)
 			}
 		}
 
