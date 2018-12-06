@@ -168,7 +168,7 @@ func (a *BlockStorageAPI) CreateBlockStorage(ctx context.Context, req *pprovisio
 			grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to create block_storage on node '%s': err='%s'", bs.NodeName, err.Error())
 		}
 		tx.PushRollback("DeleteBlockStorage", func() error {
-			_, err = cli.DeleteBlockStorage(context.Background(), &DeleteBlockStorageRequest{Path: v.Path})
+			_, err = cli.DeleteBlockStorage(ctx, &DeleteBlockStorageRequest{Path: v.Path})
 			if err != nil {
 				return err
 			}
