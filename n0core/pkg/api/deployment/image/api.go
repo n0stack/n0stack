@@ -8,6 +8,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
+	"github.com/n0stack/n0stack/n0core/pkg/util/grpc"
 	"github.com/n0stack/n0stack/n0proto.go/deployment/v0"
 	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
 	"google.golang.org/grpc"
@@ -105,8 +106,7 @@ func (a ImageAPI) DeleteImage(ctx context.Context, req *pdeployment.DeleteImageR
 	for _, bs := range prev.RegisteredBlockStorages {
 		_, err := a.blockstorageAPI.SetAvailableBlockStorage(context.Background(), &pprovisioning.SetAvailableBlockStorageRequest{Name: bs.BlockStorageName})
 		if err != nil {
-			log.Printf("[WARNING] Failed to set blockstorage as available: err='%s'", err.Error())
-			return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
+			return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to SetAvailableBlockStorage: desc=%s", grpc.ErrorDesc(err))
 		}
 	}
 
@@ -133,8 +133,7 @@ func (a ImageAPI) RegisterBlockStorage(ctx context.Context, req *pdeployment.Reg
 
 	bs, err := a.blockstorageAPI.SetProtectedBlockStorage(context.Background(), &pprovisioning.SetProtectedBlockStorageRequest{Name: req.BlockStorageName})
 	if err != nil {
-		log.Printf("[WARNING] Failed to set blockstorage as protected: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.ImageName)
+		return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to SetProtectedBlockStorage: desc=%s", grpc.ErrorDesc(err))
 	}
 
 	res.RegisteredBlockStorages = append(res.RegisteredBlockStorages, &pdeployment.Image_RegisteredBlockStorage{
@@ -168,8 +167,7 @@ func (a ImageAPI) UnregisterBlockStorage(ctx context.Context, req *pdeployment.U
 
 	_, err := a.blockstorageAPI.SetAvailableBlockStorage(context.Background(), &pprovisioning.SetAvailableBlockStorageRequest{Name: req.BlockStorageName})
 	if err != nil {
-		log.Printf("[WARNING] Failed to set blockstorage as protected: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.ImageName)
+		return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to SetAvailableBlockStorage: desc=%s", grpc.ErrorDesc(err))
 	}
 
 	for i, bs := range res.RegisteredBlockStorages {
@@ -218,9 +216,7 @@ func (a ImageAPI) GenerateBlockStorage(ctx context.Context, req *pdeployment.Gen
 		LimitBytes:         req.LimitBytes,
 	})
 	if err != nil {
-		log.Printf("[WARNING] Failed to copy blockstorage: err='%s'", err.Error())
-		// already exists を判定したほうがいいような気がするが、とりあえず err をそのまま返すことで対処する
-		return nil, err
+		return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to CopyBlockStorage: desc=%s", grpc.ErrorDesc(err))
 	}
 
 	return bs, nil
