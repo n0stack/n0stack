@@ -1,0 +1,48 @@
+DeleteVirtualMachine:
+  type: VirtualMachine
+  action: DeleteVirtualMachine
+  args:
+    name: debug
+
+ReleaseCompute:
+  type: Node
+  action: ReleaseCompute
+  args:
+    node_name: run-all-in-one
+    compute_name: debug
+  depends_on:
+    - DeleteVirtualMachine
+  ignore_error: true
+
+SetAvailableBlockStorage:
+  type: BlockStorage
+  action: SetAvailableBlockStorage
+  args:
+    name: debug
+  depends_on:
+    - DeleteVirtualMachine
+  ignore_error: true
+
+DeleteBlockStorage:
+  type: BlockStorage
+  action: DeleteBlockStorage
+  args:
+    name: debug
+  depends_on:
+    - SetAvailableBlockStorage
+
+DeleteNetwork:
+  type: Network
+  action: DeleteNetwork
+  args:
+    name: debug_network
+  depends_on:
+    - DeleteVirtualMachine
+  
+DeleteImage:
+  type: Image
+  action: DeleteImage
+  args:
+    name: cloudimage-ubuntu
+  depends_on:
+    - DeleteVirtualMachine

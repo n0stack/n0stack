@@ -1,0 +1,100 @@
+DeleteVirtualMachine:
+  type: VirtualMachine
+  action: DeleteVirtualMachine
+  args:
+    name: debug
+  ignore_error: true
+
+ReleaseCompute:
+  type: Node
+  action: ReleaseCompute
+  args:
+    node_name: vm-host1
+    compute_name: debug
+  depends_on:
+    - DeleteVirtualMachine
+  ignore_error: true
+
+SetBlockStorage:
+  type: BlockStorage
+  action: SetAvailableBlockStorage
+  args:
+    name: debug
+  depends_on:
+    - DeleteVirtualMachine
+  ignore_error: true
+
+DeleteBlockStorage:
+  type: BlockStorage
+  action: DeleteBlockStorage
+  args:
+    name: debug
+  depends_on:
+    - SetBlockStorage
+  ignore_error: true
+
+GenerateBlockStorage:
+  type: Image
+  action: GenerateBlockStorage
+  args:
+    image_name: cloudimage-ubuntu
+    tag: "1804"
+    block_storage_name: debug
+    annotations:
+      n0core/provisioning/block_storage/request_node_name: vm-host1
+    request_bytes: 1073741824
+    limit_bytes: 10737418240
+  depends_on:
+    - DeleteBlockStorage
+
+DeleteNetwork:
+  type: Network
+  action: DeleteNetwork
+  args:
+    name: debug_network
+  depends_on:
+    - DeleteVirtualMachine
+  ignore_error: true
+
+ApplyNetwork:
+  type: Network
+  action: ApplyNetwork
+  args:
+    name: debug_network
+    ipv4_cidr: 192.168.0.0/24
+    annotations:
+      n0core/provisioning/virtual_machine/vlan_id: "100"
+  depends_on:
+    - DeleteNetwork
+
+CreateVirtualMachine:
+  type: VirtualMachine
+  action: CreateVirtualMachine
+  args:
+    name: debug
+    annotations:
+      n0core/provisioning/virtual_machine/request_node_name: vm-host1
+    request_cpu_milli_core: 10
+    limit_cpu_milli_core: 1000
+    request_memory_bytes: 536870912
+    limit_memory_bytes: 536870912
+    block_storage_names:
+      - debug
+    nics:
+      - network_name: debug_network
+    uuid: 056d2ccd-0c4c-44dc-a2c8-39a9d394b51f
+    login_username: test
+    ssh_authorized_keys:
+      - ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBITowPn2Ol1eCvXN5XV+Lb6jfXzgDbXyEdtayadDUJtFrcN2m2mjC1B20VBAoJcZtSYkmjrllS06Q26Te5sTYvE= testkey
+  depends_on:
+    - ReleaseCompute
+    - GenerateBlockStorage
+    - ApplyNetwork
+
+OpenConsole:
+  type: VirtualMachine
+  action: OpenConsole
+  args:
+    name: debug
+  depends_on:
+    - CreateVirtualMachine
