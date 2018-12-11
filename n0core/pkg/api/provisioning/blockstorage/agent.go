@@ -49,7 +49,7 @@ func (a *BlockStorageAgentAPI) CreateEmptyBlockStorage(ctx context.Context, req 
 		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Cannot open '%s': err='%s'", path, err.Error())
 	}
 	if i.IsExists() {
-		return res, grpcutil.WrapGrpcErrorf(codes.AlreadyExists, "")
+		return res, grpcutil.WrapGrpcErrorf(codes.AlreadyExists, "image file has already exists")
 	}
 
 	if err := i.Create(req.Bytes); err != nil {
@@ -71,7 +71,7 @@ func (a *BlockStorageAgentAPI) FetchBlockStorage(ctx context.Context, req *Fetch
 		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Cannot open '%s': err='%s'", path, err.Error())
 	}
 	if i.IsExists() {
-		return res, grpcutil.WrapGrpcErrorf(codes.AlreadyExists, "")
+		return res, grpcutil.WrapGrpcErrorf(codes.AlreadyExists, "image file has already exists")
 	}
 
 	u, err := url.Parse(req.SourceUrl)
@@ -109,7 +109,7 @@ func (a *BlockStorageAgentAPI) DeleteBlockStorage(ctx context.Context, req *Dele
 		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Cannot open '%s': err='%s'", req.Path, err.Error())
 	}
 	if !i.IsExists() {
-		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "")
+		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "image file do not exists")
 	}
 
 	if err := i.Delete(); err != nil {
