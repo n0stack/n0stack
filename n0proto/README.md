@@ -1,18 +1,51 @@
 # n0proto
 
-Protobuf definitions for all of n0stack services
+Protobuf definitions for all of n0stack services.
 
-## 原則
+## Principles
 
-- あくまでprotoファイルにはどんな環境でも共有であることが自明な値のみを定義する
-  - 実装に依存する値は `annotations` にいれる
-  - 例えば、ボリュームのURLなどは実装に依存する
+- Do not define variables that change with implementation, such values ​​should be placed in "annotations".
+    - e.g. VLAN ID and VXLAN ID
 
-### 標準フィールド
+## Entity groups
 
-- Metadata (1 ~ 9): 管理に必要な情報をいれる
-- Spec   (10 ~ 49): 実装に依存しない汎用的なモデルの設計をいれる
-- Status    (50 ~): 実装に依存しない汎用的なモデルの状態をいれる
+![](../docs/images/dependency_map.svg)
+
+### [Budget](budget/)
+
+Budget define data structure about resource budget: CPU, Memory, IP address, MAC address, storage, and so on.
+
+### [Pool](pool/)
+
+Pool ensure Budgets.
+
+### [Provisioning](provisioning/)
+
+Provisioning create virtual resources on ensured budget.
+
+### [Deployment](deployment/)
+
+Deployment abstract Provisioning operations.
+
+### [Configuration](configuration/)
+
+Configuration setting up Provisioning.
+
+## How to build
+
+- Required Docker
+- Generating Golang and Python files on n0proto.go and n0proto.py
+
+```
+cd ..
+make build-n0proto-on-docker
+```
+
+## Standard fields
+
+- Metadata (1 ~ 9)
+- Spec (10 ~ 49)
+- Status (50 ~)
 
 ```pb
   // Make unique!!
@@ -21,17 +54,4 @@ Protobuf definitions for all of n0stack services
 
   map<string, string> annotations = 3;
   // map<string, string> labels = 4;
-
-  // Version is used for optimistic lock.
-  // Start from 0.
-  // Getした値とApplyする値が一致した場合、受け入れられる
-  uint64 version = 5;
 ```
-
-#### 書き込みの優先順位
-
-|  | API | User | Component |
-| -- | -- | -- | -- |
-| Metadata | 2 | 1 | - |
-| Spec | - | 1 | - |
-| Status | 1 | - | - |
