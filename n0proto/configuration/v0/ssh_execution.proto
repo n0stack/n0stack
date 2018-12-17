@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+option go_package = "github.com/n0stack/n0stack/n0proto.go/configuration/v0;pconfiguration";
+
+package n0stack.configuration;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+
+message SSHExecutionResult {
+  string virtual_machine_name = 1;
+  string key_secret_name = 2;
+  google.protobuf.Timestamp started_at = 3;
+  google.protobuf.Timestamp finished_at = 4;
+
+
+  string output = 5;
+}
+message SSHExecution {
+  string name = 1;
+  map<string, string> annotations = 3;
+
+  repeated string commands = 10;
+
+  repeated string results = 50;
+}
+
+
+service SSHExecutionService {
+  rpc ListSSHExecutions(ListSSHExecutionsRequest) returns (ListSSHExecutionsResponse) {}
+  rpc GetSSHExecution(GetSSHExecutionRequest) returns (SSHExecution) {}
+  rpc ApplySSHExecution(ApplySSHExecutionRequest) returns (SSHExecution) {}
+  rpc DeleteSSHExecution(DeleteSSHExecutionRequest) returns (google.protobuf.Empty) {}
+
+  // TODO: `returns (stream ...)` looks more good, but stream is not supported by n0cli.
+  rpc RunSSHExecution(RunSSHExecutionRequest) returns (SSHExecutionResult) {}
+}
+
+
+message ListSSHExecutionsRequest {}
+message ListSSHExecutionsResponse {
+  repeated SSHExecution sshs = 1;
+}
+
+message GetSSHExecutionRequest {
+  string name = 1;
+}
+
+message ApplySSHExecutionRequest {
+  string name = 1;
+  map<string, string> annotations = 3;
+
+  repeated string commands = 10;
+}
+
+message DeleteSSHExecutionRequest {
+  string name = 1;
+}
+
+message RunSSHExecutionRequest {
+  message SSHExecutionVirtualMachineFilter {
+    string name = 1;
+    map<string, string> label = 2;
+  }
+  SSHExecutionVirtualMachineFilter filter = 1;
+  string username = 2;
+  string key_secret_name = 3;
+
+  map<string, string> environment_variables = 4;
+}
