@@ -1,0 +1,12 @@
+*
+
+!bin/
+!n0cli/
+!n0core/
+!n0proto.go/
+
+!VERSION
+!LICENSE
+!Makefile
+!go.mod
+!go.sum
