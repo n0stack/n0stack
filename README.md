@@ -15,7 +15,7 @@ The n0stack is a simple cloud provider using gRPC.
 The n0stack is...
 
 - a cloud provider.
-    - You can use some features: booting VMs, managing networks and so on.
+    - You can use some features: booting VMs, managing networks and so on (see also [n0proto](n0proto/).)
 - simple.
     - There are shortcode and fewer options.
 - using gRPC.
