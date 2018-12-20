@@ -1,4 +1,5 @@
-FROM golang:1.11
+# Golang 1.11.1 is stable to run "go mod".
+FROM golang:1.11.1
 
 # for n0core
 RUN apt-get update \
