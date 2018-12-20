@@ -17,7 +17,6 @@ import (
 
 	"github.com/n0stack/n0stack/n0core/pkg/driver/cloudinit/configdrive"
 	"github.com/n0stack/n0stack/n0core/pkg/driver/iproute2"
-	"github.com/n0stack/n0stack/n0core/pkg/driver/iptables"
 	"github.com/n0stack/n0stack/n0core/pkg/driver/qemu"
 	"github.com/n0stack/n0stack/n0core/pkg/driver/qemu_img"
 	"github.com/n0stack/n0stack/n0core/pkg/util/grpc"
@@ -184,13 +183,6 @@ func (a VirtualMachineAgent) BootVirtualMachine(ctx context.Context, req *BootVi
 				if err := b.SetAddress(gatewayIP); err != nil {
 					return nil, grpcutil.WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to set gateway IP to bridge: value=%s", gatewayIP).Error())
 				}
-
-				if iptables.CreateMasqueradeRule(b.Name(), ipn); err != nil {
-					return nil, grpcutil.WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to create masquerade rule").Error())
-				}
-				tx.PushRollback("delete masquerade rule", func() error {
-					return iptables.DeleteMasqueradeRule(b.Name(), ipn)
-				})
 			}
 		}
 	}
@@ -327,9 +319,6 @@ func (a VirtualMachineAgent) DeleteVirtualMachine(ctx context.Context, req *Dele
 				ip := netutil.ParseCIDR(nd.Ipv4AddressCidr)
 				if ip == nil {
 					return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Set valid ipv4_address_cidr: value='%s'", nd.Ipv4AddressCidr)
-				}
-				if err := iptables.DeleteMasqueradeRule(b.Name(), ip.Network()); err != nil {
-					return nil, grpcutil.WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to delete masquerade rule").Error())
 				}
 			}
 		}
