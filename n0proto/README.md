@@ -2,12 +2,7 @@
 
 Protobuf definitions for all of n0stack services.
 
-## Principles
-
-- Do not define variables that change with implementation, such values ​​should be placed in "annotations".
-    - e.g. VLAN ID and VXLAN ID
-
-## Entity groups
+## Resource groups
 
 ![](../docs/images/dependency_map.svg)
 
@@ -41,7 +36,12 @@ cd ..
 make build-n0proto-on-docker
 ```
 
-## Standard fields
+## Principles
+
+- Do not define variables that change with implementation, such values ​​should be placed in "annotations".
+    - e.g. VLAN ID and VXLAN ID
+
+### Standard fields
 
 - Metadata (1 ~ 9)
 - Spec (10 ~ 49)
