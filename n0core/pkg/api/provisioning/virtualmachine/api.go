@@ -265,7 +265,9 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
 	}
 
-	if _, err := a.BootVirtualMachine(ctx, &pprovisioning.BootVirtualMachineRequest{Name: vm.Name}); err != nil {
+	var err error
+	vm, err = a.BootVirtualMachine(ctx, &pprovisioning.BootVirtualMachineRequest{Name: vm.Name})
+	if err != nil {
 		return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), errors.Wrapf(err, "Failed to BootVirtualMachineRequest").Error())
 	}
 

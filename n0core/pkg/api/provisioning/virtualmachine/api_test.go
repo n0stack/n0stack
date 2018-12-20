@@ -38,7 +38,8 @@ func TestCreateVirtualMachine(t *testing.T) {
 	vm := &pprovisioning.VirtualMachine{
 		Name: "test-virtual-machine",
 		Annotations: map[string]string{
-			AnnotationVirtualMachineRequestNodeName: mnode.Name,
+			AnnotationVirtualMachineRequestNodeName:  mnode.Name,
+			AnnotationVirtualMachineVncWebSocketPort: "6900",
 		},
 
 		LimitCpuMilliCore:   1000,
@@ -78,6 +79,7 @@ func TestCreateVirtualMachine(t *testing.T) {
 	}
 	createRes.XXX_sizecache = 0
 	createRes.Nics[0].XXX_sizecache = 0
+	vm.Nics[0].XXX_sizecache = 0
 	if diff := cmp.Diff(vm, createRes); diff != "" {
 		t.Errorf("CreateVirtualMachine response is wrong: diff=(-want +got)\n%s", diff)
 	}
