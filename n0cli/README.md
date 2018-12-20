@@ -1,71 +1,102 @@
 # n0cli
 
-CLI for end-user
+CLI for n0stack API.
 
-## Command
+<!-- ## Demo -->
 
-## Example
+## Usage
 
-```sh
-% n0core/bin/n0cli get network
-get.go:122: [DEBUG] Connected to 'localhost:20180'
-got error response: rpc error: code = NotFound desc =
+See also command help.
 
-% n0core/bin/n0cli do n0core/examples/n0cli/get.yaml
-do.go:44: [DEBUG] Connected to 'localhost:20180'
----> Task 'g3' is started
-dag.go:169: [DEBUG] Task 'g3' is started: &{ResourceType:Node Action:ListNodes Args:map[] DependOn:[] child:[g1 g2] depends:0}
----> [ 1/3 ] Task 'g3' is finished
---- Response ---
-{
-  "nodes": [
-    {
-      "name": "mock-node",
-      "version": 10,
-      "address": "10.20.180.4",
-      "cpu_milli_cores": 4000,
-      "memory_bytes": 16692797440,
-      "storage_bytes": 107374182400,
-      "state": 1
-    }
-  ]
-}
----> Task 'g1' is started
-dag.go:205: [DEBUG] Task 'g1' is started: &{ResourceType:Network Action:ApplyNetwork Args:map[ipv4_cidr:10.100.100.0/24 domain:test.local name:test-network] DependOn:[g3] child:[] depends:0}
----> Task 'g2' is started
-dag.go:205: [DEBUG] Task 'g2' is started: &{ResourceType:Node Action:GetNode Args:map[name:mock-node] DependOn:[g3] child:[] depends:0}
----> [ 2/3 ] Task 'g2' is finished
---- Response ---
-{
-  "name": "mock-node",
-  "version": 10,
-  "address": "10.20.180.4",
-  "cpu_milli_cores": 4000,
-  "memory_bytes": 16692797440,
-  "storage_bytes": 107374182400,
-  "state": 1
-}
----> [ 3/3 ] Task 'g1' is finished
---- Response ---
-{
-  "name": "test-network",
-  "version": 1,
-  "ipv4_cidr": "10.100.100.0/24",
-  "domain": "test.local",
-  "state": 2
-}
-DAG tasks are completed
+```
+% bin/n0cli -h
+NAME:
+   n0cli - the n0stack CLI application
 
-% bin/n0cli get network
-get.go:122: [DEBUG] Connected to 'localhost:20180'
-{
-  "networks": [
-    {
-      "name": "test-network",
-      "ipv4_cidr": "10.100.100.0/24",
-      "domain": "test.local",
-      "state": 2
-    }
-  ]
-}
+USAGE:
+   n0cli [global options] command [command options] [arguments...]
+
+VERSION:
+   28
+
+COMMANDS:
+     get      Get resource if set resource name, List resources if not set
+     delete   Delete resource
+     do       Do DAG tasks (Detail n0stack/pkg/dag)
+     help, h  Shows a list of commands or help for one command
+
+GLOBAL OPTIONS:
+   --api-endpoint value  (default: "localhost:20180") [$N0CLI_API_ENDPOINT]
+   --help, -h            show help
+   --version, -v         print the version
+
+```
+
+```
+% bin/n0cli get -h
+NAME:
+   n0cli get - Get resource if set resource name, List resources if not set
+
+USAGE:
+   n0cli get [resource type] [resource name]
+```
+
+```
+% bin/n0cli delete -h
+NAME:
+   n0cli delete - Delete resource
+
+USAGE:
+   n0cli delete [resource type] [resource name]
+
+% bin/n0cli do -h
+NAME:
+   n0cli do - Do DAG tasks (Detail n0stack/pkg/dag)
+
+USAGE:
+   n0cli do [file name]
+
+DESCRIPTION:
+
+  ## File format
+
+  ---
+  task_name:
+    type: Network
+    action: GetNetwork
+    args:
+      name: test-network
+    depend_on:
+      - dependency_task_name
+    ignore_error: true
+  dependency_task_name:
+    type: ...
+  ---
+
+  - task_name
+      - 任意の名前をつけ、ひとつのリクエストに対してユニークなものにする
+  - type
+      - gRPC メッセージを指定する
+      - VirtualMachine や virtual_machine という形で指定できる
+  - action
+      - gRPC の RPC を指定する
+      - GetNetwork など定義のとおりに書く
+  - args
+      - gRPC の RPCのリクエストを書く
+  - depend_on
+      - DAG スケジューリングに用いられる
+      - task_name を指定する
+  - ignore_error
+      - タスクでエラーが発生しても継続する
+```
+
+## Environment
+
+- Ubuntu 18.04 LTS (Bionic Beaver)
+
+## How to build
+
+```
+cd ..
+make build-n0cli
 ```

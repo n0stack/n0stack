@@ -15,7 +15,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "n0cli"
 	app.Version = version
-	// app.Usage = ""
+	app.Usage = "the n0stack CLI application"
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
