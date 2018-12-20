@@ -42,3 +42,39 @@ func TestIPv4Cidr(t *testing.T) {
 		t.Errorf("SubnetMaskIP() is wrong: have='%s', want='%s'", cidr.SubnetMaskIP().String(), "192.168.0.2")
 	}
 }
+
+func TestIsConflicting(t *testing.T) {
+	cases := []struct {
+		name   string
+		inputA *IPv4Cidr
+		inputB *IPv4Cidr
+		result bool
+	}{
+		{
+			"not conflicting",
+			ParseCIDR("192.168.0.0/24"),
+			ParseCIDR("192.168.1.0/24"),
+			false,
+		},
+		{
+			"contain",
+			ParseCIDR("192.168.0.0/23"),
+			ParseCIDR("192.168.1.0/24"),
+			true,
+		},
+		{
+			"contain",
+			ParseCIDR("192.168.0.0/20"),
+			ParseCIDR("192.168.1.0/24"),
+			true,
+		},
+	}
+
+	for _, c := range cases {
+		have := IsConflicting(c.inputA, c.inputB)
+
+		if have != c.result {
+			t.Errorf("[%s] Result has mismatch: want=%v, have=%v", c.name, c.result, have)
+		}
+	}
+}

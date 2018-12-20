@@ -84,3 +84,11 @@ func (c IPv4Cidr) SubnetMaskBits() int {
 func (c IPv4Cidr) SubnetMaskIP() net.IP {
 	return net.IPv4(c.network.Mask[0], c.network.Mask[1], c.network.Mask[2], c.network.Mask[3])
 }
+
+func IsConflicting(a, b *IPv4Cidr) bool {
+	if a.Network().Contains(b.IP()) || b.Network().Contains(a.IP()) {
+		return true
+	}
+
+	return false
+}
