@@ -62,7 +62,7 @@ func (a *VirtualMachineAPI) addDefaultGateway(ctx context.Context, network *ppoo
 		NetworkInterfaceName: "default-gateway",
 		Ipv4Address:          ip.String(),
 		Annotations: map[string]string{
-			AnnotationVirtualMachineVncWebSocketPort: "true",
+			AnnotationNetworkInterfaceIsGateway: "true",
 		},
 	})
 
@@ -153,6 +153,8 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		tx.PushRollback("free optimistic lock", func() error {
 			return a.dataStore.Delete(vm.Name)
 		})
+
+		vm.State = pprovisioning.VirtualMachine_UNKNOWN
 	}
 
 	{
@@ -202,27 +204,18 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		})
 	}
 
-	blockdevs := make([]*BlockDev, len(vm.BlockStorageNames))
 	{
-		for i, n := range vm.BlockStorageNames {
-			v, err := a.blockstorageAPI.SetInuseBlockStorage(ctx, &pprovisioning.SetInuseBlockStorageRequest{Name: n})
-			if err != nil {
+		for _, n := range vm.BlockStorageNames {
+			if _, err := a.blockstorageAPI.SetInuseBlockStorage(ctx, &pprovisioning.SetInuseBlockStorageRequest{Name: n}); err != nil {
 				return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to SetInuseBlockStorage: desc=%s", grpc.ErrorDesc(err))
 			}
 			tx.PushRollback(fmt.Sprintf("SetAvailableBlockStorage '%s'", n), func() error {
 				_, err := a.blockstorageAPI.SetAvailableBlockStorage(ctx, &pprovisioning.SetAvailableBlockStorageRequest{Name: n})
 				return err
 			})
-
-			blockdevs[i] = &BlockDev{
-				Name:      n,
-				Url:       v.Annotations[blockstorage.AnnotationBlockStorageURL],
-				BootIndex: uint32(i),
-			}
 		}
 	}
 
-	netdevs := make([]*NetDev, len(vm.Nics))
 	{
 		vm.NetworkInterfaceNames = make([]string, len(vm.Nics))
 
@@ -254,66 +247,26 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 			vm.Nics[i].Ipv4Address = network.ReservedNetworkInterfaces[vm.NetworkInterfaceNames[i]].Ipv4Address
 			vm.Nics[i].Ipv6Address = network.ReservedNetworkInterfaces[vm.NetworkInterfaceNames[i]].Ipv6Address
 
-			ip := netutil.ParseCIDR(network.Ipv4Cidr)
-			gateway := ""
+			havingGateway := false
 			for _, ni := range network.ReservedNetworkInterfaces {
-				if v, ok := ni.Annotations[AnnotationVirtualMachineVncWebSocketPort]; ok {
-					gateway = v
+				if _, ok := ni.Annotations[AnnotationNetworkInterfaceIsGateway]; ok {
+					havingGateway = true
 				}
 			}
-			if gateway == "" {
-				if gateway, err = a.addDefaultGateway(ctx, network); err != nil {
+			if !havingGateway {
+				if _, err = a.addDefaultGateway(ctx, network); err != nil {
 					return nil, grpcutil.WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to add default gateway").Error())
 				}
 			}
-
-			netdevs[i] = &NetDev{
-				Name:            vm.NetworkInterfaceNames[i],
-				NetworkName:     vm.Nics[i].NetworkName,
-				HardwareAddress: vm.Nics[i].HardwareAddress,
-				Ipv4AddressCidr: fmt.Sprintf("%s/%d", vm.Nics[i].Ipv4Address, ip.SubnetMaskBits()),
-				Ipv4Gateway:     gateway,
-				Nameservers:     []string{"8.8.8.8"}, // TODO: 取るようにする
-				// TODO: domain searchはnetworkのdomainから取る
-			}
 		}
-	}
-
-	{
-		conn, err := node.GetConnection(ctx, a.nodeAPI, vm.ComputeNodeName)
-		cli := NewVirtualMachineAgentServiceClient(conn)
-		if err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to dial to node: err=%s", err.Error())
-		}
-		if conn == nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", vm.ComputeNodeName)
-		}
-		defer conn.Close()
-
-		res, err := cli.BootVirtualMachine(ctx, &BootVirtualMachineRequest{
-			Name:              vm.Name,
-			Uuid:              vm.Uuid,
-			Vcpus:             vm.LimitCpuMilliCore / 1000,
-			MemoryBytes:       vm.LimitMemoryBytes,
-			Netdevs:           netdevs,
-			Blockdevs:         blockdevs,
-			LoginUsername:     vm.LoginUsername,
-			SshAuthorizedKeys: vm.SshAuthorizedKeys,
-		})
-		if err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to CreateVirtualMachineAgent: desc=%s", grpc.ErrorDesc(err))
-		}
-		tx.PushRollback("", func() error {
-			_, err := cli.DeleteVirtualMachine(ctx, &DeleteVirtualMachineRequest{Name: vm.Name})
-			return err
-		})
-
-		vm.Annotations[AnnotationVirtualMachineVncWebSocketPort] = strconv.Itoa(int(res.WebsocketPort))
-		vm.State = GetAPIStateFromAgentState(res.State)
 	}
 
 	if err := a.dataStore.Apply(vm.Name, vm); err != nil {
 		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
+	}
+
+	if _, err := a.BootVirtualMachine(ctx, &pprovisioning.BootVirtualMachineRequest{Name: vm.Name}); err != nil {
+		return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), errors.Wrapf(err, "Failed to BootVirtualMachineRequest").Error())
 	}
 
 	tx.Commit()
@@ -470,7 +423,123 @@ func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprov
 }
 
 func (a *VirtualMachineAPI) BootVirtualMachine(ctx context.Context, req *pprovisioning.BootVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
-	return nil, grpcutil.WrapGrpcErrorf(codes.Unimplemented, "")
+	// validation
+	{
+		switch {
+		case req.Name == "":
+			return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Set name")
+		}
+	}
+
+	tx := transaction.Begin()
+	defer tx.RollbackWithLog()
+
+	vm := &pprovisioning.VirtualMachine{}
+	{
+		if err := a.dataStore.Get(req.Name, vm); err != nil {
+			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get data for db: err='%s'", err.Error())
+		} else if vm.Name == "" {
+			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "VirtualMachine '%s' is not found", vm.Name)
+		}
+
+		if vm.State == pprovisioning.VirtualMachine_PENDING {
+			return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "VirtualMachine '%s' is pending", vm.Name)
+		}
+
+		current := vm.State
+		vm.State = pprovisioning.VirtualMachine_PENDING
+		if err := a.dataStore.Apply(vm.Name, vm); err != nil {
+			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
+		}
+		vm.State = current
+		tx.PushRollback("free optimistic lock", func() error {
+			return a.dataStore.Apply(vm.Name, vm)
+		})
+	}
+
+	blockdevs := make([]*BlockDev, len(vm.BlockStorageNames))
+	{
+		for i, n := range vm.BlockStorageNames {
+			bs, err := a.blockstorageAPI.GetBlockStorage(ctx, &pprovisioning.GetBlockStorageRequest{Name: n})
+			if err != nil {
+				return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to GetBlockStorage: desc=%s", grpc.ErrorDesc(err))
+			}
+
+			blockdevs[i] = &BlockDev{
+				Name:      n,
+				Url:       bs.Annotations[blockstorage.AnnotationBlockStorageURL],
+				BootIndex: uint32(i),
+			}
+		}
+	}
+
+	netdevs := make([]*NetDev, len(vm.Nics))
+	{
+		for i, nic := range vm.Nics {
+			network, err := a.networkAPI.GetNetwork(ctx, &ppool.GetNetworkRequest{Name: nic.NetworkName})
+			if err != nil {
+				return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to GetNetworkInterface: desc=%s", grpc.ErrorDesc(err))
+			}
+
+			gateway := ""
+			for _, ni := range network.ReservedNetworkInterfaces {
+				if _, ok := ni.Annotations[AnnotationNetworkInterfaceIsGateway]; ok {
+					gateway = ni.Ipv4Address
+				}
+			}
+
+			ip := netutil.ParseCIDR(network.Ipv4Cidr)
+			netdevs[i] = &NetDev{
+				Name:            vm.NetworkInterfaceNames[i],
+				NetworkName:     vm.Nics[i].NetworkName,
+				HardwareAddress: vm.Nics[i].HardwareAddress,
+				Ipv4AddressCidr: fmt.Sprintf("%s/%d", vm.Nics[i].Ipv4Address, ip.SubnetMaskBits()),
+				Ipv4Gateway:     gateway,
+				Nameservers:     []string{"8.8.8.8"}, // TODO: 取るようにする
+				// TODO: domain searchはnetworkのdomainから取る
+			}
+		}
+	}
+
+	{
+		conn, err := node.GetConnection(ctx, a.nodeAPI, vm.ComputeNodeName)
+		cli := NewVirtualMachineAgentServiceClient(conn)
+		if err != nil {
+			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to dial to node: err=%s", err.Error())
+		}
+		if conn == nil {
+			return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", vm.ComputeNodeName)
+		}
+		defer conn.Close()
+
+		res, err := cli.BootVirtualMachine(ctx, &BootVirtualMachineRequest{
+			Name:              vm.Name,
+			Uuid:              vm.Uuid,
+			Vcpus:             vm.LimitCpuMilliCore / 1000,
+			MemoryBytes:       vm.LimitMemoryBytes,
+			Netdevs:           netdevs,
+			Blockdevs:         blockdevs,
+			LoginUsername:     vm.LoginUsername,
+			SshAuthorizedKeys: vm.SshAuthorizedKeys,
+		})
+		if err != nil {
+			return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to CreateVirtualMachineAgent: desc=%s", grpc.ErrorDesc(err))
+		}
+		tx.PushRollback("", func() error {
+			_, err := cli.DeleteVirtualMachine(ctx, &DeleteVirtualMachineRequest{Name: vm.Name})
+			return err
+		})
+
+		vm.Annotations[AnnotationVirtualMachineVncWebSocketPort] = strconv.Itoa(int(res.WebsocketPort))
+		vm.State = GetAPIStateFromAgentState(res.State)
+	}
+
+	if err := a.dataStore.Apply(vm.Name, vm); err != nil {
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
+	}
+
+	tx.Commit()
+	return vm, nil
 }
 
 func (a *VirtualMachineAPI) RebootVirtualMachine(ctx context.Context, req *pprovisioning.RebootVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
@@ -524,7 +593,7 @@ func (a *VirtualMachineAPI) ProxyWebsocket() func(echo.Context) error {
 		}
 
 		nodeIP := node.Address
-		websocketPort, err := strconv.Atoi(vm.Annotations[AnnotationNetworkInterfaceIsGateway])
+		websocketPort, err := strconv.Atoi(vm.Annotations[AnnotationVirtualMachineVncWebSocketPort])
 		if err != nil {
 			return err
 		}
