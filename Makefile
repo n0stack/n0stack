@@ -102,6 +102,16 @@ vendor-on-docker:
 update-go:
 	go get -u
 
+.PHONY: update-go-on-docker
+update-go-on-docker:
+	docker run -it --rm \
+		-v $(PWD)/.go-build:/root/.cache/go-build/ \
+		-v $(PWD):/go/src/github.com/n0stack/n0stack \
+		-w /go/src/github.com/n0stack/n0stack \
+		-e GO111MODULE=on \
+		n0stack/build-go \
+			make update-go
+
 .PHONY: update-novnc
 update-novnc:
 	go get -v github.com/rakyll/statik
