@@ -12,7 +12,6 @@ import "budget/v0/storage.proto";
 message Node {
   string name = 1;
   map<string, string> annotations = 3;
-  uint64 version = 5;
 
   string address = 10;
   string ipmi_address = 11;
@@ -71,10 +70,7 @@ message GetNodeRequest {
 
 message ApplyNodeRequest {
   string name = 1;
-
   map<string, string> annotations = 3;
-
-  uint64 version = 5;
 
   string address = 10;
   string ipmi_address = 11;

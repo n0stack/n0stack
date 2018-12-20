@@ -22,7 +22,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='n0stack.pool',
   syntax='proto3',
   serialized_options=_b('Z3github.com/n0stack/n0stack/n0proto.go/pool/v0;ppool'),
-  serialized_pb=_b('\n\x12pool/v0/node.proto\x12\x0cn0stack.pool\x1a\x1bgoogle/protobuf/empty.proto\x1a\x17\x62udget/v0/compute.proto\x1a\x17\x62udget/v0/storage.proto\"\xea\x05\n\x04Node\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x38\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32#.n0stack.pool.Node.AnnotationsEntry\x12\x0f\n\x07version\x18\x05 \x01(\x04\x12\x0f\n\x07\x61\x64\x64ress\x18\n \x01(\t\x12\x14\n\x0cipmi_address\x18\x0b \x01(\t\x12\x0e\n\x06serial\x18\x0c \x01(\t\x12\x17\n\x0f\x63pu_milli_cores\x18\r \x01(\r\x12\x14\n\x0cmemory_bytes\x18\x0e \x01(\x04\x12\x15\n\rstorage_bytes\x18\x0f \x01(\x04\x12\x12\n\ndatacenter\x18\x10 \x01(\t\x12\x19\n\x11\x61vailavility_zone\x18\x11 \x01(\t\x12\x0c\n\x04\x63\x65ll\x18\x12 \x01(\t\x12\x0c\n\x04rack\x18\x13 \x01(\t\x12\x0c\n\x04unit\x18\x14 \x01(\r\x12+\n\x05state\x18\x32 \x01(\x0e\x32\x1c.n0stack.pool.Node.NodeState\x12\x43\n\x11reserved_computes\x18\x33 \x03(\x0b\x32(.n0stack.pool.Node.ReservedComputesEntry\x12\x43\n\x11reserved_storages\x18\x34 \x03(\x0b\x32(.n0stack.pool.Node.ReservedStoragesEntry\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1aP\n\x15ReservedComputesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12&\n\x05value\x18\x02 \x01(\x0b\x32\x17.n0stack.budget.Compute:\x02\x38\x01\x1aP\n\x15ReservedStoragesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12&\n\x05value\x18\x02 \x01(\x0b\x32\x17.n0stack.budget.Storage:\x02\x38\x01\"$\n\tNodeState\x12\x0c\n\x08NotReady\x10\x00\x12\t\n\x05Ready\x10\x01\"\x12\n\x10ListNodesRequest\"6\n\x11ListNodesResponse\x12!\n\x05nodes\x18\x01 \x03(\x0b\x32\x12.n0stack.pool.Node\"\x1e\n\x0eGetNodeRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"\x81\x03\n\x10\x41pplyNodeRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x44\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32/.n0stack.pool.ApplyNodeRequest.AnnotationsEntry\x12\x0f\n\x07version\x18\x05 \x01(\x04\x12\x0f\n\x07\x61\x64\x64ress\x18\n \x01(\t\x12\x14\n\x0cipmi_address\x18\x0b \x01(\t\x12\x0e\n\x06serial\x18\x0c \x01(\t\x12\x17\n\x0f\x63pu_milli_cores\x18\r \x01(\r\x12\x14\n\x0cmemory_bytes\x18\x0e \x01(\x04\x12\x15\n\rstorage_bytes\x18\x0f \x01(\x04\x12\x12\n\ndatacenter\x18\x10 \x01(\t\x12\x19\n\x11\x61vailavility_zone\x18\x11 \x01(\t\x12\x0c\n\x04\x63\x65ll\x18\x12 \x01(\t\x12\x0c\n\x04rack\x18\x13 \x01(\t\x12\x0c\n\x04unit\x18\x14 \x01(\r\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"!\n\x11\x44\x65leteNodeRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"\xa6\x02\n\x16ScheduleComputeRequest\x12\x14\n\x0c\x63ompute_name\x18\x02 \x01(\t\x12J\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32\x35.n0stack.pool.ScheduleComputeRequest.AnnotationsEntry\x12\x1e\n\x16request_cpu_milli_core\x18\x04 \x01(\r\x12\x1c\n\x14limit_cpu_milli_core\x18\x05 \x01(\r\x12\x1c\n\x14request_memory_bytes\x18\x06 \x01(\x04\x12\x1a\n\x12limit_memory_bytes\x18\x07 \x01(\x04\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xb7\x02\n\x15ReserveComputeRequest\x12\x11\n\tnode_name\x18\x01 \x01(\t\x12\x14\n\x0c\x63ompute_name\x18\x02 \x01(\t\x12I\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32\x34.n0stack.pool.ReserveComputeRequest.AnnotationsEntry\x12\x1e\n\x16request_cpu_milli_core\x18\x04 \x01(\r\x12\x1c\n\x14limit_cpu_milli_core\x18\x05 \x01(\r\x12\x1c\n\x14request_memory_bytes\x18\x06 \x01(\x04\x12\x1a\n\x12limit_memory_bytes\x18\x07 \x01(\x04\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"@\n\x15ReleaseComputeRequest\x12\x11\n\tnode_name\x18\x01 \x01(\t\x12\x14\n\x0c\x63ompute_name\x18\x02 \x01(\t\"\xda\x01\n\x16ScheduleStorageRequest\x12\x14\n\x0cstorage_name\x18\x02 \x01(\t\x12J\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32\x35.n0stack.pool.ScheduleStorageRequest.AnnotationsEntry\x12\x15\n\rrequest_bytes\x18\x04 \x01(\x04\x12\x13\n\x0blimit_bytes\x18\x05 \x01(\x04\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xeb\x01\n\x15ReserveStorageRequest\x12\x11\n\tnode_name\x18\x01 \x01(\t\x12\x14\n\x0cstorage_name\x18\x02 \x01(\t\x12I\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32\x34.n0stack.pool.ReserveStorageRequest.AnnotationsEntry\x12\x15\n\rrequest_bytes\x18\x04 \x01(\x04\x12\x13\n\x0blimit_bytes\x18\x05 \x01(\x04\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"@\n\x15ReleaseStorageRequest\x12\x11\n\tnode_name\x18\x01 \x01(\t\x12\x14\n\x0cstorage_name\x18\x02 \x01(\t2\x82\x06\n\x0bNodeService\x12N\n\tListNodes\x12\x1e.n0stack.pool.ListNodesRequest\x1a\x1f.n0stack.pool.ListNodesResponse\"\x00\x12=\n\x07GetNode\x12\x1c.n0stack.pool.GetNodeRequest\x1a\x12.n0stack.pool.Node\"\x00\x12\x41\n\tApplyNode\x12\x1e.n0stack.pool.ApplyNodeRequest\x1a\x12.n0stack.pool.Node\"\x00\x12G\n\nDeleteNode\x12\x1f.n0stack.pool.DeleteNodeRequest\x1a\x16.google.protobuf.Empty\"\x00\x12M\n\x0fScheduleCompute\x12$.n0stack.pool.ScheduleComputeRequest\x1a\x12.n0stack.pool.Node\"\x00\x12K\n\x0eReserveCompute\x12#.n0stack.pool.ReserveComputeRequest\x1a\x12.n0stack.pool.Node\"\x00\x12O\n\x0eReleaseCompute\x12#.n0stack.pool.ReleaseComputeRequest\x1a\x16.google.protobuf.Empty\"\x00\x12M\n\x0fScheduleStorage\x12$.n0stack.pool.ScheduleStorageRequest\x1a\x12.n0stack.pool.Node\"\x00\x12K\n\x0eReserveStorage\x12#.n0stack.pool.ReserveStorageRequest\x1a\x12.n0stack.pool.Node\"\x00\x12O\n\x0eReleaseStorage\x12#.n0stack.pool.ReleaseStorageRequest\x1a\x16.google.protobuf.Empty\"\x00\x42\x35Z3github.com/n0stack/n0stack/n0proto.go/pool/v0;ppoolb\x06proto3')
+  serialized_pb=_b('\n\x12pool/v0/node.proto\x12\x0cn0stack.pool\x1a\x1bgoogle/protobuf/empty.proto\x1a\x17\x62udget/v0/compute.proto\x1a\x17\x62udget/v0/storage.proto\"\xd9\x05\n\x04Node\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x38\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32#.n0stack.pool.Node.AnnotationsEntry\x12\x0f\n\x07\x61\x64\x64ress\x18\n \x01(\t\x12\x14\n\x0cipmi_address\x18\x0b \x01(\t\x12\x0e\n\x06serial\x18\x0c \x01(\t\x12\x17\n\x0f\x63pu_milli_cores\x18\r \x01(\r\x12\x14\n\x0cmemory_bytes\x18\x0e \x01(\x04\x12\x15\n\rstorage_bytes\x18\x0f \x01(\x04\x12\x12\n\ndatacenter\x18\x10 \x01(\t\x12\x19\n\x11\x61vailavility_zone\x18\x11 \x01(\t\x12\x0c\n\x04\x63\x65ll\x18\x12 \x01(\t\x12\x0c\n\x04rack\x18\x13 \x01(\t\x12\x0c\n\x04unit\x18\x14 \x01(\r\x12+\n\x05state\x18\x32 \x01(\x0e\x32\x1c.n0stack.pool.Node.NodeState\x12\x43\n\x11reserved_computes\x18\x33 \x03(\x0b\x32(.n0stack.pool.Node.ReservedComputesEntry\x12\x43\n\x11reserved_storages\x18\x34 \x03(\x0b\x32(.n0stack.pool.Node.ReservedStoragesEntry\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1aP\n\x15ReservedComputesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12&\n\x05value\x18\x02 \x01(\x0b\x32\x17.n0stack.budget.Compute:\x02\x38\x01\x1aP\n\x15ReservedStoragesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12&\n\x05value\x18\x02 \x01(\x0b\x32\x17.n0stack.budget.Storage:\x02\x38\x01\"$\n\tNodeState\x12\x0c\n\x08NotReady\x10\x00\x12\t\n\x05Ready\x10\x01\"\x12\n\x10ListNodesRequest\"6\n\x11ListNodesResponse\x12!\n\x05nodes\x18\x01 \x03(\x0b\x32\x12.n0stack.pool.Node\"\x1e\n\x0eGetNodeRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"\xf0\x02\n\x10\x41pplyNodeRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x44\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32/.n0stack.pool.ApplyNodeRequest.AnnotationsEntry\x12\x0f\n\x07\x61\x64\x64ress\x18\n \x01(\t\x12\x14\n\x0cipmi_address\x18\x0b \x01(\t\x12\x0e\n\x06serial\x18\x0c \x01(\t\x12\x17\n\x0f\x63pu_milli_cores\x18\r \x01(\r\x12\x14\n\x0cmemory_bytes\x18\x0e \x01(\x04\x12\x15\n\rstorage_bytes\x18\x0f \x01(\x04\x12\x12\n\ndatacenter\x18\x10 \x01(\t\x12\x19\n\x11\x61vailavility_zone\x18\x11 \x01(\t\x12\x0c\n\x04\x63\x65ll\x18\x12 \x01(\t\x12\x0c\n\x04rack\x18\x13 \x01(\t\x12\x0c\n\x04unit\x18\x14 \x01(\r\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"!\n\x11\x44\x65leteNodeRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"\xa6\x02\n\x16ScheduleComputeRequest\x12\x14\n\x0c\x63ompute_name\x18\x02 \x01(\t\x12J\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32\x35.n0stack.pool.ScheduleComputeRequest.AnnotationsEntry\x12\x1e\n\x16request_cpu_milli_core\x18\x04 \x01(\r\x12\x1c\n\x14limit_cpu_milli_core\x18\x05 \x01(\r\x12\x1c\n\x14request_memory_bytes\x18\x06 \x01(\x04\x12\x1a\n\x12limit_memory_bytes\x18\x07 \x01(\x04\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xb7\x02\n\x15ReserveComputeRequest\x12\x11\n\tnode_name\x18\x01 \x01(\t\x12\x14\n\x0c\x63ompute_name\x18\x02 \x01(\t\x12I\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32\x34.n0stack.pool.ReserveComputeRequest.AnnotationsEntry\x12\x1e\n\x16request_cpu_milli_core\x18\x04 \x01(\r\x12\x1c\n\x14limit_cpu_milli_core\x18\x05 \x01(\r\x12\x1c\n\x14request_memory_bytes\x18\x06 \x01(\x04\x12\x1a\n\x12limit_memory_bytes\x18\x07 \x01(\x04\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"@\n\x15ReleaseComputeRequest\x12\x11\n\tnode_name\x18\x01 \x01(\t\x12\x14\n\x0c\x63ompute_name\x18\x02 \x01(\t\"\xda\x01\n\x16ScheduleStorageRequest\x12\x14\n\x0cstorage_name\x18\x02 \x01(\t\x12J\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32\x35.n0stack.pool.ScheduleStorageRequest.AnnotationsEntry\x12\x15\n\rrequest_bytes\x18\x04 \x01(\x04\x12\x13\n\x0blimit_bytes\x18\x05 \x01(\x04\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xeb\x01\n\x15ReserveStorageRequest\x12\x11\n\tnode_name\x18\x01 \x01(\t\x12\x14\n\x0cstorage_name\x18\x02 \x01(\t\x12I\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32\x34.n0stack.pool.ReserveStorageRequest.AnnotationsEntry\x12\x15\n\rrequest_bytes\x18\x04 \x01(\x04\x12\x13\n\x0blimit_bytes\x18\x05 \x01(\x04\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"@\n\x15ReleaseStorageRequest\x12\x11\n\tnode_name\x18\x01 \x01(\t\x12\x14\n\x0cstorage_name\x18\x02 \x01(\t2\x82\x06\n\x0bNodeService\x12N\n\tListNodes\x12\x1e.n0stack.pool.ListNodesRequest\x1a\x1f.n0stack.pool.ListNodesResponse\"\x00\x12=\n\x07GetNode\x12\x1c.n0stack.pool.GetNodeRequest\x1a\x12.n0stack.pool.Node\"\x00\x12\x41\n\tApplyNode\x12\x1e.n0stack.pool.ApplyNodeRequest\x1a\x12.n0stack.pool.Node\"\x00\x12G\n\nDeleteNode\x12\x1f.n0stack.pool.DeleteNodeRequest\x1a\x16.google.protobuf.Empty\"\x00\x12M\n\x0fScheduleCompute\x12$.n0stack.pool.ScheduleComputeRequest\x1a\x12.n0stack.pool.Node\"\x00\x12K\n\x0eReserveCompute\x12#.n0stack.pool.ReserveComputeRequest\x1a\x12.n0stack.pool.Node\"\x00\x12O\n\x0eReleaseCompute\x12#.n0stack.pool.ReleaseComputeRequest\x1a\x16.google.protobuf.Empty\"\x00\x12M\n\x0fScheduleStorage\x12$.n0stack.pool.ScheduleStorageRequest\x1a\x12.n0stack.pool.Node\"\x00\x12K\n\x0eReserveStorage\x12#.n0stack.pool.ReserveStorageRequest\x1a\x12.n0stack.pool.Node\"\x00\x12O\n\x0eReleaseStorage\x12#.n0stack.pool.ReleaseStorageRequest\x1a\x16.google.protobuf.Empty\"\x00\x42\x35Z3github.com/n0stack/n0stack/n0proto.go/pool/v0;ppoolb\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,budget_dot_v0_dot_compute__pb2.DESCRIPTOR,budget_dot_v0_dot_storage__pb2.DESCRIPTOR,])
 
@@ -45,8 +45,8 @@ _NODE_NODESTATE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=826,
-  serialized_end=862,
+  serialized_start=809,
+  serialized_end=845,
 )
 _sym_db.RegisterEnumDescriptor(_NODE_NODESTATE)
 
@@ -84,8 +84,8 @@ _NODE_ANNOTATIONSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=610,
-  serialized_end=660,
+  serialized_start=593,
+  serialized_end=643,
 )
 
 _NODE_RESERVEDCOMPUTESENTRY = _descriptor.Descriptor(
@@ -121,8 +121,8 @@ _NODE_RESERVEDCOMPUTESENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=662,
-  serialized_end=742,
+  serialized_start=645,
+  serialized_end=725,
 )
 
 _NODE_RESERVEDSTORAGESENTRY = _descriptor.Descriptor(
@@ -158,8 +158,8 @@ _NODE_RESERVEDSTORAGESENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=744,
-  serialized_end=824,
+  serialized_start=727,
+  serialized_end=807,
 )
 
 _NODE = _descriptor.Descriptor(
@@ -184,105 +184,98 @@ _NODE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='version', full_name='n0stack.pool.Node.version', index=2,
-      number=5, type=4, cpp_type=4, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='address', full_name='n0stack.pool.Node.address', index=3,
+      name='address', full_name='n0stack.pool.Node.address', index=2,
       number=10, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='ipmi_address', full_name='n0stack.pool.Node.ipmi_address', index=4,
+      name='ipmi_address', full_name='n0stack.pool.Node.ipmi_address', index=3,
       number=11, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='serial', full_name='n0stack.pool.Node.serial', index=5,
+      name='serial', full_name='n0stack.pool.Node.serial', index=4,
       number=12, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='cpu_milli_cores', full_name='n0stack.pool.Node.cpu_milli_cores', index=6,
+      name='cpu_milli_cores', full_name='n0stack.pool.Node.cpu_milli_cores', index=5,
       number=13, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='memory_bytes', full_name='n0stack.pool.Node.memory_bytes', index=7,
+      name='memory_bytes', full_name='n0stack.pool.Node.memory_bytes', index=6,
       number=14, type=4, cpp_type=4, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='storage_bytes', full_name='n0stack.pool.Node.storage_bytes', index=8,
+      name='storage_bytes', full_name='n0stack.pool.Node.storage_bytes', index=7,
       number=15, type=4, cpp_type=4, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='datacenter', full_name='n0stack.pool.Node.datacenter', index=9,
+      name='datacenter', full_name='n0stack.pool.Node.datacenter', index=8,
       number=16, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='availavility_zone', full_name='n0stack.pool.Node.availavility_zone', index=10,
+      name='availavility_zone', full_name='n0stack.pool.Node.availavility_zone', index=9,
       number=17, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='cell', full_name='n0stack.pool.Node.cell', index=11,
+      name='cell', full_name='n0stack.pool.Node.cell', index=10,
       number=18, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='rack', full_name='n0stack.pool.Node.rack', index=12,
+      name='rack', full_name='n0stack.pool.Node.rack', index=11,
       number=19, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='unit', full_name='n0stack.pool.Node.unit', index=13,
+      name='unit', full_name='n0stack.pool.Node.unit', index=12,
       number=20, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='state', full_name='n0stack.pool.Node.state', index=14,
+      name='state', full_name='n0stack.pool.Node.state', index=13,
       number=50, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='reserved_computes', full_name='n0stack.pool.Node.reserved_computes', index=15,
+      name='reserved_computes', full_name='n0stack.pool.Node.reserved_computes', index=14,
       number=51, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='reserved_storages', full_name='n0stack.pool.Node.reserved_storages', index=16,
+      name='reserved_storages', full_name='n0stack.pool.Node.reserved_storages', index=15,
       number=52, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -302,7 +295,7 @@ _NODE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=116,
-  serialized_end=862,
+  serialized_end=845,
 )
 
 
@@ -325,8 +318,8 @@ _LISTNODESREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=864,
-  serialized_end=882,
+  serialized_start=847,
+  serialized_end=865,
 )
 
 
@@ -356,8 +349,8 @@ _LISTNODESRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=884,
-  serialized_end=938,
+  serialized_start=867,
+  serialized_end=921,
 )
 
 
@@ -387,8 +380,8 @@ _GETNODEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=940,
-  serialized_end=970,
+  serialized_start=923,
+  serialized_end=953,
 )
 
 
@@ -425,8 +418,8 @@ _APPLYNODEREQUEST_ANNOTATIONSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=610,
-  serialized_end=660,
+  serialized_start=593,
+  serialized_end=643,
 )
 
 _APPLYNODEREQUEST = _descriptor.Descriptor(
@@ -451,84 +444,77 @@ _APPLYNODEREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='version', full_name='n0stack.pool.ApplyNodeRequest.version', index=2,
-      number=5, type=4, cpp_type=4, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='address', full_name='n0stack.pool.ApplyNodeRequest.address', index=3,
+      name='address', full_name='n0stack.pool.ApplyNodeRequest.address', index=2,
       number=10, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='ipmi_address', full_name='n0stack.pool.ApplyNodeRequest.ipmi_address', index=4,
+      name='ipmi_address', full_name='n0stack.pool.ApplyNodeRequest.ipmi_address', index=3,
       number=11, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='serial', full_name='n0stack.pool.ApplyNodeRequest.serial', index=5,
+      name='serial', full_name='n0stack.pool.ApplyNodeRequest.serial', index=4,
       number=12, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='cpu_milli_cores', full_name='n0stack.pool.ApplyNodeRequest.cpu_milli_cores', index=6,
+      name='cpu_milli_cores', full_name='n0stack.pool.ApplyNodeRequest.cpu_milli_cores', index=5,
       number=13, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='memory_bytes', full_name='n0stack.pool.ApplyNodeRequest.memory_bytes', index=7,
+      name='memory_bytes', full_name='n0stack.pool.ApplyNodeRequest.memory_bytes', index=6,
       number=14, type=4, cpp_type=4, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='storage_bytes', full_name='n0stack.pool.ApplyNodeRequest.storage_bytes', index=8,
+      name='storage_bytes', full_name='n0stack.pool.ApplyNodeRequest.storage_bytes', index=7,
       number=15, type=4, cpp_type=4, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='datacenter', full_name='n0stack.pool.ApplyNodeRequest.datacenter', index=9,
+      name='datacenter', full_name='n0stack.pool.ApplyNodeRequest.datacenter', index=8,
       number=16, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='availavility_zone', full_name='n0stack.pool.ApplyNodeRequest.availavility_zone', index=10,
+      name='availavility_zone', full_name='n0stack.pool.ApplyNodeRequest.availavility_zone', index=9,
       number=17, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='cell', full_name='n0stack.pool.ApplyNodeRequest.cell', index=11,
+      name='cell', full_name='n0stack.pool.ApplyNodeRequest.cell', index=10,
       number=18, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='rack', full_name='n0stack.pool.ApplyNodeRequest.rack', index=12,
+      name='rack', full_name='n0stack.pool.ApplyNodeRequest.rack', index=11,
       number=19, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='unit', full_name='n0stack.pool.ApplyNodeRequest.unit', index=13,
+      name='unit', full_name='n0stack.pool.ApplyNodeRequest.unit', index=12,
       number=20, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -546,8 +532,8 @@ _APPLYNODEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=973,
-  serialized_end=1358,
+  serialized_start=956,
+  serialized_end=1324,
 )
 
 
@@ -577,8 +563,8 @@ _DELETENODEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1360,
-  serialized_end=1393,
+  serialized_start=1326,
+  serialized_end=1359,
 )
 
 
@@ -615,8 +601,8 @@ _SCHEDULECOMPUTEREQUEST_ANNOTATIONSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=610,
-  serialized_end=660,
+  serialized_start=593,
+  serialized_end=643,
 )
 
 _SCHEDULECOMPUTEREQUEST = _descriptor.Descriptor(
@@ -680,8 +666,8 @@ _SCHEDULECOMPUTEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1396,
-  serialized_end=1690,
+  serialized_start=1362,
+  serialized_end=1656,
 )
 
 
@@ -718,8 +704,8 @@ _RESERVECOMPUTEREQUEST_ANNOTATIONSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=610,
-  serialized_end=660,
+  serialized_start=593,
+  serialized_end=643,
 )
 
 _RESERVECOMPUTEREQUEST = _descriptor.Descriptor(
@@ -790,8 +776,8 @@ _RESERVECOMPUTEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1693,
-  serialized_end=2004,
+  serialized_start=1659,
+  serialized_end=1970,
 )
 
 
@@ -828,8 +814,8 @@ _RELEASECOMPUTEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2006,
-  serialized_end=2070,
+  serialized_start=1972,
+  serialized_end=2036,
 )
 
 
@@ -866,8 +852,8 @@ _SCHEDULESTORAGEREQUEST_ANNOTATIONSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=610,
-  serialized_end=660,
+  serialized_start=593,
+  serialized_end=643,
 )
 
 _SCHEDULESTORAGEREQUEST = _descriptor.Descriptor(
@@ -917,8 +903,8 @@ _SCHEDULESTORAGEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2073,
-  serialized_end=2291,
+  serialized_start=2039,
+  serialized_end=2257,
 )
 
 
@@ -955,8 +941,8 @@ _RESERVESTORAGEREQUEST_ANNOTATIONSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=610,
-  serialized_end=660,
+  serialized_start=593,
+  serialized_end=643,
 )
 
 _RESERVESTORAGEREQUEST = _descriptor.Descriptor(
@@ -1013,8 +999,8 @@ _RESERVESTORAGEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2294,
-  serialized_end=2529,
+  serialized_start=2260,
+  serialized_end=2495,
 )
 
 
@@ -1051,8 +1037,8 @@ _RELEASESTORAGEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2531,
-  serialized_end=2595,
+  serialized_start=2497,
+  serialized_end=2561,
 )
 
 _NODE_ANNOTATIONSENTRY.containing_type = _NODE
@@ -1255,8 +1241,8 @@ _NODESERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=2598,
-  serialized_end=3368,
+  serialized_start=2564,
+  serialized_end=3334,
   methods=[
   _descriptor.MethodDescriptor(
     name='ListNodes',

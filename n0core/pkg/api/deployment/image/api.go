@@ -70,17 +70,11 @@ func (a ImageAPI) GetImage(ctx context.Context, req *pdeployment.GetImageRequest
 }
 
 func (a ImageAPI) ApplyImage(ctx context.Context, req *pdeployment.ApplyImageRequest) (*pdeployment.Image, error) {
-
 	res := &pdeployment.Image{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
 	}
-	// var err error
-	res.Version, _ = datastore.CheckVersion(res.Version, req.Version)
-	// if err != nil {
-	// 	return nil, grpc.Errorf(codes.InvalidArgument, "Failed to check version: %s", err.Error())
-	// }
 
 	res.Name = req.Name
 	res.Annotations = req.Annotations

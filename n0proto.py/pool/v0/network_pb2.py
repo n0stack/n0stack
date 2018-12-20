@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='n0stack.pool',
   syntax='proto3',
   serialized_options=_b('Z3github.com/n0stack/n0stack/n0proto.go/pool/v0;ppool'),
-  serialized_pb=_b('\n\x15pool/v0/network.proto\x12\x0cn0stack.pool\x1a\x1bgoogle/protobuf/empty.proto\x1a!budget/v0/network_interface.proto\"\xf9\x03\n\x07Network\x12\x0c\n\x04name\x18\x01 \x01(\t\x12;\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32&.n0stack.pool.Network.AnnotationsEntry\x12\x0f\n\x07version\x18\x05 \x01(\x04\x12\x11\n\tipv4_cidr\x18\n \x01(\t\x12\x11\n\tipv6_cidr\x18\x0b \x01(\t\x12\x0e\n\x06\x64omain\x18\x0c \x01(\t\x12\x31\n\x05state\x18\x32 \x01(\x0e\x32\".n0stack.pool.Network.NetworkState\x12Y\n\x1breserved_network_interfaces\x18\x33 \x03(\x0b\x32\x34.n0stack.pool.Network.ReservedNetworkInterfacesEntry\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x62\n\x1eReservedNetworkInterfacesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12/\n\x05value\x18\x02 \x01(\x0b\x32 .n0stack.budget.NetworkInterface:\x02\x38\x01\"6\n\x0cNetworkState\x12\n\n\x06\x46\x41ILED\x10\x00\x12\x0b\n\x07UNKNOWN\x10\x01\x12\r\n\tAVAILABLE\x10\x02\"\x15\n\x13ListNetworksRequest\"?\n\x14ListNetworksResponse\x12\'\n\x08networks\x18\x01 \x03(\x0b\x32\x15.n0stack.pool.Network\"!\n\x11GetNetworkRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"\xe7\x01\n\x13\x41pplyNetworkRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12G\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32\x32.n0stack.pool.ApplyNetworkRequest.AnnotationsEntry\x12\x0f\n\x07version\x18\x05 \x01(\x04\x12\x11\n\tipv4_cidr\x18\n \x01(\t\x12\x11\n\tipv6_cidr\x18\x0b \x01(\t\x12\x0e\n\x06\x64omain\x18\x0c \x01(\t\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"$\n\x14\x44\x65leteNetworkRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"\xa4\x02\n\x1eReserveNetworkInterfaceRequest\x12\x14\n\x0cnetwork_name\x18\x01 \x01(\t\x12\x1e\n\x16network_interface_name\x18\x02 \x01(\t\x12R\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32=.n0stack.pool.ReserveNetworkInterfaceRequest.AnnotationsEntry\x12\x18\n\x10hardware_address\x18\x04 \x01(\t\x12\x14\n\x0cipv4_address\x18\x05 \x01(\t\x12\x14\n\x0cipv6_address\x18\x06 \x01(\t\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"V\n\x1eReleaseNetworkInterfaceRequest\x12\x14\n\x0cnetwork_name\x18\x01 \x01(\t\x12\x1e\n\x16network_interface_name\x18\x02 \x01(\t2\x91\x04\n\x0eNetworkService\x12W\n\x0cListNetworks\x12!.n0stack.pool.ListNetworksRequest\x1a\".n0stack.pool.ListNetworksResponse\"\x00\x12\x46\n\nGetNetwork\x12\x1f.n0stack.pool.GetNetworkRequest\x1a\x15.n0stack.pool.Network\"\x00\x12J\n\x0c\x41pplyNetwork\x12!.n0stack.pool.ApplyNetworkRequest\x1a\x15.n0stack.pool.Network\"\x00\x12M\n\rDeleteNetwork\x12\".n0stack.pool.DeleteNetworkRequest\x1a\x16.google.protobuf.Empty\"\x00\x12`\n\x17ReserveNetworkInterface\x12,.n0stack.pool.ReserveNetworkInterfaceRequest\x1a\x15.n0stack.pool.Network\"\x00\x12\x61\n\x17ReleaseNetworkInterface\x12,.n0stack.pool.ReleaseNetworkInterfaceRequest\x1a\x16.google.protobuf.Empty\"\x00\x42\x35Z3github.com/n0stack/n0stack/n0proto.go/pool/v0;ppoolb\x06proto3')
+  serialized_pb=_b('\n\x15pool/v0/network.proto\x12\x0cn0stack.pool\x1a\x1bgoogle/protobuf/empty.proto\x1a!budget/v0/network_interface.proto\"\xe8\x03\n\x07Network\x12\x0c\n\x04name\x18\x01 \x01(\t\x12;\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32&.n0stack.pool.Network.AnnotationsEntry\x12\x11\n\tipv4_cidr\x18\n \x01(\t\x12\x11\n\tipv6_cidr\x18\x0b \x01(\t\x12\x0e\n\x06\x64omain\x18\x0c \x01(\t\x12\x31\n\x05state\x18\x32 \x01(\x0e\x32\".n0stack.pool.Network.NetworkState\x12Y\n\x1breserved_network_interfaces\x18\x33 \x03(\x0b\x32\x34.n0stack.pool.Network.ReservedNetworkInterfacesEntry\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x62\n\x1eReservedNetworkInterfacesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12/\n\x05value\x18\x02 \x01(\x0b\x32 .n0stack.budget.NetworkInterface:\x02\x38\x01\"6\n\x0cNetworkState\x12\n\n\x06\x46\x41ILED\x10\x00\x12\x0b\n\x07UNKNOWN\x10\x01\x12\r\n\tAVAILABLE\x10\x02\"\x15\n\x13ListNetworksRequest\"?\n\x14ListNetworksResponse\x12\'\n\x08networks\x18\x01 \x03(\x0b\x32\x15.n0stack.pool.Network\"!\n\x11GetNetworkRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"\xd6\x01\n\x13\x41pplyNetworkRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12G\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32\x32.n0stack.pool.ApplyNetworkRequest.AnnotationsEntry\x12\x11\n\tipv4_cidr\x18\n \x01(\t\x12\x11\n\tipv6_cidr\x18\x0b \x01(\t\x12\x0e\n\x06\x64omain\x18\x0c \x01(\t\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"$\n\x14\x44\x65leteNetworkRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"\xa4\x02\n\x1eReserveNetworkInterfaceRequest\x12\x14\n\x0cnetwork_name\x18\x01 \x01(\t\x12\x1e\n\x16network_interface_name\x18\x02 \x01(\t\x12R\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32=.n0stack.pool.ReserveNetworkInterfaceRequest.AnnotationsEntry\x12\x18\n\x10hardware_address\x18\x04 \x01(\t\x12\x14\n\x0cipv4_address\x18\x05 \x01(\t\x12\x14\n\x0cipv6_address\x18\x06 \x01(\t\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"V\n\x1eReleaseNetworkInterfaceRequest\x12\x14\n\x0cnetwork_name\x18\x01 \x01(\t\x12\x1e\n\x16network_interface_name\x18\x02 \x01(\t2\x91\x04\n\x0eNetworkService\x12W\n\x0cListNetworks\x12!.n0stack.pool.ListNetworksRequest\x1a\".n0stack.pool.ListNetworksResponse\"\x00\x12\x46\n\nGetNetwork\x12\x1f.n0stack.pool.GetNetworkRequest\x1a\x15.n0stack.pool.Network\"\x00\x12J\n\x0c\x41pplyNetwork\x12!.n0stack.pool.ApplyNetworkRequest\x1a\x15.n0stack.pool.Network\"\x00\x12M\n\rDeleteNetwork\x12\".n0stack.pool.DeleteNetworkRequest\x1a\x16.google.protobuf.Empty\"\x00\x12`\n\x17ReserveNetworkInterface\x12,.n0stack.pool.ReserveNetworkInterfaceRequest\x1a\x15.n0stack.pool.Network\"\x00\x12\x61\n\x17ReleaseNetworkInterface\x12,.n0stack.pool.ReleaseNetworkInterfaceRequest\x1a\x16.google.protobuf.Empty\"\x00\x42\x35Z3github.com/n0stack/n0stack/n0proto.go/pool/v0;ppoolb\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,budget_dot_v0_dot_network__interface__pb2.DESCRIPTOR,])
 
@@ -48,8 +48,8 @@ _NETWORK_NETWORKSTATE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=555,
-  serialized_end=609,
+  serialized_start=538,
+  serialized_end=592,
 )
 _sym_db.RegisterEnumDescriptor(_NETWORK_NETWORKSTATE)
 
@@ -87,8 +87,8 @@ _NETWORK_ANNOTATIONSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=403,
-  serialized_end=453,
+  serialized_start=386,
+  serialized_end=436,
 )
 
 _NETWORK_RESERVEDNETWORKINTERFACESENTRY = _descriptor.Descriptor(
@@ -124,8 +124,8 @@ _NETWORK_RESERVEDNETWORKINTERFACESENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=455,
-  serialized_end=553,
+  serialized_start=438,
+  serialized_end=536,
 )
 
 _NETWORK = _descriptor.Descriptor(
@@ -150,42 +150,35 @@ _NETWORK = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='version', full_name='n0stack.pool.Network.version', index=2,
-      number=5, type=4, cpp_type=4, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='ipv4_cidr', full_name='n0stack.pool.Network.ipv4_cidr', index=3,
+      name='ipv4_cidr', full_name='n0stack.pool.Network.ipv4_cidr', index=2,
       number=10, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='ipv6_cidr', full_name='n0stack.pool.Network.ipv6_cidr', index=4,
+      name='ipv6_cidr', full_name='n0stack.pool.Network.ipv6_cidr', index=3,
       number=11, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='domain', full_name='n0stack.pool.Network.domain', index=5,
+      name='domain', full_name='n0stack.pool.Network.domain', index=4,
       number=12, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='state', full_name='n0stack.pool.Network.state', index=6,
+      name='state', full_name='n0stack.pool.Network.state', index=5,
       number=50, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='reserved_network_interfaces', full_name='n0stack.pool.Network.reserved_network_interfaces', index=7,
+      name='reserved_network_interfaces', full_name='n0stack.pool.Network.reserved_network_interfaces', index=6,
       number=51, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -205,7 +198,7 @@ _NETWORK = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=104,
-  serialized_end=609,
+  serialized_end=592,
 )
 
 
@@ -228,8 +221,8 @@ _LISTNETWORKSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=611,
-  serialized_end=632,
+  serialized_start=594,
+  serialized_end=615,
 )
 
 
@@ -259,8 +252,8 @@ _LISTNETWORKSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=634,
-  serialized_end=697,
+  serialized_start=617,
+  serialized_end=680,
 )
 
 
@@ -290,8 +283,8 @@ _GETNETWORKREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=699,
-  serialized_end=732,
+  serialized_start=682,
+  serialized_end=715,
 )
 
 
@@ -328,8 +321,8 @@ _APPLYNETWORKREQUEST_ANNOTATIONSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=403,
-  serialized_end=453,
+  serialized_start=386,
+  serialized_end=436,
 )
 
 _APPLYNETWORKREQUEST = _descriptor.Descriptor(
@@ -354,28 +347,21 @@ _APPLYNETWORKREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='version', full_name='n0stack.pool.ApplyNetworkRequest.version', index=2,
-      number=5, type=4, cpp_type=4, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='ipv4_cidr', full_name='n0stack.pool.ApplyNetworkRequest.ipv4_cidr', index=3,
+      name='ipv4_cidr', full_name='n0stack.pool.ApplyNetworkRequest.ipv4_cidr', index=2,
       number=10, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='ipv6_cidr', full_name='n0stack.pool.ApplyNetworkRequest.ipv6_cidr', index=4,
+      name='ipv6_cidr', full_name='n0stack.pool.ApplyNetworkRequest.ipv6_cidr', index=3,
       number=11, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='domain', full_name='n0stack.pool.ApplyNetworkRequest.domain', index=5,
+      name='domain', full_name='n0stack.pool.ApplyNetworkRequest.domain', index=4,
       number=12, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -393,8 +379,8 @@ _APPLYNETWORKREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=735,
-  serialized_end=966,
+  serialized_start=718,
+  serialized_end=932,
 )
 
 
@@ -424,8 +410,8 @@ _DELETENETWORKREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=968,
-  serialized_end=1004,
+  serialized_start=934,
+  serialized_end=970,
 )
 
 
@@ -462,8 +448,8 @@ _RESERVENETWORKINTERFACEREQUEST_ANNOTATIONSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=403,
-  serialized_end=453,
+  serialized_start=386,
+  serialized_end=436,
 )
 
 _RESERVENETWORKINTERFACEREQUEST = _descriptor.Descriptor(
@@ -527,8 +513,8 @@ _RESERVENETWORKINTERFACEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1007,
-  serialized_end=1299,
+  serialized_start=973,
+  serialized_end=1265,
 )
 
 
@@ -565,8 +551,8 @@ _RELEASENETWORKINTERFACEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1301,
-  serialized_end=1387,
+  serialized_start=1267,
+  serialized_end=1353,
 )
 
 _NETWORK_ANNOTATIONSENTRY.containing_type = _NETWORK
@@ -692,8 +678,8 @@ _NETWORKSERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=1390,
-  serialized_end=1919,
+  serialized_start=1356,
+  serialized_end=1885,
   methods=[
   _descriptor.MethodDescriptor(
     name='ListNetworks',

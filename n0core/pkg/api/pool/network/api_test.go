@@ -73,7 +73,6 @@ func TestApplyNetwork(t *testing.T) {
 
 	n := &ppool.Network{
 		Name:     "test-network",
-		Version:  1,
 		Ipv4Cidr: "192.168.0.0/30",
 		Domain:   "test.local",
 		State:    ppool.Network_AVAILABLE,
@@ -122,7 +121,6 @@ func TestNetworkAboutNetworkInterface(t *testing.T) {
 
 	n := &ppool.Network{
 		Name:     "test-network",
-		Version:  1,
 		Ipv4Cidr: "192.168.0.0/30",
 		Domain:   "test.local",
 		State:    ppool.Network_AVAILABLE,

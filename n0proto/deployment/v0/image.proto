@@ -12,7 +12,6 @@ import "provisioning/v0/block_storage.proto";
 message Image {
   string name = 1;
   map<string, string> annotations = 3;
-  uint64 version = 5;
 
   message RegisteredBlockStorage {
     string block_storage_name = 1;
@@ -51,7 +50,6 @@ message GetImageRequest {
 message ApplyImageRequest {
   string name = 1;
   map<string, string> annotations = 3;
-  uint64 version = 5;
 }
 
 message DeleteImageRequest {
