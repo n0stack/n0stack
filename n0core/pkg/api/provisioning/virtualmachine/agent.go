@@ -271,11 +271,10 @@ func (a VirtualMachineAgent) DeleteVirtualMachine(ctx context.Context, req *Dele
 	if err != nil {
 		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to open qemu process: %s", err.Error())
 	}
-	if !q.IsRunning() {
-		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "")
-	}
-	if err := q.Delete(); err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to delete qemu: %s", err.Error())
+	if q.IsRunning() {
+		if err := q.Delete(); err != nil {
+			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to delete qemu: %s", err.Error())
+		}
 	}
 	if err := a.DeleteWorkDirectory(req.Name); err != nil {
 		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to delete work directory: %s", err.Error())
