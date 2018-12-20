@@ -73,6 +73,10 @@ func (a VirtualMachineAgent) DeleteWorkDirectory(name string) error {
 	return nil
 }
 
+func SetPrefix(name string) string {
+	return fmt.Sprintf("n0stack/%s", name)
+}
+
 func (a VirtualMachineAgent) BootVirtualMachine(ctx context.Context, req *BootVirtualMachineRequest) (*BootVirtualMachineResponse, error) {
 	name := req.Name
 	id, err := uuid.FromString(req.Uuid)
@@ -91,7 +95,7 @@ func (a VirtualMachineAgent) BootVirtualMachine(ctx context.Context, req *BootVi
 		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get working directory '%s'", wd)
 	}
 
-	q, err := qemu.OpenQemu(name)
+	q, err := qemu.OpenQemu(SetPrefix(name))
 	if err != nil {
 		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to open qemu process: %s", err.Error())
 	}
@@ -267,7 +271,7 @@ func (a VirtualMachineAgent) ShutdownVirtualMachine(ctx context.Context, req *Sh
 }
 
 func (a VirtualMachineAgent) DeleteVirtualMachine(ctx context.Context, req *DeleteVirtualMachineRequest) (*empty.Empty, error) {
-	q, err := qemu.OpenQemu(req.Name)
+	q, err := qemu.OpenQemu(SetPrefix(req.Name))
 	if err != nil {
 		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to open qemu process: %s", err.Error())
 	}
