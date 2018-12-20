@@ -7,11 +7,13 @@ import (
 	"net"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
+	"github.com/n0stack/n0stack/n0core/pkg/util/grpc"
 	"github.com/n0stack/n0stack/n0core/pkg/util/net"
 	"github.com/n0stack/n0stack/n0proto.go/budget/v0"
 	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
@@ -74,14 +76,31 @@ func (a NetworkAPI) GetNetwork(ctx context.Context, req *ppool.GetNetworkRequest
 }
 
 func (a NetworkAPI) ApplyNetwork(ctx context.Context, req *ppool.ApplyNetworkRequest) (*ppool.Network, error) {
-	if _, _, err := net.ParseCIDR(req.Ipv4Cidr); err != nil {
-		return nil, grpc.Errorf(codes.InvalidArgument, "Field 'ipv4_cidr' is invalid : %s", err.Error())
+	ip := netutil.ParseCIDR(req.Ipv4Cidr)
+	if ip == nil {
+		return nil, grpc.Errorf(codes.InvalidArgument, "Field 'ipv4_cidr' is invalid")
 	}
 
 	res := &ppool.Network{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
+	}
+
+	{
+		res, err := a.ListNetworks(ctx, &ppool.ListNetworksRequest{})
+		if err != nil {
+			if grpc.Code(err) != codes.NotFound {
+				return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), errors.Wrapf(err, "Failed to list networks").Error())
+			}
+		} else {
+			for _, v := range res.Networks {
+				ipv4 := netutil.ParseCIDR(v.Ipv4Cidr)
+				if netutil.IsConflicting(ip, ipv4) {
+					return nil, grpc.Errorf(codes.InvalidArgument, "Field 'ipv4_cidr' is conflicting with network=%s", v.Name)
+				}
+			}
+		}
 	}
 
 	res.Name = req.Name
