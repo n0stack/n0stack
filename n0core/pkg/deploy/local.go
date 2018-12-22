@@ -170,18 +170,34 @@ func (d LocalDeployer) StopDaemon(daemon string, stdout, stderr io.Writer) error
 }
 
 func (d LocalDeployer) InstallPackages(packages []string, stdout, stderr io.Writer) error {
-	cmd := []string{
-		"apt",
-		"install",
-		"-y",
-	}
-	cmd = append(cmd, packages...)
+	{
+		cmd := []string{
+			"apt",
+			"update",
+		}
 
-	c := exec.Command(cmd[0], cmd[1:]...)
-	c.Stdout = stdout
-	c.Stderr = stderr
-	if err := c.Run(); err != nil {
-		return errors.Wrap(err, "Failed to command 'apt'")
+		c := exec.Command(cmd[0], cmd[1:]...)
+		c.Stdout = stdout
+		c.Stderr = stderr
+		if err := c.Run(); err != nil {
+			return errors.Wrap(err, "Failed to command 'apt'")
+		}
+	}
+
+	{
+		cmd := []string{
+			"apt",
+			"install",
+			"-y",
+		}
+		cmd = append(cmd, packages...)
+
+		c := exec.Command(cmd[0], cmd[1:]...)
+		c.Stdout = stdout
+		c.Stderr = stderr
+		if err := c.Run(); err != nil {
+			return errors.Wrap(err, "Failed to command 'apt'")
+		}
 	}
 
 	return nil
