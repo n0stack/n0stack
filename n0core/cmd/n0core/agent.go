@@ -1,13 +1,16 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
 	"path/filepath"
+	"strconv"
 	"strings"
 
+	"github.com/cenkalti/backoff"
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/labstack/echo"
@@ -15,10 +18,74 @@ import (
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
 	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/blockstorage"
 	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/virtualmachine"
+	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
 )
+
+const AnnotationNodeAgentVersion = "github.com/n0stack/n0stack/n0core/agent_version"
+
+func RegisterNodeToAPI(ctx context.Context, api, name, address, version string, cpu uint32, mem, storage uint64, dc, az, cell, rack string, unit uint32) error {
+	ip, err := net.ResolveIPAddr("ip", address)
+	if err != nil {
+		return err
+	}
+
+	ar := &ppool.ApplyNodeRequest{
+		Name: name,
+		Annotations: map[string]string{
+			AnnotationNodeAgentVersion: version,
+		},
+
+		Address:     ip.String(),
+		IpmiAddress: node.GetIpmiAddress(),
+		Serial:      node.GetSerial(),
+
+		CpuMilliCores: cpu,
+		MemoryBytes:   mem,
+		StorageBytes:  storage,
+
+		Datacenter:       dc,
+		AvailabilityZone: az,
+		Cell:             cell,
+		Rack:             rack,
+		Unit:             unit,
+	}
+
+	conn, err := grpc.Dial(api, grpc.WithInsecure())
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	cli := ppool.NewNodeServiceClient(conn)
+
+	n, err := cli.GetNode(ctx, &ppool.GetNodeRequest{Name: name})
+	if err != nil {
+		if grpc.Code(err) != codes.NotFound {
+			return err
+		}
+	} else {
+		log.Printf("[INFO] Get old Node: Node=%v", n)
+	}
+
+	b := backoff.WithMaxRetries(backoff.NewExponentialBackOff(), 5)
+	err = backoff.Retry(func() error {
+		n, err = cli.ApplyNode(context.Background(), ar)
+		if err != nil {
+			return err
+		}
+
+		log.Printf("[INFO] Applied Node to APi: Node=%v", n)
+		return nil
+	}, b)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 // References:
 // 	https://github.com/grpc/grpc-go/pull/1406/files#diff-34c6b408d72845d076d47126c29948d1R591
@@ -39,6 +106,24 @@ func ServeAgent(ctx *cli.Context) error {
 	nodeName := ctx.String("name")
 	advertiseAddress := ctx.String("advertise-address")
 	nodeAPI := ctx.String("node-api-endpoint")
+
+	cpu := uint32(ctx.Uint("cpu-capacity-milli-cores"))
+	memory := ctx.Uint64("memory-capacity-bytes")
+	storage := ctx.Uint64("storage-capacity-bytes")
+
+	location := strings.Split(ctx.String("location"), "/")
+	if len(location) != 5 {
+		return fmt.Errorf("invalid argument 'location'")
+	}
+	dc := location[0]
+	az := location[1]
+	cell := location[2]
+	rack := location[3]
+	u, err := strconv.ParseUint(location[4], 10, 32)
+	if err != nil {
+		return err
+	}
+	unit := uint32(u)
 
 	bvm := filepath.Join(baseDirectory, "virtual_machine")
 	vma, err := virtualmachine.CreateVirtualMachineAgent(bvm)
@@ -81,7 +166,8 @@ func ServeAgent(ctx *cli.Context) error {
 	e.Use(middleware.Recover())
 	e.Static(blockstorage.DownloadBlockStorageHTTPPrefix, bbs)
 
-	if err := node.RegisterNodeToAPI(nodeName, advertiseAddress, nodeAPI); err != nil {
+	c := context.Background()
+	if err := RegisterNodeToAPI(c, nodeAPI, nodeName, advertiseAddress, version, cpu, memory, storage, dc, az, cell, rack, unit); err != nil {
 		return err
 	}
 

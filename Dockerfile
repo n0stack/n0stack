@@ -11,3 +11,10 @@ FROM debian:jessie
 COPY VERSION /
 COPY LICENSE /
 COPY --from=BUILD_GO bin/* /usr/bin/
+
+RUN apt update \
+ && apt install -y openssh-client \
+ && rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/*
+
+WORKDIR /root
+CMD /bin/bash

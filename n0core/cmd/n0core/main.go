@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 
+	"code.cloudfoundry.org/bytefmt"
+	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
 	"github.com/urfave/cli"
 )
 
@@ -74,6 +76,22 @@ func main() {
 						cli.StringFlag{
 							Name:  "base-directory",
 							Value: "/var/lib/n0core",
+						},
+						cli.StringFlag{
+							Name:  "location",
+							Usage: "<Datacenter>/<AvailavilityZone>/<Cell>/<Rack>/<Unit(int)>",
+						},
+						cli.UintFlag{
+							Name:  "cpu-capacity-milli-cores",
+							Value: uint(node.GetTotalCPUMilliCores()) * 1000,
+						},
+						cli.Uint64Flag{
+							Name:  "memory-capacity-bytes",
+							Value: node.GetTotalMemory(),
+						},
+						cli.Uint64Flag{
+							Name:  "storage-capacity-bytes",
+							Value: uint64(100 * bytefmt.GIGABYTE),
 						},
 					},
 				},
