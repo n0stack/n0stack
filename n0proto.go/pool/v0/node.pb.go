@@ -45,7 +45,7 @@ func (x Node_NodeState) String() string {
 	return proto.EnumName(Node_NodeState_name, int32(x))
 }
 func (Node_NodeState) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_node_fedb7e8796d8d5c8, []int{0, 0}
+	return fileDescriptor_node_35993d153cf2a03b, []int{0, 0}
 }
 
 type Node struct {
@@ -60,7 +60,7 @@ type Node struct {
 	StorageBytes  uint64 `protobuf:"varint,15,opt,name=storage_bytes,json=storageBytes" json:"storage_bytes,omitempty"`
 	// physical placement
 	Datacenter           string                 `protobuf:"bytes,16,opt,name=datacenter" json:"datacenter,omitempty"`
-	AvailavilityZone     string                 `protobuf:"bytes,17,opt,name=availavility_zone,json=availavilityZone" json:"availavility_zone,omitempty"`
+	AvailabilityZone     string                 `protobuf:"bytes,17,opt,name=availability_zone,json=availabilityZone" json:"availability_zone,omitempty"`
 	Cell                 string                 `protobuf:"bytes,18,opt,name=cell" json:"cell,omitempty"`
 	Rack                 string                 `protobuf:"bytes,19,opt,name=rack" json:"rack,omitempty"`
 	Unit                 uint32                 `protobuf:"varint,20,opt,name=unit" json:"unit,omitempty"`
@@ -76,7 +76,7 @@ func (m *Node) Reset()         { *m = Node{} }
 func (m *Node) String() string { return proto.CompactTextString(m) }
 func (*Node) ProtoMessage()    {}
 func (*Node) Descriptor() ([]byte, []int) {
-	return fileDescriptor_node_fedb7e8796d8d5c8, []int{0}
+	return fileDescriptor_node_35993d153cf2a03b, []int{0}
 }
 func (m *Node) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Node.Unmarshal(m, b)
@@ -159,9 +159,9 @@ func (m *Node) GetDatacenter() string {
 	return ""
 }
 
-func (m *Node) GetAvailavilityZone() string {
+func (m *Node) GetAvailabilityZone() string {
 	if m != nil {
-		return m.AvailavilityZone
+		return m.AvailabilityZone
 	}
 	return ""
 }
@@ -218,7 +218,7 @@ func (m *ListNodesRequest) Reset()         { *m = ListNodesRequest{} }
 func (m *ListNodesRequest) String() string { return proto.CompactTextString(m) }
 func (*ListNodesRequest) ProtoMessage()    {}
 func (*ListNodesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_node_fedb7e8796d8d5c8, []int{1}
+	return fileDescriptor_node_35993d153cf2a03b, []int{1}
 }
 func (m *ListNodesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNodesRequest.Unmarshal(m, b)
@@ -249,7 +249,7 @@ func (m *ListNodesResponse) Reset()         { *m = ListNodesResponse{} }
 func (m *ListNodesResponse) String() string { return proto.CompactTextString(m) }
 func (*ListNodesResponse) ProtoMessage()    {}
 func (*ListNodesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_node_fedb7e8796d8d5c8, []int{2}
+	return fileDescriptor_node_35993d153cf2a03b, []int{2}
 }
 func (m *ListNodesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNodesResponse.Unmarshal(m, b)
@@ -287,7 +287,7 @@ func (m *GetNodeRequest) Reset()         { *m = GetNodeRequest{} }
 func (m *GetNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*GetNodeRequest) ProtoMessage()    {}
 func (*GetNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_node_fedb7e8796d8d5c8, []int{3}
+	return fileDescriptor_node_35993d153cf2a03b, []int{3}
 }
 func (m *GetNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetNodeRequest.Unmarshal(m, b)
@@ -324,7 +324,7 @@ type ApplyNodeRequest struct {
 	MemoryBytes          uint64            `protobuf:"varint,14,opt,name=memory_bytes,json=memoryBytes" json:"memory_bytes,omitempty"`
 	StorageBytes         uint64            `protobuf:"varint,15,opt,name=storage_bytes,json=storageBytes" json:"storage_bytes,omitempty"`
 	Datacenter           string            `protobuf:"bytes,16,opt,name=datacenter" json:"datacenter,omitempty"`
-	AvailavilityZone     string            `protobuf:"bytes,17,opt,name=availavility_zone,json=availavilityZone" json:"availavility_zone,omitempty"`
+	AvailabilityZone     string            `protobuf:"bytes,17,opt,name=availability_zone,json=availabilityZone" json:"availability_zone,omitempty"`
 	Cell                 string            `protobuf:"bytes,18,opt,name=cell" json:"cell,omitempty"`
 	Rack                 string            `protobuf:"bytes,19,opt,name=rack" json:"rack,omitempty"`
 	Unit                 uint32            `protobuf:"varint,20,opt,name=unit" json:"unit,omitempty"`
@@ -337,7 +337,7 @@ func (m *ApplyNodeRequest) Reset()         { *m = ApplyNodeRequest{} }
 func (m *ApplyNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*ApplyNodeRequest) ProtoMessage()    {}
 func (*ApplyNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_node_fedb7e8796d8d5c8, []int{4}
+	return fileDescriptor_node_35993d153cf2a03b, []int{4}
 }
 func (m *ApplyNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ApplyNodeRequest.Unmarshal(m, b)
@@ -420,9 +420,9 @@ func (m *ApplyNodeRequest) GetDatacenter() string {
 	return ""
 }
 
-func (m *ApplyNodeRequest) GetAvailavilityZone() string {
+func (m *ApplyNodeRequest) GetAvailabilityZone() string {
 	if m != nil {
-		return m.AvailavilityZone
+		return m.AvailabilityZone
 	}
 	return ""
 }
@@ -459,7 +459,7 @@ func (m *DeleteNodeRequest) Reset()         { *m = DeleteNodeRequest{} }
 func (m *DeleteNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*DeleteNodeRequest) ProtoMessage()    {}
 func (*DeleteNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_node_fedb7e8796d8d5c8, []int{5}
+	return fileDescriptor_node_35993d153cf2a03b, []int{5}
 }
 func (m *DeleteNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteNodeRequest.Unmarshal(m, b)
@@ -502,7 +502,7 @@ func (m *ScheduleComputeRequest) Reset()         { *m = ScheduleComputeRequest{}
 func (m *ScheduleComputeRequest) String() string { return proto.CompactTextString(m) }
 func (*ScheduleComputeRequest) ProtoMessage()    {}
 func (*ScheduleComputeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_node_fedb7e8796d8d5c8, []int{6}
+	return fileDescriptor_node_35993d153cf2a03b, []int{6}
 }
 func (m *ScheduleComputeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ScheduleComputeRequest.Unmarshal(m, b)
@@ -581,7 +581,7 @@ func (m *ReserveComputeRequest) Reset()         { *m = ReserveComputeRequest{} }
 func (m *ReserveComputeRequest) String() string { return proto.CompactTextString(m) }
 func (*ReserveComputeRequest) ProtoMessage()    {}
 func (*ReserveComputeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_node_fedb7e8796d8d5c8, []int{7}
+	return fileDescriptor_node_35993d153cf2a03b, []int{7}
 }
 func (m *ReserveComputeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ReserveComputeRequest.Unmarshal(m, b)
@@ -662,7 +662,7 @@ func (m *ReleaseComputeRequest) Reset()         { *m = ReleaseComputeRequest{} }
 func (m *ReleaseComputeRequest) String() string { return proto.CompactTextString(m) }
 func (*ReleaseComputeRequest) ProtoMessage()    {}
 func (*ReleaseComputeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_node_fedb7e8796d8d5c8, []int{8}
+	return fileDescriptor_node_35993d153cf2a03b, []int{8}
 }
 func (m *ReleaseComputeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ReleaseComputeRequest.Unmarshal(m, b)
@@ -710,7 +710,7 @@ func (m *ScheduleStorageRequest) Reset()         { *m = ScheduleStorageRequest{}
 func (m *ScheduleStorageRequest) String() string { return proto.CompactTextString(m) }
 func (*ScheduleStorageRequest) ProtoMessage()    {}
 func (*ScheduleStorageRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_node_fedb7e8796d8d5c8, []int{9}
+	return fileDescriptor_node_35993d153cf2a03b, []int{9}
 }
 func (m *ScheduleStorageRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ScheduleStorageRequest.Unmarshal(m, b)
@@ -773,7 +773,7 @@ func (m *ReserveStorageRequest) Reset()         { *m = ReserveStorageRequest{} }
 func (m *ReserveStorageRequest) String() string { return proto.CompactTextString(m) }
 func (*ReserveStorageRequest) ProtoMessage()    {}
 func (*ReserveStorageRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_node_fedb7e8796d8d5c8, []int{10}
+	return fileDescriptor_node_35993d153cf2a03b, []int{10}
 }
 func (m *ReserveStorageRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ReserveStorageRequest.Unmarshal(m, b)
@@ -840,7 +840,7 @@ func (m *ReleaseStorageRequest) Reset()         { *m = ReleaseStorageRequest{} }
 func (m *ReleaseStorageRequest) String() string { return proto.CompactTextString(m) }
 func (*ReleaseStorageRequest) ProtoMessage()    {}
 func (*ReleaseStorageRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_node_fedb7e8796d8d5c8, []int{11}
+	return fileDescriptor_node_35993d153cf2a03b, []int{11}
 }
 func (m *ReleaseStorageRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ReleaseStorageRequest.Unmarshal(m, b)
@@ -1271,9 +1271,9 @@ var _NodeService_serviceDesc = grpc.ServiceDesc{
 	Metadata: "pool/v0/node.proto",
 }
 
-func init() { proto.RegisterFile("pool/v0/node.proto", fileDescriptor_node_fedb7e8796d8d5c8) }
+func init() { proto.RegisterFile("pool/v0/node.proto", fileDescriptor_node_35993d153cf2a03b) }
 
-var fileDescriptor_node_fedb7e8796d8d5c8 = []byte{
+var fileDescriptor_node_35993d153cf2a03b = []byte{
 	// 1033 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x58, 0xff, 0x6b, 0xdb, 0x46,
 	0x14, 0x8f, 0x63, 0x3b, 0xa9, 0x9f, 0xed, 0xc4, 0xbe, 0x66, 0xe9, 0xe1, 0x8e, 0xd6, 0x95, 0xc3,
@@ -1296,7 +1296,7 @@ var fileDescriptor_node_fedb7e8796d8d5c8 = []byte{
 	0x84, 0xe1, 0x83, 0x6e, 0xa9, 0x5f, 0x19, 0xd5, 0x95, 0xed, 0x85, 0x30, 0xa1, 0x1e, 0x34, 0x75,
 	0x52, 0x34, 0xe6, 0x50, 0x62, 0x1a, 0xda, 0xa8, 0x40, 0x8f, 0x00, 0xa6, 0x16, 0xb7, 0x6c, 0xe2,
 	0x73, 0x12, 0xe2, 0x96, 0x5c, 0x4b, 0xc2, 0x82, 0x3e, 0x83, 0xb6, 0x35, 0xb7, 0x1c, 0xd7, 0x9a,
-	0x3b, 0xae, 0xc3, 0x17, 0xe3, 0xdf, 0xa9, 0x4f, 0x70, 0x5b, 0xc2, 0x5a, 0x49, 0xc7, 0x6b, 0xea,
+	0x38, 0xae, 0xc3, 0x17, 0xe3, 0xdf, 0xa9, 0x4f, 0x70, 0x5b, 0xc2, 0x5a, 0x49, 0xc7, 0x6b, 0xea,
 	0xcb, 0x64, 0xdb, 0xc4, 0x75, 0x31, 0x52, 0xc9, 0x16, 0x63, 0x61, 0x0b, 0x2d, 0xfb, 0x16, 0xdf,
 	0x57, 0x36, 0x31, 0x16, 0xb6, 0xc8, 0x77, 0x38, 0x3e, 0x92, 0x3b, 0x93, 0x63, 0x34, 0x84, 0x2a,
 	0xe3, 0x16, 0x27, 0x78, 0xd8, 0x2d, 0xf5, 0x0f, 0x86, 0x1f, 0xe7, 0xc8, 0x21, 0xfe, 0xdc, 0x08,
@@ -1339,5 +1339,5 @@ var fileDescriptor_node_fedb7e8796d8d5c8 = []byte{
 	0x66, 0xe1, 0x66, 0x37, 0x92, 0xe5, 0x1c, 0x95, 0xcd, 0x9b, 0x7d, 0xf1, 0xec, 0xf5, 0xd9, 0xcc,
 	0xe1, 0x6f, 0xa2, 0x89, 0x69, 0x53, 0x6f, 0xa0, 0xa9, 0x12, 0xff, 0x65, 0x80, 0x39, 0xa3, 0x03,
 	0xfd, 0xdb, 0xc2, 0xd7, 0x81, 0x18, 0x4c, 0xf6, 0xa4, 0xfd, 0xec, 0x9f, 0x00, 0x00, 0x00, 0xff,
-	0xff, 0x59, 0x8b, 0x30, 0x23, 0x73, 0x10, 0x00, 0x00,
+	0xff, 0xf4, 0x35, 0xa1, 0xdf, 0x73, 0x10, 0x00, 0x00,
 }

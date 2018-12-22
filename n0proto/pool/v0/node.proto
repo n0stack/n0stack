@@ -25,7 +25,7 @@ message Node {
 
   // physical placement
   string datacenter = 16;
-  string availavility_zone = 17;
+  string availability_zone = 17;
   string cell = 18;
   string rack = 19;
   uint32 unit = 20;
@@ -82,7 +82,7 @@ message ApplyNodeRequest {
   uint64 storage_bytes = 15;
 
   string datacenter = 16;
-  string availavility_zone = 17;
+  string availability_zone = 17;
   string cell = 18;
   string rack = 19;
   uint32 unit = 20;

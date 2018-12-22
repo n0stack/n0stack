@@ -105,7 +105,7 @@ func (a NodeAPI) ApplyNode(ctx context.Context, req *ppool.ApplyNodeRequest) (*p
 	res.MemoryBytes = req.MemoryBytes
 	res.StorageBytes = req.StorageBytes
 	res.Datacenter = req.Datacenter
-	res.AvailavilityZone = req.AvailavilityZone
+	res.AvailabilityZone = req.AvailabilityZone
 	res.Cell = req.Cell
 	res.Rack = req.Rack
 	res.Unit = req.Unit
