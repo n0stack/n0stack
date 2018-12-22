@@ -1,20 +1,21 @@
-FROM n0stack/build-go AS BUILD_GO
+FROM golang:1.11.1 AS BUILD_GO
+
+ENV GO111MODULE=on
 
 COPY . /go/src/github.com/n0stack/n0stack
 WORKDIR /go/src/github.com/n0stack/n0stack
 
-RUN make test-small-go \
- && make build-go
+RUN make build-go
 
 FROM debian:jessie
-
-COPY VERSION /
-COPY LICENSE /
-COPY --from=BUILD_GO bin/* /usr/bin/
 
 RUN apt update \
  && apt install -y openssh-client \
  && rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/*
+
+COPY VERSION /
+COPY LICENSE /
+COPY --from=BUILD_GO bin/* /usr/bin/
 
 WORKDIR /root
 CMD /bin/bash
