@@ -16,6 +16,7 @@ const systemdAgentUnit = "n0core-agent"
 
 var AgentRequiredPackages = []string{
 	"cloud-image-utils",
+	"ipmitool",
 	"iproute2",
 	"qemu-kvm",
 	"qemu-utils",
