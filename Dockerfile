@@ -15,7 +15,7 @@ RUN apt update \
 
 COPY VERSION /
 COPY LICENSE /
-COPY --from=BUILD_GO /go/src/github.com/n0stack/n0stack/bin/* /usr/bin/
+COPY --from=BUILD_GO /go/src/github.com/n0stack/n0stack/bin/* /usr/local/bin/
 
 WORKDIR /root
 CMD /bin/bash

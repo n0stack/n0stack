@@ -3,7 +3,7 @@ services:
   api:
     image: n0stack/n0stack
     command:
-      - /usr/bin/n0core
+      - /usr/local/bin/n0core
       - serve
       - api
       - --etcd-endpoints=etcd:2379
