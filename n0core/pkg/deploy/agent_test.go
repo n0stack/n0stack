@@ -21,6 +21,7 @@ ExecStart=/var/lib/n0core/n0core agent hogehoge
 Restart=always
 StartLimitInterval=0
 RestartSec=10
+KillMode=process
 
 [Install]
 WantedBy=multi-user.target
