@@ -44,6 +44,11 @@ func (d LocalDeployer) CreateAgentUnit(command string) []byte {
 			Value:   "10",
 		},
 		{
+			Section: "Service",
+			Name:    "KillMode",
+			Value:   "process",
+		},
+		{
 			Section: "Install",
 			Name:    "WantedBy",
 			Value:   "multi-user.target",
