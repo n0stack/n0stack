@@ -47,6 +47,14 @@ GenerateBlockStorage:
   depends_on:
     - DeleteBlockStorage
 
+DownloadBlockStorage:
+  type: BlockStorage
+  action: DownloadBlockStorage
+  args:
+    name: debug
+  depends_on:
+    - GenerateBlockStorage
+
 DeleteNetwork:
   type: Network
   action: DeleteNetwork

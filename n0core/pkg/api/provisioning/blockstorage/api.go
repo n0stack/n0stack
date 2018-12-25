@@ -526,6 +526,26 @@ func (a *BlockStorageAPI) SetProtectedBlockStorage(ctx context.Context, req *ppr
 	return res, nil
 }
 
+func (a *BlockStorageAPI) DownloadBlockStorage(ctx context.Context, req *pprovisioning.DownloadBlockStorageRequest) (*pprovisioning.DownloadBlockStorageResponse, error) {
+	bs := &pprovisioning.BlockStorage{}
+	if err := a.dataStore.Get(req.Name, bs); err != nil {
+		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
+	} else if bs.Name == "" {
+		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "")
+	}
+
+	u := &url.URL{
+		Scheme: "http",
+		Path:   fmt.Sprintf("/api/v0/block_storage/download/%s", req.Name),
+	}
+	res := &pprovisioning.DownloadBlockStorageResponse{
+		DownloadUrl: u.String(),
+	}
+
+	return res, nil
+}
+
 func NewSingleHostReverseProxy(target *url.URL) *httputil.ReverseProxy {
 	targetQuery := target.RawQuery
 	director := func(req *http.Request) {

@@ -69,3 +69,6 @@ func (a MockBlockStorageAPI) SetAvailableBlockStorage(ctx context.Context, in *p
 func (a MockBlockStorageAPI) SetProtectedBlockStorage(ctx context.Context, in *pprovisioning.SetProtectedBlockStorageRequest, opts ...grpc.CallOption) (*pprovisioning.BlockStorage, error) {
 	return a.api.SetProtectedBlockStorage(ctx, in)
 }
+func (a MockBlockStorageAPI) DownloadBlockStorage(ctx context.Context, in *pprovisioning.DownloadBlockStorageRequest, opts ...grpc.CallOption) (*pprovisioning.DownloadBlockStorageResponse, error) {
+	return a.api.DownloadBlockStorage(ctx, in)
+}

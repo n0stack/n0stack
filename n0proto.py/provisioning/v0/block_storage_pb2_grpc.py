@@ -65,6 +65,11 @@ class BlockStorageServiceStub(object):
         request_serializer=provisioning_dot_v0_dot_block__storage__pb2.SetProtectedBlockStorageRequest.SerializeToString,
         response_deserializer=provisioning_dot_v0_dot_block__storage__pb2.BlockStorage.FromString,
         )
+    self.DownloadBlockStorage = channel.unary_unary(
+        '/n0stack.provisioning.BlockStorageService/DownloadBlockStorage',
+        request_serializer=provisioning_dot_v0_dot_block__storage__pb2.DownloadBlockStorageRequest.SerializeToString,
+        response_deserializer=provisioning_dot_v0_dot_block__storage__pb2.DownloadBlockStorageResponse.FromString,
+        )
 
 
 class BlockStorageServiceServicer(object):
@@ -141,6 +146,13 @@ class BlockStorageServiceServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
+  def DownloadBlockStorage(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
 
 def add_BlockStorageServiceServicer_to_server(servicer, server):
   rpc_method_handlers = {
@@ -193,6 +205,11 @@ def add_BlockStorageServiceServicer_to_server(servicer, server):
           servicer.SetProtectedBlockStorage,
           request_deserializer=provisioning_dot_v0_dot_block__storage__pb2.SetProtectedBlockStorageRequest.FromString,
           response_serializer=provisioning_dot_v0_dot_block__storage__pb2.BlockStorage.SerializeToString,
+      ),
+      'DownloadBlockStorage': grpc.unary_unary_rpc_method_handler(
+          servicer.DownloadBlockStorage,
+          request_deserializer=provisioning_dot_v0_dot_block__storage__pb2.DownloadBlockStorageRequest.FromString,
+          response_serializer=provisioning_dot_v0_dot_block__storage__pb2.DownloadBlockStorageResponse.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

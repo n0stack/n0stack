@@ -56,7 +56,7 @@ service BlockStorageService {
   // AVAILABLE -> PROTECTED
   rpc SetProtectedBlockStorage(SetProtectedBlockStorageRequest) returns (BlockStorage) {}
 
-  // rpc DownloadBlockStorage(DownloadBlockStorageRequest) returns (stream BlockStorageChunk) {}
+  rpc DownloadBlockStorage(DownloadBlockStorageRequest) returns (DownloadBlockStorageResponse) {}
 
   // // when AVAILABLE, not IN_USE
   // rpc MigrateBlockStorage(MigrateBlockStorageRequest) returns (BlockStorage) {}
@@ -139,6 +139,9 @@ message SetProtectedBlockStorageRequest {
 
 message DownloadBlockStorageRequest {
   string name = 1;
+}
+message DownloadBlockStorageResponse {
+  string download_url = 1;
 }
 
 // message MigrateBlockStorageRequest {
