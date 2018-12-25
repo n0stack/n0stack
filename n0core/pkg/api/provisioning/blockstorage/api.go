@@ -546,7 +546,7 @@ func (a *BlockStorageAPI) DownloadBlockStorage(ctx context.Context, req *pprovis
 	return res, nil
 }
 
-func NewSingleHostReverseProxy(target *url.URL) *httputil.ReverseProxy {
+func NewReverseProxyStrippingAllPath(target *url.URL) *httputil.ReverseProxy {
 	targetQuery := target.RawQuery
 	director := func(req *http.Request) {
 		req.URL.Scheme = target.Scheme
@@ -590,7 +590,7 @@ func (a *BlockStorageAPI) ProxyDownloadBlockStorage(agentPort int) func(echo.Con
 		}
 
 		log.Printf("[DEBUG] ProxyDownloadBlockStorage: url=%s", u.String())
-		proxy := NewSingleHostReverseProxy(u)
+		proxy := NewReverseProxyStrippingAllPath(u)
 		proxy.ServeHTTP(c.Response(), c.Request())
 
 		return nil
