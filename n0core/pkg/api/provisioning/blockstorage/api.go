@@ -4,11 +4,14 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"path/filepath"
 
 	proto "github.com/golang/protobuf/proto"
 	empty "github.com/golang/protobuf/ptypes/empty"
+	"github.com/labstack/echo"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
 	"github.com/n0stack/n0stack/n0core/pkg/util/grpc"
@@ -521,4 +524,55 @@ func (a *BlockStorageAPI) SetProtectedBlockStorage(ctx context.Context, req *ppr
 	}
 
 	return res, nil
+}
+
+func NewSingleHostReverseProxy(target *url.URL) *httputil.ReverseProxy {
+	targetQuery := target.RawQuery
+	director := func(req *http.Request) {
+		req.URL.Scheme = target.Scheme
+		req.URL.Host = target.Host
+		req.URL.Path = target.Path
+		if targetQuery == "" || req.URL.RawQuery == "" {
+			req.URL.RawQuery = targetQuery + req.URL.RawQuery
+		} else {
+			req.URL.RawQuery = targetQuery + "&" + req.URL.RawQuery
+		}
+		if _, ok := req.Header["User-Agent"]; !ok {
+			req.Header.Set("User-Agent", "")
+		}
+	}
+	return &httputil.ReverseProxy{Director: director}
+}
+
+// TODO: agentPort は Node から取れるようにしたい
+func (a *BlockStorageAPI) ProxyDownloadBlockStorage(agentPort int) func(echo.Context) error {
+	return func(c echo.Context) error {
+		name := c.Param("name")
+
+		bs := &pprovisioning.BlockStorage{}
+		if err := a.dataStore.Get(name, bs); err != nil {
+			log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
+			return fmt.Errorf("db error")
+		} else if bs.Name == "" {
+			return err
+		}
+
+		ctx := context.Background()
+		node, err := a.nodeAPI.GetNode(ctx, &ppool.GetNodeRequest{Name: bs.NodeName})
+		if err != nil {
+			return err
+		}
+
+		u := &url.URL{
+			Scheme: "http",
+			Host:   fmt.Sprintf("%s:%d", node.Address, agentPort),
+			Path:   filepath.Join(DownloadBlockStorageHTTPPrefix, name),
+		}
+
+		log.Printf("[DEBUG] ProxyDownloadBlockStorage: url=%s", u.String())
+		proxy := NewSingleHostReverseProxy(u)
+		proxy.ServeHTTP(c.Response(), c.Request())
+
+		return nil
+	}
 }
