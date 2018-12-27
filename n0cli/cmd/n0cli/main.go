@@ -29,13 +29,33 @@ func main() {
 			Name:      "get",
 			Usage:     "Get resource if set resource name, List resources if not set",
 			ArgsUsage: "[resource type] [resource name]",
-			Action:    Get,
+			Description: `
+	## Resource types
+
+		- "Node", "node"
+		- "Network", "network"
+		- "BlockStorage", "block_storage", "bs"
+		- "VirtualMachine", "virtual_machine", "vm"
+		- "Image", "image"
+		- "Flavor", "flavor"
+`,
+			Action: Get,
 		},
 		{
 			Name:      "delete",
 			Usage:     "Delete resource",
 			ArgsUsage: "[resource type] [resource name]",
-			Action:    Delete,
+			Description: `
+	## Resource types
+
+		- "Node", "node"
+		- "Network", "network"
+		- "BlockStorage", "block_storage", "bs"
+		- "VirtualMachine", "virtual_machine", "vm"
+		- "Image", "image"
+		- "Flavor", "flavor"
+`,
+			Action: Delete,
 		},
 		{
 			Name:  "do",

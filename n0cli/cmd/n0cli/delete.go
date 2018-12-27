@@ -55,7 +55,7 @@ func delete(ctx *cli.Context) error {
 
 		marshaler.Marshal(os.Stdout, res)
 
-	case "BlockStorage", "block_storage":
+	case "BlockStorage", "block_storage", "bs":
 		cl := pprovisioning.NewBlockStorageServiceClient(conn)
 		res, err := cl.DeleteBlockStorage(context.Background(), &pprovisioning.DeleteBlockStorageRequest{Name: resourceName})
 		if err != nil {
@@ -65,7 +65,7 @@ func delete(ctx *cli.Context) error {
 
 		marshaler.Marshal(os.Stdout, res)
 
-	case "VirtualMachine", "virtual_machine":
+	case "VirtualMachine", "virtual_machine", "vm":
 		cl := pprovisioning.NewVirtualMachineServiceClient(conn)
 		res, err := cl.DeleteVirtualMachine(context.Background(), &pprovisioning.DeleteVirtualMachineRequest{Name: resourceName})
 		if err != nil {

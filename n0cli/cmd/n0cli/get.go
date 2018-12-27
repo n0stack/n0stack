@@ -57,7 +57,7 @@ func get(ctx *cli.Context) error {
 
 		marshaler.Marshal(os.Stdout, res)
 
-	case "BlockStorage", "block_storage":
+	case "BlockStorage", "block_storage", "bs":
 		cl := pprovisioning.NewBlockStorageServiceClient(conn)
 		res, err := cl.GetBlockStorage(context.Background(), &pprovisioning.GetBlockStorageRequest{Name: resourceName})
 		if err != nil {
@@ -67,7 +67,7 @@ func get(ctx *cli.Context) error {
 
 		marshaler.Marshal(os.Stdout, res)
 
-	case "VirtualMachine", "virtual_machine":
+	case "VirtualMachine", "virtual_machine", "vm":
 		cl := pprovisioning.NewVirtualMachineServiceClient(conn)
 		res, err := cl.GetVirtualMachine(context.Background(), &pprovisioning.GetVirtualMachineRequest{Name: resourceName})
 		if err != nil {
@@ -136,7 +136,7 @@ func list(ctx *cli.Context) error {
 
 		marshaler.Marshal(os.Stdout, res)
 
-	case "BlockStorage", "block_storage":
+	case "BlockStorage", "block_storage", "bs":
 		cl := pprovisioning.NewBlockStorageServiceClient(conn)
 		res, err := cl.ListBlockStorages(context.Background(), &pprovisioning.ListBlockStoragesRequest{})
 		if err != nil {
@@ -146,7 +146,7 @@ func list(ctx *cli.Context) error {
 
 		marshaler.Marshal(os.Stdout, res)
 
-	case "VirtualMachine", "virtual_machine":
+	case "VirtualMachine", "virtual_machine", "vm":
 		cl := pprovisioning.NewVirtualMachineServiceClient(conn)
 		res, err := cl.ListVirtualMachines(context.Background(), &pprovisioning.ListVirtualMachinesRequest{})
 		if err != nil {
