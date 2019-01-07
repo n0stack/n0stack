@@ -30,7 +30,7 @@ func (a MockBlockStorageAPI) FactoryBlockStorage(ctx context.Context, nodeName s
 	factroyIndex++
 
 	return a.api.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
-		Name: fmt.Sprintf("factory-network%d", factroyIndex),
+		Name: fmt.Sprintf("factory-blockstorage%d", factroyIndex),
 		Annotations: map[string]string{
 			AnnotationBlockStorageRequestNodeName: nodeName,
 		},
