@@ -2,8 +2,6 @@ package virtualmachine
 
 import (
 	"context"
-	"fmt"
-	"net"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/network"
@@ -21,27 +19,16 @@ type MockVirtualMachineAPI struct {
 	BlockStorageAPI *blockstorage.MockBlockStorageAPI
 }
 
-// どうもサービスが始まるまでのタイムラグがあるせいで、性能の悪いデバイスでは安定性が悪い
-// TODO: 上位層が使いにくくなっているので変える
-func UpMockAgent(address string) error {
-	addr := fmt.Sprintf("%s:%d", address, 20181)
-	lis, err := net.Listen("tcp", addr)
-	if err != nil {
-		return err
-	}
-
-	grpcServer := grpc.NewServer()
-	blockstorage.RegisterBlockStorageAgentServiceServer(grpcServer, &blockstorage.MockBlockStorageAgentAPI{})
-	RegisterVirtualMachineAgentServiceServer(grpcServer, &VirtualMachineAgentMock{})
-	return grpcServer.Serve(lis)
-}
-
 func NewMockVirtualMachineAPI(datastore *memory.MemoryDatastore) *MockVirtualMachineAPI {
 	noa := node.NewMockNodeAPI(datastore)
 	nea := network.NewMockNetworkAPI(datastore)
 	bsa := blockstorage.NewMockBlcokStorageAPI(datastore)
 
 	a := CreateVirtualMachineAPI(datastore, noa, nea, bsa)
+	a.getAgent = func(ctx context.Context, nodeName string) (VirtualMachineAgentServiceClient, func() error, error) {
+		return NewMockVirtualMachineAgentClientMock(), func() error { return nil }, nil
+	}
+
 	return &MockVirtualMachineAPI{a, noa, nea, bsa}
 }
 

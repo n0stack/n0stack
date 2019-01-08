@@ -40,6 +40,8 @@ type VirtualMachineAPI struct {
 	nodeAPI         ppool.NodeServiceClient
 	networkAPI      ppool.NetworkServiceClient
 	blockstorageAPI pprovisioning.BlockStorageServiceClient
+
+	getAgent func(ctx context.Context, nodeName string) (VirtualMachineAgentServiceClient, func() error, error)
 }
 
 func CreateVirtualMachineAPI(ds datastore.Datastore, noa ppool.NodeServiceClient, nea ppool.NetworkServiceClient, bsa pprovisioning.BlockStorageServiceClient) *VirtualMachineAPI {
@@ -48,6 +50,19 @@ func CreateVirtualMachineAPI(ds datastore.Datastore, noa ppool.NodeServiceClient
 		nodeAPI:         noa,
 		networkAPI:      nea,
 		blockstorageAPI: bsa,
+	}
+
+	a.getAgent = func(ctx context.Context, nodeName string) (VirtualMachineAgentServiceClient, func() error, error) {
+		conn, err := node.GetConnection(ctx, a.nodeAPI, nodeName)
+		cli := NewVirtualMachineAgentServiceClient(conn)
+		if err != nil {
+			return nil, nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to dial to node: err=%s", err.Error())
+		}
+		if conn == nil {
+			return nil, nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", nodeName)
+		}
+
+		return cli, conn.Close, nil
 	}
 
 	return a
@@ -363,15 +378,11 @@ func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprov
 	}
 
 	{
-		conn, err := node.GetConnection(ctx, a.nodeAPI, vm.ComputeNodeName)
+		cli, done, err := a.getAgent(ctx, vm.ComputeNodeName)
 		if err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "") // TODO: #89
+			return nil, err
 		}
-		if conn == nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", vm.ComputeNodeName)
-		}
-		defer conn.Close()
-		cli := NewVirtualMachineAgentServiceClient(conn)
+		defer done()
 
 		netdevs := make([]*NetDev, len(vm.Nics))
 		for i, n := range vm.Nics {
@@ -504,15 +515,11 @@ func (a *VirtualMachineAPI) BootVirtualMachine(ctx context.Context, req *pprovis
 	}
 
 	{
-		conn, err := node.GetConnection(ctx, a.nodeAPI, vm.ComputeNodeName)
-		cli := NewVirtualMachineAgentServiceClient(conn)
+		cli, done, err := a.getAgent(ctx, vm.ComputeNodeName)
 		if err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to dial to node: err=%s", err.Error())
+			return nil, err
 		}
-		if conn == nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", vm.ComputeNodeName)
-		}
-		defer conn.Close()
+		defer done()
 
 		res, err := cli.BootVirtualMachine(ctx, &BootVirtualMachineRequest{
 			Name:              vm.Name,

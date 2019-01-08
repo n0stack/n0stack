@@ -23,6 +23,10 @@ func NewMockBlcokStorageAPI(datastore *memory.MemoryDatastore) *MockBlockStorage
 	na := node.NewMockNodeAPI(datastore)
 
 	a := CreateBlockStorageAPI(datastore, na)
+	a.getAgent = func(ctx context.Context, nodeName string) (BlockStorageAgentServiceClient, func() error, error) {
+		return NewMockBlockStorageAgentClient(), func() error { return nil }, nil
+	}
+
 	return &MockBlockStorageAPI{a, na}
 }
 

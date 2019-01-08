@@ -30,12 +30,27 @@ type BlockStorageAPI struct {
 
 	// dependency APIs
 	nodeAPI ppool.NodeServiceClient
+
+	getAgent func(ctx context.Context, nodeName string) (BlockStorageAgentServiceClient, func() error, error)
 }
 
 func CreateBlockStorageAPI(ds datastore.Datastore, na ppool.NodeServiceClient) *BlockStorageAPI {
 	a := &BlockStorageAPI{
 		dataStore: ds.AddPrefix("block_storage"),
 		nodeAPI:   na,
+	}
+
+	a.getAgent = func(ctx context.Context, nodeName string) (BlockStorageAgentServiceClient, func() error, error) {
+		conn, err := node.GetConnection(ctx, a.nodeAPI, nodeName)
+		cli := NewBlockStorageAgentServiceClient(conn)
+		if err != nil {
+			return nil, nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to dial to node: err=%s", err.Error())
+		}
+		if conn == nil {
+			return nil, nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", nodeName)
+		}
+
+		return cli, conn.Close, nil
 	}
 
 	return a
@@ -156,12 +171,11 @@ func (a *BlockStorageAPI) CreateBlockStorage(ctx context.Context, req *pprovisio
 	}
 
 	{
-		conn, err := node.GetConnection(ctx, a.nodeAPI, bs.NodeName) // errorについて考える
-		cli := NewBlockStorageAgentServiceClient(conn)
+		cli, done, err := a.getAgent(ctx, bs.NodeName)
 		if err != nil {
-			grpcutil.WrapGrpcErrorf(codes.Internal, "Fail to dial to node: err=%v.", err.Error())
+			return nil, err
 		}
-		defer conn.Close()
+		defer done()
 
 		v, err := cli.CreateEmptyBlockStorage(ctx, &CreateEmptyBlockStorageRequest{
 			Name:  bs.Name,
@@ -235,12 +249,11 @@ func (a *BlockStorageAPI) FetchBlockStorage(ctx context.Context, req *pprovision
 	}
 
 	{
-		conn, err := node.GetConnection(ctx, a.nodeAPI, bs.NodeName) // errorについて考える
-		cli := NewBlockStorageAgentServiceClient(conn)
+		cli, done, err := a.getAgent(ctx, bs.NodeName)
 		if err != nil {
-			grpcutil.WrapGrpcErrorf(codes.Internal, "Fail to dial to node: err=%v.", err.Error())
+			return nil, err
 		}
-		defer conn.Close()
+		defer done()
 
 		v, err := cli.FetchBlockStorage(context.Background(), &FetchBlockStorageRequest{
 			Name:      bs.Name,
@@ -326,12 +339,11 @@ func (a *BlockStorageAPI) CopyBlockStorage(ctx context.Context, req *pprovisioni
 	}
 
 	{
-		conn, err := node.GetConnection(ctx, a.nodeAPI, bs.NodeName) // errorについて考える
-		cli := NewBlockStorageAgentServiceClient(conn)
+		cli, done, err := a.getAgent(ctx, bs.NodeName)
 		if err != nil {
-			grpcutil.WrapGrpcErrorf(codes.Internal, "Fail to dial to node: err=%v.", err.Error())
+			return nil, err
 		}
-		defer conn.Close()
+		defer done()
 
 		v, err := cli.FetchBlockStorage(context.Background(), &FetchBlockStorageRequest{
 			Name:      req.Name,
@@ -422,15 +434,11 @@ func (a *BlockStorageAPI) DeleteBlockStorage(ctx context.Context, req *pprovisio
 		return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "BlockStorage '%s' is not available: now=%d", req.Name, bs.State)
 	}
 
-	conn, err := node.GetConnection(ctx, a.nodeAPI, bs.NodeName)
+	cli, done, err := a.getAgent(ctx, bs.NodeName)
 	if err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Fail to dial to node: err=%v.", err.Error())
+		return nil, err
 	}
-	if conn == nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", bs.NodeName)
-	}
-	defer conn.Close()
-	cli := NewBlockStorageAgentServiceClient(conn)
+	defer done()
 
 	u, _ := url.Parse(bs.Annotations[AnnotationBlockStorageURL]) // TODO: エラー処理
 	_, err = cli.DeleteBlockStorage(context.Background(), &DeleteBlockStorageRequest{Path: u.Path})
