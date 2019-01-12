@@ -61,6 +61,31 @@ docker run -it --rm -v $HOME/.ssh:/root/.ssh n0stack/n0stack \
 bin/n0core install agent -a "$agent_args"
 ```
 
+## Design
+
+### VirtualMachine
+
+|||
+|--|--|
+| Redundancy | No |
+| Scalability | Yes |
+
+### BlockStorage
+
+|||
+|--|--|
+| Redundancy | No |
+| Scalability | No |
+
+### Network
+
+|||
+|--|--|
+| Redundancy | No |
+| Scalability | No (for each network) |
+
+![](../docs/images/n0core_network_design.svg)
+
 ## How to develop
 
 - see also [Makefile](../Makefile)
