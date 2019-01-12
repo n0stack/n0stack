@@ -1,0 +1,406 @@
+[
+  {
+    "name": "y\u000b3Lk1O@X9;AZ,o*oOPe1H*i",
+    "annotations": {
+      "n0core/provisioning/virtual_machine/request_node_name": "a\n"
+    },
+    "request_cpu_milli_core": 0,
+    "limit_cpu_milli_core": 1000,
+    "request_memory_bytes": 536870912,
+    "limit_memory_bytes": 536870913,
+    "block_storage_names": [],
+    "nics": [
+      {
+        "network_name": "factory-network1",
+        "ipv4_address": "10.0.1.1"
+      },
+      {
+        "network_name": "factory-network1",
+        "ipv4_address": "10.0.1.1"
+      }
+    ],
+    "uuid": "thN_(AA>\th+x$%)E~)\u000b",
+    "login_username": "TB!x",
+    "ssh_authorized_keys": [
+      "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBITowPn2Ol1eCvXN5XV+Lb6jfXzgDbXyEdtayadDUJtFrcN2m2mjC1B20VBAoJcZtSYkmjrllS06Q26Te5sTYvE= testkey",
+      "",
+      "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBITowPn2Ol1eCvXN5XV+Lb6jfXzgDbXyEdtayadDUJtFrcN2m2mjC1B20VBAoJcZtSYkmjrllS06Q26Te5sTYvE= testkey",
+      "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBITowPn2Ol1eCvXN5XV+Lb6jfXzgDbXyEdtayadDUJtFrcN2m2mjC1B20VBAoJcZtSYkmjrllS06Q26Te5sTYvE= testkey"
+    ]
+  },
+  {
+    "name": "SQ5zk\"*.\\h924Qp;AHa2{",
+    "annotations": {
+      "n0core/provisioning/virtual_machine/request_node_name": "mocked"
+    },
+    "request_cpu_milli_core": 7,
+    "limit_cpu_milli_core": 1000,
+    "request_memory_bytes": 536870910,
+    "limit_memory_bytes": 536870910,
+    "block_storage_names": [],
+    "nics": [
+      {
+        "network_name": "factory-network1",
+        "ipv4_address": "8 vv"
+      },
+      {
+        "network_name": "factory-network1",
+        "ipv4_address": "pmU!JDez}Dw\")E1o^>02<<!\r?3$q4Y<?zo!LCS+g\"*_sI"
+      },
+      {
+        "network_name": "factory-network1",
+        "ipv4_address": "U /]F*kQ|"
+      }
+    ],
+    "uuid": "056d2ccd-0c4c-44dc-a2c8-39a9d394b51f",
+    "login_username": "*\nJ\r}rpn",
+    "ssh_authorized_keys": [
+      "Jh",
+      "%U~{ZkeJM31[",
+      "%U~{ZkeJM31["
+    ]
+  },
+  {
+    "name": "debug",
+    "annotations": {
+      "n0core/provisioning/virtual_machine/request_node_name": "mocked"
+    },
+    "request_cpu_milli_core": 10,
+    "limit_cpu_milli_core": 1000,
+    "request_memory_bytes": 536870912,
+    "limit_memory_bytes": 536870911,
+    "block_storage_names": [
+      "factory-blockstorage1"
+    ],
+    "nics": [
+      {
+        "network_name": "factory-network1",
+        "ipv4_address": "10.0.1.1"
+      },
+      {
+        "network_name": "factory-network1",
+        "ipv4_address": "10.0.1.1"
+      }
+    ],
+    "uuid": "056d2ccd-0c4c-44dc-a2c8-39a9d394b51f",
+    "login_username": "test",
+    "ssh_authorized_keys": [
+      "MWF"
+    ]
+  },
+  {
+    "name": "E\"^uan4\nmsFfRu%,.P",
+    "annotations": {
+      "n0core/provisioning/virtual_machine/request_node_name": "mocked"
+    },
+    "request_cpu_milli_core": 10,
+    "limit_cpu_milli_core": 1000,
+    "request_memory_bytes": 536870911,
+    "limit_memory_bytes": 536870912,
+    "block_storage_names": [
+      "factory-blockstorage1"
+    ],
+    "nics": [
+      {
+        "network_name": "factory-network1",
+        "ipv4_address": ""
+      },
+      {
+        "network_name": " :d:D",
+        "ipv4_address": ""
+      },
+      {
+        "network_name": "factory-network1",
+        "ipv4_address": ""
+      }
+    ],
+    "uuid": "",
+    "login_username": "test",
+    "ssh_authorized_keys": [
+      "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBITowPn2Ol1eCvXN5XV+Lb6jfXzgDbXyEdtayadDUJtFrcN2m2mjC1B20VBAoJcZtSYkmjrllS06Q26Te5sTYvE= testkey"
+    ]
+  },
+  {
+    "name": "y {MO#oNbDuEx\\kDZ\u000bu!|{7",
+    "annotations": {
+      "n0core/provisioning/virtual_machine/request_node_name": "mocked"
+    },
+    "request_cpu_milli_core": 11,
+    "limit_cpu_milli_core": 1000,
+    "request_memory_bytes": 536870912,
+    "limit_memory_bytes": 536870913,
+    "block_storage_names": [],
+    "nics": [],
+    "uuid": "056d2ccd-0c4c-44dc-a2c8-39a9d394b51f",
+    "login_username": "test",
+    "ssh_authorized_keys": [
+      "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBITowPn2Ol1eCvXN5XV+Lb6jfXzgDbXyEdtayadDUJtFrcN2m2mjC1B20VBAoJcZtSYkmjrllS06Q26Te5sTYvE= testkey"
+    ]
+  },
+  {
+    "name": "y {MO#oNbDuEx\\kDZ\u000bu!|{7",
+    "annotations": {
+      "n0core/provisioning/virtual_machine/request_node_name": "mocked"
+    },
+    "request_cpu_milli_core": 10,
+    "limit_cpu_milli_core": 1000,
+    "request_memory_bytes": 536870912,
+    "limit_memory_bytes": 536870913,
+    "block_storage_names": [],
+    "nics": [],
+    "uuid": "056d2ccd-0c4c-44dc-a2c8-39a9d394b51f",
+    "login_username": "test",
+    "ssh_authorized_keys": [
+      "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBITowPn2Ol1eCvXN5XV+Lb6jfXzgDbXyEdtayadDUJtFrcN2m2mjC1B20VBAoJcZtSYkmjrllS06Q26Te5sTYvE= testkey"
+    ]
+  },
+  {
+    "name": "debug",
+    "annotations": {
+      "n0core/provisioning/virtual_machine/request_node_name": "mocked"
+    },
+    "request_cpu_milli_core": 10,
+    "limit_cpu_milli_core": 1000,
+    "request_memory_bytes": 536870910,
+    "limit_memory_bytes": 536870914,
+    "block_storage_names": [
+      "factory-blockstorage1"
+    ],
+    "nics": [
+      {
+        "network_name": "factory-network1",
+        "ipv4_address": "[ut*\nz]WIhCLZ"
+      }
+    ],
+    "uuid": "056d2ccd-0c4c-44dc-a2c8-39a9d394b51f",
+    "login_username": "e",
+    "ssh_authorized_keys": [
+      "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBITowPn2Ol1eCvXN5XV+Lb6jfXzgDbXyEdtayadDUJtFrcN2m2mjC1B20VBAoJcZtSYkmjrllS06Q26Te5sTYvE= testkey",
+      "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBITowPn2Ol1eCvXN5XV+Lb6jfXzgDbXyEdtayadDUJtFrcN2m2mjC1B20VBAoJcZtSYkmjrllS06Q26Te5sTYvE= testkey"
+    ]
+  },
+  {
+    "name": "debug",
+    "annotations": {
+      "n0core/provisioning/virtual_machine/request_node_name": "mocked"
+    },
+    "request_cpu_milli_core": 10,
+    "limit_cpu_milli_core": 1000,
+    "request_memory_bytes": 536870914,
+    "limit_memory_bytes": 536870911,
+    "block_storage_names": [
+      "factory-blockstorage1"
+    ],
+    "nics": [
+      {
+        "network_name": "\f[1Vax|hFND.r&g+3|AU@YI8Oi)k|s\r[4:W`i8r\\!hk\rty,",
+        "ipv4_address": "10.0.1.1"
+      }
+    ],
+    "uuid": "056d2ccd-0c4c-44dc-a2c8-39a9d394b51f",
+    "login_username": "7HIW3?T$KjK8~,?8",
+    "ssh_authorized_keys": [
+      "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBITowPn2Ol1eCvXN5XV+Lb6jfXzgDbXyEdtayadDUJtFrcN2m2mjC1B20VBAoJcZtSYkmjrllS06Q26Te5sTYvE= testkey"
+    ]
+  },
+  {
+    "name": "H[U).I\t6kHC2aHu6k%{]",
+    "annotations": {
+      "n0core/provisioning/virtual_machine/request_node_name": "mocked"
+    },
+    "request_cpu_milli_core": 10,
+    "limit_cpu_milli_core": 1000,
+    "request_memory_bytes": 536870912,
+    "limit_memory_bytes": 536870913,
+    "block_storage_names": [
+      "factory-blockstorage1",
+      "factory-blockstorage1"
+    ],
+    "nics": [
+      {
+        "network_name": "<ebxbxz)x((pd",
+        "ipv4_address": "10.0.1.1"
+      }
+    ],
+    "uuid": "056d2ccd-0c4c-44dc-a2c8-39a9d394b51f",
+    "login_username": "test",
+    "ssh_authorized_keys": [
+      "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBITowPn2Ol1eCvXN5XV+Lb6jfXzgDbXyEdtayadDUJtFrcN2m2mjC1B20VBAoJcZtSYkmjrllS06Q26Te5sTYvE= testkey"
+    ]
+  },
+  {
+    "name": "",
+    "annotations": {
+      "n0core/provisioning/virtual_machine/request_node_name": "vR(!3X!55_R-=b17%LI.\"+NdY^d-z"
+    },
+    "request_cpu_milli_core": 10,
+    "limit_cpu_milli_core": 1000,
+    "request_memory_bytes": 536870912,
+    "limit_memory_bytes": 536870912,
+    "block_storage_names": [
+      "factory-blockstorage1"
+    ],
+    "nics": [
+      {
+        "network_name": "factory-network1",
+        "ipv4_address": "10.0.1.1"
+      }
+    ],
+    "uuid": "056d2ccd-0c4c-44dc-a2c8-39a9d394b51f",
+    "login_username": "test",
+    "ssh_authorized_keys": []
+  },
+  {
+    "name": "debug",
+    "annotations": {
+      "n0core/provisioning/virtual_machine/request_node_name": "mocked"
+    },
+    "request_cpu_milli_core": 10,
+    "limit_cpu_milli_core": 1000,
+    "request_memory_bytes": 536870913,
+    "limit_memory_bytes": 536870913,
+    "block_storage_names": [
+      "factory-blockstorage1"
+    ],
+    "nics": [
+      {
+        "network_name": "factory-network1",
+        "ipv4_address": "10.0.1.1"
+      }
+    ],
+    "uuid": "`6juiAAho[Ij\tk\\Hc^T\f3$={fgP",
+    "login_username": "cuxy: XU",
+    "ssh_authorized_keys": [
+      "x:n_G"
+    ]
+  },
+  {
+    "name": "debug",
+    "annotations": {
+      "n0core/provisioning/virtual_machine/request_node_name": "38UsX"
+    },
+    "request_cpu_milli_core": 11,
+    "limit_cpu_milli_core": 1001,
+    "request_memory_bytes": 536870912,
+    "limit_memory_bytes": 536870912,
+    "block_storage_names": [
+      "factory-blockstorage1"
+    ],
+    "nics": [
+      {
+        "network_name": "factory-network1",
+        "ipv4_address": "10.0.1.1"
+      },
+      {
+        "network_name": "factory-network1",
+        "ipv4_address": "10.0.1.1"
+      }
+    ],
+    "uuid": "056d2ccd-0c4c-44dc-a2c8-39a9d394b51f",
+    "login_username": "test",
+    "ssh_authorized_keys": [
+      "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBITowPn2Ol1eCvXN5XV+Lb6jfXzgDbXyEdtayadDUJtFrcN2m2mjC1B20VBAoJcZtSYkmjrllS06Q26Te5sTYvE= testkey"
+    ]
+  },
+  {
+    "name": "GZP42N0 Il}>?np3m44~'Vkl8py",
+    "annotations": {
+      "n0core/provisioning/virtual_machine/request_node_name": "mocked"
+    },
+    "request_cpu_milli_core": 10,
+    "limit_cpu_milli_core": 1000,
+    "request_memory_bytes": 536870912,
+    "limit_memory_bytes": 536870912,
+    "block_storage_names": [
+      "/_sKy"
+    ],
+    "nics": [
+      {
+        "network_name": "factory-network1",
+        "ipv4_address": "10.0.1.1"
+      }
+    ],
+    "uuid": "056d2ccd-0c4c-44dc-a2c8-39a9d394b51f",
+    "login_username": "test",
+    "ssh_authorized_keys": [
+      "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBITowPn2Ol1eCvXN5XV+Lb6jfXzgDbXyEdtayadDUJtFrcN2m2mjC1B20VBAoJcZtSYkmjrllS06Q26Te5sTYvE= testkey",
+      "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBITowPn2Ol1eCvXN5XV+Lb6jfXzgDbXyEdtayadDUJtFrcN2m2mjC1B20VBAoJcZtSYkmjrllS06Q26Te5sTYvE= testkey"
+    ]
+  },
+  {
+    "name": "debug",
+    "annotations": {
+      "n0core/provisioning/virtual_machine/request_node_name": "`JeBU=,"
+    },
+    "request_cpu_milli_core": 10,
+    "limit_cpu_milli_core": 1000,
+    "request_memory_bytes": 536870912,
+    "limit_memory_bytes": 536870912,
+    "block_storage_names": [
+      "factory-blockstorage1"
+    ],
+    "nics": [
+      {
+        "network_name": "factory-network1",
+        "ipv4_address": "10.0.1.1"
+      }
+    ],
+    "uuid": "",
+    "login_username": "test",
+    "ssh_authorized_keys": [
+      "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBITowPn2Ol1eCvXN5XV+Lb6jfXzgDbXyEdtayadDUJtFrcN2m2mjC1B20VBAoJcZtSYkmjrllS06Q26Te5sTYvE= testkey"
+    ]
+  },
+  {
+    "name": "debug",
+    "annotations": {
+      "n0core/provisioning/virtual_machine/request_node_name": "mocked"
+    },
+    "request_cpu_milli_core": 10,
+    "limit_cpu_milli_core": 1000,
+    "request_memory_bytes": 536870912,
+    "limit_memory_bytes": 536870912,
+    "block_storage_names": [
+      "factory-blockstorage1"
+    ],
+    "nics": [
+      {
+        "network_name": "factory-network1",
+        "ipv4_address": "10.0.1.1"
+      },
+      {
+        "network_name": "factory-network1",
+        "ipv4_address": "10.0.1.1"
+      }
+    ],
+    "uuid": "056d2ccd-0c4c-44dc-a2c8-39a9d394b51f",
+    "login_username": "test",
+    "ssh_authorized_keys": [
+      "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBITowPn2Ol1eCvXN5XV+Lb6jfXzgDbXyEdtayadDUJtFrcN2m2mjC1B20VBAoJcZtSYkmjrllS06Q26Te5sTYvE= testkey"
+    ]
+  },
+  {
+    "name": "debug",
+    "annotations": {
+      "n0core/provisioning/virtual_machine/request_node_name": "mocked"
+    },
+    "request_cpu_milli_core": 10,
+    "limit_cpu_milli_core": 1000,
+    "request_memory_bytes": 536870912,
+    "limit_memory_bytes": 536870912,
+    "block_storage_names": [
+      "factory-blockstorage1"
+    ],
+    "nics": [
+      {
+        "network_name": "factory-network1",
+        "ipv4_address": "10.0.1.1"
+      }
+    ],
+    "uuid": "056d2ccd-0c4c-44dc-a2c8-39a9d394b51f",
+    "login_username": "test",
+    "ssh_authorized_keys": [
+      "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBITowPn2Ol1eCvXN5XV+Lb6jfXzgDbXyEdtayadDUJtFrcN2m2mjC1B20VBAoJcZtSYkmjrllS06Q26Te5sTYvE= testkey"
+    ]
+  }
+]

@@ -1,12 +1,10 @@
-import asyncio
 import string
 import random
-import json
 import numpy.random as nprd
 
 
 class Generation:
-    def __init__(self, runner, callback, chosen=[], previous=None):
+    def __init__(self, runner, callback, chosen=[], previous=None, _scoring_seed=True):
         self._runner = runner
         self._callback = callback
 
@@ -21,7 +19,7 @@ class Generation:
             self._chosen.extend(previous._chosen)
             self._previous = [v for i, v in enumerate(previous._candidate) if previous._score[i] != -1]
             self._previous_score = previous.max_score
-        else:
+        elif _scoring_seed:
             out, err = self._runner(self._chosen).communicate()
             self._previous_score = self._callback(out.decode('utf-8'), err.decode('utf-8'), self._chosen)
 
@@ -111,7 +109,10 @@ class Generation:
             return ret
 
         if type(previous) == dict:
-            target_key = list(previous.keys())[nprd.randint(0, len(previous.keys()))]
+            if len(previous) == 0:
+                return previous
+
+            target_key = list(previous.keys())[nprd.randint(0, len(previous))]
             ret = previous.copy()
 
             ret[target_key] = Generation._random_value(ret[target_key])
@@ -154,17 +155,19 @@ class Generation:
         return result
 
     def run(self):
-        procs = []
-        for c in self._candidate:
-            request_list = [c]
-            request_list.extend(self._chosen)
+        window_size = 32
+        for window in [self._candidate[i:i+window_size] for i in range(0, len(self._candidate), window_size)]:
+            procs = []
+            for c in window:
+                request_list = [c]
+                request_list.extend(self._chosen)
 
-            procs.append((c, self._runner(request_list)))
+                procs.append((c, self._runner(request_list)))
 
-        for req, p in procs:
-            out, err = p.communicate()
+            for req, p in procs:
+                out, err = p.communicate()
 
-            self._score.append(self._callback(out.decode('utf-8'), err.decode('utf-8'), req))
+                self._score.append(self._callback(out.decode('utf-8'), err.decode('utf-8'), req))
 
     @property
     def len(self):

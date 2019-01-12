@@ -18,7 +18,7 @@ func TestCreateVirtualMachineOnN0test(t *testing.T) {
 	raw := os.Getenv("N0TEST_JSON_CreateVirtualMachine_REQUESTS")
 	if raw == "" {
 		// b, err := ioutil.ReadFile("CreateVirtualMachine.n0test.json")
-		b, err := ioutil.ReadFile("/tmp/result")
+		b, err := ioutil.ReadFile("n0test.CreateVirtualMachine.json")
 		if err != nil {
 			t.Fatalf("Failed to read CreateVirtualMachine.n0test.json: err=%s", err.Error())
 		}

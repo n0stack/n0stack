@@ -3,18 +3,9 @@ import unittest
 from n0test.ga import Generation
 
 
-class PreviousGeneration(object):
-    def __init__(self):
-        self._chosen = []
-        self._previous = []
-        self._previous_score = 0
-        self._candidate = []
-        self._score = []
-
-
 class TestGeneration(unittest.TestCase):
     def test___init__(self):
-        prev = Generation(None, None, previous=PreviousGeneration())
+        prev = Generation(None, None, _scoring_seed=False)
         prev._candidate = [{"foo": "bar"}]
         prev._score = [-1]
 
@@ -41,10 +32,10 @@ class TestGeneration(unittest.TestCase):
                 "foo": "baa",
                 "hoge": "hage",
             },
-        ], previous=PreviousGeneration())
+        ], _scoring_seed=False)
         self.assertNotEqual(gen.cross(), gen.cross(), msg="This test fails probability, try a few times")
 
     def test_mutation(self):
         seed = [{"foo": "bar"}]
-        gen = Generation(None, None, seed, previous=PreviousGeneration())
-        self.assertEqual(gen.mutation(), seed)
+        gen = Generation(None, None, seed, _scoring_seed=False)
+        self.assertNotEqual(gen.mutation(), seed)
