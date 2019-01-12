@@ -28,7 +28,7 @@ func main() {
 		{
 			Name:      "get",
 			Usage:     "Get resource if set resource name, List resources if not set",
-			ArgsUsage: "[resource type] [resource name]",
+			ArgsUsage: "[resource type] [resource name (optional)]",
 			Description: `
 	## Resource types
 
