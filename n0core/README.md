@@ -65,21 +65,21 @@ bin/n0core install agent -a "$agent_args"
 
 ### VirtualMachine
 
-|||
+| Features | Yes / No |
 |--|--|
 | Redundancy | No |
 | Scalability | Yes |
 
 ### BlockStorage
 
-|||
+| Features | Yes / No |
 |--|--|
 | Redundancy | No |
-| Scalability | No |
+| Scalability | Yes |
 
 ### Network
 
-|||
+| Features | Yes / No |
 |--|--|
 | Redundancy | No |
 | Scalability | No (for each network) |
