@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"google.golang.org/grpc"
@@ -113,7 +114,104 @@ func TestApplyNetwork(t *testing.T) {
 	}
 }
 
-// func TestNetworkInterfaceAboutErrors(t *testing.T) {}
+func TestApplyNetworkTableDriven(t *testing.T) {
+	cases := []struct {
+		name string
+		req  *ppool.ApplyNetworkRequest
+		res  *ppool.Network
+		code codes.Code
+	}{
+		{
+			"full",
+			&ppool.ApplyNetworkRequest{
+				Name:     "test-network",
+				Ipv4Cidr: "192.168.0.0/30",
+				Ipv6Cidr: "2001:db8::/64",
+				Domain:   "test.local",
+			},
+			&ppool.Network{
+				Name:     "test-network",
+				Ipv4Cidr: "192.168.0.0/30",
+				Ipv6Cidr: "2001:db8::/64",
+				Domain:   "test.local",
+				State:    ppool.Network_AVAILABLE,
+			},
+			codes.OK,
+		},
+		{
+			"only ipv4",
+			&ppool.ApplyNetworkRequest{
+				Name:     "test-network",
+				Ipv4Cidr: "192.168.1.0/30",
+				Domain:   "test.local",
+			},
+			&ppool.Network{
+				Name:     "test-network",
+				Ipv4Cidr: "192.168.1.0/30",
+				Domain:   "test.local",
+				State:    ppool.Network_AVAILABLE,
+			},
+			codes.OK,
+		},
+		{
+			"only ipv6",
+			&ppool.ApplyNetworkRequest{
+				Name:     "test-network",
+				Ipv6Cidr: "2001:db8::/64",
+				Domain:   "test.local",
+			},
+			&ppool.Network{
+				Name:     "test-network",
+				Ipv6Cidr: "2001:db8::/64",
+				Domain:   "test.local",
+				State:    ppool.Network_AVAILABLE,
+			},
+			codes.OK,
+		},
+		{
+			"no network",
+			&ppool.ApplyNetworkRequest{
+				Name:   "test-network",
+				Domain: "test.local",
+			},
+			nil,
+			codes.InvalidArgument,
+		},
+		{
+			"no name",
+			&ppool.ApplyNetworkRequest{
+				Ipv4Cidr: "192.168.0.0/30",
+				Ipv6Cidr: "2001:db8::/64",
+				Domain:   "test.local",
+			},
+			nil,
+			codes.InvalidArgument,
+		},
+	}
+
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	m := memory.NewMemoryDatastore()
+	na := NewMockNetworkAPI(m)
+	originDatastore := na.api.dataStore
+	for i, c := range cases {
+		na.api.dataStore = originDatastore.AddPrefix(fmt.Sprintf("%d", i))
+		res, err := na.ApplyNetwork(ctx, c.req)
+
+		if res != nil {
+			res.XXX_sizecache = 0
+		}
+		if diff := cmp.Diff(c.res, res); diff != "" {
+			t.Errorf("[%s] ApplyNetwork response is wrong: diff=(-want +got)\n%s", c.name, diff)
+		}
+
+		if grpc.Code(err) != c.code {
+			t.Errorf("[%s] Response code is invalid, want=%v, have=%v", c.name, c.code, grpc.Code(err))
+		}
+	}
+}
 
 func TestNetworkAboutNetworkInterface(t *testing.T) {
 	m := memory.NewMemoryDatastore()

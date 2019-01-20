@@ -76,15 +76,21 @@ func (a NetworkAPI) GetNetwork(ctx context.Context, req *ppool.GetNetworkRequest
 }
 
 func (a NetworkAPI) ApplyNetwork(ctx context.Context, req *ppool.ApplyNetworkRequest) (*ppool.Network, error) {
-	ip := netutil.ParseCIDR(req.Ipv4Cidr)
-	if ip == nil {
-		return nil, grpc.Errorf(codes.InvalidArgument, "Field 'ipv4_cidr' is invalid")
+	ipv4 := netutil.ParseCIDR(req.Ipv4Cidr)
+	ipv6 := netutil.ParseCIDR(req.Ipv6Cidr)
+	{
+		if req.Name == "" {
+			return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Set any 'name'")
+		}
+
+		if ipv4 == nil && ipv6 == nil {
+			return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Field 'ipv4_cidr' and 'ipv6_cidr' are invalid")
+		}
 	}
 
-	res := &ppool.Network{}
-	if err := a.dataStore.Get(req.Name, res); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
+	network := &ppool.Network{}
+	if err := a.dataStore.Get(req.Name, network); err != nil {
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get data from db: err='%s'", err.Error())
 	}
 
 	{
@@ -95,27 +101,28 @@ func (a NetworkAPI) ApplyNetwork(ctx context.Context, req *ppool.ApplyNetworkReq
 			}
 		} else {
 			for _, v := range res.Networks {
-				ipv4 := netutil.ParseCIDR(v.Ipv4Cidr)
-				if netutil.IsConflicting(ip, ipv4) {
-					return nil, grpc.Errorf(codes.InvalidArgument, "Field 'ipv4_cidr' is conflicting with network=%s", v.Name)
+				existing := netutil.ParseCIDR(v.Ipv4Cidr)
+				if netutil.IsConflicting(ipv4, existing) {
+					return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Field 'ipv4_cidr' is conflicting with network=%s", v.Name)
 				}
 			}
+
+			// TODO: check IPv6 conflicting
 		}
 	}
 
-	res.Name = req.Name
-	res.Annotations = req.Annotations
-	res.Ipv4Cidr = req.Ipv4Cidr
-	res.Ipv6Cidr = req.Ipv6Cidr
-	res.Domain = req.Domain
+	network.Name = req.Name
+	network.Annotations = req.Annotations
+	network.Ipv4Cidr = req.Ipv4Cidr
+	network.Ipv6Cidr = req.Ipv6Cidr
+	network.Domain = req.Domain
 
-	res.State = ppool.Network_AVAILABLE
-	if err := a.dataStore.Apply(req.Name, res); err != nil {
-		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to store '%s' for db, please retry or contact for the administrator of this cluster", req.Name)
+	network.State = ppool.Network_AVAILABLE
+	if err := a.dataStore.Apply(req.Name, network); err != nil {
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
 	}
 
-	return res, nil
+	return network, nil
 }
 
 func (a NetworkAPI) DeleteNetwork(ctx context.Context, req *ppool.DeleteNetworkRequest) (*empty.Empty, error) {
