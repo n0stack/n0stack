@@ -2,6 +2,7 @@ package deploy
 
 import (
 	"io"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -201,4 +202,9 @@ func (d LocalDeployer) InstallPackages(packages []string, stdout, stderr io.Writ
 	}
 
 	return nil
+}
+
+func (d LocalDeployer) SetSysctl(key string, value []byte) error {
+	p := filepath.Join("/proc/sys/", strings.Replace(key, ".", "/", -1))
+	return ioutil.WriteFile(p, value, 0644)
 }

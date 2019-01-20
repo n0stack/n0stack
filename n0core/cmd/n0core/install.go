@@ -36,6 +36,11 @@ func InstallAgent(ctx *cli.Context) error {
 		return errors.Wrap(err, "Failed to install packages")
 	}
 
+	fmt.Printf("---> [INSTALL] Set sysctl: net.ipv4.ip_forward=1\n")
+	if err := d.SetSysctl("net.ipv4.ip_forward", []byte("1")); err != nil {
+		return errors.Wrap(err, "Failed to set sysctl")
+	}
+
 	fmt.Println("---> [INSTALL] Stopping systemd unit...")
 	if err := d.StopDaemon(systemdAgentUnit, os.Stdout, os.Stderr); err != nil {
 		return errors.Wrap(err, "Failed to stop systemd daemon")
