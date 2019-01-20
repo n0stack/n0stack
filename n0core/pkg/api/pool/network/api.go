@@ -100,10 +100,12 @@ func (a NetworkAPI) ApplyNetwork(ctx context.Context, req *ppool.ApplyNetworkReq
 				return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), errors.Wrapf(err, "Failed to list networks").Error())
 			}
 		} else {
-			for _, v := range res.Networks {
-				existing := netutil.ParseCIDR(v.Ipv4Cidr)
-				if netutil.IsConflicting(ipv4, existing) {
-					return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Field 'ipv4_cidr' is conflicting with network=%s", v.Name)
+			if ipv4 != nil {
+				for _, v := range res.Networks {
+					existing := netutil.ParseCIDR(v.Ipv4Cidr)
+					if netutil.IsConflicting(ipv4, existing) {
+						return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Field 'ipv4_cidr' is conflicting with network=%s", v.Name)
+					}
 				}
 			}
 
@@ -155,24 +157,26 @@ func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.Rese
 		return nil, grpc.Errorf(codes.AlreadyExists, "Network interface '%s' is already exists on Network '%s'", req.NetworkInterfaceName, req.NetworkName)
 	}
 
-	// 保存する際にパースするのでエラーは発生しない
-	_, cidr, _ := net.ParseCIDR(res.Ipv4Cidr)
+	// err != nil の場合は Ipv4Cidr がからのとき
+	_, cidr, err := net.ParseCIDR(res.Ipv4Cidr)
 	var reqIPv4 net.IP
-	if req.Ipv4Address == "" {
-		if reqIPv4 = ScheduleNewIPv4(cidr, res.ReservedNetworkInterfaces); reqIPv4 == nil {
-			return nil, grpc.Errorf(codes.ResourceExhausted, "ipv4_address is full on Network '%s'", req.NetworkName)
-		}
-	} else {
-		reqIPv4 = net.ParseIP(req.Ipv4Address)
-		if reqIPv4 == nil {
-			return nil, grpc.Errorf(codes.InvalidArgument, "ipv4_address field is invalid")
-		}
+	if err == nil {
+		if req.Ipv4Address == "" {
+			if reqIPv4 = ScheduleNewIPv4(cidr, res.ReservedNetworkInterfaces); reqIPv4 == nil {
+				return nil, grpc.Errorf(codes.ResourceExhausted, "ipv4_address is full on Network '%s'", req.NetworkName)
+			}
+		} else {
+			reqIPv4 = net.ParseIP(req.Ipv4Address)
+			if reqIPv4 == nil {
+				return nil, grpc.Errorf(codes.InvalidArgument, "ipv4_address field is invalid")
+			}
 
-		if err := CheckIPv4OnCIDR(reqIPv4, cidr); err != nil {
-			return nil, grpc.Errorf(codes.InvalidArgument, "ipv4_address field is invalid: %s", err.Error())
-		}
-		if err := CheckConflictIPv4(reqIPv4, res.ReservedNetworkInterfaces); err != nil {
-			return nil, grpc.Errorf(codes.ResourceExhausted, "ipv4_address field is invalid: %s", err.Error())
+			if err := CheckIPv4OnCIDR(reqIPv4, cidr); err != nil {
+				return nil, grpc.Errorf(codes.InvalidArgument, "ipv4_address field is invalid: %s", err.Error())
+			}
+			if err := CheckConflictIPv4(reqIPv4, res.ReservedNetworkInterfaces); err != nil {
+				return nil, grpc.Errorf(codes.ResourceExhausted, "ipv4_address field is invalid: %s", err.Error())
+			}
 		}
 	}
 
