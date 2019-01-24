@@ -28,7 +28,7 @@ func TestCreateVirtualMachineOnN0test(t *testing.T) {
 
 	var rawList []interface{}
 	if err := json.Unmarshal([]byte(raw), &rawList); err != nil {
-		t.Fatalf("Failed to parse N0TEST_JSON_REQUESTS by JSON: err=%s", err.Error())
+		t.Fatalf("Failed to parse N0TEST_JSON_CreateVirtualMachine_REQUESTS by JSON: err=%s", err.Error())
 	}
 
 	ctx := context.Background()
@@ -62,7 +62,7 @@ func TestCreateVirtualMachineOnN0test(t *testing.T) {
 		req := &pprovisioning.CreateVirtualMachineRequest{}
 
 		if err := jsonpb.Unmarshal(reader, req); err != nil {
-			t.Fatalf("[N0TEST_OMIT] Failed to parse N0TEST_JSON_REQUESTS from JSON to pb")
+			t.Fatalf("[N0TEST_OMIT] Failed to parse N0TEST_JSON_CreateVirtualMachine_REQUESTS from JSON to pb")
 		}
 
 		vma.CreateVirtualMachine(ctx, req)
