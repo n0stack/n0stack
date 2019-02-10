@@ -262,15 +262,17 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 			vm.Nics[i].Ipv4Address = network.ReservedNetworkInterfaces[vm.NetworkInterfaceNames[i]].Ipv4Address
 			vm.Nics[i].Ipv6Address = network.ReservedNetworkInterfaces[vm.NetworkInterfaceNames[i]].Ipv6Address
 
-			havingGateway := false
-			for _, ni := range network.ReservedNetworkInterfaces {
-				if _, ok := ni.Annotations[AnnotationNetworkInterfaceIsGateway]; ok {
-					havingGateway = true
+			if network.Ipv4Cidr != "" {
+				havingGateway := false
+				for _, ni := range network.ReservedNetworkInterfaces {
+					if _, ok := ni.Annotations[AnnotationNetworkInterfaceIsGateway]; ok {
+						havingGateway = true
+					}
 				}
-			}
-			if !havingGateway {
-				if _, err = a.addDefaultGateway(ctx, network); err != nil {
-					return nil, grpcutil.WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to add default gateway").Error())
+				if !havingGateway {
+					if _, err = a.addDefaultGateway(ctx, network); err != nil {
+						return nil, grpcutil.WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to add default gateway").Error())
+					}
 				}
 			}
 		}
@@ -493,21 +495,24 @@ func (a *VirtualMachineAPI) BootVirtualMachine(ctx context.Context, req *pprovis
 				return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to GetNetworkInterface: desc=%s", grpc.ErrorDesc(err))
 			}
 
-			gateway := ""
-			for _, ni := range network.ReservedNetworkInterfaces {
-				if _, ok := ni.Annotations[AnnotationNetworkInterfaceIsGateway]; ok {
-					gateway = ni.Ipv4Address
-				}
-			}
-
-			ip := netutil.ParseCIDR(network.Ipv4Cidr)
 			netdevs[i] = &NetDev{
 				Name:            vm.NetworkInterfaceNames[i],
 				NetworkName:     vm.Nics[i].NetworkName,
 				HardwareAddress: vm.Nics[i].HardwareAddress,
-				Ipv4AddressCidr: fmt.Sprintf("%s/%d", vm.Nics[i].Ipv4Address, ip.SubnetMaskBits()),
-				Ipv4Gateway:     gateway,
-				Nameservers:     []string{"8.8.8.8"}, // TODO: 取るようにする
+			}
+
+			ip := netutil.ParseCIDR(network.Ipv4Cidr)
+			if ip != nil {
+				gateway := ""
+				for _, ni := range network.ReservedNetworkInterfaces {
+					if _, ok := ni.Annotations[AnnotationNetworkInterfaceIsGateway]; ok {
+						gateway = ni.Ipv4Address
+					}
+				}
+
+				netdevs[i].Ipv4AddressCidr = fmt.Sprintf("%s/%d", vm.Nics[i].Ipv4Address, ip.SubnetMaskBits())
+				netdevs[i].Ipv4Gateway = gateway
+				netdevs[i].Nameservers = []string{"8.8.8.8"} // TODO: 取るようにする
 				// TODO: domain searchはnetworkのdomainから取る
 			}
 		}

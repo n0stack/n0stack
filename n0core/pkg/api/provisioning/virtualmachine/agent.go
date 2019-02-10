@@ -164,28 +164,31 @@ func (a VirtualMachineAgent) BootVirtualMachine(ctx context.Context, req *BootVi
 			}
 
 			// Cloudinit settings
-			ip, ipn, err := net.ParseCIDR(nd.Ipv4AddressCidr)
-			if err != nil {
-				return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Set valid ipv4_address_cidr: value='%s', err='%s'", nd.Ipv4AddressCidr, err.Error())
-			}
-			nameservers := make([]net.IP, len(nd.Nameservers))
-			for i, n := range nd.Nameservers {
-				nameservers[i] = net.ParseIP(n)
-			}
 			eth[i] = &configdrive.CloudConfigEthernet{
-				MacAddress:  hw,
-				Address4:    ip,
-				Network4:    ipn,
-				Gateway4:    net.ParseIP(nd.Ipv4Gateway),
-				NameServers: nameservers,
+				MacAddress: hw,
 			}
 
-			// Gateway settings
-			if nd.Ipv4Gateway != "" {
-				mask, _ := ipn.Mask.Size()
-				gatewayIP := fmt.Sprintf("%s/%d", nd.Ipv4Gateway, mask)
-				if err := b.SetAddress(gatewayIP); err != nil {
-					return nil, grpcutil.WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to set gateway IP to bridge: value=%s", gatewayIP).Error())
+			if nd.Ipv4AddressCidr != "" {
+				ip := netutil.ParseCIDR(nd.Ipv4AddressCidr)
+				if ip == nil {
+					return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Set valid ipv4_address_cidr: value='%s'", nd.Ipv4AddressCidr)
+				}
+				nameservers := make([]net.IP, len(nd.Nameservers))
+				for i, n := range nd.Nameservers {
+					nameservers[i] = net.ParseIP(n)
+				}
+
+				eth[i].Address4 = ip
+				eth[i].Gateway4 = net.ParseIP(nd.Ipv4Gateway)
+				eth[i].NameServers = nameservers
+
+				// Gateway settings
+				if nd.Ipv4Gateway != "" {
+					mask := ip.SubnetMaskBits()
+					gatewayIP := fmt.Sprintf("%s/%d", nd.Ipv4Gateway, mask)
+					if err := b.SetAddress(gatewayIP); err != nil {
+						return nil, grpcutil.WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to set gateway IP to bridge: value=%s", gatewayIP).Error())
+					}
 				}
 			}
 		}

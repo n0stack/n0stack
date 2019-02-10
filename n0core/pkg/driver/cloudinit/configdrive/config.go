@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"github.com/n0stack/n0stack/n0core/pkg/util/net"
 	"golang.org/x/crypto/ssh"
 	"gopkg.in/yaml.v2"
 )
@@ -62,8 +63,7 @@ type CloudConfig struct {
 
 type CloudConfigEthernet struct {
 	MacAddress net.HardwareAddr
-	Address4   net.IP
-	Network4   *net.IPNet
+	Address4   *netutil.IPv4Cidr
 	Gateway4   net.IP
 	// Address6    []net.IP
 	// Mask6 int
@@ -102,16 +102,18 @@ func StructConfig(user, hostname string, keys []ssh.PublicKey, eth []*CloudConfi
 			Type:       "physical",
 			Name:       fmt.Sprintf("eth%d", i),
 			MacAddress: e.MacAddress.String(),
-			Subnets:    make([]*cloudNetworkSubnet, 0),
+			Subnets:    make([]*cloudNetworkSubnet, 1),
 		}
 
-		c.NetworkConfig.Config[i].Subnets = append(c.NetworkConfig.Config[i].Subnets, &cloudNetworkSubnet{
-			Type:       "static",
-			Address:    e.Address4,
-			NetMask:    net.IPv4(e.Network4.Mask[0], e.Network4.Mask[1], e.Network4.Mask[2], e.Network4.Mask[3]),
-			Gateway:    e.Gateway4,
-			DnsServers: e.NameServers,
-		})
+		if e.Address4 != nil {
+			c.NetworkConfig.Config[i].Subnets[0] = &cloudNetworkSubnet{
+				Type:       "static",
+				Address:    e.Address4.IP(),
+				NetMask:    e.Address4.SubnetMaskIP(),
+				Gateway:    e.Gateway4,
+				DnsServers: e.NameServers,
+			}
+		}
 	}
 
 	return c

@@ -209,8 +209,11 @@ func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.Rese
 	res.ReservedNetworkInterfaces[req.NetworkInterfaceName] = &pbudget.NetworkInterface{
 		Annotations:     req.Annotations,
 		HardwareAddress: reqHW.String(),
-		Ipv4Address:     reqIPv4.String(),
 	}
+	if reqIPv4 != nil {
+		res.ReservedNetworkInterfaces[req.NetworkInterfaceName].Ipv4Address = reqIPv4.String()
+	}
+
 	if err := a.dataStore.Apply(req.NetworkName, res); err != nil {
 		log.Printf("[WARNING] Failed to store data on db: err='%s'", err.Error())
 		return nil, grpc.Errorf(codes.Internal, "Failed to store '%s' on db, please retry or contact for the administrator of this cluster", req.NetworkName)
