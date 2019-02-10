@@ -17,6 +17,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 
+	"github.com/n0stack/n0stack/n0core/pkg/api/pool/network"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
 	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/blockstorage"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
@@ -68,16 +69,17 @@ func CreateVirtualMachineAPI(ds datastore.Datastore, noa ppool.NodeServiceClient
 	return a
 }
 
-func (a *VirtualMachineAPI) addDefaultGateway(ctx context.Context, network *ppool.Network) (string, error) {
-	ipn := netutil.ParseCIDR(network.Ipv4Cidr)
+func (a *VirtualMachineAPI) addDefaultGateway(ctx context.Context, nw *ppool.Network) (string, error) {
+	ipn := netutil.ParseCIDR(nw.Ipv4Cidr)
 	ip := netutil.GetEndIP(ipn.Network())
 
 	a.networkAPI.ReserveNetworkInterface(ctx, &ppool.ReserveNetworkInterfaceRequest{
-		NetworkName:          network.Name,
+		NetworkName:          nw.Name,
 		NetworkInterfaceName: "default-gateway",
 		Ipv4Address:          ip.String(),
 		Annotations: map[string]string{
-			AnnotationNetworkInterfaceIsGateway: "true",
+			AnnotationNetworkInterfaceIsGateway:                   "true",
+			network.AnnotationNetworkInterfaceDisableDeletionLock: "true",
 		},
 	})
 
