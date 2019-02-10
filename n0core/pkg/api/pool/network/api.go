@@ -128,9 +128,24 @@ func (a NetworkAPI) ApplyNetwork(ctx context.Context, req *ppool.ApplyNetworkReq
 }
 
 func (a NetworkAPI) DeleteNetwork(ctx context.Context, req *ppool.DeleteNetworkRequest) (*empty.Empty, error) {
+	if req.Name == "" {
+		return nil, grpc.Errorf(codes.InvalidArgument, "Set name")
+	}
+
+	network := &ppool.Network{}
+	if err := a.dataStore.Get(req.Name, network); err != nil {
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get data from db: err='%s'", err.Error())
+	}
+	if network.Name == "" {
+		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "")
+	}
+
+	if IsLockedForDeletion(network) {
+		return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "Network has some network interfaces, so is locked for deletion")
+	}
+
 	if err := a.dataStore.Delete(req.Name); err != nil {
-		log.Printf("[WARNING] Failed to delete data from db: err='%s'", err.Error())
-		return &empty.Empty{}, grpc.Errorf(codes.Internal, "Failed to delete '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
+		return &empty.Empty{}, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to delete data from db: err='%s', name='%s'", err.Error(), req.Name)
 	}
 
 	return &empty.Empty{}, nil

@@ -10,6 +10,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
+	"github.com/n0stack/n0stack/n0core/pkg/util/grpc"
 	"github.com/n0stack/n0stack/n0proto.go/budget/v0"
 	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
 )
@@ -130,9 +131,24 @@ func (a NodeAPI) ApplyNode(ctx context.Context, req *ppool.ApplyNodeRequest) (*p
 }
 
 func (a NodeAPI) DeleteNode(ctx context.Context, req *ppool.DeleteNodeRequest) (*empty.Empty, error) {
+	if req.Name == "" {
+		return nil, grpc.Errorf(codes.InvalidArgument, "Set name")
+	}
+
+	node := &ppool.Node{}
+	if err := a.dataStore.Get(req.Name, node); err != nil {
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get data from db: name='%s', err='%s'", req.Name, err.Error())
+	}
+	if node.Name == "" {
+		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "")
+	}
+
+	if IsLockedForDeletion(node) {
+		return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "Node has some computes or storages, so is locked for deletion")
+	}
+
 	if err := a.dataStore.Delete(req.Name); err != nil {
-		log.Printf("[WARNING] Failed to delete data from db: err='%s'", err.Error())
-		return &empty.Empty{}, grpc.Errorf(codes.Internal, "Failed to delete '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
+		return nil, grpc.Errorf(codes.Internal, "Failed to delete data from db: name='%s', err='%s'", req.Name, err.Error())
 	}
 
 	return &empty.Empty{}, nil
