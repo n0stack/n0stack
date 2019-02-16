@@ -40,16 +40,18 @@ The n0stack wants to solve such problems.
 .. .. mdinclude:: ../README.md
 
 .. toctree::
-   :caption: User Documentation
-   :maxdepth: 1
-   :glob:
+    :caption: User Documentation
+    :maxdepth: 1
+    :glob:
 
-   user/*
+    user/quick_start.md
+    user/*
+    user/usecases/README.rst
 
 .. toctree::
-   :caption: Developer Documentation
-   :maxdepth: 1
-   :glob:
+    :caption: Developer Documentation
+    :maxdepth: 1
+    :glob:
 
-   developer/adr/README.rst
-   developer/*
+    developer/adr/README.rst
+    developer/*

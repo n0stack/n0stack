@@ -11,3 +11,9 @@ with docker
 ```sh
 ``` -->
 
+### Usage
+
+```sh
+n0cli --api-endpoint=$api_ip:20180 get node
+```
+
