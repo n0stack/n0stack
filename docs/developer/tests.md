@@ -42,8 +42,8 @@ The principles about tests on n0stack.
 ## TODO
 
 - [x] 現状のテストが通るようにする
-- [ ] 各 API のモックの作成と差し替え
-- [ ] Agent からロジックの切り出し
-- [ ] Agent のモック作成
-- [ ] medium -> small に
+- [x] 各 API のモックの作成と差し替え
+- [x] Agent からロジックの切り出し
+- [x] Agent のモック作成
+- [x] medium -> small に
 - [ ] API のテストを書いていく
