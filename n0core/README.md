@@ -84,7 +84,7 @@ bin/n0core install agent -a "$agent_args"
 | Redundancy | No |
 | Scalability | No (for each network) |
 
-![](../docs/images/n0core_network_design.svg)
+![](../docs/_static/images/n0core_network_design.svg)
 
 ## How to develop
 

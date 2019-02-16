@@ -4,7 +4,7 @@ Protobuf definitions for all of n0stack services.
 
 ## Resource groups
 
-![](../docs/images/dependency_map.svg)
+![](../docs/_static/images/dependency_map.svg)
 
 ### [Budget](budget/)
 
