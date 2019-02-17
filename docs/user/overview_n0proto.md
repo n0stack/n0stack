@@ -39,10 +39,18 @@ Poolから予約されたリソースで仮想的なリソースを作り出す�
 - NodeのStorageから仮想的なブロックストレージを作り出す
 - 中身はQcow2ファイル
 
+1. Nodeの`ReserveStorage / ScheduleStorage`でストレージを確保
+2. Nodeにインストールされたエージェントを操作するなどして、実態を作成
+
 #### VirtualMachine
 
 - NodeのCompute(CPUとメモリ)からVMを作り出す
 - この時BlockStorageと、Networkに接続するNetworkInterface(MACアドレスとIPアドレス)を接続することができる
+
+1. Nodeの`ReserveCompute / ScheduleCompute`でCPUとメモリを確保
+2. 接続するBlockStorageを`SetInuseBlockStorage`で確保
+3. 接続するNetworkに対して`ReserveNetworkInterface`でMACアドレスとIPアドレスを確保
+4. Nodeにインストールされたエージェントを操作するなどして、実態を作成
 
 ### Deployment
 
