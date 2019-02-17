@@ -55,7 +55,6 @@ CreateVirtualMachine:
 n0cli --api-endpoint=$api_ip:20180 do $path_of_previous_yaml
 ```
 
-
 ## Overview
 
 - Image から BlockStorage を生成する
@@ -84,3 +83,107 @@ n0cli --api-endpoint=$api_ip:20180 do $path_of_previous_yaml
         - この場合、作成した Network に `192.168.0.1` で接続することを宣言している
     - `uuid` は `uuidgen` などで適宜生成すること
     - 使っているゲストOSイメージが cloud-init に対応していた場合、`nics`で指定したIP、`login_username`で指定したユーザ、`ssh_authorized_keys`で指定したSSH公開鍵が設定される
+
+## Tips: Inverse action
+
+```yaml
+Delete_test:
+  type: VirtualMachine
+  action: DeleteVirtualMachine
+  args:
+    name: test
+
+Delete_test-blockstorage:
+  type: BlockStorage
+  action: DeleteBlockStorage
+  args:
+    name: test-blockstorage
+  depends_on:
+    - Delete_test
+
+Delete_test-network:
+  type: Network
+  action: DeleteNetwork
+  args:
+    name: test-network
+  depends_on:
+    - Delete_test
+```
+
+## Tips: Idempotent action
+
+```yaml
+Delete_test:
+  type: VirtualMachine
+  action: DeleteVirtualMachine
+  args:
+    name: test
+  ignore_error: true
+
+Delete_test-blockstorage:
+  type: BlockStorage
+  action: DeleteBlockStorage
+  args:
+    name: test-blockstorage
+  depends_on:
+    - Delete_test
+  ignore_error: true
+
+Delete_test-network:
+  type: Network
+  action: DeleteNetwork
+  args:
+    name: test-network
+  depends_on:
+    - Delete_test
+  ignore_error: true
+
+GenerateBlockStorage:
+  type: Image
+  action: GenerateBlockStorage
+  args:
+    image_name: cloudimage-ubuntu-1804
+    tag: "latest"
+    block_storage_name: test-blockstorage
+    annotations:
+      n0core/provisioning/block_storage/request_node_name: vm-host1
+    request_bytes: 1073741824
+    limit_bytes: 10737418240
+  depends_on:
+    - Delete_test-blockstorage
+
+ApplyNetwork:
+  type: Network
+  action: ApplyNetwork
+  args:
+    name: test-network
+    ipv4_cidr: 192.168.0.0/24
+    annotations:
+      n0core/provisioning/virtual_machine/vlan_id: "100"
+  depends_on:
+    - Delete_test-network
+
+CreateVirtualMachine:
+  type: VirtualMachine
+  action: CreateVirtualMachine
+  args:
+    name: test
+    annotations:
+      n0core/provisioning/virtual_machine/request_node_name: vm-host1
+    request_cpu_milli_core: 10
+    limit_cpu_milli_core: 1000
+    request_memory_bytes: 536870912
+    limit_memory_bytes: 536870912
+    block_storage_names:
+      - test-blockstorage
+    nics:
+      - network_name: debug-network
+        ipv4_address: 192.168.0.1
+    uuid: 056d2ccd-0c4c-44dc-a2c8-39a9d394b51f
+    login_username: test
+    ssh_authorized_keys:
+      - ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBITowPn2Ol1eCvXN5XV+Lb6jfXzgDbXyEdtayadDUJtFrcN2m2mjC1B20VBAoJcZtSYkmjrllS06Q26Te5sTYvE= testkey
+  depends_on:
+    - GenerateBlockStorage
+    - ApplyNetwork
+```
