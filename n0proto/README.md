@@ -2,29 +2,9 @@
 
 Protobuf definitions for all of n0stack services.
 
-## Resource groups
+## Overview
 
-![](../docs/_static/images/dependency_map.svg)
-
-### [Budget](budget/)
-
-Budget define data structure about resource budget: CPU, Memory, IP address, MAC address, storage, and so on.
-
-### [Pool](pool/)
-
-Pool ensure Budgets.
-
-### [Provisioning](provisioning/)
-
-Provisioning create virtual resources on ensured budget.
-
-### [Deployment](deployment/)
-
-Deployment abstract Provisioning operations.
-
-### [Configuration](configuration/)
-
-Configuration setting up Provisioning.
+see also [docs](https://docs.n0st.ac/en/latest/user/overview_n0proto.html).
 
 ## How to build
 

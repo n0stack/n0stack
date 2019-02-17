@@ -2,7 +2,7 @@
 
 The n0proto is gRPC definitions for all of n0stack API.
 
-## Resource groups
+## Resources
 
 ![](../_static/images/dependency_map.svg)
 
