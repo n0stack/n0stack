@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/urfave/cli"
+	"google.golang.org/grpc"
 )
 
 var version = "undefined"
@@ -95,6 +96,32 @@ func main() {
 			ArgsUsage: "[file name]",
 			Action:    Do,
 		},
+		{
+			Name:        "virtual_machine",
+			Usage:       "VirtualMachine APIs",
+			Description: "",
+			Subcommands: []cli.Command{
+				{
+					Name:      "open_console",
+					Usage:     "Get URL to open console of VirtualMachine",
+					ArgsUsage: "[VirtualMachine name]",
+					Action:    OpenConsoleOfVirtualMachine,
+				},
+			},
+		},
+		{
+			Name:        "block_storage",
+			Usage:       "BlockStorage APIs",
+			Description: "",
+			Subcommands: []cli.Command{
+				{
+					Name:      "download",
+					Usage:     "Get URL to download BlockStorage",
+					ArgsUsage: "[BlockStorage name]",
+					Action:    DownloadBlockStorage,
+				},
+			},
+		},
 	}
 
 	log.SetFlags(log.Lshortfile)
@@ -104,4 +131,15 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Failed to command: %s\n", err.Error())
 		os.Exit(1)
 	}
+}
+
+func ConnectAPI(c *cli.Context) (*grpc.ClientConn, error) {
+	endpoint := c.GlobalString("api-endpoint")
+	conn, err := grpc.Dial(endpoint, grpc.WithInsecure())
+	if err != nil {
+		return nil, err
+	}
+	log.Printf("[DEBUG] Connected to '%s'\n", endpoint)
+
+	return conn, nil
 }
