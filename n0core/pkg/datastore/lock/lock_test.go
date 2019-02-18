@@ -8,7 +8,7 @@ func TestMutexTable(t *testing.T) {
 	if mt.IsLocked("test") {
 		t.Errorf("precondition was locked")
 	}
-	if !mt.Unlock("test") {
+	if mt.Unlock("test") {
 		t.Errorf("failed to unlock on precondition")
 	}
 

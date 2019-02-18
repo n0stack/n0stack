@@ -16,6 +16,8 @@ func NewMutexTable(requestBuffer int) *MutexTable {
 	return mt
 }
 
+// Lock key
+// return that lock is succeeded
 func (mt *MutexTable) Lock(key string) bool {
 	ch := make(chan mutexResult)
 	defer close(ch)
@@ -33,6 +35,8 @@ func (mt *MutexTable) Lock(key string) bool {
 	return false
 }
 
+// Unlock key
+// return that unlock is succeeded
 func (mt *MutexTable) Unlock(key string) bool {
 	ch := make(chan mutexResult)
 	defer close(ch)
@@ -50,6 +54,7 @@ func (mt *MutexTable) Unlock(key string) bool {
 	return false
 }
 
+// IsLocked return that key is locked
 func (mt MutexTable) IsLocked(key string) bool {
 	ch := make(chan mutexResult)
 	defer close(ch)

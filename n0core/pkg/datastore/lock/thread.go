@@ -54,7 +54,7 @@ func (mt *MutexTable) lock(key string) bool {
 
 func (mt *MutexTable) unlock(key string) bool {
 	if !mt.isLocked(key) {
-		return true
+		return false
 	}
 
 	// raft consensus
