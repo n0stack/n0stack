@@ -1,12 +1,12 @@
 package lock
 
-type MutexTable struct {
+type MemoryMutexTable struct {
 	table   map[string]bool
 	request chan mutexRequest
 }
 
-func NewMutexTable(requestBuffer int) *MutexTable {
-	mt := &MutexTable{
+func NewMemoryMutexTable(requestBuffer int) *MemoryMutexTable {
+	mt := &MemoryMutexTable{
 		table:   make(map[string]bool),
 		request: make(chan mutexRequest, requestBuffer),
 	}
@@ -16,9 +16,7 @@ func NewMutexTable(requestBuffer int) *MutexTable {
 	return mt
 }
 
-// Lock key
-// return that lock is succeeded
-func (mt *MutexTable) Lock(key string) bool {
+func (mt *MemoryMutexTable) Lock(key string) bool {
 	ch := make(chan mutexResult)
 	defer close(ch)
 
@@ -35,9 +33,7 @@ func (mt *MutexTable) Lock(key string) bool {
 	return false
 }
 
-// Unlock key
-// return that unlock is succeeded
-func (mt *MutexTable) Unlock(key string) bool {
+func (mt *MemoryMutexTable) Unlock(key string) bool {
 	ch := make(chan mutexResult)
 	defer close(ch)
 
@@ -54,8 +50,7 @@ func (mt *MutexTable) Unlock(key string) bool {
 	return false
 }
 
-// IsLocked return that key is locked
-func (mt MutexTable) IsLocked(key string) bool {
+func (mt MemoryMutexTable) IsLocked(key string) bool {
 	ch := make(chan mutexResult)
 	defer close(ch)
 

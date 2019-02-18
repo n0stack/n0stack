@@ -2,8 +2,8 @@ package lock
 
 import "testing"
 
-func TestMutexTable(t *testing.T) {
-	mt := NewMutexTable(10000)
+func TestMemoryMutexTable(t *testing.T) {
+	mt := NewMemoryMutexTable(10000)
 
 	if mt.IsLocked("test") {
 		t.Errorf("precondition was locked")
@@ -31,7 +31,7 @@ func TestMutexTable(t *testing.T) {
 }
 
 func BenchmarkLock(b *testing.B) {
-	mt := NewMutexTable(10000)
+	mt := NewMemoryMutexTable(10000)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

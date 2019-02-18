@@ -19,7 +19,7 @@ type mutexResult struct {
 	Locked    bool
 }
 
-func (mt *MutexTable) mutexThread() {
+func (mt *MemoryMutexTable) mutexThread() {
 	for req := range mt.request {
 		succeeded := false
 
@@ -41,7 +41,7 @@ func (mt *MutexTable) mutexThread() {
 	}
 }
 
-func (mt *MutexTable) lock(key string) bool {
+func (mt *MemoryMutexTable) lock(key string) bool {
 	if mt.isLocked(key) {
 		return false
 	}
@@ -52,7 +52,7 @@ func (mt *MutexTable) lock(key string) bool {
 	return true
 }
 
-func (mt *MutexTable) unlock(key string) bool {
+func (mt *MemoryMutexTable) unlock(key string) bool {
 	if !mt.isLocked(key) {
 		return false
 	}
@@ -63,7 +63,7 @@ func (mt *MutexTable) unlock(key string) bool {
 	return true
 }
 
-func (mt MutexTable) isLocked(key string) bool {
+func (mt MemoryMutexTable) isLocked(key string) bool {
 	if _, ok := mt.table[key]; ok {
 		return true
 	}
