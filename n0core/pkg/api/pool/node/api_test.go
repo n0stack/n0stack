@@ -1,5 +1,3 @@
-// +build medium
-
 package node
 
 import (
@@ -40,8 +38,7 @@ func TestApplyNode(t *testing.T) {
 	na := NewMockNodeAPI(m)
 
 	n := &ppool.Node{
-		Name:    "test-node",
-		Version: 1,
+		Name: "test-node",
 
 		Address:     "10.0.0.1",
 		IpmiAddress: "192.168.0.1",
@@ -52,7 +49,7 @@ func TestApplyNode(t *testing.T) {
 		StorageBytes:  10 * bytefmt.GIGABYTE,
 
 		Datacenter:       "test-dc",
-		AvailavilityZone: "test-az",
+		AvailabilityZone: "test-az",
 		Cell:             "test-cell",
 		Rack:             "test-rack",
 		Unit:             1,
@@ -72,7 +69,7 @@ func TestApplyNode(t *testing.T) {
 		StorageBytes:  10 * bytefmt.GIGABYTE,
 
 		Datacenter:       "test-dc",
-		AvailavilityZone: "test-az",
+		AvailabilityZone: "test-az",
 		Cell:             "test-cell",
 		Rack:             "test-rack",
 		Unit:             1,
@@ -113,8 +110,7 @@ func TestNodeAboutCompute(t *testing.T) {
 	na := NewMockNodeAPI(m)
 
 	n := &ppool.Node{
-		Name:    "test-node",
-		Version: 1,
+		Name: "test-node",
 
 		Address:     "10.0.0.1",
 		IpmiAddress: "192.168.0.1",
@@ -125,7 +121,7 @@ func TestNodeAboutCompute(t *testing.T) {
 		StorageBytes:  10 * bytefmt.GIGABYTE,
 
 		Datacenter:       "test-dc",
-		AvailavilityZone: "test-az",
+		AvailabilityZone: "test-az",
 		Cell:             "test-cell",
 		Rack:             "test-rack",
 		Unit:             1,
@@ -145,7 +141,7 @@ func TestNodeAboutCompute(t *testing.T) {
 		StorageBytes:  10 * bytefmt.GIGABYTE,
 
 		Datacenter:       "test-dc",
-		AvailavilityZone: "test-az",
+		AvailabilityZone: "test-az",
 		Cell:             "test-cell",
 		Rack:             "test-rack",
 		Unit:             1,
@@ -290,8 +286,7 @@ func TestNodeAboutStorage(t *testing.T) {
 	na := NewMockNodeAPI(m)
 
 	n := &ppool.Node{
-		Name:    "test-node",
-		Version: 1,
+		Name: "test-node",
 
 		Address:     "10.0.0.1",
 		IpmiAddress: "192.168.0.1",
@@ -302,7 +297,7 @@ func TestNodeAboutStorage(t *testing.T) {
 		StorageBytes:  10 * bytefmt.GIGABYTE,
 
 		Datacenter:       "test-dc",
-		AvailavilityZone: "test-az",
+		AvailabilityZone: "test-az",
 		Cell:             "test-cell",
 		Rack:             "test-rack",
 		Unit:             1,
@@ -322,7 +317,7 @@ func TestNodeAboutStorage(t *testing.T) {
 		StorageBytes:  1 * bytefmt.GIGABYTE,
 
 		Datacenter:       "test-dc",
-		AvailavilityZone: "test-az",
+		AvailabilityZone: "test-az",
 		Cell:             "test-cell",
 		Rack:             "test-rack",
 		Unit:             1,
