@@ -70,6 +70,11 @@ func (a ImageAPI) GetImage(ctx context.Context, req *pdeployment.GetImageRequest
 }
 
 func (a ImageAPI) ApplyImage(ctx context.Context, req *pdeployment.ApplyImageRequest) (*pdeployment.Image, error) {
+	if !a.dataStore.Lock(req.Name) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.Name)
+
 	res := &pdeployment.Image{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
@@ -88,6 +93,11 @@ func (a ImageAPI) ApplyImage(ctx context.Context, req *pdeployment.ApplyImageReq
 }
 
 func (a ImageAPI) DeleteImage(ctx context.Context, req *pdeployment.DeleteImageRequest) (*empty.Empty, error) {
+	if !a.dataStore.Lock(req.Name) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.Name)
+
 	prev := &pdeployment.Image{}
 	if err := a.dataStore.Get(req.Name, prev); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
@@ -113,6 +123,11 @@ func (a ImageAPI) DeleteImage(ctx context.Context, req *pdeployment.DeleteImageR
 }
 
 func (a ImageAPI) RegisterBlockStorage(ctx context.Context, req *pdeployment.RegisterBlockStorageRequest) (*pdeployment.Image, error) {
+	if !a.dataStore.Lock(req.ImageName) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.ImageName)
+
 	res := &pdeployment.Image{}
 	if err := a.dataStore.Get(req.ImageName, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
@@ -147,6 +162,11 @@ func (a ImageAPI) RegisterBlockStorage(ctx context.Context, req *pdeployment.Reg
 }
 
 func (a ImageAPI) UnregisterBlockStorage(ctx context.Context, req *pdeployment.UnregisterBlockStorageRequest) (*pdeployment.Image, error) {
+	if !a.dataStore.Lock(req.ImageName) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.ImageName)
+
 	res := &pdeployment.Image{}
 	if err := a.dataStore.Get(req.ImageName, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
@@ -217,6 +237,11 @@ func (a ImageAPI) GenerateBlockStorage(ctx context.Context, req *pdeployment.Gen
 }
 
 func (a ImageAPI) TagImage(ctx context.Context, req *pdeployment.TagImageRequest) (*pdeployment.Image, error) {
+	if !a.dataStore.Lock(req.Name) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.Name)
+
 	res := &pdeployment.Image{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
@@ -253,6 +278,11 @@ func (a ImageAPI) TagImage(ctx context.Context, req *pdeployment.TagImageRequest
 }
 
 func (a ImageAPI) UntagImage(ctx context.Context, req *pdeployment.UntagImageRequest) (*pdeployment.Image, error) {
+	if !a.dataStore.Lock(req.Name) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.Name)
+
 	res := &pdeployment.Image{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
