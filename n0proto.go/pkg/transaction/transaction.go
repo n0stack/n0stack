@@ -3,6 +3,8 @@ package transaction
 import (
 	"fmt"
 	"log"
+
+	"github.com/cenkalti/backoff"
 )
 
 type RollbackTask struct {
@@ -44,7 +46,9 @@ func (tx *Transaction) Rollback() error {
 	errMes := ""
 
 	for r := tx.PopRollback(); r != nil; r = tx.PopRollback() {
-		if err := r.Func(); err != nil {
+		b := backoff.WithMaxRetries(backoff.NewExponentialBackOff(), 5)
+		err := backoff.Retry(r.Func, b)
+		if err != nil {
 			errMes = fmt.Sprintf("  [%s] %s\n%s", r.Name, err.Error(), errMes)
 		}
 	}
