@@ -561,7 +561,7 @@ func (a *VirtualMachineAPI) bootVirtualMachine(ctx context.Context, req *pprovis
 			SshAuthorizedKeys: vm.SshAuthorizedKeys,
 		})
 		if err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to CreateVirtualMachineAgent: desc=%s", grpc.ErrorDesc(err))
+			return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to BootVirtualMachine: desc=%s", grpc.ErrorDesc(err))
 		}
 		tx.PushRollback("", func() error {
 			_, err := cli.DeleteVirtualMachine(ctx, &DeleteVirtualMachineRequest{Name: vm.Name})
@@ -585,7 +585,34 @@ func (a *VirtualMachineAPI) RebootVirtualMachine(ctx context.Context, req *pprov
 }
 
 func (a *VirtualMachineAPI) ShutdownVirtualMachine(ctx context.Context, req *pprovisioning.ShutdownVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
-	return nil, grpcutil.WrapGrpcErrorf(codes.Unimplemented, "")
+	vm := &pprovisioning.VirtualMachine{}
+	if err := a.dataStore.Get(req.Name, vm); err != nil {
+		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
+		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
+	} else if vm.Name == "" {
+		return nil, grpc.Errorf(codes.NotFound, "")
+	}
+
+	{
+		cli, done, err := a.getAgent(ctx, vm.ComputeNodeName)
+		if err != nil {
+			return nil, err
+		}
+		defer done()
+
+		res, err := cli.ShutdownVirtualMachine(ctx, &ShutdownVirtualMachineRequest{
+			Name: req.Name,
+			Hard: req.Hard,
+		})
+		if err != nil {
+			return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to ShutdownVirtualMachine: desc=%s", grpc.ErrorDesc(err))
+		}
+
+		// NOTE: shutdown が完了しているとは限らない (ACPIシャットダウンはゲストにより拒否される可能性がある)
+		vm.State = GetAPIStateFromAgentState(res.State)
+	}
+
+	return vm, nil
 }
 
 func (a *VirtualMachineAPI) SaveVirtualMachine(ctx context.Context, req *pprovisioning.SaveVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {

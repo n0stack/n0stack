@@ -64,11 +64,7 @@ func (q Qemu) Shutdown() error {
 }
 
 func (q Qemu) HardShutdown() error {
-	if err := q.m.Stop(); err != nil {
-		return err
-	}
-
-	return q.m.SystemReset()
+	return q.m.Quit()
 }
 
 func (q Qemu) Boot() error {
