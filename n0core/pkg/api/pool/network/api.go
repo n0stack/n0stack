@@ -103,7 +103,7 @@ func (a NetworkAPI) ApplyNetwork(ctx context.Context, req *ppool.ApplyNetworkReq
 			if ipv4 != nil {
 				for _, v := range res.Networks {
 					existing := netutil.ParseCIDR(v.Ipv4Cidr)
-					if netutil.IsConflicting(ipv4, existing) {
+					if existing != nil && netutil.IsConflicting(ipv4, existing) {
 						return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Field 'ipv4_cidr' is conflicting with network=%s", v.Name)
 					}
 				}
