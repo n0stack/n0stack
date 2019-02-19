@@ -31,6 +31,11 @@ func TestApplyAndDelete(t *testing.T) {
 
 	k := "test"
 	v := &datastore.Test{Name: "hoge"}
+
+	if !e.Lock(k) {
+		t.Errorf("Failed to lock: key=%s", k)
+	}
+
 	if err := e.Apply(k, v); err != nil {
 		t.Errorf("Failed to apply: key='%s', value='%v', err='%s'", k, v, err.Error())
 	}
@@ -41,6 +46,10 @@ func TestApplyAndDelete(t *testing.T) {
 
 	if err := base.Close(); err != nil {
 		t.Errorf("Failed to close: err='%s'", err.Error())
+	}
+
+	if !e.Unlock(k) {
+		t.Errorf("Failed to unlock: key=%s", k)
 	}
 }
 
@@ -54,6 +63,10 @@ func TestGet(t *testing.T) {
 
 	k := "test"
 	v := &datastore.Test{Name: "hoge"}
+
+	e.Lock(k)
+	defer e.Unlock(k)
+
 	if err := e.Apply(k, v); err != nil {
 		t.Fatalf("Failed to apply: key='%s', value='%v', err='%s'", k, v, err.Error())
 	}
@@ -78,6 +91,10 @@ func TestList(t *testing.T) {
 
 	k := "test"
 	v := &datastore.Test{Name: "hoge"}
+
+	e.Lock(k)
+	defer e.Unlock(k)
+
 	if err := e.Apply(k, v); err != nil {
 		t.Fatalf("Failed to apply: key='%s', value='%v', err='%s'", k, v, err.Error())
 	}
@@ -144,5 +161,25 @@ func TestEmpty(t *testing.T) {
 	}
 	if len(resList) != 0 {
 		t.Errorf("Number of listed keys is mismatch: have='%d', want='%d'", len(resList), 0)
+	}
+}
+
+func TestUpdateSystemBeforeLock(t *testing.T) {
+	base, err := NewEtcdDatastore(getEndpoint())
+	if err != nil {
+		t.Fatalf("Failed to connect etcd: err='%s'", err.Error())
+	}
+	e := base.AddPrefix("test")
+	defer base.Close()
+
+	k := "test"
+	v := &datastore.Test{Name: "hoge"}
+
+	if err := e.Apply(k, v); err == nil {
+		t.Errorf("Failed to apply: key='%s', value='%v'", k, v)
+	}
+
+	if err := e.Delete(k); err == nil {
+		t.Errorf("Failed to delete: key='%s'", k)
 	}
 }

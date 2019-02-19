@@ -2,11 +2,13 @@ package etcd
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/coreos/etcd/clientv3"
 	"github.com/coreos/etcd/clientv3/namespace"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
+	"github.com/n0stack/n0stack/n0core/pkg/datastore/lock"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -14,6 +16,8 @@ import (
 type EtcdDatastore struct {
 	client clientv3.KV
 	conn   *clientv3.Client
+
+	mutex lock.MutexTable
 }
 
 const (
@@ -22,7 +26,9 @@ const (
 )
 
 func NewEtcdDatastore(endpoints []string) (*EtcdDatastore, error) {
-	e := &EtcdDatastore{}
+	e := &EtcdDatastore{
+		mutex: lock.NewMemoryMutexTable(10000),
+	}
 
 	var err error
 	e.conn, err = clientv3.New(clientv3.Config{
@@ -42,6 +48,7 @@ func (d *EtcdDatastore) AddPrefix(prefix string) datastore.Datastore {
 	return &EtcdDatastore{
 		client: namespace.NewKV(d.client, prefix+"/"),
 		conn:   d.conn,
+		mutex:  lock.NewMemoryMutexTable(10000),
 	}
 }
 
@@ -66,11 +73,11 @@ func (d EtcdDatastore) List(f func(int) []proto.Message) error {
 	return nil
 }
 
-func (d EtcdDatastore) Get(name string, pb proto.Message) error {
+func (d EtcdDatastore) Get(key string, pb proto.Message) error {
 	c, cancel := context.WithTimeout(context.Background(), etcdRequestTimeout)
 	defer cancel()
 
-	resp, err := d.client.Get(c, name)
+	resp, err := d.client.Get(c, key)
 	if err != nil {
 		return err
 	}
@@ -87,7 +94,11 @@ func (d EtcdDatastore) Get(name string, pb proto.Message) error {
 	return nil
 }
 
-func (d EtcdDatastore) Apply(name string, pb proto.Message) error {
+func (d EtcdDatastore) Apply(key string, pb proto.Message) error {
+	if !d.mutex.IsLocked(key) {
+		return errors.New("key is not locked")
+	}
+
 	s, err := proto.Marshal(pb)
 	if err != nil {
 		return err
@@ -96,7 +107,7 @@ func (d EtcdDatastore) Apply(name string, pb proto.Message) error {
 	c, cancel := context.WithTimeout(context.Background(), etcdRequestTimeout)
 	defer cancel()
 
-	_, err = d.client.Put(c, name, string(s))
+	_, err = d.client.Put(c, key, string(s))
 	if err != nil {
 		return err
 	}
@@ -104,11 +115,15 @@ func (d EtcdDatastore) Apply(name string, pb proto.Message) error {
 	return nil
 }
 
-func (d EtcdDatastore) Delete(name string) error {
+func (d EtcdDatastore) Delete(key string) error {
+	if !d.mutex.IsLocked(key) {
+		return errors.New("key is not locked")
+	}
+
 	c, cancel := context.WithTimeout(context.Background(), etcdRequestTimeout)
 	defer cancel()
 
-	_, err := d.client.Delete(c, name, clientv3.WithPrefix())
+	_, err := d.client.Delete(c, key, clientv3.WithPrefix())
 	if err != nil {
 		return err
 	}
@@ -118,4 +133,14 @@ func (d EtcdDatastore) Delete(name string) error {
 
 func (d EtcdDatastore) Close() error {
 	return d.conn.Close()
+}
+
+func (m *EtcdDatastore) Lock(key string) bool {
+	return m.mutex.Lock(key)
+}
+func (m *EtcdDatastore) Unlock(key string) bool {
+	return m.mutex.Unlock(key)
+}
+func (m *EtcdDatastore) IsLocked(key string) bool {
+	return m.mutex.IsLocked(key)
 }

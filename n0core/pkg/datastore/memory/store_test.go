@@ -5,13 +5,19 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
+	"github.com/n0stack/n0stack/n0core/pkg/datastore/lock"
 )
 
 func TestMemoryDatastore(t *testing.T) {
-	m := NewMemoryDatastore()
+	m := NewMemoryDatastore(lock.NewMemoryMutexTable(100))
 
 	k := "test"
 	v := &datastore.Test{Name: "value"}
+
+	if !m.Lock(k) {
+		t.Errorf("Failed to lock")
+	}
+	defer m.Unlock(k)
 
 	if err := m.Apply(k, v); err != nil {
 		t.Errorf("Failed to apply: err='%s'", err.Error())
@@ -54,13 +60,16 @@ func TestMemoryDatastore(t *testing.T) {
 }
 
 func TestCheckDataIsSame(t *testing.T) {
-	m := NewMemoryDatastore()
+	m := NewMemoryDatastore(lock.NewMemoryMutexTable(100))
 
 	prefix := "prefix"
 	withPrefix := m.AddPrefix(prefix)
 
 	k := "test"
 	v := &datastore.Test{Name: "value"}
+
+	withPrefix.Lock(k)
+	defer withPrefix.Unlock(k)
 
 	if err := withPrefix.Apply(k, v); err != nil {
 		t.Fatalf("Failed to apply: err='%s'", err.Error())
@@ -75,6 +84,10 @@ func TestCheckDataIsSame(t *testing.T) {
 
 	k2 := "test"
 	v2 := &datastore.Test{Name: "value"}
+
+	m.Lock(k2)
+	defer m.Unlock(k2)
+
 	if err := m.Apply(k2, v2); err != nil {
 		t.Fatalf("Failed to apply secondaly: err='%s'", err.Error())
 	}
@@ -98,5 +111,20 @@ func TestCheckDataIsSame(t *testing.T) {
 	}
 	if len(res) != 1 {
 		t.Errorf("Number of listed keys is mismatch: have='%d', want='%d'", len(res), 1)
+	}
+}
+
+func TestUpdateSystemBeforeLock(t *testing.T) {
+	m := NewMemoryDatastore(lock.NewMemoryMutexTable(100))
+
+	k := "test"
+	v := &datastore.Test{Name: "value"}
+
+	if err := m.Apply(k, v); err == nil {
+		t.Errorf("applied before lock")
+	}
+
+	if err := m.Delete(k); err == nil {
+		t.Errorf("deleted before lock")
 	}
 }
