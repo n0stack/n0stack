@@ -150,6 +150,7 @@ func (q *Qemu) Start(id uuid.UUID, qmpPath string, vncWebsocketPort uint16, vcpu
 		return fmt.Errorf("Failed to get absolute path of qmpPath: err='%s'", err.Error())
 	}
 
+retry:
 	args := []string{
 		"qemu-system-x86_64",
 
@@ -244,6 +245,12 @@ func (q *Qemu) Start(id uuid.UUID, qmpPath string, vncWebsocketPort uint16, vcpu
 	cmd := exec.Command(args[0], args[1:]...)
 	out, err := cmd.CombinedOutput()
 	if err != nil { // TODO: combine でもいいかもしれない
+
+		if strings.Contains(string(out), "Failed to start VNC server: Failed to find an available port") {
+			// Retry selecting new port for VNC
+			goto retry
+		}
+
 		return fmt.Errorf("Failed to start process: args='%s', out='%s', err='%s'", args, string(out), err.Error())
 	}
 
