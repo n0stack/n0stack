@@ -421,3 +421,42 @@ func TestNetworkAboutNetworkInterface(t *testing.T) {
 		t.Errorf("ReleaseNetworkInterface got error: err='%s'", err.Error())
 	}
 }
+
+func TestDeletionLock(t *testing.T) {
+	m := memory.NewMemoryDatastore()
+	na := NewMockNetworkAPI(m)
+
+	n := &ppool.Network{
+		Name:     "test-network",
+		Ipv4Cidr: "192.168.0.0/30",
+		Domain:   "test.local",
+		State:    ppool.Network_AVAILABLE,
+	}
+
+	_, err := na.ApplyNetwork(context.Background(), &ppool.ApplyNetworkRequest{
+		Name:     "test-network",
+		Ipv4Cidr: "192.168.0.0/30",
+		Domain:   "test.local",
+	})
+	if err != nil {
+		t.Fatalf("Failed to apply network: err='%s'", err.Error())
+	}
+
+	reserveReq := &ppool.ReserveNetworkInterfaceRequest{
+		NetworkName:          n.Name,
+		NetworkInterfaceName: "test-network-interface",
+		Ipv4Address:          "192.168.0.1",
+		HardwareAddress:      "00:00:00:00:00:00",
+	}
+	_, err = na.ReserveNetworkInterface(context.Background(), reserveReq)
+	if err != nil {
+		t.Fatalf("ReserveNetworkInterface got error: err='%s'", err.Error())
+	}
+
+	_, err = na.DeleteNetwork(context.Background(), &ppool.DeleteNetworkRequest{
+		Name: n.Name,
+	})
+	if grpc.Code(err) != codes.FailedPrecondition {
+		t.Errorf("deletion lock do not worked")
+	}
+}
