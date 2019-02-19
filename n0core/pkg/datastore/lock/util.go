@@ -2,7 +2,7 @@ package lock
 
 import "time"
 
-func WaitUntilLock(mutex MutexTable, key string, timeout time.Duration) bool {
+func WaitUntilLock(mutex MutexTable, key string, timeout, sleep time.Duration) bool {
 	over := time.After(timeout)
 
 	for {
@@ -14,7 +14,7 @@ func WaitUntilLock(mutex MutexTable, key string, timeout time.Duration) bool {
 			if mutex.Lock(key) {
 				return true
 			}
-			time.Sleep(50 * time.Millisecond)
+			time.Sleep(sleep)
 		}
 	}
 }

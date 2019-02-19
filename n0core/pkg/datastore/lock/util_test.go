@@ -8,10 +8,10 @@ import (
 func TestWaitUntilLock(t *testing.T) {
 	m := NewMemoryMutexTable(100)
 
-	if !WaitUntilLock(m, "test", 300*time.Millisecond) {
+	if !WaitUntilLock(m, "test", 50*time.Millisecond, 300*time.Millisecond) {
 		t.Errorf("failed to lock")
 	}
-	if WaitUntilLock(m, "test", 300*time.Millisecond) {
+	if WaitUntilLock(m, "test", 50*time.Millisecond, 300*time.Millisecond) {
 		t.Errorf("locked after locked")
 	}
 }
