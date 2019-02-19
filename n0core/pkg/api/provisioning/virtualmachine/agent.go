@@ -266,7 +266,34 @@ func (a VirtualMachineAgent) BootVirtualMachine(ctx context.Context, req *BootVi
 }
 
 func (a VirtualMachineAgent) RebootVirtualMachine(ctx context.Context, req *RebootVirtualMachineRequest) (*RebootVirtualMachineResponse, error) {
-	return nil, grpcutil.WrapGrpcErrorf(codes.Unimplemented, "")
+	q, err := qemu.OpenQemu(SetPrefix(req.Name))
+	if err != nil {
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to open qemu process: %s", err.Error())
+	}
+	defer q.Close()
+
+	if !q.IsRunning() {
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to hard reset, vm is not running: %s", err.Error())
+	}
+
+	if req.Hard {
+		if err := q.HardReset(); err != nil {
+			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to hard reset qemu: %s", err.Error())
+		}
+	} else {
+		// TODO: soft-reboot のやり方を調べる
+		return nil, grpcutil.WrapGrpcErrorf(codes.Unimplemented, "")
+	}
+
+	s, err := q.Status()
+
+	if err != nil {
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get status: err=%s", err.Error())
+	}
+
+	return &RebootVirtualMachineResponse{
+		State: GetAgentStateFromQemuState(s),
+	}, nil
 }
 
 func (a VirtualMachineAgent) ShutdownVirtualMachine(ctx context.Context, req *ShutdownVirtualMachineRequest) (*ShutdownVirtualMachineResponse, error) {
