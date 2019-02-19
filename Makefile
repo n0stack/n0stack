@@ -21,7 +21,7 @@ build-go: build-n0core build-n0cli
 
 .PHONY: build-n0core
 build-n0core:
-	go build -o bin/n0core -ldflags "-X main.version=$(VERSION)" -v ./n0core/cmd/n0core
+	GOOS=${GOOS} GOARCH=${GOARCH} go build -o bin/n0core -ldflags "-X main.version=$(VERSION)" -v ./n0core/cmd/n0core
 
 .PHONY: build-n0core-on-docker
 build-n0core-on-docker:
@@ -41,7 +41,7 @@ build-n0core-on-docker:
 
 .PHONY: build-n0cli
 build-n0cli:
-	go build -o bin/n0cli -ldflags "-X main.version=$(VERSION)" -v ./n0cli/cmd/n0cli
+	GOOS=${GOOS} GOARCH=${GOARCH} go build -o bin/n0cli -ldflags "-X main.version=$(VERSION)" -v ./n0cli/cmd/n0cli
 
 .PHONY: build-n0cli-on-docker
 build-n0cli-on-docker:
@@ -76,7 +76,7 @@ build-n0proto-on-docker:
 
 .PHONY: build-n0version
 build-n0version:
-	go build -o bin/n0version -ldflags "-X main.version=$(VERSION)" -v ./build/n0version
+	GOOS=${GOOS} GOARCH=${GOARCH} go build -o bin/n0version -ldflags "-X main.version=$(VERSION)" -v ./build/n0version
 
 
 # -- Maintenance ---
