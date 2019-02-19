@@ -289,7 +289,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
 	}
 
-	res, err := a.BootVirtualMachine(ctx, &pprovisioning.BootVirtualMachineRequest{Name: vm.Name})
+	res, err := a.bootVirtualMachine(ctx, &pprovisioning.BootVirtualMachineRequest{Name: vm.Name})
 	if err != nil {
 		return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), errors.Wrapf(err, "Failed to BootVirtualMachineRequest").Error())
 	}
@@ -457,12 +457,19 @@ func (a *VirtualMachineAPI) BootVirtualMachine(ctx context.Context, req *pprovis
 		}
 	}
 
-	// CreateVirtualMachineから呼び出すので失敗してしまう
-	// if !a.dataStore.Lock(req.Name) {
-	// 	return nil, datastore.LockError()
-	// }
-	// defer a.dataStore.Unlock(req.Name)
 
+	// CreateVirtualMachineから呼び出すので失敗してしまう
+	if !a.dataStore.Lock(req.Name) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.Name)
+
+	return a.bootVirtualMachine(ctx, req)
+}
+
+// TODO: こうする
+// func (a *VirtualMachineAPI) bootVirtualMachine(ctx context.Context, vm *pprovisioning.VirtualMachine) error {
+func (a *VirtualMachineAPI) bootVirtualMachine(ctx context.Context, req *pprovisioning.BootVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
 	tx := transaction.Begin()
 	defer tx.RollbackWithLog()
 
