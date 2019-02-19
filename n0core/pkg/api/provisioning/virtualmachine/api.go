@@ -459,7 +459,6 @@ func (a *VirtualMachineAPI) BootVirtualMachine(ctx context.Context, req *pprovis
 		}
 	}
 
-	// CreateVirtualMachineから呼び出すので失敗してしまう
 	if !lock.WaitUntilLock(a.dataStore, req.Name, 1*time.Second, 50*time.Millisecond) {
 		return nil, datastore.LockError()
 	}
