@@ -88,6 +88,11 @@ func (a NetworkAPI) ApplyNetwork(ctx context.Context, req *ppool.ApplyNetworkReq
 		}
 	}
 
+	if !a.dataStore.Lock(req.Name) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.Name)
+
 	network := &ppool.Network{}
 	if err := a.dataStore.Get(req.Name, network); err != nil {
 		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get data from db: err='%s'", err.Error())
@@ -132,6 +137,11 @@ func (a NetworkAPI) DeleteNetwork(ctx context.Context, req *ppool.DeleteNetworkR
 		return nil, grpc.Errorf(codes.InvalidArgument, "Set name")
 	}
 
+	if !a.dataStore.Lock(req.Name) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.Name)
+
 	network := &ppool.Network{}
 	if err := a.dataStore.Get(req.Name, network); err != nil {
 		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get data from db: err='%s'", err.Error())
@@ -156,6 +166,11 @@ func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.Rese
 	if req.NetworkInterfaceName == "" {
 		return nil, grpc.Errorf(codes.InvalidArgument, "Do not set field 'network_interface_name' as blank")
 	}
+
+	if !a.dataStore.Lock(req.NetworkName) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.NetworkName)
 
 	res := &ppool.Network{}
 	if err := a.dataStore.Get(req.NetworkName, res); err != nil {
@@ -231,6 +246,11 @@ func (a NetworkAPI) ReleaseNetworkInterface(ctx context.Context, req *ppool.Rele
 	if n.Name == "" {
 		return nil, grpc.Errorf(codes.NotFound, "Do not exists network '%s'", req.NetworkName)
 	}
+
+	if !a.dataStore.Lock(req.NetworkName) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.NetworkName)
 
 	if n.ReservedNetworkInterfaces == nil {
 		return nil, grpc.Errorf(codes.NotFound, "Do not exists network interface '%s' on network '%s'", req.NetworkInterfaceName, req.NetworkName)

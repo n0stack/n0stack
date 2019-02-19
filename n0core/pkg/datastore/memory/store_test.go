@@ -5,11 +5,10 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
-	"github.com/n0stack/n0stack/n0core/pkg/datastore/lock"
 )
 
 func TestMemoryDatastore(t *testing.T) {
-	m := NewMemoryDatastore(lock.NewMemoryMutexTable(100))
+	m := NewMemoryDatastore()
 
 	k := "test"
 	v := &datastore.Test{Name: "value"}
@@ -60,7 +59,7 @@ func TestMemoryDatastore(t *testing.T) {
 }
 
 func TestCheckDataIsSame(t *testing.T) {
-	m := NewMemoryDatastore(lock.NewMemoryMutexTable(100))
+	m := NewMemoryDatastore()
 
 	prefix := "prefix"
 	withPrefix := m.AddPrefix(prefix)
@@ -115,7 +114,7 @@ func TestCheckDataIsSame(t *testing.T) {
 }
 
 func TestUpdateSystemBeforeLock(t *testing.T) {
-	m := NewMemoryDatastore(lock.NewMemoryMutexTable(100))
+	m := NewMemoryDatastore()
 
 	k := "test"
 	v := &datastore.Test{Name: "value"}

@@ -132,6 +132,11 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		}
 	}
 
+	if !a.dataStore.Lock(req.Name) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.Name)
+
 	tx := transaction.Begin()
 	defer tx.RollbackWithLog()
 
@@ -353,6 +358,11 @@ func (a *VirtualMachineAPI) UpdateVirtualMachine(ctx context.Context, req *pprov
 }
 
 func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprovisioning.DeleteVirtualMachineRequest) (*empty.Empty, error) {
+	if !a.dataStore.Lock(req.Name) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.Name)
+
 	tx := transaction.Begin()
 	defer tx.RollbackWithLog()
 
@@ -446,6 +456,12 @@ func (a *VirtualMachineAPI) BootVirtualMachine(ctx context.Context, req *pprovis
 			return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Set name")
 		}
 	}
+
+	// CreateVirtualMachineから呼び出すので失敗してしまう
+	// if !a.dataStore.Lock(req.Name) {
+	// 	return nil, datastore.LockError()
+	// }
+	// defer a.dataStore.Unlock(req.Name)
 
 	tx := transaction.Begin()
 	defer tx.RollbackWithLog()

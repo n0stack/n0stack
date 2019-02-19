@@ -91,6 +91,11 @@ func (a NodeAPI) ApplyNode(ctx context.Context, req *ppool.ApplyNodeRequest) (*p
 		return nil, grpc.Errorf(codes.InvalidArgument, "Set something to Name")
 	}
 
+	if !a.dataStore.Lock(req.Name) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.Name)
+
 	res := &ppool.Node{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
@@ -135,6 +140,11 @@ func (a NodeAPI) DeleteNode(ctx context.Context, req *ppool.DeleteNodeRequest) (
 		return nil, grpc.Errorf(codes.InvalidArgument, "Set name")
 	}
 
+	if !a.dataStore.Lock(req.Name) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.Name)
+
 	node := &ppool.Node{}
 	if err := a.dataStore.Get(req.Name, node); err != nil {
 		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get data from db: name='%s', err='%s'", req.Name, err.Error())
@@ -165,6 +175,11 @@ func (a NodeAPI) ReserveCompute(ctx context.Context, req *ppool.ReserveComputeRe
 	if req.RequestCpuMilliCore == 0 || req.RequestMemoryBytes == 0 {
 		return nil, grpc.Errorf(codes.InvalidArgument, "Set field 'request_*'")
 	}
+
+	if !a.dataStore.Lock(req.NodeName) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.NodeName)
 
 	res := &ppool.Node{}
 	if err := a.dataStore.Get(req.NodeName, res); err != nil {
@@ -201,6 +216,11 @@ func (a NodeAPI) ReserveCompute(ctx context.Context, req *ppool.ReserveComputeRe
 }
 
 func (a NodeAPI) ReleaseCompute(ctx context.Context, req *ppool.ReleaseComputeRequest) (*empty.Empty, error) {
+	if !a.dataStore.Lock(req.NodeName) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.NodeName)
+
 	n := &ppool.Node{}
 	if err := a.dataStore.Get(req.NodeName, n); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
@@ -235,6 +255,11 @@ func (a NodeAPI) ReserveStorage(ctx context.Context, req *ppool.ReserveStorageRe
 		return nil, grpc.Errorf(codes.InvalidArgument, "Set field 'request_*'")
 	}
 
+	if !a.dataStore.Lock(req.NodeName) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.NodeName)
+
 	res := &ppool.Node{}
 	if err := a.dataStore.Get(req.NodeName, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
@@ -268,6 +293,11 @@ func (a NodeAPI) ReserveStorage(ctx context.Context, req *ppool.ReserveStorageRe
 }
 
 func (a NodeAPI) ReleaseStorage(ctx context.Context, req *ppool.ReleaseStorageRequest) (*empty.Empty, error) {
+	if !a.dataStore.Lock(req.NodeName) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.NodeName)
+
 	n := &ppool.Node{}
 	if err := a.dataStore.Get(req.NodeName, n); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())

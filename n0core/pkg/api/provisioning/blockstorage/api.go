@@ -152,6 +152,11 @@ func (a *BlockStorageAPI) CreateBlockStorage(ctx context.Context, req *pprovisio
 		}
 	}
 
+	if !a.dataStore.Lock(req.Name) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.Name)
+
 	tx := transaction.Begin()
 	defer tx.RollbackWithLog()
 
@@ -223,8 +228,12 @@ func (a *BlockStorageAPI) FetchBlockStorage(ctx context.Context, req *pprovision
 		if req.RequestBytes == 0 {
 			return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Set 'request_bytes'")
 		}
-
 	}
+
+	if !a.dataStore.Lock(req.Name) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.Name)
 
 	tx := transaction.Begin()
 	defer tx.RollbackWithLog()
@@ -293,6 +302,11 @@ func (a *BlockStorageAPI) CopyBlockStorage(ctx context.Context, req *pprovisioni
 			return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Set 'request_bytes'")
 		}
 	}
+
+	if !a.dataStore.Lock(req.Name) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.Name)
 
 	tx := transaction.Begin()
 	defer tx.RollbackWithLog()
@@ -422,6 +436,11 @@ func (a *BlockStorageAPI) UpdateBlockStorage(ctx context.Context, req *pprovisio
 }
 
 func (a *BlockStorageAPI) DeleteBlockStorage(ctx context.Context, req *pprovisioning.DeleteBlockStorageRequest) (*empty.Empty, error) {
+	if !a.dataStore.Lock(req.Name) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.Name)
+
 	tx := transaction.Begin()
 	defer tx.RollbackWithLog()
 
@@ -469,6 +488,11 @@ func (a *BlockStorageAPI) DeleteBlockStorage(ctx context.Context, req *pprovisio
 }
 
 func (a *BlockStorageAPI) SetAvailableBlockStorage(ctx context.Context, req *pprovisioning.SetAvailableBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
+	if !a.dataStore.Lock(req.Name) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.Name)
+
 	res := &pprovisioning.BlockStorage{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
@@ -491,6 +515,11 @@ func (a *BlockStorageAPI) SetAvailableBlockStorage(ctx context.Context, req *ppr
 }
 
 func (a *BlockStorageAPI) SetInuseBlockStorage(ctx context.Context, req *pprovisioning.SetInuseBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
+	if !a.dataStore.Lock(req.Name) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.Name)
+
 	res := &pprovisioning.BlockStorage{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
@@ -513,6 +542,11 @@ func (a *BlockStorageAPI) SetInuseBlockStorage(ctx context.Context, req *pprovis
 }
 
 func (a *BlockStorageAPI) SetProtectedBlockStorage(ctx context.Context, req *pprovisioning.SetProtectedBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
+	if !a.dataStore.Lock(req.Name) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.Name)
+
 	res := &pprovisioning.BlockStorage{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())

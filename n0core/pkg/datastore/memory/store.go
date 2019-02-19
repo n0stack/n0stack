@@ -18,10 +18,10 @@ type MemoryDatastore struct {
 	prefix string
 }
 
-func NewMemoryDatastore(mutex lock.MutexTable) *MemoryDatastore {
+func NewMemoryDatastore() *MemoryDatastore {
 	return &MemoryDatastore{
 		Data:  map[string][]byte{},
-		mutex: mutex,
+		mutex: lock.NewMemoryMutexTable(10000),
 	}
 }
 
@@ -29,7 +29,7 @@ func (m *MemoryDatastore) AddPrefix(prefix string) datastore.Datastore {
 	return &MemoryDatastore{
 		Data:   m.Data,
 		prefix: m.prefix + prefix + "/",
-		mutex:  m.mutex, // TODO: これは違うprefix同士が非依存なので、並列に処理ができるが一緒になっているので効率が悪そう
+		mutex:  lock.NewMemoryMutexTable(10000),
 	}
 }
 
