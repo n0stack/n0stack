@@ -189,7 +189,7 @@ func (a *BlockStorageAPI) CreateBlockStorage(ctx context.Context, req *pprovisio
 			Bytes: bs.LimitBytes,
 		})
 		if err != nil {
-			grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to create block_storage on node '%s': err='%s'", bs.NodeName, err.Error())
+			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to create block_storage on node '%s': err='%s'", bs.NodeName, err.Error())
 		}
 		tx.PushRollback("DeleteBlockStorage", func() error {
 			_, err = cli.DeleteBlockStorage(ctx, &DeleteBlockStorageRequest{Path: v.Path})
@@ -272,7 +272,7 @@ func (a *BlockStorageAPI) FetchBlockStorage(ctx context.Context, req *pprovision
 			SourceUrl: bs.Annotations[AnnotationBlockStorageFetchFrom],
 		})
 		if err != nil {
-			grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to FetchBlockStorage on node '%s': err='%s'", bs.NodeName, err.Error())
+			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to FetchBlockStorage on node '%s': err='%s'", bs.NodeName, err.Error())
 		}
 		tx.PushRollback("DeleteBlockStorage", func() error {
 			_, err = cli.DeleteBlockStorage(context.Background(), &DeleteBlockStorageRequest{Path: v.Path})
