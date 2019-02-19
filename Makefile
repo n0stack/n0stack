@@ -115,9 +115,13 @@ update-go-on-docker:
 .PHONY: update-novnc
 update-novnc:
 	go get -v github.com/rakyll/statik
-	rm -rf /tmp/novnc
+	rm -rf /tmp/novnc /tmp/novnc-statik
 	git clone --depth 1 https://github.com/novnc/noVNC /tmp/novnc
-	statik -p virtualmachine -Z -f -src /tmp/novnc -dest ./n0core/pkg/api/provisioning
+	mkdir /tmp/novnc-statik
+	# Copy only required files, ref: https://github.com/novnc/noVNC/blob/master/docs/EMBEDDING.md
+	cp -r /tmp/novnc/app /tmp/novnc/core /tmp/novnc/vendor /tmp/novnc/*.html /tmp/novnc-statik/
+	statik -p virtualmachine -Z -f -src /tmp/novnc-statik -dest ./n0core/pkg/api/provisioning
+	rm -rf /tmp/novnc /tmp/novnc-statik
 
 .PHONY: clean
 clean:
