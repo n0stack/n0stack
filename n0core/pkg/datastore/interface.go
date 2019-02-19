@@ -12,7 +12,7 @@ type Datastore interface {
 	// if result is empty, set pb as nil.
 	Get(key string, pb proto.Message) error
 
-	// update system requires locking in advance
+	// update process requires locking in advance
 	Apply(key string, pb proto.Message) error
 	Delete(key string) error
 

@@ -1,4 +1,4 @@
-# Isolation writing
+# About pending state
 
 |||
 |--|--|
@@ -6,13 +6,14 @@
 
 ## Context
 
-- 同じオブジェクトに対する更新系のエンドポイントが同時に実行された場合、あとに終了する操作のみが反映されてしまうためDBと実際の状況が不整合を起こしてしまう
+APIが障害になった場合、どこまで処理を行ったかわからず、不整合の原因になると考えられる。特に、VirtualMachineやBlockStorageなど実体の操作が伴うものはレスポンスまでの時間が長いため、API障害の影響を受けやすいと考えられる。
 
 ## Decision
 
-- 以下の操作を行うことで楽観的なロックを行う
-    - リクエストを受けたとき、DB に保存されているオブジェクトを取得し、 PENDING 状態ではないことを確認
-    - PENDING 状態のオブジェクトを DB 保存
+- VirtualMachineやBlockStorageのCreateなど実体の操作が伴うものは最初に `PENDING` ステートに設定
+    - `PENDING` ステートのものは更新を行えないようにする
+
+これによって、APIの故障によって処理が止まってものは `PENDING` ステートによって操作がロックされ、不整合の拡大を抑制することができる。管理者は手動で不整合が起きていないか確認を行い、復旧することで正常性を維持する。
 
 ### Example in BlockStorage
 
@@ -77,13 +78,6 @@ func (a *BlockStorageAPI) GetAndLock(tx *transaction.Transaction, name string) (
 
 ## Consequences
 
-| target | updated |
-|--|--|
-| n0core/pkg/api/pool/node | No |
-| n0core/pkg/api/pool/network | Yes |
-| n0core/pkg/api/provisioning/block_storage | Yes |
-| n0core/pkg/api/provisioning/virtual_machine | Yes |
-| n0core/pkg/api/provisioning/Image | No |
-| n0core/pkg/api/provisioning/Flavor | No |
-
-- すでに開発済みである以上のもの以外は、開発段階で従うこと
+- `PENDING` のものが多くなってくると運用に耐えられなくなると考えられるので、実際に動かしながら確認
+- networkにも組み込んでしまったが本来はいらない
+    - 本来は[これ](lock)の目的で実装していたが、全く効果がなかったので理由が変更になった
