@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"time"
 
 	proto "github.com/golang/protobuf/proto"
 	empty "github.com/golang/protobuf/ptypes/empty"
@@ -21,6 +22,7 @@ import (
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
 	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/blockstorage"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
+	"github.com/n0stack/n0stack/n0core/pkg/datastore/lock"
 	"github.com/n0stack/n0stack/n0core/pkg/util/grpc"
 	"github.com/n0stack/n0stack/n0core/pkg/util/net"
 	"github.com/n0stack/n0stack/n0proto.go/pkg/transaction"
@@ -457,9 +459,8 @@ func (a *VirtualMachineAPI) BootVirtualMachine(ctx context.Context, req *pprovis
 		}
 	}
 
-
 	// CreateVirtualMachineから呼び出すので失敗してしまう
-	if !a.dataStore.Lock(req.Name) {
+	if !lock.WaitUntilLock(a.dataStore, req.Name, 1*time.Second, 50*time.Millisecond) {
 		return nil, datastore.LockError()
 	}
 	defer a.dataStore.Unlock(req.Name)

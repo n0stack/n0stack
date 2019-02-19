@@ -3,11 +3,13 @@ package image
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
+	"github.com/n0stack/n0stack/n0core/pkg/datastore/lock"
 	"github.com/n0stack/n0stack/n0core/pkg/util/grpc"
 	"github.com/n0stack/n0stack/n0proto.go/deployment/v0"
 	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
@@ -123,7 +125,7 @@ func (a ImageAPI) DeleteImage(ctx context.Context, req *pdeployment.DeleteImageR
 }
 
 func (a ImageAPI) RegisterBlockStorage(ctx context.Context, req *pdeployment.RegisterBlockStorageRequest) (*pdeployment.Image, error) {
-	if !a.dataStore.Lock(req.ImageName) {
+	if !lock.WaitUntilLock(a.dataStore, req.ImageName, 1*time.Second, 50*time.Millisecond) {
 		return nil, datastore.LockError()
 	}
 	defer a.dataStore.Unlock(req.ImageName)
@@ -162,7 +164,7 @@ func (a ImageAPI) RegisterBlockStorage(ctx context.Context, req *pdeployment.Reg
 }
 
 func (a ImageAPI) UnregisterBlockStorage(ctx context.Context, req *pdeployment.UnregisterBlockStorageRequest) (*pdeployment.Image, error) {
-	if !a.dataStore.Lock(req.ImageName) {
+	if !lock.WaitUntilLock(a.dataStore, req.ImageName, 1*time.Second, 50*time.Millisecond) {
 		return nil, datastore.LockError()
 	}
 	defer a.dataStore.Unlock(req.ImageName)
@@ -237,7 +239,7 @@ func (a ImageAPI) GenerateBlockStorage(ctx context.Context, req *pdeployment.Gen
 }
 
 func (a ImageAPI) TagImage(ctx context.Context, req *pdeployment.TagImageRequest) (*pdeployment.Image, error) {
-	if !a.dataStore.Lock(req.Name) {
+	if !lock.WaitUntilLock(a.dataStore, req.Name, 1*time.Second, 50*time.Millisecond) {
 		return nil, datastore.LockError()
 	}
 	defer a.dataStore.Unlock(req.Name)
@@ -278,7 +280,7 @@ func (a ImageAPI) TagImage(ctx context.Context, req *pdeployment.TagImageRequest
 }
 
 func (a ImageAPI) UntagImage(ctx context.Context, req *pdeployment.UntagImageRequest) (*pdeployment.Image, error) {
-	if !a.dataStore.Lock(req.Name) {
+	if !lock.WaitUntilLock(a.dataStore, req.Name, 1*time.Second, 50*time.Millisecond) {
 		return nil, datastore.LockError()
 	}
 	defer a.dataStore.Unlock(req.Name)

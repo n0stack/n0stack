@@ -1,123 +1,123 @@
-dvm1:
+ReserveCompute:
+  type: Node
+  action: ReserveCompute
+  args:
+    node_name: vm-host1
+    compute_name: debug
+    request_cpu_milli_core: 10
+    limit_cpu_milli_core: 1000
+    request_memory_bytes: 536870912
+    limit_memory_bytes: 536870912
+  ignore_error: true
+
+DeleteVirtualMachine:
   type: VirtualMachine
   action: DeleteVirtualMachine
   args:
-    name: vm1
+    name: debug
   ignore_error: true
-dvm2:
-  type: VirtualMachine
-  action: DeleteVirtualMachine
+  depends_on:
+    - ReserveCompute
+
+ReleaseCompute:
+  type: Node
+  action: ReleaseCompute
   args:
-    name: vm2
+    node_name: vm-host1
+    compute_name: debug
+  depends_on:
+    - DeleteVirtualMachine
   ignore_error: true
 
-dbs1:
+SetBlockStorage:
+  type: BlockStorage
+  action: SetAvailableBlockStorage
+  args:
+    name: debug
+  depends_on:
+    - DeleteVirtualMachine
+  ignore_error: true
+
+DeleteBlockStorage:
   type: BlockStorage
   action: DeleteBlockStorage
   args:
-    name: vm1
+    name: debug
   depends_on:
-    - dvm1
-  ignore_error: true
-dbs2:
-  type: BlockStorage
-  action: DeleteBlockStorage
-  args:
-    name: vm2
-  depends_on:
-    - dvm2
+    - SetBlockStorage
   ignore_error: true
 
-gbs1:
+GenerateBlockStorage:
   type: Image
   action: GenerateBlockStorage
   args:
     image_name: cloudimage-ubuntu
     tag: "1804"
-    block_storage_name: vm1
+    block_storage_name: debug
     annotations:
       n0core/provisioning/block_storage/request_node_name: vm-host1
     request_bytes: 1073741824
     limit_bytes: 10737418240
   depends_on:
-    - dbs1
-gbs2:
-  type: Image
-  action: GenerateBlockStorage
-  args:
-    image_name: cloudimage-ubuntu
-    tag: "1804"
-    block_storage_name: vm2
-    annotations:
-      n0core/provisioning/block_storage/request_node_name: vm-host1
-    request_bytes: 1073741824
-    limit_bytes: 10737418240
-  depends_on:
-    - dbs2
+    - DeleteBlockStorage
 
-dn:
+DownloadBlockStorage:
+  type: BlockStorage
+  action: DownloadBlockStorage
+  args:
+    name: debug
+  depends_on:
+    - GenerateBlockStorage
+
+DeleteNetwork:
   type: Network
   action: DeleteNetwork
   args:
-    name: net
+    name: debug_network
   depends_on:
-    - dvm1
-    - dvm2
+    - DeleteVirtualMachine
   ignore_error: true
 
-an:
+ApplyNetwork:
   type: Network
   action: ApplyNetwork
   args:
-    name: net
+    name: debug_network
     ipv4_cidr: 192.168.0.0/24
     annotations:
       n0core/provisioning/virtual_machine/vlan_id: "100"
   depends_on:
-    - dn
+    - DeleteNetwork
   ignore_error: true
 
-cvm1:
+CreateVirtualMachine:
   type: VirtualMachine
   action: CreateVirtualMachine
   args:
-    name: vm1
+    name: debug
     annotations:
       n0core/provisioning/virtual_machine/request_node_name: vm-host1
     request_cpu_milli_core: 10
     limit_cpu_milli_core: 1000
-    request_memory_bytes: 1
+    request_memory_bytes: 536870912
     limit_memory_bytes: 536870912
     block_storage_names:
-      - vm1
+      - debug
     nics:
-      - network_name: net
+      - network_name: debug_network
     uuid: 056d2ccd-0c4c-44dc-a2c8-39a9d394b51f
     login_username: test
     ssh_authorized_keys:
       - ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBITowPn2Ol1eCvXN5XV+Lb6jfXzgDbXyEdtayadDUJtFrcN2m2mjC1B20VBAoJcZtSYkmjrllS06Q26Te5sTYvE= testkey
   depends_on:
-    - gbs1
-    - an
-cvm2:
+    - ReleaseCompute
+    - GenerateBlockStorage
+    - ApplyNetwork
+
+OpenConsole:
   type: VirtualMachine
-  action: CreateVirtualMachine
+  action: OpenConsole
   args:
-    name: vm2
-    annotations:
-      n0core/provisioning/virtual_machine/request_node_name: vm-host1
-    request_cpu_milli_core: 10
-    limit_cpu_milli_core: 1000
-    request_memory_bytes: 1
-    limit_memory_bytes: 536870912
-    block_storage_names:
-      - vm2
-    nics:
-      - network_name: net
-    uuid: 056d2ccd-0c4c-44dc-a2c8-39a9d394b51f
-    login_username: test
-    ssh_authorized_keys:
-      - ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBITowPn2Ol1eCvXN5XV+Lb6jfXzgDbXyEdtayadDUJtFrcN2m2mjC1B20VBAoJcZtSYkmjrllS06Q26Te5sTYvE= testkey
+    name: debug
   depends_on:
-    - gbs2
-    - an
+    - CreateVirtualMachine

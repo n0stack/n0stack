@@ -115,7 +115,7 @@ func ServeAPI(ctx *cli.Context) error {
 			// grpc_prometheus.StreamServerInterceptor,
 		)),
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			grpc_recovery.UnaryServerInterceptor(),
+			// grpc_recovery.UnaryServerInterceptor(),
 			// grpc_zap.UnaryServerInterceptor(zapLogger),
 			// grpc_auth.UnaryServerInterceptor(auth),
 			// grpc_prometheus.UnaryServerInterceptor,

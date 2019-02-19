@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"time"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"
@@ -13,6 +14,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
+	"github.com/n0stack/n0stack/n0core/pkg/datastore/lock"
 	"github.com/n0stack/n0stack/n0core/pkg/util/grpc"
 	"github.com/n0stack/n0stack/n0core/pkg/util/net"
 	"github.com/n0stack/n0stack/n0proto.go/budget/v0"
@@ -167,7 +169,7 @@ func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.Rese
 		return nil, grpc.Errorf(codes.InvalidArgument, "Do not set field 'network_interface_name' as blank")
 	}
 
-	if !a.dataStore.Lock(req.NetworkName) {
+	if !lock.WaitUntilLock(a.dataStore, req.NetworkName, 1*time.Second, 50*time.Millisecond) {
 		return nil, datastore.LockError()
 	}
 	defer a.dataStore.Unlock(req.NetworkName)
@@ -247,7 +249,7 @@ func (a NetworkAPI) ReleaseNetworkInterface(ctx context.Context, req *ppool.Rele
 		return nil, grpc.Errorf(codes.NotFound, "Do not exists network '%s'", req.NetworkName)
 	}
 
-	if !a.dataStore.Lock(req.NetworkName) {
+	if !lock.WaitUntilLock(a.dataStore, req.NetworkName, 1*time.Second, 50*time.Millisecond) {
 		return nil, datastore.LockError()
 	}
 	defer a.dataStore.Unlock(req.NetworkName)

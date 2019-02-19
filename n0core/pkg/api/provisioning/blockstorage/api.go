@@ -8,12 +8,14 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"path/filepath"
+	"time"
 
 	proto "github.com/golang/protobuf/proto"
 	empty "github.com/golang/protobuf/ptypes/empty"
 	"github.com/labstack/echo"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
+	"github.com/n0stack/n0stack/n0core/pkg/datastore/lock"
 	"github.com/n0stack/n0stack/n0core/pkg/util/grpc"
 	"github.com/n0stack/n0stack/n0proto.go/pkg/transaction"
 	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
@@ -488,7 +490,7 @@ func (a *BlockStorageAPI) DeleteBlockStorage(ctx context.Context, req *pprovisio
 }
 
 func (a *BlockStorageAPI) SetAvailableBlockStorage(ctx context.Context, req *pprovisioning.SetAvailableBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
-	if !a.dataStore.Lock(req.Name) {
+	if !lock.WaitUntilLock(a.dataStore, req.Name, 1*time.Second, 50*time.Millisecond) {
 		return nil, datastore.LockError()
 	}
 	defer a.dataStore.Unlock(req.Name)
@@ -515,7 +517,7 @@ func (a *BlockStorageAPI) SetAvailableBlockStorage(ctx context.Context, req *ppr
 }
 
 func (a *BlockStorageAPI) SetInuseBlockStorage(ctx context.Context, req *pprovisioning.SetInuseBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
-	if !a.dataStore.Lock(req.Name) {
+	if !lock.WaitUntilLock(a.dataStore, req.Name, 1*time.Second, 50*time.Millisecond) {
 		return nil, datastore.LockError()
 	}
 	defer a.dataStore.Unlock(req.Name)
@@ -542,7 +544,7 @@ func (a *BlockStorageAPI) SetInuseBlockStorage(ctx context.Context, req *pprovis
 }
 
 func (a *BlockStorageAPI) SetProtectedBlockStorage(ctx context.Context, req *pprovisioning.SetProtectedBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
-	if !a.dataStore.Lock(req.Name) {
+	if !lock.WaitUntilLock(a.dataStore, req.Name, 1*time.Second, 50*time.Millisecond) {
 		return nil, datastore.LockError()
 	}
 	defer a.dataStore.Unlock(req.Name)

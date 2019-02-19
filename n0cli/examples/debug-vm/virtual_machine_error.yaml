@@ -1,0 +1,13 @@
+CreateVirtualMachine:
+  type: VirtualMachine
+  action: CreateVirtualMachine
+  args:
+    name: error
+    annotations:
+      n0core/provisioning/virtual_machine/request_node_name: vm-host1
+    request_cpu_milli_core: 10
+    limit_cpu_milli_core: 1000
+    request_memory_bytes: 1
+    limit_memory_bytes: 1
+    block_storage_names:
+      - nothing
