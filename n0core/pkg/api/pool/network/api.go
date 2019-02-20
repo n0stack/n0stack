@@ -101,7 +101,7 @@ func (a NetworkAPI) ApplyNetwork(ctx context.Context, req *ppool.ApplyNetworkReq
 	}
 
 	{
-		if network != nil && ipv4.String() != network.Ipv4Cidr {
+		if network.Name != "" && ipv4.String() != network.Ipv4Cidr {
 			return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "ipv4 cidr is different from previous ipv4 cidr")
 		}
 
