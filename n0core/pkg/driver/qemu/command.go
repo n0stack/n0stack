@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"code.cloudfoundry.org/bytefmt"
 	"github.com/digitalocean/go-qemu/qmp"
@@ -146,114 +147,122 @@ func (q *Qemu) Delete() error {
 	return nil
 }
 
+const MAX_RETRY_TO_START = 5
+
+var RETRY_DURATION_IN_START = 100 * time.Millisecond
+
 func (q *Qemu) Start(id uuid.UUID, qmpPath string, vcpus uint32, memory uint64) error {
 	qmpPath, err := filepath.Abs(qmpPath)
 	if err != nil {
 		return fmt.Errorf("Failed to get absolute path of qmpPath: err='%s'", err.Error())
 	}
 
-retry:
-	args := []string{
-		"qemu-system-x86_64",
+	var args []string
+	for i := 0; i < MAX_RETRY_TO_START; i++ {
+		args = []string{
+			"qemu-system-x86_64",
 
-		// -- QEMU metadata --
-		"-uuid",
-		id.String(),
-		"-name",
-		fmt.Sprintf("guest=%s,debug-threads=on", q.name),
-		"-msg",
-		"timestamp=on",
+			// -- QEMU metadata --
+			"-uuid",
+			id.String(),
+			"-name",
+			fmt.Sprintf("guest=%s,debug-threads=on", q.name),
+			"-msg",
+			"timestamp=on",
 
-		// Config
-		"-daemonize",
-		"-nodefaults",     // Don't create default devices
-		"-no-user-config", // The "-no-user-config" option makes QEMU not load any of the user-provided config files on sysconfdir
-		"-S",              // Do not start CPU at startup
-		"-no-shutdown",    // Don't exit QEMU on guest shutdown
-		"-global",
-		"kvm-pit.lost_tick_policy=discard",
-		// "-pidfile",
-		// "",
+			// Config
+			"-daemonize",
+			"-nodefaults",     // Don't create default devices
+			"-no-user-config", // The "-no-user-config" option makes QEMU not load any of the user-provided config files on sysconfdir
+			"-S",              // Do not start CPU at startup
+			"-no-shutdown",    // Don't exit QEMU on guest shutdown
+			"-global",
+			"kvm-pit.lost_tick_policy=discard",
+			// "-pidfile",
+			// "",
 
-		// QMP
-		"-chardev",
-		fmt.Sprintf("socket,id=charmonitor,path=%s,server,nowait", qmpPath),
-		"-mon",
-		"chardev=charmonitor,id=monitor,mode=control",
+			// QMP
+			"-chardev",
+			fmt.Sprintf("socket,id=charmonitor,path=%s,server,nowait", qmpPath),
+			"-mon",
+			"chardev=charmonitor,id=monitor,mode=control",
 
-		// -- BIOS --
-		// boot priority
-		"-boot",
-		"menu=on,strict=on",
+			// -- BIOS --
+			// boot priority
+			"-boot",
+			"menu=on,strict=on",
 
-		// keyboard
-		"-k",
-		"en-us",
+			// keyboard
+			"-k",
+			"en-us",
 
-		// VNC
-		"-vnc",
-		fmt.Sprintf("0.0.0.0:%d,websocket=%d", GetNewListenPort(5900)-5900, GetNewListenPort(5700)),
+			// VNC
+			"-vnc",
+			fmt.Sprintf("0.0.0.0:%d,websocket=%d", GetNewListenPort(5900)-5900, GetNewListenPort(5700)),
 
-		// clock
-		"-rtc",
-		"base=utc,driftfix=slew",
-		"-global",
-		"kvm-pit.lost_tick_policy=delay",
-		"-no-hpet",
+			// clock
+			"-rtc",
+			"base=utc,driftfix=slew",
+			"-global",
+			"kvm-pit.lost_tick_policy=delay",
+			"-no-hpet",
 
-		// CPU
-		// TODO: 必要があればmonitorを操作してhotaddできるようにする
-		// TODO: スケジューリングが可能かどうか調べる
-		"-smp",
-		fmt.Sprintf("%d,sockets=1,cores=%d,threads=1", vcpus, vcpus),
-		"-cpu",
-		"host",
-		"-enable-kvm",
+			// CPU
+			// TODO: 必要があればmonitorを操作してhotaddできるようにする
+			// TODO: スケジューリングが可能かどうか調べる
+			"-smp",
+			fmt.Sprintf("%d,sockets=1,cores=%d,threads=1", vcpus, vcpus),
+			"-cpu",
+			"host",
+			"-enable-kvm",
 
-		// Memory
-		"-m",
-		fmt.Sprintf("%s", bytefmt.ByteSize(memory)),
-		// "-device",
-		// "virtio-balloon-pci,id=balloon0,bus=pci.0", // dynamic configurations
-		"-realtime",
-		"mlock=off",
+			// Memory
+			"-m",
+			fmt.Sprintf("%s", bytefmt.ByteSize(memory)),
+			// "-device",
+			// "virtio-balloon-pci,id=balloon0,bus=pci.0", // dynamic configurations
+			"-realtime",
+			"mlock=off",
 
-		// VGA controller
-		"-device",
-		"VGA,id=video0,bus=pci.0",
+			// VGA controller
+			"-device",
+			"VGA,id=video0,bus=pci.0",
 
-		// SCSI controller
-		"-device",
-		"lsi53c895a,bus=pci.0,id=scsi0",
+			// SCSI controller
+			"-device",
+			"lsi53c895a,bus=pci.0,id=scsi0",
 
-		// Serial device
-		"-device",
-		"virtio-serial-pci,id=virtio-serial0,bus=pci.0",
-		"-chardev",
-		"pty,id=charserial0",
-		"-device",
-		"isa-serial,chardev=charserial0,id=serial0",
-	}
+			// Serial device
+			"-device",
+			"virtio-serial-pci,id=virtio-serial0,bus=pci.0",
+			"-chardev",
+			"pty,id=charserial0",
+			"-device",
+			"isa-serial,chardev=charserial0,id=serial0",
+		}
 
-	if !q.isKVM {
-		// remove "-cpu", "host" and "-enable-kvm", because kvm is disable
-		for i, v := range args {
-			if v == "-cpu" {
-				args = append(args[:i], args[i+3:]...)
+		if !q.isKVM {
+			// remove "-cpu", "host" and "-enable-kvm" to disable kvm
+			for i, v := range args {
+				if v == "-cpu" {
+					args = append(args[:i], args[i+3:]...)
+				}
 			}
 		}
-	}
 
-	cmd := exec.Command(args[0], args[1:]...)
-	out, err := cmd.CombinedOutput()
-	if err != nil { // TODO: combine でもいいかもしれない
+		cmd := exec.Command(args[0], args[1:]...)
+		out, err := cmd.CombinedOutput()
+		if err != nil { // TODO: combine でもいいかもしれない
+			if strings.Contains(string(out), "Failed to start VNC server: Failed to find an available port") {
+				// Retry selecting new port for VNC
+				time.Sleep(RETRY_DURATION_IN_START)
+				continue
+			}
 
-		if strings.Contains(string(out), "Failed to start VNC server: Failed to find an available port") {
-			// Retry selecting new port for VNC
-			goto retry
+			return fmt.Errorf("Failed to start process: args='%s', out='%s', err='%s'", args, string(out), err.Error())
 		}
 
-		return fmt.Errorf("Failed to start process: args='%s', out='%s', err='%s'", args, string(out), err.Error())
+		break
 	}
 
 	if err := q.init(); err != nil {
