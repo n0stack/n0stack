@@ -29,7 +29,7 @@ func main() {
 	app.Commands = []cli.Command{
 		// 		{
 		// 			Name:      "get",
-		// 			Usage:     "Get resource if set resource name, List resources if not set",
+		// 			Usage:     "Get resource(s)",
 		// 			ArgsUsage: "[resource type] [resource name (optional)]",
 		// 			Description: `
 		// 	## Resource types
@@ -104,7 +104,7 @@ func main() {
 			Subcommands: []cli.Command{
 				{
 					Name:      "get",
-					Usage:     "Get Node if set resource name, List resources if not set",
+					Usage:     "Get Node(s)",
 					ArgsUsage: "[Node name (optional)]",
 					Action:    GetNode,
 				},
@@ -123,7 +123,7 @@ func main() {
 			Subcommands: []cli.Command{
 				{
 					Name:      "get",
-					Usage:     "Get Network if set resource name, List resources if not set",
+					Usage:     "Get Network(s)",
 					ArgsUsage: "[Network name (optional)]",
 					Action:    GetNetwork,
 				},
@@ -143,7 +143,7 @@ func main() {
 			Subcommands: []cli.Command{
 				{
 					Name:      "get",
-					Usage:     "Get VirtualMachine if set resource name, List resources if not set",
+					Usage:     "Get VirtualMachine(s)",
 					ArgsUsage: "[VirtualMachine name (optional)]",
 					Action:    GetVirtualMachine,
 				},
@@ -174,7 +174,7 @@ func main() {
 			Subcommands: []cli.Command{
 				{
 					Name:      "get",
-					Usage:     "Get BlockStorage if set resource name, List resources if not set",
+					Usage:     "Get BlockStorage(s)",
 					ArgsUsage: "[BlockStorage name (optional)]",
 					Action:    GetBlockStorage,
 				},
@@ -199,7 +199,7 @@ func main() {
 			Subcommands: []cli.Command{
 				{
 					Name:      "get",
-					Usage:     "Get Image if set resource name, List resources if not set",
+					Usage:     "Get Image(s)",
 					ArgsUsage: "[Image name (optional)]",
 					Action:    GetImage,
 				},
@@ -215,7 +215,7 @@ func main() {
 
 	getCommand := cli.Command{
 		Name:      "get",
-		Usage:     "Get resource if set resource name, List resources if not set",
+		Usage:     "Get resource(s)",
 		ArgsUsage: "[resource name (optional)]",
 	}
 	deleteCommand := cli.Command{
