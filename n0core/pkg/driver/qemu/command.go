@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"code.cloudfoundry.org/bytefmt"
@@ -18,6 +19,7 @@ type Qemu struct {
 	proc *process.Process
 
 	// args
+	args    *QemuArgs
 	name    string
 	qmpPath string
 	isKVM   bool
@@ -144,7 +146,7 @@ func (q *Qemu) Delete() error {
 	return nil
 }
 
-func (q *Qemu) Start(id uuid.UUID, qmpPath string, vncWebsocketPort uint16, vcpus uint32, memory uint64) error {
+func (q *Qemu) Start(id uuid.UUID, qmpPath string, vcpus uint32, memory uint64) error {
 	qmpPath, err := filepath.Abs(qmpPath)
 	if err != nil {
 		return fmt.Errorf("Failed to get absolute path of qmpPath: err='%s'", err.Error())
@@ -189,7 +191,7 @@ func (q *Qemu) Start(id uuid.UUID, qmpPath string, vncWebsocketPort uint16, vcpu
 
 		// VNC
 		"-vnc",
-		fmt.Sprintf("0.0.0.0:%d,websocket=%d", GetNewListenPort(5900)-5900, vncWebsocketPort),
+		fmt.Sprintf("0.0.0.0:%d,websocket=%d", GetNewListenPort(5900)-5900, GetNewListenPort(5700)),
 
 		// clock
 		"-rtc",
@@ -252,4 +254,18 @@ func (q *Qemu) Start(id uuid.UUID, qmpPath string, vncWebsocketPort uint16, vcpu
 	}
 
 	return nil
+}
+
+func (q Qemu) GetVNCWebsocketPort() int {
+	_, kwds, ok := q.args.GetTopParsedOptionValue("-vnc")
+	if !ok {
+		return 0
+	}
+
+	if v, ok := kwds["websocket"]; ok {
+		i, _ := strconv.Atoi(v)
+		return i
+	}
+
+	return 0
 }

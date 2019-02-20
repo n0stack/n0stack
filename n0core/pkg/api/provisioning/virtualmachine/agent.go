@@ -83,7 +83,6 @@ func (a VirtualMachineAgent) BootVirtualMachine(ctx context.Context, req *BootVi
 	if err != nil {
 		return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Set valid uuid: %s", err.Error())
 	}
-	websocket := qemu.GetNewListenPort(VNCWebSocketPortOffset)
 	vcpus := req.Vcpus
 	mem := req.MemoryBytes
 
@@ -103,7 +102,7 @@ func (a VirtualMachineAgent) BootVirtualMachine(ctx context.Context, req *BootVi
 		return nil, grpcutil.WrapGrpcErrorf(codes.AlreadyExists, "Qemu process is already running")
 	}
 
-	if err := q.Start(id, filepath.Join(wd, QmpMonitorSocketFile), websocket, vcpus, mem); err != nil {
+	if err := q.Start(id, filepath.Join(wd, QmpMonitorSocketFile), vcpus, mem); err != nil {
 		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to start qemu process: err=%s", err.Error())
 	}
 	defer q.Close()
@@ -261,7 +260,7 @@ func (a VirtualMachineAgent) BootVirtualMachine(ctx context.Context, req *BootVi
 	tx.Commit()
 	return &BootVirtualMachineResponse{
 		State:         GetAgentStateFromQemuState(s),
-		WebsocketPort: uint32(websocket),
+		WebsocketPort: uint32(q.GetVNCWebsocketPort()),
 	}, nil
 }
 
