@@ -17,6 +17,7 @@ func main() {
 	app.Name = "n0cli"
 	app.Version = version
 	app.Usage = "the n0stack CLI application"
+	app.EnableBashCompletion = true
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
