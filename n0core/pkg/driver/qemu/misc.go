@@ -140,6 +140,8 @@ func GetNewListenPort(begin uint16) uint16 {
 	return 0
 }
 
+// QemuArgs is QEMU arguments parser
+// TODO: 毎回文字列探索するので遅い
 type QemuArgs struct {
 	args []string
 }
@@ -184,18 +186,7 @@ func (q QemuArgs) GetTopParsedOptionValue(key string) ([]string, map[string]stri
 		return nil, nil, false
 	}
 
-	args := make([]string, 0)
-	kwds := make(map[string]string)
-
-	for _, v := range strings.Split(values[0], ",") {
-		kv := strings.Split(v, "=")
-		if len(kv) == 1 {
-			args = append(args, v)
-		} else {
-			kwds[kv[0]] = kv[1]
-		}
-	}
-
+	args, kwds := q.ParseOptionValue(values[0])
 	return args, kwds, true
 }
 
@@ -203,18 +194,7 @@ func (q QemuArgs) GetParsedOptionValueById(key, id string) ([]string, map[string
 	values := q.GetOptionValues(key)
 
 	for _, value := range values {
-		args := make([]string, 0)
-		kwds := make(map[string]string)
-
-		for _, v := range strings.Split(value, ",") {
-			kv := strings.Split(v, "=")
-			if len(kv) == 1 {
-				args = append(args, v)
-			} else {
-				kwds[kv[0]] = kv[1]
-			}
-
-		}
+		args, kwds := q.ParseOptionValue(value)
 
 		if kwds["id"] == id {
 			return args, kwds, true
