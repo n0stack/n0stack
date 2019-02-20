@@ -608,6 +608,10 @@ func (a *VirtualMachineAPI) RebootVirtualMachine(ctx context.Context, req *pprov
 		vm.State = GetAPIStateFromAgentState(res.State)
 	}
 
+	if err := a.dataStore.Apply(vm.Name, vm); err != nil {
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
+	}
+
 	return vm, nil
 }
 
