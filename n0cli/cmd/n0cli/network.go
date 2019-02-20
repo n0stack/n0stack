@@ -40,6 +40,7 @@ func listNetwork(conn *grpc.ClientConn) error {
 	}
 
 	marshaler.Marshal(os.Stdout, res)
+	fmt.Println()
 
 	return nil
 }
@@ -53,6 +54,7 @@ func getNetwork(name string, conn *grpc.ClientConn) error {
 	}
 
 	marshaler.Marshal(os.Stdout, res)
+	fmt.Println()
 
 	return nil
 }
@@ -83,6 +85,7 @@ func deleteNetwork(name string, conn *grpc.ClientConn) error {
 	}
 
 	marshaler.Marshal(os.Stdout, res)
+	fmt.Println()
 
 	return nil
 }

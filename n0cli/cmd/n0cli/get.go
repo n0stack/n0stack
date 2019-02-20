@@ -46,6 +46,7 @@ func get(ctx *cli.Context) error {
 		}
 
 		marshaler.Marshal(os.Stdout, res)
+		fmt.Println()
 
 	case "Network", "network":
 		cl := ppool.NewNetworkServiceClient(conn)
@@ -56,6 +57,7 @@ func get(ctx *cli.Context) error {
 		}
 
 		marshaler.Marshal(os.Stdout, res)
+		fmt.Println()
 
 	case "BlockStorage", "block_storage", "bs":
 		cl := pprovisioning.NewBlockStorageServiceClient(conn)
@@ -66,6 +68,7 @@ func get(ctx *cli.Context) error {
 		}
 
 		marshaler.Marshal(os.Stdout, res)
+		fmt.Println()
 
 	case "VirtualMachine", "virtual_machine", "vm":
 		cl := pprovisioning.NewVirtualMachineServiceClient(conn)
@@ -76,6 +79,7 @@ func get(ctx *cli.Context) error {
 		}
 
 		marshaler.Marshal(os.Stdout, res)
+		fmt.Println()
 
 	case "Image", "image":
 		cl := pdeployment.NewImageServiceClient(conn)
@@ -86,6 +90,7 @@ func get(ctx *cli.Context) error {
 		}
 
 		marshaler.Marshal(os.Stdout, res)
+		fmt.Println()
 
 	case "Flavor", "flavor":
 		cl := pdeployment.NewFlavorServiceClient(conn)
@@ -96,6 +101,7 @@ func get(ctx *cli.Context) error {
 		}
 
 		marshaler.Marshal(os.Stdout, res)
+		fmt.Println()
 
 	default:
 		return fmt.Errorf("resource type '%s' is not existing\n", resourceType)
@@ -125,6 +131,7 @@ func list(ctx *cli.Context) error {
 		}
 
 		marshaler.Marshal(os.Stdout, res)
+		fmt.Println()
 
 	case "Network", "network":
 		cl := ppool.NewNetworkServiceClient(conn)
@@ -135,6 +142,7 @@ func list(ctx *cli.Context) error {
 		}
 
 		marshaler.Marshal(os.Stdout, res)
+		fmt.Println()
 
 	case "BlockStorage", "block_storage", "bs":
 		cl := pprovisioning.NewBlockStorageServiceClient(conn)
@@ -145,6 +153,7 @@ func list(ctx *cli.Context) error {
 		}
 
 		marshaler.Marshal(os.Stdout, res)
+		fmt.Println()
 
 	case "VirtualMachine", "virtual_machine", "vm":
 		cl := pprovisioning.NewVirtualMachineServiceClient(conn)
@@ -155,6 +164,7 @@ func list(ctx *cli.Context) error {
 		}
 
 		marshaler.Marshal(os.Stdout, res)
+		fmt.Println()
 
 	case "Image", "image":
 		cl := pdeployment.NewImageServiceClient(conn)
@@ -165,6 +175,7 @@ func list(ctx *cli.Context) error {
 		}
 
 		marshaler.Marshal(os.Stdout, res)
+		fmt.Println()
 
 	case "Flavor", "flavor":
 		cl := pdeployment.NewFlavorServiceClient(conn)
@@ -175,6 +186,7 @@ func list(ctx *cli.Context) error {
 		}
 
 		marshaler.Marshal(os.Stdout, res)
+		fmt.Println()
 
 	default:
 		return fmt.Errorf("resource type '%s' is not existing\n", resourceType)

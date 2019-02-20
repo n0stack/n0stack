@@ -40,6 +40,7 @@ func listVirtualMachine(conn *grpc.ClientConn) error {
 	}
 
 	marshaler.Marshal(os.Stdout, res)
+	fmt.Println()
 
 	return nil
 }
@@ -53,6 +54,7 @@ func getVirtualMachine(name string, conn *grpc.ClientConn) error {
 	}
 
 	marshaler.Marshal(os.Stdout, res)
+	fmt.Println()
 
 	return nil
 }
@@ -83,6 +85,7 @@ func deleteVirtualMachine(name string, conn *grpc.ClientConn) error {
 	}
 
 	marshaler.Marshal(os.Stdout, res)
+	fmt.Println()
 
 	return nil
 }
@@ -113,6 +116,7 @@ func bootVirtualMachine(name string, conn *grpc.ClientConn) error {
 	}
 
 	marshaler.Marshal(os.Stdout, res)
+	fmt.Println()
 
 	return nil
 }
