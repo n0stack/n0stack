@@ -122,7 +122,7 @@ func StructConfig(user, hostname string, keys []ssh.PublicKey, eth []*CloudConfi
 func (c *CloudConfig) GenerateUserdataFile(basedir string) error {
 	c.userdataPath = filepath.Join(basedir, "user-data")
 
-	f, err := os.OpenFile(c.userdataPath, os.O_WRONLY|os.O_CREATE, 0666)
+	f, err := os.OpenFile(c.userdataPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		return fmt.Errorf("Failed to open hostsfile: path='%s', err='%s'", c.userdataPath, err.Error())
 	}
@@ -147,7 +147,7 @@ func (c *CloudConfig) GenerateUserdataFile(basedir string) error {
 func (c *CloudConfig) GenerateMetadataFile(basedir string) error {
 	c.metadataPath = filepath.Join(basedir, "meta-data")
 
-	f, err := os.OpenFile(c.metadataPath, os.O_WRONLY|os.O_CREATE, 0666)
+	f, err := os.OpenFile(c.metadataPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		return fmt.Errorf("Failed to open hostsfile: path='%s', err='%s'", c.metadataPath, err.Error())
 	}
@@ -168,7 +168,7 @@ func (c *CloudConfig) GenerateMetadataFile(basedir string) error {
 func (c *CloudConfig) GenerateNetworkConfigFile(basedir string) error {
 	c.networkConfigPath = filepath.Join(basedir, "network-config")
 
-	f, err := os.OpenFile(c.networkConfigPath, os.O_WRONLY|os.O_CREATE, 0666)
+	f, err := os.OpenFile(c.networkConfigPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		return fmt.Errorf("Failed to open hostsfile: path='%s', err='%s'", c.networkConfigPath, err.Error())
 	}
