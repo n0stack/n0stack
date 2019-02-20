@@ -55,16 +55,6 @@ gbs2:
   depends_on:
     - dbs2
 
-dn:
-  type: Network
-  action: DeleteNetwork
-  args:
-    name: net
-  depends_on:
-    - dvm1
-    - dvm2
-  ignore_error: true
-
 an:
   type: Network
   action: ApplyNetwork
@@ -73,8 +63,6 @@ an:
     ipv4_cidr: 192.168.0.0/24
     annotations:
       n0core/provisioning/virtual_machine/vlan_id: "100"
-  depends_on:
-    - dn
   ignore_error: true
 
 cvm1:

@@ -101,6 +101,10 @@ func (a NetworkAPI) ApplyNetwork(ctx context.Context, req *ppool.ApplyNetworkReq
 	}
 
 	{
+		if network != nil && ipv4.String() != network.Ipv4Cidr {
+			return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "ipv4 cidr is different from previous ipv4 cidr")
+		}
+
 		res, err := a.ListNetworks(ctx, &ppool.ListNetworksRequest{})
 		if err != nil {
 			if grpc.Code(err) != codes.NotFound {
