@@ -118,6 +118,7 @@ func main() {
 		},
 		{
 			Name:        "network",
+			Aliases:     []string{"net"},
 			Usage:       "Network APIs",
 			Description: "",
 			Subcommands: []cli.Command{
@@ -138,6 +139,7 @@ func main() {
 
 		{
 			Name:        "virtual_machine",
+			Aliases:    []string{"vm"},
 			Usage:       "VirtualMachine APIs",
 			Description: "",
 			Subcommands: []cli.Command{
@@ -161,6 +163,7 @@ func main() {
 				},
 				{
 					Name:      "open_console",
+					Aliases:   []string{"console"},
 					Usage:     "Get URL to open console of VirtualMachine",
 					ArgsUsage: "[VirtualMachine name]",
 					Action:    OpenConsoleOfVirtualMachine,
@@ -169,6 +172,7 @@ func main() {
 		},
 		{
 			Name:        "block_storage",
+			Aliases:     []string{"bs"},
 			Usage:       "BlockStorage APIs",
 			Description: "",
 			Subcommands: []cli.Command{
@@ -232,6 +236,7 @@ func main() {
 			if c2.Name == "get" {
 				getCommand.Subcommands = append(getCommand.Subcommands, cli.Command{
 					Name:      c1.Name,
+					Aliases:   c1.Aliases,
 					Usage:     c2.Usage,
 					ArgsUsage: c2.ArgsUsage,
 					Action:    c2.Action,
@@ -239,6 +244,7 @@ func main() {
 			} else if c2.Name == "delete" {
 				deleteCommand.Subcommands = append(deleteCommand.Subcommands, cli.Command{
 					Name:      c1.Name,
+					Aliases:   c1.Aliases,
 					Usage:     c2.Usage,
 					ArgsUsage: c2.ArgsUsage,
 					Action:    c2.Action,
