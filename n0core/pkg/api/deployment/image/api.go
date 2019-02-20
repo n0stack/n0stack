@@ -239,7 +239,7 @@ func (a ImageAPI) GenerateBlockStorage(ctx context.Context, req *pdeployment.Gen
 }
 
 func (a ImageAPI) TagImage(ctx context.Context, req *pdeployment.TagImageRequest) (*pdeployment.Image, error) {
-	if !lock.WaitUntilLock(a.dataStore, req.Name, 1*time.Second, 50*time.Millisecond) {
+	if !lock.WaitUntilLock(a.dataStore, req.Name, 1*time.Second, 10*time.Millisecond) {
 		return nil, datastore.LockError()
 	}
 	defer a.dataStore.Unlock(req.Name)
@@ -280,7 +280,7 @@ func (a ImageAPI) TagImage(ctx context.Context, req *pdeployment.TagImageRequest
 }
 
 func (a ImageAPI) UntagImage(ctx context.Context, req *pdeployment.UntagImageRequest) (*pdeployment.Image, error) {
-	if !lock.WaitUntilLock(a.dataStore, req.Name, 1*time.Second, 50*time.Millisecond) {
+	if !lock.WaitUntilLock(a.dataStore, req.Name, 1*time.Second, 10*time.Millisecond) {
 		return nil, datastore.LockError()
 	}
 	defer a.dataStore.Unlock(req.Name)

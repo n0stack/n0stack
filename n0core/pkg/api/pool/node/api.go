@@ -178,7 +178,7 @@ func (a NodeAPI) ReserveCompute(ctx context.Context, req *ppool.ReserveComputeRe
 		return nil, grpc.Errorf(codes.InvalidArgument, "Set field 'request_*'")
 	}
 
-	if !lock.WaitUntilLock(a.dataStore, req.NodeName, 1*time.Second, 50*time.Millisecond) {
+	if !lock.WaitUntilLock(a.dataStore, req.NodeName, time.Second, 10*time.Millisecond) {
 		return nil, datastore.LockError()
 	}
 	defer a.dataStore.Unlock(req.NodeName)
@@ -218,7 +218,7 @@ func (a NodeAPI) ReserveCompute(ctx context.Context, req *ppool.ReserveComputeRe
 }
 
 func (a NodeAPI) ReleaseCompute(ctx context.Context, req *ppool.ReleaseComputeRequest) (*empty.Empty, error) {
-	if !lock.WaitUntilLock(a.dataStore, req.NodeName, 1*time.Second, 50*time.Millisecond) {
+	if !lock.WaitUntilLock(a.dataStore, req.NodeName, time.Second, 10*time.Millisecond) {
 		return nil, datastore.LockError()
 	}
 	defer a.dataStore.Unlock(req.NodeName)
