@@ -2,6 +2,7 @@ package node
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"code.cloudfoundry.org/bytefmt"
@@ -448,5 +449,71 @@ func TestNodeAboutStorage(t *testing.T) {
 	})
 	if err != nil {
 		t.Errorf("ReleaseStorage got error: err='%s'", err.Error())
+	}
+}
+
+func BenchmarkCompute(b *testing.B) {
+	m := memory.NewMemoryDatastore()
+	na := NewMockNodeAPI(m)
+	ctx := context.Background()
+
+	n, err := na.ApplyNode(context.Background(), &ppool.ApplyNodeRequest{
+		Name: "test-node",
+
+		Address:     "10.0.0.1",
+		IpmiAddress: "192.168.0.1",
+		Serial:      "aa",
+
+		CpuMilliCores: 100000,
+		MemoryBytes:   100 * bytefmt.GIGABYTE,
+		StorageBytes:  1000 * bytefmt.GIGABYTE,
+
+		Datacenter:       "test-dc",
+		AvailabilityZone: "test-az",
+		Cell:             "test-cell",
+		Rack:             "test-rack",
+		Unit:             1,
+	})
+	if err != nil {
+		b.Fatalf("Failed to apply node: err='%s'", err.Error())
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for j := 0; j < 5; j++ {
+			go na.ReserveCompute(ctx, &ppool.ReserveComputeRequest{
+				NodeName:            n.Name,
+				ComputeName:         fmt.Sprintf("locker%d-%d", j, i),
+				LimitCpuMilliCore:   1,
+				RequestCpuMilliCore: 1,
+				LimitMemoryBytes:    1,
+				RequestMemoryBytes:  1,
+			})
+			go na.ReleaseCompute(ctx, &ppool.ReleaseComputeRequest{
+				NodeName:    n.Name,
+				ComputeName: fmt.Sprintf("locker%d-%d", j, i),
+			})
+		}
+
+		reserveReq := &ppool.ReserveComputeRequest{
+			NodeName:            n.Name,
+			ComputeName:         "test-compute",
+			LimitCpuMilliCore:   1,
+			RequestCpuMilliCore: 1,
+			LimitMemoryBytes:    1,
+			RequestMemoryBytes:  1,
+		}
+		_, err := na.ReserveCompute(ctx, reserveReq)
+		if err != nil {
+			b.Fatalf("ReserveCompute got error: err='%s'", err.Error())
+		}
+
+		_, err = na.ReleaseCompute(ctx, &ppool.ReleaseComputeRequest{
+			NodeName:    n.Name,
+			ComputeName: reserveReq.ComputeName,
+		})
+		if err != nil {
+			b.Fatalf("ReleaseCompute got error: err='%s'", err.Error())
+		}
 	}
 }
