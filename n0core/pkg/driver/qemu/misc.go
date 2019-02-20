@@ -139,3 +139,87 @@ func GetNewListenPort(begin uint16) uint16 {
 
 	return 0
 }
+
+type QemuArgs struct {
+	args []string
+}
+
+func ParseQemuArgs(args []string) *QemuArgs {
+	return &QemuArgs{
+		args: args,
+	}
+}
+
+func (q QemuArgs) GetOptionValues(key string) []string {
+	values := make([]string, 0)
+
+	for i, a := range q.args {
+		if a == key {
+			values = append(values, q.args[i+1])
+		}
+	}
+
+	return values
+}
+
+func (q QemuArgs) ParseOptionValue(value string) ([]string, map[string]string) {
+	args := make([]string, 0)
+	kwds := make(map[string]string)
+
+	for _, v := range strings.Split(value, ",") {
+		kv := strings.Split(v, "=")
+		if len(kv) == 1 {
+			args = append(args, v)
+		} else {
+			kwds[kv[0]] = kv[1]
+		}
+	}
+
+	return args, kwds
+}
+
+func (q QemuArgs) GetTopParsedOptionValue(key string) ([]string, map[string]string, bool) {
+	values := q.GetOptionValues(key)
+	if len(values) == 0 {
+		return nil, nil, false
+	}
+
+	args := make([]string, 0)
+	kwds := make(map[string]string)
+
+	for _, v := range strings.Split(values[0], ",") {
+		kv := strings.Split(v, "=")
+		if len(kv) == 1 {
+			args = append(args, v)
+		} else {
+			kwds[kv[0]] = kv[1]
+		}
+	}
+
+	return args, kwds, true
+}
+
+func (q QemuArgs) GetParsedOptionValueById(key, id string) ([]string, map[string]string, bool) {
+	values := q.GetOptionValues(key)
+
+	for _, value := range values {
+		args := make([]string, 0)
+		kwds := make(map[string]string)
+
+		for _, v := range strings.Split(value, ",") {
+			kv := strings.Split(v, "=")
+			if len(kv) == 1 {
+				args = append(args, v)
+			} else {
+				kwds[kv[0]] = kv[1]
+			}
+
+		}
+
+		if kwds["id"] == id {
+			return args, kwds, true
+		}
+	}
+
+	return nil, nil, false
+}
