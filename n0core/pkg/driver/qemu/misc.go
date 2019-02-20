@@ -73,54 +73,13 @@ func (q *Qemu) initQMP() error {
 }
 
 func (q *Qemu) parseArgs(args []string) error {
-	mon := GetQemuArgValue("-mon", "*", args)
-	if mon != nil {
-		_, ok := mon.kwds["chardev"]
-		if ok {
-			mc := GetQemuArgValue("-chardev", mon.kwds["chardev"], args)
-			q.qmpPath = mc.kwds["path"]
-		}
-	}
+	q.args = ParseQemuArgs(args)
 
-	return nil
-}
-
-type QemuArgValue struct {
-	args []string
-	kwds map[string]string
-}
-
-// GetQemuArgValue is simple qemu argument parser.
-// Order is O(len(args)).
-//
-// Example:
-//   `-mon chardev=charmonitor,id=monitor`
-//
-//   Args: option="-mon", id="monitor"
-//         "*" is wild card, return only first match
-//   Retrun: {"arg": "", "kwds": {"chardev": "charmonitor", "id": "monitor"}}
-func GetQemuArgValue(option, id string, args []string) *QemuArgValue {
-	q := &QemuArgValue{
-		kwds: map[string]string{},
-	}
-
-	for i, a := range args {
-		if option == "*" || option == a {
-			values := strings.Split(args[i+1], ",")
-
-			for _, v := range values {
-				kv := strings.Split(v, "=")
-				if len(kv) == 1 {
-					q.args = append(q.args, v)
-					continue
-				}
-
-				q.kwds[kv[0]] = kv[1]
-			}
-
-			if id == "*" || q.kwds["id"] == id {
-				return q
-			}
+	_, kwds, ok := q.args.GetTopParsedOptionValue("-mon")
+	if ok {
+		if v, ok := kwds["chardev"]; ok {
+			_, kwds, _ := q.args.GetParsedOptionValueById("-chardev", v)
+			q.qmpPath = kwds["path"]
 		}
 	}
 
@@ -150,6 +109,10 @@ func ParseQemuArgs(args []string) *QemuArgs {
 	return &QemuArgs{
 		args: args,
 	}
+}
+
+func (q QemuArgs) GetArgs() []string {
+	return q.args
 }
 
 func (q QemuArgs) GetOptionValues(key string) []string {
