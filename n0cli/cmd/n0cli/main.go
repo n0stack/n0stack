@@ -27,38 +27,38 @@ func main() {
 		},
 	}
 	app.Commands = []cli.Command{
-		{
-			Name:      "get",
-			Usage:     "Get resource if set resource name, List resources if not set",
-			ArgsUsage: "[resource type] [resource name (optional)]",
-			Description: `
-	## Resource types
+		// 		{
+		// 			Name:      "get",
+		// 			Usage:     "Get resource if set resource name, List resources if not set",
+		// 			ArgsUsage: "[resource type] [resource name (optional)]",
+		// 			Description: `
+		// 	## Resource types
 
-		- "Node", "node"
-		- "Network", "network"
-		- "BlockStorage", "block_storage", "bs"
-		- "VirtualMachine", "virtual_machine", "vm"
-		- "Image", "image"
-		- "Flavor", "flavor"
-`,
-			Action: Get,
-		},
-		{
-			Name:      "delete",
-			Usage:     "Delete resource",
-			ArgsUsage: "[resource type] [resource name]",
-			Description: `
-	## Resource types
+		// 		- "Node", "node"
+		// 		- "Network", "network"
+		// 		- "BlockStorage", "block_storage", "bs"
+		// 		- "VirtualMachine", "virtual_machine", "vm"
+		// 		- "Image", "image"
+		// 		- "Flavor", "flavor"
+		// `,
+		// 			Action: Get,
+		// 		},
+		// 		{
+		// 			Name:      "delete",
+		// 			Usage:     "Delete resource",
+		// 			ArgsUsage: "[resource type] [resource name]",
+		// 			Description: `
+		// 	## Resource types
 
-		- "Node", "node"
-		- "Network", "network"
-		- "BlockStorage", "block_storage", "bs"
-		- "VirtualMachine", "virtual_machine", "vm"
-		- "Image", "image"
-		- "Flavor", "flavor"
-`,
-			Action: Delete,
-		},
+		// 		- "Node", "node"
+		// 		- "Network", "network"
+		// 		- "BlockStorage", "block_storage", "bs"
+		// 		- "VirtualMachine", "virtual_machine", "vm"
+		// 		- "Image", "image"
+		// 		- "Flavor", "flavor"
+		// `,
+		// 			Action: Delete,
+		// 		},
 		{
 			Name:  "do",
 			Usage: "Do DAG tasks (Detail n0stack/pkg/dag)",
@@ -98,10 +98,67 @@ func main() {
 			Action:    Do,
 		},
 		{
+			Name:        "node",
+			Usage:       "Node APIs",
+			Description: "",
+			Subcommands: []cli.Command{
+				{
+					Name:      "get",
+					Usage:     "Get Node if set resource name, List resources if not set",
+					ArgsUsage: "[Node name (optional)]",
+					Action:    GetNode,
+				},
+				{
+					Name:      "delete",
+					Usage:     "Delete Node",
+					ArgsUsage: "[Node name]",
+					Action:    DeleteNode,
+				},
+			},
+		},
+		{
+			Name:        "network",
+			Usage:       "Network APIs",
+			Description: "",
+			Subcommands: []cli.Command{
+				{
+					Name:      "get",
+					Usage:     "Get Network if set resource name, List resources if not set",
+					ArgsUsage: "[Network name (optional)]",
+					Action:    GetNetwork,
+				},
+				{
+					Name:      "delete",
+					Usage:     "Delete Network",
+					ArgsUsage: "[Network name]",
+					Action:    DeleteNetwork,
+				},
+			},
+		},
+
+		{
 			Name:        "virtual_machine",
 			Usage:       "VirtualMachine APIs",
 			Description: "",
 			Subcommands: []cli.Command{
+				{
+					Name:      "get",
+					Usage:     "Get VirtualMachine if set resource name, List resources if not set",
+					ArgsUsage: "[VirtualMachine name (optional)]",
+					Action:    GetVirtualMachine,
+				},
+				{
+					Name:      "delete",
+					Usage:     "Delete VirtualMachine",
+					ArgsUsage: "[VirtualMachine name]",
+					Action:    DeleteVirtualMachine,
+				},
+				{
+					Name:      "boot",
+					Usage:     "Boot VirtualMachine",
+					ArgsUsage: "[VirtualMachine name]",
+					Action:    BootVirtualMachine,
+				},
 				{
 					Name:      "open_console",
 					Usage:     "Get URL to open console of VirtualMachine",
@@ -116,6 +173,18 @@ func main() {
 			Description: "",
 			Subcommands: []cli.Command{
 				{
+					Name:      "get",
+					Usage:     "Get BlockStorage if set resource name, List resources if not set",
+					ArgsUsage: "[BlockStorage name (optional)]",
+					Action:    GetBlockStorage,
+				},
+				{
+					Name:      "delete",
+					Usage:     "Delete BlockStorage",
+					ArgsUsage: "[BlockStorage name]",
+					Action:    DeleteBlockStorage,
+				},
+				{
 					Name:      "download",
 					Usage:     "Get URL to download BlockStorage",
 					ArgsUsage: "[BlockStorage name]",
@@ -123,7 +192,62 @@ func main() {
 				},
 			},
 		},
+		{
+			Name:        "image",
+			Usage:       "Image APIs",
+			Description: "",
+			Subcommands: []cli.Command{
+				{
+					Name:      "get",
+					Usage:     "Get Image if set resource name, List resources if not set",
+					ArgsUsage: "[Image name (optional)]",
+					Action:    GetImage,
+				},
+				{
+					Name:      "delete",
+					Usage:     "Delete Image",
+					ArgsUsage: "[Image name]",
+					Action:    DeleteImage,
+				},
+			},
+		},
 	}
+
+	getCommand := cli.Command{
+		Name:      "get",
+		Usage:     "Get resource if set resource name, List resources if not set",
+		ArgsUsage: "[resource name (optional)]",
+	}
+	deleteCommand := cli.Command{
+		Name:      "delete",
+		Usage:     "Delete resource",
+		ArgsUsage: "[resource name]",
+	}
+	for _, c1 := range app.Commands {
+		if c1.Name == "do" {
+			continue
+		}
+
+		for _, c2 := range c1.Subcommands {
+			if c2.Name == "get" {
+				getCommand.Subcommands = append(getCommand.Subcommands, cli.Command{
+					Name:      c1.Name,
+					Usage:     c2.Usage,
+					ArgsUsage: c2.ArgsUsage,
+					Action:    c2.Action,
+				})
+			} else if c2.Name == "delete" {
+				deleteCommand.Subcommands = append(deleteCommand.Subcommands, cli.Command{
+					Name:      c1.Name,
+					Usage:     c2.Usage,
+					ArgsUsage: c2.ArgsUsage,
+					Action:    c2.Action,
+				})
+			}
+		}
+	}
+	app.Commands = append(app.Commands, getCommand)
+	app.Commands = append(app.Commands, deleteCommand)
 
 	log.SetFlags(log.Lshortfile)
 	log.SetOutput(ioutil.Discard)
@@ -143,4 +267,8 @@ func ConnectAPI(c *cli.Context) (*grpc.ClientConn, error) {
 	log.Printf("[DEBUG] Connected to '%s'\n", endpoint)
 
 	return conn, nil
+}
+
+func PrintGrpcError(err error) {
+	fmt.Fprintf(os.Stderr, "[%s] %s\n", grpc.Code(err).String(), grpc.ErrorDesc(err))
 }
