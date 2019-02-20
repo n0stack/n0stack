@@ -52,7 +52,11 @@ func (q *Qemu) Close() error {
 // }
 
 func (q Qemu) HardReset() error {
-	return q.m.SystemReset()
+	if err := q.m.SystemReset(); err != nil {
+		return err
+	}
+
+	return q.Boot()
 }
 
 func (q Qemu) Shutdown() error {
