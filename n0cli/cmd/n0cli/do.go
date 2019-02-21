@@ -57,6 +57,7 @@ func do(ctx *cli.Context) error {
 		case <-c: // SIGINT
 			fmt.Println("---> Wait to finish requested tasks")
 			cancel() // notify DoDAG to cancel
+			signal.Stop(c) // allow sending SIGINT again to force SIGINT
 		case <-ctxCancel.Done():
 			return
 		}
