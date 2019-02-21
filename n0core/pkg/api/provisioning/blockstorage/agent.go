@@ -8,7 +8,7 @@ import (
 
 	empty "github.com/golang/protobuf/ptypes/empty"
 	img "github.com/n0stack/n0stack/n0core/pkg/driver/qemu_img"
-	"github.com/n0stack/n0stack/n0core/pkg/util/grpc"
+	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 )
@@ -97,6 +97,9 @@ func (a *BlockStorageAgentAPI) FetchBlockStorage(ctx context.Context, req *Fetch
 	}
 
 	if err := i.Resize(req.Bytes); err != nil {
+		if derr := i.Delete(); derr != nil {
+			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to Resize qemu image and delete it: resize err='%s', delete err='%s'", err.Error(), derr.Error())
+		}
 		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to Resize qemu image: err='%s'", err.Error())
 	}
 
