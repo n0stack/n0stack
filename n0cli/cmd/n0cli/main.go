@@ -29,7 +29,7 @@ func main() {
 	app.Commands = []cli.Command{
 		// 		{
 		// 			Name:      "get",
-		// 			Usage:     "Get resource if set resource name, List resources if not set",
+		// 			Usage:     "Get resource(s)",
 		// 			ArgsUsage: "[resource type] [resource name (optional)]",
 		// 			Description: `
 		// 	## Resource types
@@ -104,7 +104,7 @@ func main() {
 			Subcommands: []cli.Command{
 				{
 					Name:      "get",
-					Usage:     "Get Node if set resource name, List resources if not set",
+					Usage:     "Get Node(s)",
 					ArgsUsage: "[Node name (optional)]",
 					Action:    GetNode,
 				},
@@ -118,12 +118,13 @@ func main() {
 		},
 		{
 			Name:        "network",
+			Aliases:     []string{"net"},
 			Usage:       "Network APIs",
 			Description: "",
 			Subcommands: []cli.Command{
 				{
 					Name:      "get",
-					Usage:     "Get Network if set resource name, List resources if not set",
+					Usage:     "Get Network(s)",
 					ArgsUsage: "[Network name (optional)]",
 					Action:    GetNetwork,
 				},
@@ -138,12 +139,13 @@ func main() {
 
 		{
 			Name:        "virtual_machine",
+			Aliases:    []string{"vm"},
 			Usage:       "VirtualMachine APIs",
 			Description: "",
 			Subcommands: []cli.Command{
 				{
 					Name:      "get",
-					Usage:     "Get VirtualMachine if set resource name, List resources if not set",
+					Usage:     "Get VirtualMachine(s)",
 					ArgsUsage: "[VirtualMachine name (optional)]",
 					Action:    GetVirtualMachine,
 				},
@@ -161,6 +163,7 @@ func main() {
 				},
 				{
 					Name:      "open_console",
+					Aliases:   []string{"console"},
 					Usage:     "Get URL to open console of VirtualMachine",
 					ArgsUsage: "[VirtualMachine name]",
 					Action:    OpenConsoleOfVirtualMachine,
@@ -169,12 +172,13 @@ func main() {
 		},
 		{
 			Name:        "block_storage",
+			Aliases:     []string{"bs"},
 			Usage:       "BlockStorage APIs",
 			Description: "",
 			Subcommands: []cli.Command{
 				{
 					Name:      "get",
-					Usage:     "Get BlockStorage if set resource name, List resources if not set",
+					Usage:     "Get BlockStorage(s)",
 					ArgsUsage: "[BlockStorage name (optional)]",
 					Action:    GetBlockStorage,
 				},
@@ -199,7 +203,7 @@ func main() {
 			Subcommands: []cli.Command{
 				{
 					Name:      "get",
-					Usage:     "Get Image if set resource name, List resources if not set",
+					Usage:     "Get Image(s)",
 					ArgsUsage: "[Image name (optional)]",
 					Action:    GetImage,
 				},
@@ -215,7 +219,7 @@ func main() {
 
 	getCommand := cli.Command{
 		Name:      "get",
-		Usage:     "Get resource if set resource name, List resources if not set",
+		Usage:     "Get resource(s)",
 		ArgsUsage: "[resource name (optional)]",
 	}
 	deleteCommand := cli.Command{
@@ -232,6 +236,7 @@ func main() {
 			if c2.Name == "get" {
 				getCommand.Subcommands = append(getCommand.Subcommands, cli.Command{
 					Name:      c1.Name,
+					Aliases:   c1.Aliases,
 					Usage:     c2.Usage,
 					ArgsUsage: c2.ArgsUsage,
 					Action:    c2.Action,
@@ -239,6 +244,7 @@ func main() {
 			} else if c2.Name == "delete" {
 				deleteCommand.Subcommands = append(deleteCommand.Subcommands, cli.Command{
 					Name:      c1.Name,
+					Aliases:   c1.Aliases,
 					Usage:     c2.Usage,
 					ArgsUsage: c2.ArgsUsage,
 					Action:    c2.Action,

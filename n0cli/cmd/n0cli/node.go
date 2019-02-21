@@ -40,6 +40,7 @@ func listNode(conn *grpc.ClientConn) error {
 	}
 
 	marshaler.Marshal(os.Stdout, res)
+	fmt.Println()
 
 	return nil
 }
@@ -53,6 +54,7 @@ func getNode(name string, conn *grpc.ClientConn) error {
 	}
 
 	marshaler.Marshal(os.Stdout, res)
+	fmt.Println()
 
 	return nil
 }
@@ -83,6 +85,7 @@ func deleteNode(name string, conn *grpc.ClientConn) error {
 	}
 
 	marshaler.Marshal(os.Stdout, res)
+	fmt.Println()
 
 	return nil
 }

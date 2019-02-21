@@ -40,6 +40,7 @@ func listImage(conn *grpc.ClientConn) error {
 	}
 
 	marshaler.Marshal(os.Stdout, res)
+	fmt.Println()
 
 	return nil
 }
@@ -53,6 +54,7 @@ func getImage(name string, conn *grpc.ClientConn) error {
 	}
 
 	marshaler.Marshal(os.Stdout, res)
+	fmt.Println()
 
 	return nil
 }
@@ -83,6 +85,7 @@ func deleteImage(name string, conn *grpc.ClientConn) error {
 	}
 
 	marshaler.Marshal(os.Stdout, res)
+	fmt.Println()
 
 	return nil
 }

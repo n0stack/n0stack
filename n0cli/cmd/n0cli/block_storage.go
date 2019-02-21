@@ -40,6 +40,7 @@ func listBlockStorage(conn *grpc.ClientConn) error {
 	}
 
 	marshaler.Marshal(os.Stdout, res)
+	fmt.Println()
 
 	return nil
 }
@@ -53,6 +54,7 @@ func getBlockStorage(name string, conn *grpc.ClientConn) error {
 	}
 
 	marshaler.Marshal(os.Stdout, res)
+	fmt.Println()
 
 	return nil
 }
@@ -83,6 +85,7 @@ func deleteBlockStorage(name string, conn *grpc.ClientConn) error {
 	}
 
 	marshaler.Marshal(os.Stdout, res)
+	fmt.Println()
 
 	return nil
 }
