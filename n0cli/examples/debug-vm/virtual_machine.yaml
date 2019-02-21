@@ -80,6 +80,7 @@ cvm1:
       - vm1
     nics:
       - network_name: net
+        ipv4_address: 192.168.0.1
     uuid: 056d2ccd-0c4c-44dc-a2c8-39a9d394b51f
     login_username: test
     ssh_authorized_keys:
@@ -101,6 +102,8 @@ cvm2:
     block_storage_names:
       - vm2
     nics:
+      - network_name: net
+        ipv4_address: 192.168.0.2
       - network_name: net
     uuid: 056d2ccd-0c4c-44dc-a2c8-39a9d394b51f
     login_username: test

@@ -15,10 +15,10 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/lock"
-	"github.com/n0stack/n0stack/n0core/pkg/util/grpc"
-	"github.com/n0stack/n0stack/n0core/pkg/util/net"
-	"github.com/n0stack/n0stack/n0proto.go/budget/v0"
-	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
+	netutil "github.com/n0stack/n0stack/n0core/pkg/util/net"
+	pbudget "github.com/n0stack/n0stack/n0proto.go/budget/v0"
+	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
 )
 
 type NetworkAPI struct {
@@ -201,11 +201,7 @@ func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.Rese
 	_, cidr, err := net.ParseCIDR(res.Ipv4Cidr)
 	var reqIPv4 net.IP
 	if err == nil {
-		if req.Ipv4Address == "" {
-			if reqIPv4 = ScheduleNewIPv4(cidr, res.ReservedNetworkInterfaces); reqIPv4 == nil {
-				return nil, grpc.Errorf(codes.ResourceExhausted, "ipv4_address is full on Network '%s'", req.NetworkName)
-			}
-		} else {
+		if req.Ipv4Address != "" {
 			reqIPv4 = net.ParseIP(req.Ipv4Address)
 			if reqIPv4 == nil {
 				return nil, grpc.Errorf(codes.InvalidArgument, "ipv4_address field is invalid")

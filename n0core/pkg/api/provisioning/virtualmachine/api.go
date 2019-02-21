@@ -527,7 +527,7 @@ func (a *VirtualMachineAPI) bootVirtualMachine(ctx context.Context, req *pprovis
 			}
 
 			ip := netutil.ParseCIDR(network.Ipv4Cidr)
-			if ip != nil {
+			if ip != nil && vm.Nics[i].Ipv4Address != "" {
 				gateway := ""
 				for _, ni := range network.ReservedNetworkInterfaces {
 					if _, ok := ni.Annotations[AnnotationNetworkInterfaceIsGateway]; ok {
