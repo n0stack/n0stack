@@ -108,7 +108,7 @@ message CopyBlockStorageRequest {
 
 message ListBlockStoragesRequest {}
 message ListBlockStoragesResponse {
-  repeated BlockStorage BlockStorages = 1;
+  repeated BlockStorage block_storages = 1;
 }
 
 message GetBlockStorageRequest {

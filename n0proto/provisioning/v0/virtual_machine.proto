@@ -96,7 +96,7 @@ message CreateVirtualMachineRequest {
 
 message ListVirtualMachinesRequest {}
 message ListVirtualMachinesResponse {
-  repeated VirtualMachine VirtualMachines = 1;
+  repeated VirtualMachine virtual_machines = 1;
 }
 
 message GetVirtualMachineRequest {

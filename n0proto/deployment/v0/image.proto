@@ -40,7 +40,7 @@ service ImageService {
 
 message ListImagesRequest {}
 message ListImagesResponse {
-  repeated Image Images = 1;
+  repeated Image images = 1;
 }
 
 message GetImageRequest {

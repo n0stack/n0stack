@@ -157,7 +157,7 @@ test-small-on-docker: test-small-n0proto
 			make test-small-go
 
 test-small-n0proto: build-n0proto-on-docker
-	git diff --name-status --exit-code n0proto.py
+	# git diff --name-status --exit-code n0proto.py
 	git diff --name-status --exit-code n0proto.go
 
 test-small-go:
