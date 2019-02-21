@@ -175,7 +175,7 @@ type ActionResult struct {
 }
 
 // 出力で時間を出したほうがよさそう
-func DoDAG(tasks map[string]*Task, out io.Writer, conn *grpc.ClientConn) bool {
+func DoDAG(ctx context.Context, tasks map[string]*Task, out io.Writer, conn *grpc.ClientConn) bool {
 	for k := range tasks {
 		tasks[k].child = make([]string, 0)
 		tasks[k].depends = len(tasks[k].DependsOn)
@@ -212,7 +212,9 @@ func DoDAG(tasks map[string]*Task, out io.Writer, conn *grpc.ClientConn) bool {
 		}
 	}
 
+	canceled := false
 	failed := false
+
 	for r := range resultChan {
 		done++
 
@@ -243,7 +245,21 @@ func DoDAG(tasks map[string]*Task, out io.Writer, conn *grpc.ClientConn) bool {
 			}
 		}
 
-		if !failed {
+		if !canceled {
+			select {
+			case <-ctx.Done():
+				canceled = true
+
+				go func() {
+					wg.Wait()
+					close(resultChan)
+				}()
+			default:
+				// do nothing
+			}
+		}
+
+		if !(failed || canceled) {
 			// queueing
 			for _, d := range tasks[r.Name].child {
 				tasks[d].depends--
@@ -256,14 +272,13 @@ func DoDAG(tasks map[string]*Task, out io.Writer, conn *grpc.ClientConn) bool {
 			}
 		}
 
-		if !failed && done == total {
+		if !(failed || canceled) && done == total {
 			close(resultChan)
 		}
 	}
 
-	if failed {
+	if failed || (canceled && done != total) {
 		// TODO: rollback
-
 		return false
 	}
 
