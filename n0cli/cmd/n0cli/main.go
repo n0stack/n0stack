@@ -16,8 +16,16 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "n0cli"
 	app.Version = version
-	app.Usage = "the n0stack CLI application"
 	app.EnableBashCompletion = true
+	app.Usage = "the n0stack CLI application"
+	app.Description = `
+	## Bash Completion
+
+	---
+	wget https://raw.githubusercontent.com/urfave/cli/master/autocomplete/bash_autocomplete
+	PROG=n0cli source bash_autocomplete
+	---
+	`
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
@@ -27,38 +35,6 @@ func main() {
 		},
 	}
 	app.Commands = []cli.Command{
-		// 		{
-		// 			Name:      "get",
-		// 			Usage:     "Get resource(s)",
-		// 			ArgsUsage: "[resource type] [resource name (optional)]",
-		// 			Description: `
-		// 	## Resource types
-
-		// 		- "Node", "node"
-		// 		- "Network", "network"
-		// 		- "BlockStorage", "block_storage", "bs"
-		// 		- "VirtualMachine", "virtual_machine", "vm"
-		// 		- "Image", "image"
-		// 		- "Flavor", "flavor"
-		// `,
-		// 			Action: Get,
-		// 		},
-		// 		{
-		// 			Name:      "delete",
-		// 			Usage:     "Delete resource",
-		// 			ArgsUsage: "[resource type] [resource name]",
-		// 			Description: `
-		// 	## Resource types
-
-		// 		- "Node", "node"
-		// 		- "Network", "network"
-		// 		- "BlockStorage", "block_storage", "bs"
-		// 		- "VirtualMachine", "virtual_machine", "vm"
-		// 		- "Image", "image"
-		// 		- "Flavor", "flavor"
-		// `,
-		// 			Action: Delete,
-		// 		},
 		{
 			Name:  "do",
 			Usage: "Do DAG tasks (Detail n0stack/pkg/dag)",
@@ -139,7 +115,7 @@ func main() {
 
 		{
 			Name:        "virtual_machine",
-			Aliases:    []string{"vm"},
+			Aliases:     []string{"vm"},
 			Usage:       "VirtualMachine APIs",
 			Description: "",
 			Subcommands: []cli.Command{
