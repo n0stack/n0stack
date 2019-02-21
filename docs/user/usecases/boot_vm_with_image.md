@@ -45,7 +45,7 @@ CreateVirtualMachine:
     uuid: 056d2ccd-0c4c-44dc-a2c8-39a9d394b51f
     login_username: test
     ssh_authorized_keys:
-      - ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBITowPn2Ol1eCvXN5XV+Lb6jfXzgDbXyEdtayadDUJtFrcN2m2mjC1B20VBAoJcZtSYkmjrllS06Q26Te5sTYvE= testkey
+      # - ecdsa-sha2-nistp256 ...
   depends_on:
     - GenerateBlockStorage
     - ApplyNetwork
@@ -120,15 +120,6 @@ Delete_test:
     name: test
   ignore_error: true
 
-Delete_test-blockstorage:
-  type: BlockStorage
-  action: DeleteBlockStorage
-  args:
-    name: test-blockstorage
-  depends_on:
-    - Delete_test
-  ignore_error: true
-
 Delete_test-network:
   type: Network
   action: DeleteNetwork
@@ -149,8 +140,7 @@ GenerateBlockStorage:
       n0core/provisioning/block_storage/request_node_name: vm-host1
     request_bytes: 1073741824
     limit_bytes: 10737418240
-  depends_on:
-    - Delete_test-blockstorage
+  ignore_error: true
 
 ApplyNetwork:
   type: Network
