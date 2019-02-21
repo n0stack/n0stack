@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/n0stack/n0stack/n0core/pkg/util/net"
+	netutil "github.com/n0stack/n0stack/n0core/pkg/util/net"
 	"golang.org/x/crypto/ssh"
 	"gopkg.in/yaml.v2"
 )
@@ -102,17 +102,17 @@ func StructConfig(user, hostname string, keys []ssh.PublicKey, eth []*CloudConfi
 			Type:       "physical",
 			Name:       fmt.Sprintf("eth%d", i),
 			MacAddress: e.MacAddress.String(),
-			Subnets:    make([]*cloudNetworkSubnet, 1),
+			Subnets:    make([]*cloudNetworkSubnet, 0),
 		}
 
 		if e.Address4 != nil {
-			c.NetworkConfig.Config[i].Subnets[0] = &cloudNetworkSubnet{
+			c.NetworkConfig.Config[i].Subnets = append(c.NetworkConfig.Config[i].Subnets, &cloudNetworkSubnet{
 				Type:       "static",
 				Address:    e.Address4.IP(),
 				NetMask:    e.Address4.SubnetMaskIP(),
 				Gateway:    e.Gateway4,
 				DnsServers: e.NameServers,
-			}
+			})
 		}
 	}
 

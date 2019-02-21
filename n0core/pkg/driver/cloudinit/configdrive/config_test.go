@@ -3,10 +3,11 @@ package configdrive
 import (
 	"io/ioutil"
 	"net"
+	"strings"
 	"testing"
 
-	"github.com/n0stack/n0stack/n0core/pkg/driver/qemu_img"
-	"github.com/n0stack/n0stack/n0core/pkg/util/net"
+	img "github.com/n0stack/n0stack/n0core/pkg/driver/qemu_img"
+	netutil "github.com/n0stack/n0stack/n0core/pkg/util/net"
 
 	"golang.org/x/crypto/ssh"
 )
@@ -69,5 +70,24 @@ func TestTRUNCFile(t *testing.T) {
 	data, _ := ioutil.ReadFile("meta-data")
 	if len(data) != 39 {
 		t.Errorf("GenerateMetadataFile was wrong")
+	}
+}
+
+func TestGenerateNetworkConfigFileAboutIPAddressIsMissing(t *testing.T) {
+	key, _, _, _, _ := ssh.ParseAuthorizedKey([]byte("ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBITowPn2Ol1eCvXN5XV+Lb6jfXzgDbXyEdtayadDUJtFrcN2m2mjC1B20VBAoJcZtSYkmjrllS06Q26Te5sTYvE= testkey"))
+	hw, _ := net.ParseMAC("52:54:00:78:71:f1")
+	e := &CloudConfigEthernet{
+		MacAddress: hw,
+	}
+	c := StructConfig("user", "host", []ssh.PublicKey{key}, []*CloudConfigEthernet{e})
+
+	if err := c.GenerateNetworkConfigFile("."); err != nil {
+		t.Fatalf("Failed to generate network config file: err='%s'", err.Error())
+	}
+	defer c.Delete()
+
+	data, _ := ioutil.ReadFile("network-config")
+	if strings.Contains(string(data), "null") {
+		t.Errorf("Failed to valid network file, subnets have null")
 	}
 }
