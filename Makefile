@@ -120,6 +120,7 @@ update-novnc:
 	mkdir /tmp/novnc-statik
 	# Copy only required files, ref: https://github.com/novnc/noVNC/blob/master/docs/EMBEDDING.md
 	cp -r /tmp/novnc/app /tmp/novnc/core /tmp/novnc/vendor /tmp/novnc/*.html /tmp/novnc-statik/
+	rm ./n0core/pkg/api/provisioning/virtualmachine/statik.go
 	statik -p virtualmachine -Z -f -src /tmp/novnc-statik -dest ./n0core/pkg/api/provisioning
 	rm -rf /tmp/novnc /tmp/novnc-statik
 
