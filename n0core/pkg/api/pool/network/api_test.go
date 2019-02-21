@@ -10,7 +10,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/memory"
-	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
 )
 
 func TestListNetworkAboutEmpty(t *testing.T) {
@@ -275,8 +275,8 @@ func TestNetworkAboutNetworkInterface(t *testing.T) {
 	if _, ok := reserveRes.ReservedNetworkInterfaces[reserveReq.NetworkInterfaceName]; !ok {
 		t.Errorf("[Valid: no NetworkInterface] ReserveStorage response do not have requested network interface")
 	}
-	if reserveRes.ReservedNetworkInterfaces[reserveReq.NetworkInterfaceName].Ipv4Address != "192.168.0.2" {
-		t.Errorf("[Valid: no NetworkInterface] ReserveStorage response is wrong: ipv4_address_have=%s, ipv4_address_want=%s", reserveRes.ReservedNetworkInterfaces[reserveReq.NetworkInterfaceName].Ipv4Address, "192.168.0.2")
+	if reserveRes.ReservedNetworkInterfaces[reserveReq.NetworkInterfaceName].Ipv4Address != "" {
+		t.Errorf("[Valid: no NetworkInterface] ReserveStorage response is wrong: ipv4_address_have=%s, ipv4_address_want=%s", reserveRes.ReservedNetworkInterfaces[reserveReq.NetworkInterfaceName].Ipv4Address, "")
 	}
 	if reserveRes.ReservedNetworkInterfaces[reserveReq.NetworkInterfaceName].HardwareAddress == "" {
 		t.Errorf("[Valid: no NetworkInterface] ReserveStorage response has blank hardware address, struct hardware address when getting blank request")
@@ -329,15 +329,15 @@ func TestNetworkAboutNetworkInterface(t *testing.T) {
 			nil,
 			codes.ResourceExhausted,
 		},
-		{
-			"Invalid: free ipv4 address is none -> ResourceExhausted",
-			&ppool.ReserveNetworkInterfaceRequest{
-				NetworkName:          n.Name,
-				NetworkInterfaceName: "resource_exhausted",
-			},
-			nil,
-			codes.ResourceExhausted,
-		},
+		// {
+		// 	"Invalid: free ipv4 address is none -> ResourceExhausted",
+		// 	&ppool.ReserveNetworkInterfaceRequest{
+		// 		NetworkName:          n.Name,
+		// 		NetworkInterfaceName: "resource_exhausted",
+		// 	},
+		// 	nil,
+		// 	codes.ResourceExhausted,
+		// },
 		{
 			"Invalid: Ipv4Address=aa -> InvalidArgument",
 			&ppool.ReserveNetworkInterfaceRequest{
