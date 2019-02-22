@@ -10,9 +10,9 @@ import (
 	"sync"
 
 	"github.com/golang/protobuf/jsonpb"
-	"github.com/n0stack/n0stack/n0proto.go/deployment/v0"
-	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
-	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
+	pdeployment "github.com/n0stack/n0stack/n0proto.go/deployment/v0"
+	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	pprovisioning "github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
 
 	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
@@ -215,6 +215,20 @@ func DoDAG(ctx context.Context, tasks map[string]*Task, out io.Writer, conn *grp
 	canceled := false
 	failed := false
 
+	go func() {
+		<-ctx.Done()
+
+		canceled = true
+
+		fmt.Println("---> Wait to finish requested tasks")
+		if !failed {
+			go func() {
+				wg.Wait()
+				close(resultChan)
+			}()
+		}
+	}()
+
 	for r := range resultChan {
 		done++
 
@@ -229,10 +243,12 @@ func DoDAG(ctx context.Context, tasks map[string]*Task, out io.Writer, conn *grp
 
 					// すでにリクエストしたタスクの終了を待つ
 					fmt.Fprintf(out, "---> Wait to finish requested tasks\n")
-					go func() {
-						wg.Wait()
-						close(resultChan)
-					}()
+					if !canceled {
+						go func() {
+							wg.Wait()
+							close(resultChan)
+						}()
+					}
 				}
 			}
 		} else {
@@ -242,20 +258,6 @@ func DoDAG(ctx context.Context, tasks map[string]*Task, out io.Writer, conn *grp
 				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s', which was requested until failed, is finished\n%s\n\n", done, total, r.Name, res)
 			} else {
 				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s' is finished\n%s\n\n", done, total, r.Name, res)
-			}
-		}
-
-		if !canceled {
-			select {
-			case <-ctx.Done():
-				canceled = true
-
-				go func() {
-					wg.Wait()
-					close(resultChan)
-				}()
-			default:
-				// do nothing
 			}
 		}
 
