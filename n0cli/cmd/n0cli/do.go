@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"os/signal"
 
 	"github.com/n0stack/n0stack/n0proto.go/pkg/dag"
 	"github.com/urfave/cli"
@@ -43,12 +45,30 @@ func do(ctx *cli.Context) error {
 	defer conn.Close()
 	log.Printf("[DEBUG] Connected to '%s'\n", endpoint)
 
+	ctxCancel, cancel := context.WithCancel(context.Background())
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	defer func() {
+		signal.Stop(c)
+	}()
+
+	go func() {
+		select {
+		case <-c: // SIGINT
+			fmt.Println("---> Wait to finish requested tasks")
+			cancel() // notify DoDAG to cancel
+			signal.Stop(c) // allow sending SIGINT again to force SIGINT
+		case <-ctxCancel.Done():
+			return
+		}
+	}()
+
 	dag.Marshaler = marshaler
 	if err := dag.CheckDAG(tasks); err != nil {
 		return err
 	}
 
-	if ok := dag.DoDAG(tasks, os.Stdout, conn); !ok {
+	if ok := dag.DoDAG(ctxCancel, tasks, os.Stdout, conn); !ok {
 		return fmt.Errorf("Failed to do tasks")
 	}
 
