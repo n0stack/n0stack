@@ -1,7 +1,6 @@
 module github.com/n0stack/n0stack
 
 require (
-	cloud.google.com/go v0.34.0 // indirect
 	code.cloudfoundry.org/bytefmt v0.0.0-20180906201452-2aa6f33b730c
 	github.com/StackExchange/wmi v0.0.0-20181212234831-e0a55b97c705 // indirect
 	github.com/boltdb/bolt v1.3.1 // indirect
@@ -12,7 +11,6 @@ require (
 	github.com/coreos/go-semver v0.2.0 // indirect
 	github.com/coreos/go-systemd v0.0.0-20181031085051-9002847aa142
 	github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f // indirect
-	github.com/davecgh/go-xdr v0.0.0-20161123171359-e6a2ba005892 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/digitalocean/go-libvirt v0.0.0-20181105201604-08f982c676c6 // indirect
 	github.com/digitalocean/go-qemu v0.0.0-20181112162955-dd7bb9c771b8
@@ -20,8 +18,6 @@ require (
 	github.com/go-ole/go-ole v1.2.2 // indirect
 	github.com/gogo/protobuf v1.2.0 // indirect
 	github.com/golang/groupcache v0.0.0-20181024230925-c65c006176ff // indirect
-	github.com/golang/lint v0.0.0-20181217174547-8f45f776aaf1 // indirect
-	github.com/golang/mock v1.2.0 // indirect
 	github.com/golang/protobuf v1.2.0
 	github.com/google/btree v0.0.0-20180813153112-4030bb1f1f0c // indirect
 	github.com/google/go-cmp v0.2.0
@@ -33,7 +29,6 @@ require (
 	github.com/koding/websocketproxy v0.0.0-20180716164433-0fa3f994f6e7
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/kr/pretty v0.1.0 // indirect
-	github.com/kr/pty v1.1.3 // indirect
 	github.com/labstack/echo v3.3.5+incompatible
 	github.com/labstack/gommon v0.2.8 // indirect
 	github.com/mattn/go-colorable v0.0.9 // indirect
@@ -62,16 +57,11 @@ require (
 	go.uber.org/multierr v1.1.0 // indirect
 	go.uber.org/zap v1.9.1 // indirect
 	golang.org/x/crypto v0.0.0-20181203042331-505ab145d0a9
-	golang.org/x/lint v0.0.0-20181217174547-8f45f776aaf1 // indirect
 	golang.org/x/net v0.0.0-20181217023233-e147a9138326
-	golang.org/x/oauth2 v0.0.0-20181203162652-d668ce993890 // indirect
 	golang.org/x/sys v0.0.0-20181218192612-074acd46bca6 // indirect
 	golang.org/x/time v0.0.0-20181108054448-85acf8d2951c // indirect
-	golang.org/x/tools v0.0.0-20181220024903-92cdcd90bf52 // indirect
-	google.golang.org/appengine v1.3.0 // indirect
 	google.golang.org/genproto v0.0.0-20181219182458-5a97ab628bfb // indirect
 	google.golang.org/grpc v1.17.0
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/yaml.v2 v2.2.2
-	honnef.co/go/tools v0.0.0-20180920025451-e3ad64cb4ed3 // indirect
 )
