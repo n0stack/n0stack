@@ -107,7 +107,7 @@ func TestCreateVirtualMachine(t *testing.T) {
 	}
 }
 
-func TestCreateVirtualMachineFailedAboutNetworkInterface(t *testing.T) {
+func TestCreateVirtualMachineFailedOnNetworkInterface(t *testing.T) {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -182,5 +182,82 @@ func TestCreateVirtualMachineFailedAboutNetworkInterface(t *testing.T) {
 	})
 	if len(network.ReservedNetworkInterfaces) >= 2 { // there is rollbacked interface and default-gateway
 		t.Errorf("Failed to rollback about network interface")
+	}
+}
+
+func TestCreateVirtualMachineFailedOnBlockStorage(t *testing.T) {
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	m := memory.NewMemoryDatastore()
+	vma := NewMockVirtualMachineAPI(m)
+
+	mnode, err := vma.NodeAPI.SetupMockNode(ctx)
+	if err != nil {
+		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
+	}
+
+	network, err := vma.NetworkAPI.FactoryNetwork(ctx)
+	if err != nil {
+		t.Fatalf("Failed to factory network: err='%s'", err.Error())
+	}
+	ip := netutil.ParseCIDR(network.Ipv4Cidr)
+
+	bs, err := vma.BlockStorageAPI.FactoryBlockStorage(ctx, mnode.Name)
+	if err != nil {
+		t.Fatalf("Failed to factory bloclstorage: err='%s'", err.Error())
+	}
+
+	vm := &pprovisioning.VirtualMachine{
+		Name: "test-virtual-machine",
+		Annotations: map[string]string{
+			AnnotationVirtualMachineRequestNodeName:  mnode.Name,
+			AnnotationVirtualMachineVncWebSocketPort: "6900",
+		},
+
+		LimitCpuMilliCore:   1000,
+		RequestCpuMilliCore: 100,
+		LimitMemoryBytes:    1 * bytefmt.GIGABYTE,
+		RequestMemoryBytes:  1 * bytefmt.GIGABYTE,
+		BlockStorageNames: []string{
+			bs.Name,
+			"not found",
+		},
+		Nics: []*pprovisioning.VirtualMachineNIC{
+			{
+				NetworkName:     network.Name,
+				Ipv4Address:     ip.Next().IP().String(),
+				HardwareAddress: "52:54:78:fe:71:fd",
+			},
+		},
+		Uuid: "1d5fd196-b6c9-4f58-86f2-3ef227018e47",
+
+		State:                 pprovisioning.VirtualMachine_RUNNING,
+		ComputeNodeName:       mnode.Name,
+		ComputeName:           "test-virtual-machine",
+		NetworkInterfaceNames: []string{"test-virtual-machine0"},
+	}
+
+	_, err = vma.CreateVirtualMachine(ctx, &pprovisioning.CreateVirtualMachineRequest{
+		Name:                vm.Name,
+		Annotations:         vm.Annotations,
+		LimitCpuMilliCore:   vm.LimitCpuMilliCore,
+		RequestCpuMilliCore: vm.RequestCpuMilliCore,
+		LimitMemoryBytes:    vm.LimitMemoryBytes,
+		RequestMemoryBytes:  vm.RequestMemoryBytes,
+		BlockStorageNames:   vm.BlockStorageNames,
+		Nics:                vm.Nics,
+		Uuid:                vm.Uuid,
+	})
+	if err == nil {
+		t.Fatalf("Create virtual machine do not failed")
+	}
+
+	bs, _ = vma.BlockStorageAPI.GetBlockStorage(ctx, &pprovisioning.GetBlockStorageRequest{
+		Name: bs.Name,
+	})
+	if bs.State != pprovisioning.BlockStorage_AVAILABLE {
+		t.Errorf("Failed to rollback about block storage")
 	}
 }

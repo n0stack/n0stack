@@ -229,14 +229,20 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 	}
 
 	{
+		tx.PushRollback("SetAvailableBlockStorage", func() error {
+			for _, n := range vm.BlockStorageNames {
+				_, err := a.blockstorageAPI.SetAvailableBlockStorage(ctx, &pprovisioning.SetAvailableBlockStorageRequest{Name: n})
+				if err != nil {
+					return err // errをスタックする必要がある
+				}
+			}
+
+			return nil
+		})
 		for _, n := range vm.BlockStorageNames {
 			if _, err := a.blockstorageAPI.SetInuseBlockStorage(ctx, &pprovisioning.SetInuseBlockStorageRequest{Name: n}); err != nil {
 				return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to SetInuseBlockStorage: desc=%s", grpc.ErrorDesc(err))
 			}
-			tx.PushRollback(fmt.Sprintf("SetAvailableBlockStorage '%s'", n), func() error {
-				_, err := a.blockstorageAPI.SetAvailableBlockStorage(ctx, &pprovisioning.SetAvailableBlockStorageRequest{Name: n})
-				return err
-			})
 		}
 	}
 
