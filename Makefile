@@ -140,6 +140,43 @@ increment:
 	bin/n0version increment -write
 
 
+GOFLAGS := -ldflags "-X main.version=${VERSION}" -v
+
+.PHONY: release-to-github
+release-to-github: build-artifacts-to-release
+	GO111MODULE=off go get -u github.com/tcnksm/ghr
+	ghr -username n0stack -repository n0stack -commitish $(shell git rev-parse HEAD) -recreate 0.2.$(VERSION) ./artifacts/
+
+.PHONY: build-artifacts-to-release
+build-artifacts-to-release: artifacts/n0core_linux_amd64.tar.gz \
+                            artifacts/n0cli_linux_amd64.tar.gz \
+                            artifacts/n0cli_darwin_amd64.tar.gz \
+                            artifacts/n0cli_freebsd_amd64.tar.gz \
+                            artifacts/n0cli_windows_amd64.zip
+
+.PHONY: artifacts/%.tar.gz
+artifacts/%.tar.gz:
+	$(eval BASENAME := $(subst .tar.gz,,$(notdir $@)))
+	$(eval BASENAME_WORDS := $(subst _, ,$(BASENAME)))
+	$(eval BINNAME := $(word 1,$(BASENAME_WORDS)))
+	$(eval GOOS := $(word 2,$(BASENAME_WORDS)))
+	$(eval GOARCH := $(word 3,$(BASENAME_WORDS)))
+	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o artifacts/$(BINNAME) $(GOFLAGS) ./$(BINNAME)/cmd/$(BINNAME)
+	cd artifacts && tar czvf $(notdir $@) $(BINNAME) --owner=n0stack:0 --group=n0stack:0
+	rm artifacts/$(BINNAME)
+
+# windows
+.PHONY: vendor artifacts/%.zip
+artifacts/%.zip:
+	$(eval BASENAME := $(subst .zip,,$(notdir $@)))
+	$(eval BASENAME_WORDS := $(subst _, ,$(BASENAME)))
+	$(eval BINNAME := $(word 1,$(BASENAME_WORDS)))
+	$(eval GOOS := $(word 2,$(BASENAME_WORDS)))
+	$(eval GOARCH := $(word 3,$(BASENAME_WORDS)))
+	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o artifacts/$(BINNAME).exe $(GOFLAGS) ./$(BINNAME)/cmd/$(BINNAME)
+	cd artifacts && zip $(notdir $@) $(BINNAME).exe
+	rm artifacts/$(BINNAME).exe
+
 # --- Test ---
 analysis:
 	gofmt -d -s `find ./ -name "*.go" | grep -v vendor`

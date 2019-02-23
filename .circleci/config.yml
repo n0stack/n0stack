@@ -16,27 +16,34 @@ jobs:
             git config --global user.name "n0stack bot"
             git config --global user.email "h-otter@outlook.jp"
             echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
-      # - restore_cache:
-      #     keys:
-      #       - vendor-master
-      # - run:
-      #     name: build version
-      #     command: |
-      #       GO111MODULE=on make vendor
-      #       make build-n0version
       - run:
           name: increment version
           command: make increment
       - run:
           name: push
           command: |
+
             git add -f VERSION
             git commit -m "increment version to $(cat VERSION) [skip ci]"
             git push origin master
-      # - save_cache:
-      #     key: vendor-master
-      #     paths:
-      #       - vendor
+      # push n0core and n0cli to GitHub releases
+      - restore_cache:
+          keys:
+            - vendor-master
+      - run:
+          name: install ghr
+          command: |
+            GO111MODULE=on make vendor
+            make release-to-github
+      # - run:
+      #     name: build version
+      #     command: |
+      #       GO111MODULE=on make vendor
+      #       make build-n0core build-n0cli
+      - save_cache:
+          key: vendor-master
+          paths:
+            - vendor
 workflows:
   version: 2
   all:
