@@ -23,11 +23,11 @@ import (
 	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/blockstorage"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/lock"
-	"github.com/n0stack/n0stack/n0core/pkg/util/grpc"
-	"github.com/n0stack/n0stack/n0core/pkg/util/net"
+	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
+	netutil "github.com/n0stack/n0stack/n0core/pkg/util/net"
 	"github.com/n0stack/n0stack/n0proto.go/pkg/transaction"
-	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
-	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
+	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	pprovisioning "github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
 )
 
 var N0coreVirtualMachineNamespace uuid.UUID
@@ -243,6 +243,24 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 	{
 		vm.NetworkInterfaceNames = make([]string, len(vm.Nics))
 
+		tx.PushRollback("ReleaseNetworkInterface", func() error {
+			for i := range vm.Nics {
+				_, err := a.networkAPI.ReleaseNetworkInterface(ctx, &ppool.ReleaseNetworkInterfaceRequest{
+					NetworkName:          vm.Nics[i].NetworkName,
+					NetworkInterfaceName: vm.NetworkInterfaceNames[i],
+				})
+
+				if err != nil {
+					if grpc.Code(err) == codes.NotFound { // When NotFound, failed until processing all
+						break
+					}
+
+					return err
+				}
+			}
+
+			return nil
+		})
 		for i, nic := range vm.Nics {
 			vm.NetworkInterfaceNames[i] = vm.Name + strconv.Itoa(i)
 
@@ -259,13 +277,6 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 			if err != nil {
 				return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to ReserveNetworkInterface: desc=%s", grpc.ErrorDesc(err))
 			}
-			tx.PushRollback("ReleaseNetworkInterface", func() error {
-				_, err := a.networkAPI.ReleaseNetworkInterface(ctx, &ppool.ReleaseNetworkInterfaceRequest{
-					NetworkName:          nic.NetworkName,
-					NetworkInterfaceName: vm.NetworkInterfaceNames[i],
-				})
-				return err
-			})
 
 			vm.Nics[i].HardwareAddress = network.ReservedNetworkInterfaces[vm.NetworkInterfaceNames[i]].HardwareAddress
 			vm.Nics[i].Ipv4Address = network.ReservedNetworkInterfaces[vm.NetworkInterfaceNames[i]].Ipv4Address
