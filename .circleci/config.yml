@@ -2,7 +2,7 @@ version: 2
 jobs:
   versioning:
     docker:
-      - image: golang:1.11
+      - image: circleci/golang:1.11
     working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
     master: master
     steps:
