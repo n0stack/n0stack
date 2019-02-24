@@ -6,9 +6,12 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
+	"os/signal"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"syscall"
 
 	"github.com/cenkalti/backoff"
 	"github.com/grpc-ecosystem/go-grpc-middleware"
@@ -179,5 +182,14 @@ func ServeAgent(ctx *cli.Context) error {
 	log.Printf("[INFO] Started API: version=%s", version)
 	// TODO: セキュリティ的に問題あり 暫定処置
 	go e.Start("0.0.0.0:8081")
+
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		<-ch
+		grpcServer.GracefulStop()
+	}()
+
 	return grpcServer.Serve(lis)
 }
