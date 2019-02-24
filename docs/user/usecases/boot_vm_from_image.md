@@ -130,29 +130,29 @@ Delete_test-network:
 **Caution**: This DAG may delete blockstorage and vms if they exist.
 
 ```yaml
-DeleteVirtualMachine:
+Delete_test-vm:
   type: VirtualMachine
   action: DeleteVirtualMachine
   args:
     name: test-vm
   ignore_error: true
 
-DeleteBlockStorage:
+Delete_test-blockstorage:
   type: BlockStorage
   action: DeleteBlockStorage
   args:
     name: test-blockstorage
   depends_on:
-    - DeleteVirtualMachine
+    - Delete_test-vm
   ignore_error: true
 
-DeleteNetwork:
+Delete_test-network:
   type: Network
   action: DeleteNetwork
   args:
     name: test-network
   depends_on:
-    - DeleteVirtualMachine
+    - Delete_test-vm
   ignore_error: true
 
 GenerateBlockStorage:
@@ -167,7 +167,7 @@ GenerateBlockStorage:
     request_bytes: 1073741824
     limit_bytes: 10737418240
   depends_on:
-    - DeleteBlockStorage
+    - Delete_test-blockstorage
 
 ApplyNetwork:
   type: Network
@@ -178,7 +178,7 @@ ApplyNetwork:
     annotations:
       n0core/provisioning/virtual_machine/vlan_id: "100"
   depends_on:
-    - DeleteNetwork
+    - Delete_test-network
 
 CreateVirtualMachine:
   type: VirtualMachine
