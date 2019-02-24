@@ -142,4 +142,6 @@ dmypy.json
 
 bazel-*
 
+
+# Do not edit version
 VERSION
