@@ -18,6 +18,9 @@ services:
     volumes:
       - /var/lib/n0stack/n0core/etcd:/etcd_data
     command:
+      - ionice
+      - -c2
+      - -n0
       - /usr/local/bin/etcd
       - -name
       - etcd0
