@@ -1,8 +1,8 @@
-# Boot VirtualMachine with ISO
+# Boot VirtualMachine from ISO
 
 ## Fetch and register Ubuntu 18.04 Cloud Images
 ```yaml
-FetchBlockStorage:
+FetchISO:
   type: BlockStorage
   action: FetchBlockStorage
   args:
@@ -19,6 +19,7 @@ ApplyImage:
   action: ApplyImage
   args:
     name: cloudimage-ubuntu
+  ignore_error: true
 
 RegisterBlockStorage:
   type: Image
@@ -28,26 +29,24 @@ RegisterBlockStorage:
     block_storage_name: cloudimage-ubuntu-1804
     tags:
       - "latest"
-      - "1804"
+      - "18.04"
   depends_on:
-    - FetchBlockStorage
+    - FetchISO
     - ApplyImage
-```
+  ignore_error: true
 
-## Create VM using registered image
-
-```yaml
-GenerateBlockStorage:
+# Create VM (and related block storage and network) using registered image
+CreateBlockStorage:
   type: Image
   action: GenerateBlockStorage
   args:
     image_name: cloudimage-ubuntu
-    block_storage_name: test-with-iso
+    block_storage_name: test-blockstorage
     annotations:
       n0core/provisioning/block_storage/request_node_name: vm-host1
     request_bytes: 1073741824 # 1GiB
     limit_bytes: 10737418240 # 10GiB
-    tag: "1804"
+    tag: "18.04"
   depends_on:
     - RegisterBlockStorage
 
@@ -64,7 +63,7 @@ CreateVirtualMachine:
   type: VirtualMachine
   action: CreateVirtualMachine
   args:
-    name: test-with-iso
+    name: test-vm
     annotations:
       n0core/provisioning/virtual_machine/request_node_name: vm-host1
     request_cpu_milli_core: 10
@@ -72,20 +71,35 @@ CreateVirtualMachine:
     request_memory_bytes: 1073741824 # 1GiB
     limit_memory_bytes: 1073741824 # 1GiB
     block_storage_names:
-      - test-with-iso
+      - test-blockstorage
     nics:
       - network_name: test-network
-    login_username: ubuntu
+        ipv4_address: 192.168.0.1
+    # cloud-config related options:
+    login_username: n0user
     ssh_authorized_keys:
-      # - ecdsa-sha2-nistp256 ...
+      - ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBITowPn2Ol1eCvXN5XV+Lb6jfXzgDbXyEdtayadDUJtFrcN2m2mjC1B20VBAoJcZtSYkmjrllS06Q26Te5sTYvE= testkey
   depends_on:
-    - GenerateBlockStorage
+    - CreateBlockStorage
 
+# You need to set password for user to login via console (not set if default)
 OpenConsole:
   type: VirtualMachine
   action: OpenConsole
   args:
-    name: test-with-iso
+    name: test-vm
   depends_on:
     - CreateVirtualMachine
 ```
+
+Then, you can login virtual machine via ssh by `n0user` user using key below:
+
+```
+-----BEGIN EC PRIVATE KEY-----
+MHcCAQEEIBAQh+adEg/rjqj9qLE0jI4EqV8kZFDzWTASAwvx6HWdoAoGCCqGSM49
+AwEHoUQDQgAEhOjA+fY6XV4K9c3ldX4tvqN9fOANtfIR21rJp0NQm0Wtw3abaaML
+UHbRUECglxm1JiSaOuWVLTpDbpN7mxNi8Q==
+-----END EC PRIVATE KEY-----
+```
+
+(Ubuntu 18.04 Cloud Image doesn't allow password login to ssh configured above, so you need set password if need to access via VNC console)
