@@ -27,23 +27,11 @@ jobs:
             git commit -m "increment version to $(cat VERSION) [skip ci]"
             git push origin master
       # push n0core and n0cli to GitHub releases
-      - restore_cache:
-          keys:
-            - vendor-master
       - run:
           name: install ghr
           command: |
             GO111MODULE=on make vendor
             make release-to-github
-      # - run:
-      #     name: build version
-      #     command: |
-      #       GO111MODULE=on make vendor
-      #       make build-n0core build-n0cli
-      - save_cache:
-          key: vendor-master
-          paths:
-            - vendor
 workflows:
   version: 2
   all:
