@@ -123,7 +123,7 @@ func (d EtcdDatastore) Delete(key string) error {
 	c, cancel := context.WithTimeout(context.Background(), etcdRequestTimeout)
 	defer cancel()
 
-	_, err := d.client.Delete(c, key, clientv3.WithPrefix())
+	_, err := d.client.Delete(c, key)
 	if err != nil {
 		return err
 	}
