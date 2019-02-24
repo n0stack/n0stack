@@ -1,6 +1,7 @@
 # Boot VirtualMachine from ISO
 
 ## Fetch and register Ubuntu 18.04 Cloud Images
+
 ```yaml
 FetchISO:
   type: BlockStorage
@@ -28,7 +29,7 @@ RegisterBlockStorage:
     image_name: cloudimage-ubuntu
     block_storage_name: cloudimage-ubuntu-1804
     tags:
-      - "latest"
+      - latest
       - "18.04"
   depends_on:
     - FetchISO
@@ -103,3 +104,115 @@ UHbRUECglxm1JiSaOuWVLTpDbpN7mxNi8Q==
 ```
 
 (Ubuntu 18.04 Cloud Image doesn't allow password login to ssh configured above, so you need set password if need to access via VNC console)
+
+## Tips: Inverse action
+
+```yaml
+Delete_test-vm:
+  type: VirtualMachine
+  action: DeleteVirtualMachine
+  args:
+    name: test-vm
+
+Delete_test-blockstorage:
+  type: BlockStorage
+  action: DeleteBlockStorage
+  args:
+    name: test-blockstorage
+  depends_on:
+    - Delete_test-vm
+
+Delete_test-network:
+  type: Network
+  action: DeleteNetwork
+  args:
+    name: test-network
+  depends_on:
+    - Delete_test-vm
+
+Remove_cloudimage-ubuntu:
+  type: Image
+  action: DeleteImage
+  args:
+    name: cloudimage-ubuntu
+  depends_on:
+    - Delete_test-vm
+
+Remove_cloudimage-ubuntu-1804:
+  type: BlockStorage
+  action: DeleteBlockStorage
+  args:
+    name: cloudimage-ubuntu-1804
+  depends_on:
+    - Remove_cloudimage-ubuntu
+```
+
+## Tips: Inverse action (detailed)
+
+```yaml
+Delete_test-vm:
+  type: VirtualMachine
+  action: DeleteVirtualMachine
+  args:
+    name: test-vm
+
+Delete_test-blockstorage:
+  type: BlockStorage
+  action: DeleteBlockStorage
+  args:
+    name: test-blockstorage
+  depends_on:
+    - Delete_test-vm
+
+Delete_test-network:
+  type: Network
+  action: DeleteNetwork
+  args:
+    name: test-network
+  depends_on:
+    - Delete_test-vm
+
+Untag_1804_from_cloudimage-ubuntu:
+  type: Image
+  action: UntagImage
+  args:
+    name: cloudimage-ubuntu
+    tag: "18.04"
+  depends_on:
+    - Delete_test-vm
+
+Untag_latest_from_cloudimage-ubuntu:
+  type: Image
+  action: UntagImage
+  args:
+    name: cloudimage-ubuntu
+    tag: latest
+  depends_on:
+    - Delete_test-vm
+
+Unregister_cloudimage-ubuntu-1804-from-cloudimage-ubuntu:
+  type: Image
+  action: UnregisterBlockStorage
+  args:
+    image_name: cloudimage-ubuntu:
+    block_storage_name: cloudimage-ubuntu-1804
+  depends_on:
+    - Untag_1804_from_cloudimage-ubuntu
+    - Untag_latest_from_cloudimage-ubuntu
+
+Remove_cloudimage-ubuntu:
+  type: Image
+  action: DeleteImage
+  args:
+    name: cloudimage-ubuntu
+  depends_on:
+    - Unregister_cloudimage-ubuntu-1804-from-cloudimage-ubuntu
+
+Remove_cloudimage-ubuntu-1804:
+  type: BlockStorage
+  action: DeleteBlockStorage
+  args:
+    name: cloudimage-ubuntu-1804
+  depends_on:
+    - Unregister_cloudimage-ubuntu-1804-from-cloudimage-ubuntu
+```
