@@ -78,3 +78,12 @@ func TestIsConflicting(t *testing.T) {
 		}
 	}
 }
+
+func TestNilWithString(t *testing.T) {
+	var ip *IPv4Cidr = nil
+
+	// when ip is nil, return ""
+	if ip.String() != "" {
+		t.Errorf("return value of ip.String() is wrong, require ''")
+	}
+}

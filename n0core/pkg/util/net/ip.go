@@ -49,7 +49,11 @@ func ParseCIDR(cidr string) *IPv4Cidr {
 	}
 }
 
-func (c IPv4Cidr) String() string {
+func (c *IPv4Cidr) String() string {
+	if c == nil {
+		return ""
+	}
+
 	return fmt.Sprintf("%s/%d", c.ip.String(), c.SubnetMaskBits())
 }
 
