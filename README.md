@@ -5,7 +5,10 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/n0stack/n0stack)](https://goreportcard.com/report/github.com/n0stack/n0stack)
 [![](https://img.shields.io/docker/build/n0stack/n0stack.svg)](https://hub.docker.com/r/n0stack/n0stack)
 [![](https://img.shields.io/docker/pulls/n0stack/n0stack.svg)](https://hub.docker.com/r/n0stack/n0stack)
+
+[![GoDoc](https://godoc.org/github.com/n0stack/n0stack?status.svg)](https://godoc.org/github.com/n0stack/n0stack)
 [![Documentation Status](https://readthedocs.org/projects/n0stack/badge/?version=latest)](https://docs.n0st.ac/en/latest/?badge=latest)
+
 [![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)](https://opensource.org/licenses/BSD-2-Clause)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fn0stack%2Fn0stack.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fn0stack%2Fn0stack?ref=badge_shield)
 
