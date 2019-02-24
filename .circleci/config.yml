@@ -2,7 +2,7 @@ version: 2
 jobs:
   versioning:
     docker:
-      - image: circleci/golang:1.11
+      - image: golang:1.11
     working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
     master: master
     steps:
@@ -22,7 +22,6 @@ jobs:
       - run:
           name: push
           command: |
-
             git add -f VERSION
             git commit -m "increment version to $(cat VERSION) [skip ci]"
             git push origin master
