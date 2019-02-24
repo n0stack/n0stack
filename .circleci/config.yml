@@ -29,7 +29,7 @@ jobs:
       - run:
           name: install ghr
           command: |
-            rm go.sum  # TODO: Failするので暫定処置
+            # rm go.sum  # TODO: Failするので暫定処置
             GO111MODULE=on make vendor
             make release-to-github
 workflows:
