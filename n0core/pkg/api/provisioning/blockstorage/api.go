@@ -598,21 +598,21 @@ func (a *BlockStorageAPI) ProxyDownloadBlockStorage(agentPort int, basePath stri
 		bs := &pprovisioning.BlockStorage{}
 		if err := a.dataStore.Get(name, bs); err != nil {
 			log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-			return fmt.Errorf("db error")
+			return c.String(http.StatusInternalServerError, errors.Wrap(err, "Failed to get data from db").Error())
 		} else if bs.Name == "" {
-			return err
+			return c.String(http.StatusNotFound, "")
 		}
 
 		ctx := context.Background()
 		node, err := a.nodeAPI.GetNode(ctx, &ppool.GetNodeRequest{Name: bs.NodeName})
 		if err != nil {
-			return err
+			return c.String(http.StatusInternalServerError, errors.Wrap(err, "Failed to get node").Error())
 		}
 
 		u := &url.URL{
 			Scheme: "http",
 			Host:   fmt.Sprintf("%s:%d", node.Address, agentPort),
-			Path:   filepath.Join(DownloadBlockStorageHTTPPrefix, name),
+			Path:   DownloadBlockStorageHTTPPrefix,
 		}
 
 		log.Printf("[DEBUG] ProxyDownloadBlockStorage: url=%s", u.String())
