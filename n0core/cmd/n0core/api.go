@@ -143,11 +143,11 @@ func ServeAPI(ctx *cli.Context) error {
 	// 本当は panic させる必要がある
 	go e.Start("0.0.0.0:8080")
 
-	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
-
 	go func() {
+		ch := make(chan os.Signal)
+		signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 		<-ch
+		fmt.Println("SIGINT or SIGTERM received, stopping gracefully...")
 		grpcServer.GracefulStop()
 	}()
 

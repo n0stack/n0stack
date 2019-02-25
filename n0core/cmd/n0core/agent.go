@@ -183,11 +183,11 @@ func ServeAgent(ctx *cli.Context) error {
 	// TODO: セキュリティ的に問題あり 暫定処置
 	go e.Start("0.0.0.0:8081")
 
-	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
-
 	go func() {
+		ch := make(chan os.Signal)
+		signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 		<-ch
+		fmt.Println("SIGINT or SIGTERM received, stopping gracefully...")
 		grpcServer.GracefulStop()
 	}()
 
