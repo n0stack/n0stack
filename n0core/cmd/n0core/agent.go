@@ -14,14 +14,14 @@ import (
 	"syscall"
 
 	"github.com/cenkalti/backoff"
-	"github.com/grpc-ecosystem/go-grpc-middleware"
-	"github.com/grpc-ecosystem/go-grpc-middleware/recovery"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
 	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/blockstorage"
 	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/virtualmachine"
-	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -183,11 +183,11 @@ func ServeAgent(ctx *cli.Context) error {
 	// TODO: セキュリティ的に問題あり 暫定処置
 	go e.Start("0.0.0.0:8081")
 
-	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
-
 	go func() {
+		ch := make(chan os.Signal)
+		signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 		<-ch
+		fmt.Println("SIGINT or SIGTERM received, stopping gracefully...")
 		grpcServer.GracefulStop()
 	}()
 
