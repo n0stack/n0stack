@@ -5,7 +5,10 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 
 	"github.com/n0stack/n0stack/n0core/pkg/api/deployment/flavor"
 	"github.com/n0stack/n0stack/n0core/pkg/api/deployment/image"
@@ -136,7 +139,17 @@ func ServeAPI(ctx *cli.Context) error {
 	e.GET("/static/virtual_machines/*", echo.WrapHandler(http.StripPrefix("/static/virtual_machines/", http.FileServer(statikFs))))
 
 	log.Printf("[INFO] Started API: version=%s", version)
+
 	// 本当は panic させる必要がある
 	go e.Start("0.0.0.0:8080")
+
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		<-ch
+		grpcServer.GracefulStop()
+	}()
+
 	return grpcServer.Serve(lis)
 }
