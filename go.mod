@@ -11,6 +11,7 @@ require (
 	github.com/digitalocean/go-libvirt v0.0.0-20181105201604-08f982c676c6 // indirect
 	github.com/digitalocean/go-qemu v0.0.0-20181112162955-dd7bb9c771b8
 	github.com/go-ole/go-ole v1.2.2 // indirect
+	github.com/gobwas/glob v0.2.3
 	github.com/gogo/protobuf v1.2.1 // indirect
 	github.com/golang/protobuf v1.2.0
 	github.com/google/go-cmp v0.2.0

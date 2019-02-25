@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/gobwas/glob"
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
 
@@ -26,6 +27,11 @@ func GetNode(c *cli.Context) error {
 	}
 
 	for _, name := range c.Args() {
+		if hasMeta(name) {
+			getNodeByPattern(name, conn)
+			return nil
+		}
+
 		err := getNode(name, conn)
 
 		if err != nil {
@@ -60,6 +66,29 @@ func getNode(name string, conn *grpc.ClientConn) error {
 
 	marshaler.Marshal(os.Stdout, res)
 	fmt.Println()
+
+	return nil
+}
+
+func getNodeByPattern(pattern string, conn *grpc.ClientConn) error {
+	g, err := glob.Compile(pattern)
+	if err != nil {
+		return err
+	}
+
+	cl := ppool.NewNodeServiceClient(conn)
+	res, err := cl.ListNodes(context.Background(), &ppool.ListNodesRequest{})
+	if err != nil {
+		PrintGrpcError(err)
+		return nil
+	}
+
+	for _, node := range res.GetNodes() {
+		if g.Match(node.Name) {
+			marshaler.Marshal(os.Stdout, node)
+			fmt.Println()
+		}
+	}
 
 	return nil
 }

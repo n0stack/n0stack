@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/gobwas/glob"
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
 
@@ -26,6 +27,11 @@ func GetImage(c *cli.Context) error {
 	}
 
 	for _, name := range c.Args() {
+		if hasMeta(name) {
+			getImageByPattern(name, conn)
+			return nil
+		}
+
 		err := getImage(name, conn)
 
 		if err != nil {
@@ -60,6 +66,29 @@ func getImage(name string, conn *grpc.ClientConn) error {
 
 	marshaler.Marshal(os.Stdout, res)
 	fmt.Println()
+
+	return nil
+}
+
+func getImageByPattern(pattern string, conn *grpc.ClientConn) error {
+	g, err := glob.Compile(pattern)
+	if err != nil {
+		return err
+	}
+
+	cl := pdeployment.NewImageServiceClient(conn)
+	res, err := cl.ListImages(context.Background(), &pdeployment.ListImagesRequest{})
+	if err != nil {
+		PrintGrpcError(err)
+		return nil
+	}
+
+	for _, image := range res.GetImages() {
+		if g.Match(image.Name) {
+			marshaler.Marshal(os.Stdout, image)
+			fmt.Println()
+		}
+	}
 
 	return nil
 }
