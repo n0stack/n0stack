@@ -13,43 +13,6 @@ FetchISO:
     request_bytes: 1073741824 # 1GiB
     limit_bytes: 10737418240 # 10GiB
     source_url: https://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img
-  ignore_error: true
-
-ApplyImage:
-  type: Image
-  action: ApplyImage
-  args:
-    name: cloudimage-ubuntu
-  ignore_error: true
-
-RegisterBlockStorage:
-  type: Image
-  action: RegisterBlockStorage
-  args:
-    image_name: cloudimage-ubuntu
-    block_storage_name: cloudimage-ubuntu-1804
-    tags:
-      - latest
-      - "18.04"
-  depends_on:
-    - FetchISO
-    - ApplyImage
-  ignore_error: true
-
-# Create VM (and related block storage and network) using registered image
-CreateBlockStorage:
-  type: Image
-  action: GenerateBlockStorage
-  args:
-    image_name: cloudimage-ubuntu
-    block_storage_name: test-blockstorage
-    annotations:
-      n0core/provisioning/block_storage/request_node_name: vm-host1
-    request_bytes: 1073741824 # 1GiB
-    limit_bytes: 10737418240 # 10GiB
-    tag: "18.04"
-  depends_on:
-    - RegisterBlockStorage
 
 ApplyNetwork:
   type: Network
@@ -72,7 +35,7 @@ CreateVirtualMachine:
     request_memory_bytes: 1073741824 # 1GiB
     limit_memory_bytes: 1073741824 # 1GiB
     block_storage_names:
-      - test-blockstorage
+      - cloudimage-ubuntu-1804
     nics:
       - network_name: test-network
         ipv4_address: 192.168.0.1
@@ -105,7 +68,7 @@ UHbRUECglxm1JiSaOuWVLTpDbpN7mxNi8Q==
 
 (Ubuntu 18.04 Cloud Image doesn't allow password login to ssh configured above, so you need set password if need to access via VNC console)
 
-## Tips: Inverse action
+## Inverse action
 
 ```yaml
 Delete_test-vm:
@@ -114,11 +77,11 @@ Delete_test-vm:
   args:
     name: test-vm
 
-Delete_test-blockstorage:
+Delete_blockstorage:
   type: BlockStorage
   action: DeleteBlockStorage
   args:
-    name: test-blockstorage
+    name: cloudimage-ubuntu-1804
   depends_on:
     - Delete_test-vm
 
@@ -129,90 +92,4 @@ Delete_test-network:
     name: test-network
   depends_on:
     - Delete_test-vm
-
-Remove_cloudimage-ubuntu:
-  type: Image
-  action: DeleteImage
-  args:
-    name: cloudimage-ubuntu
-  depends_on:
-    - Delete_test-vm
-
-Remove_cloudimage-ubuntu-1804:
-  type: BlockStorage
-  action: DeleteBlockStorage
-  args:
-    name: cloudimage-ubuntu-1804
-  depends_on:
-    - Remove_cloudimage-ubuntu
-```
-
-## Tips: Inverse action (detailed)
-
-```yaml
-Delete_test-vm:
-  type: VirtualMachine
-  action: DeleteVirtualMachine
-  args:
-    name: test-vm
-
-Delete_test-blockstorage:
-  type: BlockStorage
-  action: DeleteBlockStorage
-  args:
-    name: test-blockstorage
-  depends_on:
-    - Delete_test-vm
-
-Delete_test-network:
-  type: Network
-  action: DeleteNetwork
-  args:
-    name: test-network
-  depends_on:
-    - Delete_test-vm
-
-Untag_1804_from_cloudimage-ubuntu:
-  type: Image
-  action: UntagImage
-  args:
-    name: cloudimage-ubuntu
-    tag: "18.04"
-  depends_on:
-    - Delete_test-vm
-
-Untag_latest_from_cloudimage-ubuntu:
-  type: Image
-  action: UntagImage
-  args:
-    name: cloudimage-ubuntu
-    tag: latest
-  depends_on:
-    - Delete_test-vm
-
-Unregister_cloudimage-ubuntu-1804-from-cloudimage-ubuntu:
-  type: Image
-  action: UnregisterBlockStorage
-  args:
-    image_name: cloudimage-ubuntu:
-    block_storage_name: cloudimage-ubuntu-1804
-  depends_on:
-    - Untag_1804_from_cloudimage-ubuntu
-    - Untag_latest_from_cloudimage-ubuntu
-
-Remove_cloudimage-ubuntu:
-  type: Image
-  action: DeleteImage
-  args:
-    name: cloudimage-ubuntu
-  depends_on:
-    - Unregister_cloudimage-ubuntu-1804-from-cloudimage-ubuntu
-
-Remove_cloudimage-ubuntu-1804:
-  type: BlockStorage
-  action: DeleteBlockStorage
-  args:
-    name: cloudimage-ubuntu-1804
-  depends_on:
-    - Unregister_cloudimage-ubuntu-1804-from-cloudimage-ubuntu
 ```
