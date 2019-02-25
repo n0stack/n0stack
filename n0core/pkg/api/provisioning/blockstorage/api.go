@@ -16,10 +16,10 @@ import (
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/lock"
-	"github.com/n0stack/n0stack/n0core/pkg/util/grpc"
+	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
 	"github.com/n0stack/n0stack/n0proto.go/pkg/transaction"
-	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
-	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
+	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	pprovisioning "github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -590,26 +590,8 @@ func (a *BlockStorageAPI) DownloadBlockStorage(ctx context.Context, req *pprovis
 	return res, nil
 }
 
-func NewReverseProxyStrippingAllPath(target *url.URL) *httputil.ReverseProxy {
-	targetQuery := target.RawQuery
-	director := func(req *http.Request) {
-		req.URL.Scheme = target.Scheme
-		req.URL.Host = target.Host
-		req.URL.Path = target.Path
-		if targetQuery == "" || req.URL.RawQuery == "" {
-			req.URL.RawQuery = targetQuery + req.URL.RawQuery
-		} else {
-			req.URL.RawQuery = targetQuery + "&" + req.URL.RawQuery
-		}
-		if _, ok := req.Header["User-Agent"]; !ok {
-			req.Header.Set("User-Agent", "")
-		}
-	}
-	return &httputil.ReverseProxy{Director: director}
-}
-
 // TODO: agentPort は Node から取れるようにしたい
-func (a *BlockStorageAPI) ProxyDownloadBlockStorage(agentPort int) func(echo.Context) error {
+func (a *BlockStorageAPI) ProxyDownloadBlockStorage(agentPort int, basePath string) func(echo.Context) error {
 	return func(c echo.Context) error {
 		name := c.Param("name")
 
@@ -634,7 +616,7 @@ func (a *BlockStorageAPI) ProxyDownloadBlockStorage(agentPort int) func(echo.Con
 		}
 
 		log.Printf("[DEBUG] ProxyDownloadBlockStorage: url=%s", u.String())
-		proxy := NewReverseProxyStrippingAllPath(u)
+		proxy := http.StripPrefix(basePath, httputil.NewSingleHostReverseProxy(u))
 		proxy.ServeHTTP(c.Response(), c.Request())
 
 		return nil

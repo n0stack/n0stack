@@ -14,15 +14,15 @@ import (
 	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/blockstorage"
 	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/virtualmachine"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/etcd"
-	"github.com/n0stack/n0stack/n0proto.go/deployment/v0"
-	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
-	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
+	pdeployment "github.com/n0stack/n0stack/n0proto.go/deployment/v0"
+	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	pprovisioning "github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
 
 	"github.com/rakyll/statik/fs"
 
-	"github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	// "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
-	"github.com/grpc-ecosystem/go-grpc-middleware/recovery"
+	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 
@@ -132,7 +132,7 @@ func ServeAPI(ctx *cli.Context) error {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.GET("/api/v0/virtual_machines/:name/vncwebsocket", vma.ProxyWebsocket())
-	e.GET("/api/v0/block_storage/download/:name", bsa.ProxyDownloadBlockStorage(8081)) // ダウンロードしたときのファイル名を指定するため、このように指定した
+	e.GET("/api/v0/block_storage/download/:name", bsa.ProxyDownloadBlockStorage(8081, "/api/v0/block_storage/download/")) // ダウンロードしたときのファイル名を指定するため、このように指定した
 	e.GET("/static/virtual_machines/*", echo.WrapHandler(http.StripPrefix("/static/virtual_machines/", http.FileServer(statikFs))))
 
 	log.Printf("[INFO] Started API: version=%s", version)
