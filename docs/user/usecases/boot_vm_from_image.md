@@ -127,7 +127,7 @@ Delete_test-network:
 
 ## Tips: Idempotent action
 
-**Caution**: This DAG may delete blockstorage and vms if they exist.
+**Caution**: This DAG deletes block storage and VM which you created, often causes misoperation **unintentionally**.
 
 ```yaml
 Delete_test-vm:
