@@ -99,7 +99,7 @@ UHbRUECglxm1JiSaOuWVLTpDbpN7mxNi8Q==
     - `uuid` は `uuidgen` などで適宜生成すること
     - 使っているゲストOSイメージが cloud-init に対応していた場合、`nics`で指定したIP、`login_username`で指定したユーザ、`ssh_authorized_keys`で指定したSSH公開鍵が設定される
 
-## Tips: Inverse action
+## Inverse action
 
 ```yaml
 Delete_test-vm:
