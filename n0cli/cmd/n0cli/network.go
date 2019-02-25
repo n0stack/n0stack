@@ -10,7 +10,7 @@ import (
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
 
-	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
 )
 
 func GetNetwork(c *cli.Context) error {

@@ -6,11 +6,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
-
 	"github.com/gobwas/glob"
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
+
+	pprovisioning "github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
 )
 
 func GetBlockStorage(c *cli.Context) error {
