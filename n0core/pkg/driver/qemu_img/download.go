@@ -19,6 +19,10 @@ func (q *QemuImg) Download(src *url.URL) error {
 	}
 	defer res.Body.Close()
 
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("Failed to get file from http: url='%s', status='%s'", src.String(), res.Status)
+	}
+
 	f, err := os.Create(q.path)
 	if err != nil {
 		return fmt.Errorf("Failed to open file: path='%s', err='%s'", q.path, err.Error())
