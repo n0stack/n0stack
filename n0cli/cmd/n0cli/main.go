@@ -81,7 +81,7 @@ func main() {
 				{
 					Name:      "get",
 					Usage:     "Get Node(s)",
-					ArgsUsage: "[Node name (optional)]",
+					ArgsUsage: "[Node name (optional) ...]",
 					Action:    GetNode,
 				},
 				{
@@ -101,7 +101,7 @@ func main() {
 				{
 					Name:      "get",
 					Usage:     "Get Network(s)",
-					ArgsUsage: "[Network name (optional)]",
+					ArgsUsage: "[Network name (optional) ...]",
 					Action:    GetNetwork,
 				},
 				{
@@ -122,7 +122,7 @@ func main() {
 				{
 					Name:      "get",
 					Usage:     "Get VirtualMachine(s)",
-					ArgsUsage: "[VirtualMachine name (optional)]",
+					ArgsUsage: "[VirtualMachine name (optional) ...]",
 					Action:    GetVirtualMachine,
 				},
 				{
@@ -155,7 +155,7 @@ func main() {
 				{
 					Name:      "get",
 					Usage:     "Get BlockStorage(s)",
-					ArgsUsage: "[BlockStorage name (optional)]",
+					ArgsUsage: "[BlockStorage name (optional) ...]",
 					Action:    GetBlockStorage,
 				},
 				{
@@ -180,7 +180,7 @@ func main() {
 				{
 					Name:      "get",
 					Usage:     "Get Image(s)",
-					ArgsUsage: "[Image name (optional)]",
+					ArgsUsage: "[Image name (optional) ...]",
 					Action:    GetImage,
 				},
 				{
@@ -196,7 +196,7 @@ func main() {
 	getCommand := cli.Command{
 		Name:      "get",
 		Usage:     "Get resource(s)",
-		ArgsUsage: "[resource name (optional)]",
+		ArgsUsage: "[resource name (optional) ...]",
 	}
 	deleteCommand := cli.Command{
 		Name:      "delete",

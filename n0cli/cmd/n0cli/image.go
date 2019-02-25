@@ -23,12 +23,17 @@ func GetImage(c *cli.Context) error {
 
 	if c.NArg() == 0 {
 		return listImage(conn)
-	} else if c.NArg() == 1 {
-		name := c.Args().Get(0)
-		return getImage(name, conn)
 	}
 
-	return fmt.Errorf("set valid arguments")
+	for _, name := range c.Args() {
+		err := getImage(name, conn)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func listImage(conn *grpc.ClientConn) error {

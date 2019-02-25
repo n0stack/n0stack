@@ -23,12 +23,17 @@ func GetNetwork(c *cli.Context) error {
 
 	if c.NArg() == 0 {
 		return listNetwork(conn)
-	} else if c.NArg() == 1 {
-		name := c.Args().Get(0)
-		return getNetwork(name, conn)
 	}
 
-	return fmt.Errorf("set valid arguments")
+	for _, name := range c.Args() {
+		err := getNetwork(name, conn)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func listNetwork(conn *grpc.ClientConn) error {
