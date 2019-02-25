@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+
+	stringutil "github.com/n0stack/n0stack/n0core/pkg/util/string"
 )
 
 // (QEMU) blockdev-add options={"driver":"qcow2","id":"drive-virtio-disk0","file":{"driver":"file","filename":"/home/h-otter/wk/test-qemu/ubuntu16.04.qcow2"}}
@@ -14,8 +16,8 @@ import (
 //   - すでにアタッチされていた場合、エラー処理を文字列で判定する必要がある
 //   - bootindexがどうやって更新されるのかがわからない
 func (q Qemu) AttachQcow2(label string, filepath *url.URL, index uint) error {
-	driveID := fmt.Sprintf("drive-%s", label)
-	devID := fmt.Sprintf("virtio-blk-%s", label)
+	driveID := stringutil.StringWithChecksumSuffix(fmt.Sprintf("drive-%s", label), 30)
+	devID := stringutil.StringWithChecksumSuffix(fmt.Sprintf("virtio-blk-%s", label), 30)
 
 	// check to create drive
 
@@ -31,8 +33,8 @@ func (q Qemu) AttachQcow2(label string, filepath *url.URL, index uint) error {
 }
 
 func (q Qemu) AttachRaw(label string, filepath *url.URL, index uint) error {
-	driveID := fmt.Sprintf("drive-%s", label)
-	devID := fmt.Sprintf("virtio-blk-%s", label)
+	driveID := stringutil.StringWithChecksumSuffix(fmt.Sprintf("drive-%s", label), 30)
+	devID := stringutil.StringWithChecksumSuffix(fmt.Sprintf("virtio-blk-%s", label), 30)
 
 	// check to create drive
 
@@ -49,8 +51,8 @@ func (q Qemu) AttachRaw(label string, filepath *url.URL, index uint) error {
 
 // TODO: 動作が怪しい
 func (q Qemu) AttachISO(label string, filepath *url.URL, index uint) error {
-	driveID := fmt.Sprintf("drive-scsi0-cd-%s", label)
-	devID := fmt.Sprintf("scsi0-cd-%s", label)
+	driveID := stringutil.StringWithChecksumSuffix(fmt.Sprintf("drive-scsi0-cd-%s", label), 30)
+	devID := stringutil.StringWithChecksumSuffix(fmt.Sprintf("scsi0-cd-%s", label), 30)
 
 	// check to create drive
 
