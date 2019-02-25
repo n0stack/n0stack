@@ -328,6 +328,10 @@ func (a *BlockStorageAPI) CopyBlockStorage(ctx context.Context, req *pprovisioni
 		return nil, err
 	}
 
+	if err := a.ReserveStorage(ctx, tx, bs); err != nil {
+		return nil, err
+	}
+
 	var srcUrl *url.URL
 	{
 		src := &pprovisioning.BlockStorage{}
@@ -343,15 +347,14 @@ func (a *BlockStorageAPI) CopyBlockStorage(ctx context.Context, req *pprovisioni
 			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to get node '%s' which is hosting source block storage", src.NodeName).Error())
 		}
 
-		srcUrl = &url.URL{
-			Scheme: "http",
-			Host:   fmt.Sprintf("%s:%d", srcNode.Address, 8081), // TODO: agentのポートをハードコードしている
-			Path:   filepath.Join(DownloadBlockStorageHTTPPrefix, src.Name),
+		srcUrl, err = url.Parse(src.Annotations[AnnotationBlockStorageURL])
+		if err != nil || src.NodeName != bs.NodeName {
+			srcUrl = &url.URL{
+				Scheme: "http",
+				Host:   fmt.Sprintf("%s:%d", srcNode.Address, 8081), // TODO: agentのポートをハードコードしている
+				Path:   filepath.Join(DownloadBlockStorageHTTPPrefix, src.Name),
+			}
 		}
-	}
-
-	if err := a.ReserveStorage(ctx, tx, bs); err != nil {
-		return nil, err
 	}
 
 	{

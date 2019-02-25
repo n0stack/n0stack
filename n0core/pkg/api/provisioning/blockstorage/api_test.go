@@ -7,7 +7,8 @@ import (
 	"code.cloudfoundry.org/bytefmt"
 	"github.com/google/go-cmp/cmp"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/memory"
-	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
+	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	pprovisioning "github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 )
@@ -360,5 +361,93 @@ func TestCopyBlockStorage(t *testing.T) {
 
 	if _, err := bsa.DeleteBlockStorage(ctx, &pprovisioning.DeleteBlockStorageRequest{Name: bs.Name}); err != nil {
 		t.Errorf("DeleteBlockStorage got error: err='%s'", err.Error())
+	}
+}
+
+func TestCopyBlockStorageByLocal(t *testing.T) {
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	m := memory.NewMemoryDatastore()
+	bsa := NewMockBlcokStorageAPI(m)
+
+	mnode, err := bsa.NodeAPI.SetupMockNode(ctx)
+	if err != nil {
+		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
+	}
+
+	createRes, err := bsa.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
+		Name: "src",
+		Annotations: map[string]string{
+			AnnotationBlockStorageRequestNodeName: mnode.Name,
+		},
+		RequestBytes: 1 * bytefmt.GIGABYTE,
+		LimitBytes:   1 * bytefmt.GIGABYTE,
+	})
+	if err != nil {
+		t.Errorf("Failed to create block storage: err='%s'", err.Error())
+	}
+
+	bs, err := bsa.CopyBlockStorage(ctx, &pprovisioning.CopyBlockStorageRequest{
+		Name: "dst",
+		Annotations: map[string]string{
+			AnnotationBlockStorageRequestNodeName: mnode.Name,
+		},
+		RequestBytes:       1 * bytefmt.GIGABYTE,
+		LimitBytes:         1 * bytefmt.GIGABYTE,
+		SourceBlockStorage: createRes.Name,
+	})
+	if err != nil {
+		t.Errorf("Failed to copy block storage: err='%s' %v", err.Error(), bs)
+	}
+}
+
+func TestCopyBlockStorageByRemote(t *testing.T) {
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	m := memory.NewMemoryDatastore()
+	bsa := NewMockBlcokStorageAPI(m)
+
+	mnode, err := bsa.NodeAPI.SetupMockNode(ctx)
+	if err != nil {
+		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
+	}
+	dnode, err := bsa.NodeAPI.ApplyNode(ctx, &ppool.ApplyNodeRequest{
+		Name:          "dst",
+		Address:       "127.0.20.181",
+		CpuMilliCores: 16000,
+		MemoryBytes:   64 * bytefmt.GIGABYTE,
+		StorageBytes:  100 * bytefmt.GIGABYTE,
+	})
+	if err != nil {
+		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
+	}
+
+	createRes, err := bsa.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
+		Name: "src",
+		Annotations: map[string]string{
+			AnnotationBlockStorageRequestNodeName: mnode.Name,
+		},
+		RequestBytes: 1 * bytefmt.GIGABYTE,
+		LimitBytes:   1 * bytefmt.GIGABYTE,
+	})
+	if err != nil {
+		t.Errorf("Failed to create block storage: err='%s'", err.Error())
+	}
+
+	bs, err := bsa.CopyBlockStorage(ctx, &pprovisioning.CopyBlockStorageRequest{
+		Name: "dst",
+		Annotations: map[string]string{
+			AnnotationBlockStorageRequestNodeName: dnode.Name,
+		},
+		RequestBytes:       1 * bytefmt.GIGABYTE,
+		LimitBytes:         1 * bytefmt.GIGABYTE,
+		SourceBlockStorage: createRes.Name,
+	})
+	if err != nil {
+		t.Errorf("Failed to copy block storage: err='%s' %v", err.Error(), bs)
 	}
 }
