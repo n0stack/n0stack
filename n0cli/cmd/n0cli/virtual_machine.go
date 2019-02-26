@@ -6,10 +6,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
-
+	"github.com/gobwas/glob"
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
+
+	pprovisioning "github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
 )
 
 func GetVirtualMachine(c *cli.Context) error {
@@ -23,12 +24,22 @@ func GetVirtualMachine(c *cli.Context) error {
 
 	if c.NArg() == 0 {
 		return listVirtualMachine(conn)
-	} else if c.NArg() == 1 {
-		name := c.Args().Get(0)
-		return getVirtualMachine(name, conn)
 	}
 
-	return fmt.Errorf("set valid arguments")
+	for _, name := range c.Args() {
+		if hasMeta(name) {
+			getVirtualMachineByPattern(name, conn)
+			return nil
+		}
+
+		err := getVirtualMachine(name, conn)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func listVirtualMachine(conn *grpc.ClientConn) error {
@@ -55,6 +66,29 @@ func getVirtualMachine(name string, conn *grpc.ClientConn) error {
 
 	marshaler.Marshal(os.Stdout, res)
 	fmt.Println()
+
+	return nil
+}
+
+func getVirtualMachineByPattern(pattern string, conn *grpc.ClientConn) error {
+	g, err := glob.Compile(pattern)
+	if err != nil {
+		return err
+	}
+
+	cl := pprovisioning.NewVirtualMachineServiceClient(conn)
+	res, err := cl.ListVirtualMachines(context.Background(), &pprovisioning.ListVirtualMachinesRequest{})
+	if err != nil {
+		PrintGrpcError(err)
+		return nil
+	}
+
+	for _, vm := range res.GetVirtualMachines() {
+		if g.Match(vm.Name) {
+			marshaler.Marshal(os.Stdout, vm)
+			fmt.Println()
+		}
+	}
 
 	return nil
 }

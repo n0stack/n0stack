@@ -6,10 +6,11 @@ import (
 	"log"
 	"os"
 
+	"github.com/gobwas/glob"
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
 
-	"github.com/n0stack/n0stack/n0proto.go/deployment/v0"
+	pdeployment "github.com/n0stack/n0stack/n0proto.go/deployment/v0"
 )
 
 func GetImage(c *cli.Context) error {
@@ -23,12 +24,22 @@ func GetImage(c *cli.Context) error {
 
 	if c.NArg() == 0 {
 		return listImage(conn)
-	} else if c.NArg() == 1 {
-		name := c.Args().Get(0)
-		return getImage(name, conn)
 	}
 
-	return fmt.Errorf("set valid arguments")
+	for _, name := range c.Args() {
+		if hasMeta(name) {
+			getImageByPattern(name, conn)
+			return nil
+		}
+
+		err := getImage(name, conn)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func listImage(conn *grpc.ClientConn) error {
@@ -55,6 +66,29 @@ func getImage(name string, conn *grpc.ClientConn) error {
 
 	marshaler.Marshal(os.Stdout, res)
 	fmt.Println()
+
+	return nil
+}
+
+func getImageByPattern(pattern string, conn *grpc.ClientConn) error {
+	g, err := glob.Compile(pattern)
+	if err != nil {
+		return err
+	}
+
+	cl := pdeployment.NewImageServiceClient(conn)
+	res, err := cl.ListImages(context.Background(), &pdeployment.ListImagesRequest{})
+	if err != nil {
+		PrintGrpcError(err)
+		return nil
+	}
+
+	for _, image := range res.GetImages() {
+		if g.Match(image.Name) {
+			marshaler.Marshal(os.Stdout, image)
+			fmt.Println()
+		}
+	}
 
 	return nil
 }

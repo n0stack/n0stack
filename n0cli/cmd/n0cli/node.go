@@ -6,10 +6,11 @@ import (
 	"log"
 	"os"
 
+	"github.com/gobwas/glob"
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
 
-	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
 )
 
 func GetNode(c *cli.Context) error {
@@ -23,12 +24,22 @@ func GetNode(c *cli.Context) error {
 
 	if c.NArg() == 0 {
 		return listNode(conn)
-	} else if c.NArg() == 1 {
-		name := c.Args().Get(0)
-		return getNode(name, conn)
 	}
 
-	return fmt.Errorf("set valid arguments")
+	for _, name := range c.Args() {
+		if hasMeta(name) {
+			getNodeByPattern(name, conn)
+			return nil
+		}
+
+		err := getNode(name, conn)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func listNode(conn *grpc.ClientConn) error {
@@ -55,6 +66,29 @@ func getNode(name string, conn *grpc.ClientConn) error {
 
 	marshaler.Marshal(os.Stdout, res)
 	fmt.Println()
+
+	return nil
+}
+
+func getNodeByPattern(pattern string, conn *grpc.ClientConn) error {
+	g, err := glob.Compile(pattern)
+	if err != nil {
+		return err
+	}
+
+	cl := ppool.NewNodeServiceClient(conn)
+	res, err := cl.ListNodes(context.Background(), &ppool.ListNodesRequest{})
+	if err != nil {
+		PrintGrpcError(err)
+		return nil
+	}
+
+	for _, node := range res.GetNodes() {
+		if g.Match(node.Name) {
+			marshaler.Marshal(os.Stdout, node)
+			fmt.Println()
+		}
+	}
 
 	return nil
 }
