@@ -523,7 +523,7 @@ func (a *VirtualMachineAPI) BootVirtualMachine(ctx context.Context, req *pprovis
 		}
 	}
 
-	if !lock.WaitUntilLock(a.dataStore, req.Name, 1*time.Second, 10*time.Millisecond) {
+	if !lock.WaitUntilLock(a.dataStore, req.Name, 5*time.Second, 10*time.Millisecond) {
 		return nil, datastore.LockError()
 	}
 	defer a.dataStore.Unlock(req.Name)

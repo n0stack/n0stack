@@ -493,7 +493,7 @@ func (a *BlockStorageAPI) DeleteBlockStorage(ctx context.Context, req *pprovisio
 }
 
 func (a *BlockStorageAPI) SetAvailableBlockStorage(ctx context.Context, req *pprovisioning.SetAvailableBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
-	if !lock.WaitUntilLock(a.dataStore, req.Name, 1*time.Second, 10*time.Millisecond) {
+	if !lock.WaitUntilLock(a.dataStore, req.Name, 5*time.Second, 10*time.Millisecond) {
 		return nil, datastore.LockError()
 	}
 	defer a.dataStore.Unlock(req.Name)
@@ -520,7 +520,7 @@ func (a *BlockStorageAPI) SetAvailableBlockStorage(ctx context.Context, req *ppr
 }
 
 func (a *BlockStorageAPI) SetInuseBlockStorage(ctx context.Context, req *pprovisioning.SetInuseBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
-	if !lock.WaitUntilLock(a.dataStore, req.Name, 1*time.Second, 10*time.Millisecond) {
+	if !lock.WaitUntilLock(a.dataStore, req.Name, 5*time.Second, 10*time.Millisecond) {
 		return nil, datastore.LockError()
 	}
 	defer a.dataStore.Unlock(req.Name)
@@ -547,7 +547,7 @@ func (a *BlockStorageAPI) SetInuseBlockStorage(ctx context.Context, req *pprovis
 }
 
 func (a *BlockStorageAPI) SetProtectedBlockStorage(ctx context.Context, req *pprovisioning.SetProtectedBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
-	if !lock.WaitUntilLock(a.dataStore, req.Name, 1*time.Second, 10*time.Millisecond) {
+	if !lock.WaitUntilLock(a.dataStore, req.Name, 5*time.Second, 10*time.Millisecond) {
 		return nil, datastore.LockError()
 	}
 	defer a.dataStore.Unlock(req.Name)

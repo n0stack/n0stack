@@ -177,7 +177,7 @@ func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.Rese
 		return nil, grpc.Errorf(codes.InvalidArgument, "Do not set field 'network_interface_name' as blank")
 	}
 
-	if !lock.WaitUntilLock(a.dataStore, req.NetworkName, 1*time.Second, 50*time.Millisecond) {
+	if !lock.WaitUntilLock(a.dataStore, req.NetworkName, 5*time.Second, 50*time.Millisecond) {
 		return nil, datastore.LockError()
 	}
 	defer a.dataStore.Unlock(req.NetworkName)
@@ -253,7 +253,7 @@ func (a NetworkAPI) ReleaseNetworkInterface(ctx context.Context, req *ppool.Rele
 		return nil, grpc.Errorf(codes.NotFound, "Do not exists network '%s'", req.NetworkName)
 	}
 
-	if !lock.WaitUntilLock(a.dataStore, req.NetworkName, 1*time.Second, 50*time.Millisecond) {
+	if !lock.WaitUntilLock(a.dataStore, req.NetworkName, 5*time.Second, 50*time.Millisecond) {
 		return nil, datastore.LockError()
 	}
 	defer a.dataStore.Unlock(req.NetworkName)

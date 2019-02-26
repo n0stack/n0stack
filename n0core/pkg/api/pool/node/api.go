@@ -12,9 +12,9 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/lock"
-	"github.com/n0stack/n0stack/n0core/pkg/util/grpc"
-	"github.com/n0stack/n0stack/n0proto.go/budget/v0"
-	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
+	pbudget "github.com/n0stack/n0stack/n0proto.go/budget/v0"
+	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
 )
 
 type NodeAPI struct {
@@ -178,7 +178,7 @@ func (a NodeAPI) ReserveCompute(ctx context.Context, req *ppool.ReserveComputeRe
 		return nil, grpc.Errorf(codes.InvalidArgument, "Set field 'request_*'")
 	}
 
-	if !lock.WaitUntilLock(a.dataStore, req.NodeName, time.Second, 10*time.Millisecond) {
+	if !lock.WaitUntilLock(a.dataStore, req.NodeName, 5*time.Second, 10*time.Millisecond) {
 		return nil, datastore.LockError()
 	}
 	defer a.dataStore.Unlock(req.NodeName)
@@ -218,7 +218,7 @@ func (a NodeAPI) ReserveCompute(ctx context.Context, req *ppool.ReserveComputeRe
 }
 
 func (a NodeAPI) ReleaseCompute(ctx context.Context, req *ppool.ReleaseComputeRequest) (*empty.Empty, error) {
-	if !lock.WaitUntilLock(a.dataStore, req.NodeName, time.Second, 10*time.Millisecond) {
+	if !lock.WaitUntilLock(a.dataStore, req.NodeName, 5*time.Second, 10*time.Millisecond) {
 		return nil, datastore.LockError()
 	}
 	defer a.dataStore.Unlock(req.NodeName)
@@ -257,7 +257,7 @@ func (a NodeAPI) ReserveStorage(ctx context.Context, req *ppool.ReserveStorageRe
 		return nil, grpc.Errorf(codes.InvalidArgument, "Set field 'request_*'")
 	}
 
-	if !lock.WaitUntilLock(a.dataStore, req.NodeName, 1*time.Second, 50*time.Millisecond) {
+	if !lock.WaitUntilLock(a.dataStore, req.NodeName, 5*time.Second, 50*time.Millisecond) {
 		return nil, datastore.LockError()
 	}
 	defer a.dataStore.Unlock(req.NodeName)
@@ -295,7 +295,7 @@ func (a NodeAPI) ReserveStorage(ctx context.Context, req *ppool.ReserveStorageRe
 }
 
 func (a NodeAPI) ReleaseStorage(ctx context.Context, req *ppool.ReleaseStorageRequest) (*empty.Empty, error) {
-	if !lock.WaitUntilLock(a.dataStore, req.NodeName, 1*time.Second, 50*time.Millisecond) {
+	if !lock.WaitUntilLock(a.dataStore, req.NodeName, 5*time.Second, 50*time.Millisecond) {
 		return nil, datastore.LockError()
 	}
 	defer a.dataStore.Unlock(req.NodeName)
