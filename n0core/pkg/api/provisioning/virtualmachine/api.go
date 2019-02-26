@@ -75,7 +75,7 @@ func (a *VirtualMachineAPI) addDefaultGateway(ctx context.Context, nw *ppool.Net
 	ipn := netutil.ParseCIDR(nw.Ipv4Cidr)
 	ip := netutil.GetEndIP(ipn.Network())
 
-	a.networkAPI.ReserveNetworkInterface(ctx, &ppool.ReserveNetworkInterfaceRequest{
+	_, err := a.networkAPI.ReserveNetworkInterface(ctx, &ppool.ReserveNetworkInterfaceRequest{
 		NetworkName:          nw.Name,
 		NetworkInterfaceName: "default-gateway",
 		Ipv4Address:          ip.String(),
@@ -85,7 +85,7 @@ func (a *VirtualMachineAPI) addDefaultGateway(ctx context.Context, nw *ppool.Net
 		},
 	})
 
-	return ip.String(), nil
+	return ip.String(), err
 }
 
 // PENDINGステートにすることで楽観的なロックを行う
