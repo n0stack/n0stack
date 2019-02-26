@@ -261,3 +261,91 @@ func TestCreateVirtualMachineFailedOnBlockStorage(t *testing.T) {
 		t.Errorf("Failed to rollback about block storage")
 	}
 }
+
+func TestDeleteVirtualMachineFailedOnBlockStorage(t *testing.T) {
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	m := memory.NewMemoryDatastore()
+	vma := NewMockVirtualMachineAPI(m)
+
+	mnode, err := vma.NodeAPI.SetupMockNode(ctx)
+	if err != nil {
+		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
+	}
+
+	network, err := vma.NetworkAPI.FactoryNetwork(ctx)
+	if err != nil {
+		t.Fatalf("Failed to factory network: err='%s'", err.Error())
+	}
+	ip := netutil.ParseCIDR(network.Ipv4Cidr)
+
+	bs, err := vma.BlockStorageAPI.FactoryBlockStorage(ctx, mnode.Name)
+	if err != nil {
+		t.Fatalf("Failed to factory bloclstorage: err='%s'", err.Error())
+	}
+
+	vm := &pprovisioning.VirtualMachine{
+		Name: "test-virtual-machine",
+		Annotations: map[string]string{
+			AnnotationVirtualMachineRequestNodeName:  mnode.Name,
+			AnnotationVirtualMachineVncWebSocketPort: "6900",
+		},
+
+		LimitCpuMilliCore:   1000,
+		RequestCpuMilliCore: 100,
+		LimitMemoryBytes:    1 * bytefmt.GIGABYTE,
+		RequestMemoryBytes:  1 * bytefmt.GIGABYTE,
+		BlockStorageNames: []string{
+			bs.Name,
+		},
+		Nics: []*pprovisioning.VirtualMachineNIC{
+			{
+				NetworkName:     network.Name,
+				Ipv4Address:     ip.Next().IP().String(),
+				HardwareAddress: "52:54:78:fe:71:fd",
+			},
+		},
+		Uuid: "1d5fd196-b6c9-4f58-86f2-3ef227018e47",
+
+		State:                 pprovisioning.VirtualMachine_RUNNING,
+		ComputeNodeName:       mnode.Name,
+		ComputeName:           "test-virtual-machine",
+		NetworkInterfaceNames: []string{"test-virtual-machine0"},
+	}
+
+	vm, err = vma.CreateVirtualMachine(ctx, &pprovisioning.CreateVirtualMachineRequest{
+		Name:                vm.Name,
+		Annotations:         vm.Annotations,
+		LimitCpuMilliCore:   vm.LimitCpuMilliCore,
+		RequestCpuMilliCore: vm.RequestCpuMilliCore,
+		LimitMemoryBytes:    vm.LimitMemoryBytes,
+		RequestMemoryBytes:  vm.RequestMemoryBytes,
+		BlockStorageNames:   vm.BlockStorageNames,
+		Nics:                vm.Nics,
+		Uuid:                vm.Uuid,
+	})
+	if err != nil {
+		t.Fatalf("failed to create virtual machine")
+	}
+
+	if bs, err = vma.BlockStorageAPI.SetAvailableBlockStorage(ctx, &pprovisioning.SetAvailableBlockStorageRequest{Name: bs.Name}); err != nil {
+		t.Fatalf("failed to set available (precondition)")
+	}
+	if _, err = vma.BlockStorageAPI.DeleteBlockStorage(ctx, &pprovisioning.DeleteBlockStorageRequest{Name: bs.Name}); err != nil {
+		t.Fatalf("failed to delete block storage (precondition)")
+	}
+
+	if _, err := vma.DeleteVirtualMachine(ctx, &pprovisioning.DeleteVirtualMachineRequest{Name: vm.Name}); err == nil {
+		t.Errorf("completed to delete virtual machine")
+	}
+
+	if network, err = vma.NetworkAPI.GetNetwork(ctx, &ppool.GetNetworkRequest{Name: network.Name}); err != nil {
+		t.Errorf("failed to get network")
+	}
+
+	if len(network.ReservedNetworkInterfaces) != 2 {
+		t.Errorf("failed to rollback network interface")
+	}
+}

@@ -441,6 +441,43 @@ func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprov
 	if err != nil {
 		return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to ReleaseCompute: desc=%s", grpc.ErrorDesc(err))
 	}
+	tx.PushRollback(fmt.Sprintf("ReserveCompute '%s'", vm.Name), func() error {
+		_, err = a.nodeAPI.ReserveCompute(ctx, &ppool.ReserveComputeRequest{
+			NodeName:    vm.ComputeNodeName,
+			ComputeName: vm.ComputeName,
+			Annotations: map[string]string{
+				AnnotationComputeReservedBy: vm.Name,
+			},
+			RequestCpuMilliCore: vm.RequestCpuMilliCore,
+			LimitCpuMilliCore:   vm.LimitCpuMilliCore,
+			RequestMemoryBytes:  vm.RequestMemoryBytes,
+			LimitMemoryBytes:    vm.LimitMemoryBytes,
+		})
+
+		return err
+	})
+
+	tx.PushRollback("ReserveNetworkInterface", func() error {
+		for i := range vm.Nics {
+			_, err := a.networkAPI.ReserveNetworkInterface(ctx, &ppool.ReserveNetworkInterfaceRequest{
+				NetworkName:          vm.Nics[i].NetworkName,
+				HardwareAddress:      vm.Nics[i].HardwareAddress,
+				Ipv4Address:          vm.Nics[i].Ipv4Address,
+				Ipv6Address:          vm.Nics[i].Ipv6Address,
+				NetworkInterfaceName: vm.NetworkInterfaceNames[i],
+			})
+
+			if err != nil {
+				if grpc.Code(err) == codes.AlreadyExists { // When AlreadyExists, failed until processing all
+					break
+				}
+
+				return err
+			}
+		}
+
+		return nil
+	})
 
 	for i, nic := range vm.Nics {
 		_, err := a.networkAPI.ReleaseNetworkInterface(context.Background(), &ppool.ReleaseNetworkInterfaceRequest{
@@ -452,6 +489,16 @@ func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprov
 		}
 	}
 
+	tx.PushRollback("SetInuseBlockStorage", func() error {
+		for _, n := range vm.BlockStorageNames {
+			_, err := a.blockstorageAPI.SetInuseBlockStorage(ctx, &pprovisioning.SetInuseBlockStorageRequest{Name: n})
+			if err != nil && grpc.Code(err) != codes.FailedPrecondition {
+				return err // errをスタックする必要がある
+			}
+		}
+
+		return nil
+	})
 	for _, n := range vm.BlockStorageNames {
 		_, err := a.blockstorageAPI.SetAvailableBlockStorage(context.Background(), &pprovisioning.SetAvailableBlockStorageRequest{Name: n})
 		if err != nil {
