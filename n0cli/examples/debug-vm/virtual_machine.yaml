@@ -81,6 +81,8 @@ cvm1:
     nics:
       - network_name: net
         ipv4_address: 192.168.0.1
+        annotations:
+          n0core/provisioning/virtual_machine/is_gateway: "true"
     uuid: 056d2ccd-0c4c-44dc-a2c8-39a9d394b51f
     login_username: test
     ssh_authorized_keys:
