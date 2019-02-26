@@ -9,6 +9,7 @@ import "google/protobuf/empty.proto";
 
 message VirtualMachineNIC {
   string network_name = 1;
+  map<string, string> annotations = 5;
 
   string hardware_address = 2;
 
