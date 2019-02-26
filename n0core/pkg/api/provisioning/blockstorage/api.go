@@ -466,7 +466,7 @@ func (a *BlockStorageAPI) DeleteBlockStorage(ctx context.Context, req *pprovisio
 
 	u, _ := url.Parse(bs.Annotations[AnnotationBlockStorageURL]) // TODO: エラー処理
 	_, err = cli.DeleteBlockStorage(context.Background(), &DeleteBlockStorageRequest{Path: u.Path})
-	if err != nil {
+	if err != nil { // 多分ロールバックが必要
 		log.Printf("Fail to delete block_storage on node: err=%s, req=%s", err.Error(), &DeleteBlockStorageRequest{Path: u.Path})
 		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Fail to delete block_storage on node") // TODO #89
 	}
@@ -483,6 +483,19 @@ func (a *BlockStorageAPI) DeleteBlockStorage(ctx context.Context, req *pprovisio
 			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to release compute '%s': please retry", bs.StorageName)
 		}
 	}
+	tx.PushRollback("", func() error {
+		_, err = a.nodeAPI.ReserveStorage(context.Background(), &ppool.ReserveStorageRequest{
+			NodeName:    bs.NodeName,
+			StorageName: bs.StorageName,
+			Annotations: map[string]string{
+				AnnotationStorageReservedBy: bs.Name,
+			},
+			RequestBytes: bs.RequestBytes,
+			LimitBytes:   bs.LimitBytes,
+		})
+
+		return err
+	})
 
 	if err := a.dataStore.Delete(bs.Name); err != nil {
 		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "message:Failed to delete from db.\tgot:%v", err.Error())
