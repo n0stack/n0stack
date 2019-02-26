@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"strings"
 	"syscall"
 
@@ -35,6 +36,13 @@ import (
 
 	"github.com/urfave/cli"
 )
+
+func OutputRecoveryLog(p interface{}) (err error) {
+	log.Printf("[CRITICAL] panic happened: %v", p)
+	log.Print(string(debug.Stack()))
+
+	return nil
+}
 
 func ServeAPI(ctx *cli.Context) error {
 	etcdEndpoints := strings.Split(ctx.String("etcd-endpoints"), ",")
@@ -112,17 +120,18 @@ func ServeAPI(ctx *cli.Context) error {
 
 	grpcServer := grpc.NewServer(
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
-			grpc_recovery.StreamServerInterceptor(),
+			grpc_recovery.StreamServerInterceptor(grpc_recovery.WithRecoveryHandler(OutputRecoveryLog)),
 			// grpc_zap.StreamServerInterceptor(zapLogger),
 			// grpc_auth.StreamServerInterceptor(auth),
 			// grpc_prometheus.StreamServerInterceptor,
 		)),
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			grpc_recovery.UnaryServerInterceptor(),
+			grpc_recovery.UnaryServerInterceptor(grpc_recovery.WithRecoveryHandler(OutputRecoveryLog)),
 			// grpc_zap.UnaryServerInterceptor(zapLogger),
 			// grpc_auth.UnaryServerInterceptor(auth),
 			// grpc_prometheus.UnaryServerInterceptor,
-		)))
+		)),
+	)
 	ppool.RegisterNodeServiceServer(grpcServer, noa)
 	ppool.RegisterNetworkServiceServer(grpcServer, nea)
 	pprovisioning.RegisterBlockStorageServiceServer(grpcServer, bsa)

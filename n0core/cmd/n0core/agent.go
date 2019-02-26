@@ -148,13 +148,13 @@ func ServeAgent(ctx *cli.Context) error {
 
 	grpcServer := grpc.NewServer(
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
-			grpc_recovery.StreamServerInterceptor(),
+			grpc_recovery.StreamServerInterceptor(grpc_recovery.WithRecoveryHandler(OutputRecoveryLog)),
 			// grpc_zap.StreamServerInterceptor(zapLogger),
 			// grpc_auth.StreamServerInterceptor(auth),
 			// grpc_prometheus.StreamServerInterceptor,
 		)),
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			grpc_recovery.UnaryServerInterceptor(),
+			grpc_recovery.UnaryServerInterceptor(grpc_recovery.WithRecoveryHandler(OutputRecoveryLog)),
 			// grpc_zap.UnaryServerInterceptor(zapLogger),
 			// grpc_auth.UnaryServerInterceptor(auth),
 			// grpc_prometheus.UnaryServerInterceptor,
