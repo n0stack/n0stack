@@ -270,15 +270,18 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		for i, nic := range vm.Nics {
 			vm.NetworkInterfaceNames[i] = vm.Name + strconv.Itoa(i)
 
+			annotations := nic.Annotations
+			if annotations == nil {
+				annotations = make(map[string]string)
+			}
+			annotations[AnnotationComputeReservedBy] = vm.Name
 			network, err := a.networkAPI.ReserveNetworkInterface(ctx, &ppool.ReserveNetworkInterfaceRequest{
 				NetworkName:          nic.NetworkName,
 				NetworkInterfaceName: vm.NetworkInterfaceNames[i],
-				Annotations: map[string]string{
-					AnnotationComputeReservedBy: vm.Name,
-				},
-				HardwareAddress: nic.HardwareAddress,
-				Ipv4Address:     nic.Ipv4Address,
-				Ipv6Address:     nic.Ipv6Address,
+				Annotations:          annotations,
+				HardwareAddress:      nic.HardwareAddress,
+				Ipv4Address:          nic.Ipv4Address,
+				Ipv6Address:          nic.Ipv6Address,
 			})
 			if err != nil {
 				return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to ReserveNetworkInterface: desc=%s", grpc.ErrorDesc(err))
