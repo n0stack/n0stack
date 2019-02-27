@@ -33,7 +33,7 @@ func do(ctx *cli.Context) error {
 
 	tasks := map[string]*dag.Task{}
 	// _, err := toml.DecodeFile(filepath, &tasks)
-	if err := yaml.Unmarshal(buf, tasks); err != nil {
+	if err := yaml.UnmarshalStrict(buf, tasks); err != nil {
 		return err
 	}
 
