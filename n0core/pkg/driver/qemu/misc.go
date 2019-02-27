@@ -13,11 +13,9 @@ import (
 )
 
 func (q *Qemu) init() error {
-	if err := q.findProcess(q.name); err != nil {
+	if ok, err := q.findProcess(q.name); err != nil {
 		return fmt.Errorf("Failed to find process: err='%s'", err.Error())
-	}
-
-	if q.proc != nil {
+	} else if ok {
 		c, err := q.proc.CmdlineSlice()
 		if err != nil {
 			return fmt.Errorf("Failed to get command line: err='%s'", err.Error())
@@ -35,22 +33,27 @@ func (q *Qemu) init() error {
 	return nil
 }
 
-func (q *Qemu) findProcess(contain string) error {
+// Want test!!!
+func (q *Qemu) findProcess(contain string) (bool, error) {
 	ps, err := process.Processes()
 	if err != nil {
-		return fmt.Errorf("Failed to get process list")
+		return false, fmt.Errorf("Failed to get process list")
 	}
 
 	for _, p := range ps {
-		c, _ := p.Cmdline()                                               // エラーが発生する場合が考えられない
-		if strings.Contains(c, contain) && strings.HasPrefix(c, "qemu") { // このfilterはガバガバなので後でリファクタリングする
-			q.proc = p
+		c, _ := p.Cmdline() // エラーが発生する場合が考えられない
+		if strings.HasPrefix(c, "qemu") {
+			a := ParseQemuArgs(strings.Split(c, " "))
+			_, kwds, ok := a.GetTopParsedOptionValue("-name")
+			if ok && kwds["guest"] == q.name {
+				q.proc = p
 
-			return nil
+				return true, nil
+			}
 		}
 	}
 
-	return nil
+	return false, nil
 }
 
 func (q *Qemu) initQMP() error {
