@@ -14,6 +14,7 @@ import (
 	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
 	pprovisioning "github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
 
+	"github.com/fatih/color"
 	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
 )
@@ -234,9 +235,13 @@ func DoDAG(ctx context.Context, tasks map[string]*Task, out io.Writer, conn *grp
 
 		if r.Err != nil {
 			if tasks[r.Name].IgnoreError {
+				color.Set(color.FgRed)
 				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s' is failed, ignore error: %s\n", done, total, r.Name, r.Err.Error())
+				color.Unset()
 			} else {
+				color.Set(color.FgRed)
 				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s' is failed: %s\n", done, total, r.Name, r.Err.Error())
+				color.Unset()
 
 				if !failed {
 					failed = true
@@ -255,9 +260,13 @@ func DoDAG(ctx context.Context, tasks map[string]*Task, out io.Writer, conn *grp
 			res, _ := Marshaler.MarshalToString(r.Res)
 
 			if failed {
+				color.Set(color.FgRed)
 				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s', which was requested until failed, is finished\n%s\n\n", done, total, r.Name, res)
+				color.Unset()
 			} else {
+				color.Set(color.FgGreen)
 				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s' is finished\n%s\n\n", done, total, r.Name, res)
+				color.Unset()
 			}
 		}
 
