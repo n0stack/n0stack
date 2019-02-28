@@ -227,6 +227,10 @@ func (a VirtualMachineAgent) BootVirtualMachine(ctx context.Context, req *BootVi
 					return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to open qemu image: err='%s'", err.Error())
 				}
 
+				if !i.IsExists() {
+					return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "blockdev is not exists: blockdev=%s", bd.Name)
+				}
+
 				// この条件は雑
 				if i.Info.Format == "raw" {
 					if bd.BootIndex < 3 {
