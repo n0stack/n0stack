@@ -235,12 +235,18 @@ func DoDAG(ctx context.Context, tasks map[string]*Task, out io.Writer, conn *grp
 
 		if r.Err != nil {
 			if tasks[r.Name].IgnoreError {
-				color.Set(color.FgRed)
-				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s' is failed, ignore error: %s\n", done, total, r.Name, r.Err.Error())
+				color.Set(color.Attribute(91))
+				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s' is failed, ignore error: ", done, total, r.Name)
+				color.Unset()
+				color.Set(color.FgWhite)
+				fmt.Fprintf(out, "%s\n", r.Err.Error())
 				color.Unset()
 			} else {
 				color.Set(color.FgRed)
-				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s' is failed: %s\n", done, total, r.Name, r.Err.Error())
+				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s' is failed: ", done, total, r.Name)
+				color.Unset()
+				color.Set(color.FgWhite)
+				fmt.Fprintf(out, "%s\n", r.Err.Error())
 				color.Unset()
 
 				if !failed {
@@ -261,11 +267,17 @@ func DoDAG(ctx context.Context, tasks map[string]*Task, out io.Writer, conn *grp
 
 			if failed {
 				color.Set(color.FgRed)
-				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s', which was requested until failed, is finished\n%s\n\n", done, total, r.Name, res)
+				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s', which was requested until failed, is finished\n", done, total, r.Name)
+				color.Unset()
+				color.Set(color.FgWhite)
+				fmt.Fprintf(out, "%s\n\n", res)
 				color.Unset()
 			} else {
 				color.Set(color.FgGreen)
-				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s' is finished\n%s\n\n", done, total, r.Name, res)
+				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s' is finished\n", done, total, r.Name)
+				color.Unset()
+				color.Set(color.FgWhite)
+				fmt.Fprintf(out, "%s\n\n", res)
 				color.Unset()
 			}
 		}
