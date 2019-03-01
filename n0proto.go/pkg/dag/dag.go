@@ -235,7 +235,7 @@ func DoDAG(ctx context.Context, tasks map[string]*Task, out io.Writer, conn *grp
 
 		if r.Err != nil {
 			if tasks[r.Name].IgnoreError {
-				color.Set(color.Attribute(91))
+				color.Set(color.FgRed)
 				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s' is failed, ignore error: ", done, total, r.Name)
 				color.Unset()
 				color.Set(color.FgWhite)
@@ -266,7 +266,7 @@ func DoDAG(ctx context.Context, tasks map[string]*Task, out io.Writer, conn *grp
 			res, _ := Marshaler.MarshalToString(r.Res)
 
 			if failed {
-				color.Set(color.FgRed)
+				color.Set(color.Attribute(91))
 				fmt.Fprintf(out, "---> [ %d/%d ] Task '%s', which was requested until failed, is finished\n", done, total, r.Name)
 				color.Unset()
 				color.Set(color.FgWhite)
