@@ -214,7 +214,7 @@ test-small-on-docker: test-small-n0proto
 test-small-n0proto: build-n0proto-on-docker
 	# git diff --name-status --exit-code n0proto.py
 	git diff --name-status --exit-code n0proto.go
-	git diff --name-status --exit-code n0proto.swagger.json
+	# git diff --name-status --exit-code n0proto.swagger.json
 
 test-small-go:
 	go test -race -cover ./...
