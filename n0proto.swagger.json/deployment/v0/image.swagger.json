@@ -201,6 +201,42 @@
         "tags": [
           "ImageService"
         ]
+      },
+      "post": {
+        "operationId": "TagImage",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/deploymentImage"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "tag",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/deploymentTagImageRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ImageService"
+        ]
       }
     }
   },
@@ -294,6 +330,20 @@
           "items": {
             "type": "string"
           }
+        }
+      }
+    },
+    "deploymentTagImageRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "tag": {
+          "type": "string"
+        },
+        "registered_block_storage_name": {
+          "type": "string"
         }
       }
     },

@@ -61,10 +61,10 @@ service ImageService {
   rpc GenerateBlockStorage(GenerateBlockStorageRequest) returns (n0stack.provisioning.BlockStorage) {}
 
   rpc TagImage(TagImageRequest) returns (Image) {
-    // option (google.api.http) = {
-    //   post: "/api/v0/image/{name}/tag/{tag}"
-    //   body: "*"
-    // };
+    option (google.api.http) = {
+      post: "/api/v0/image/{name}/tag/{tag}"
+      body: "*"
+    };
   }
   rpc UntagImage(UntagImageRequest) returns (Image) {
     option (google.api.http) = {
@@ -116,14 +116,9 @@ message GenerateBlockStorageRequest {
 
 message TagImageRequest {
   string name = 1;
-  string block_storage_name = 2;
+  string tag = 2;
 
-  repeated string tags = 3;
-
-  // TODO: 多分こう
-  // string image_name = 1;
-  // string block_storage_name = 2;
-  // string tag = 3;
+  string registered_block_storage_name = 3;
 }
 message UntagImageRequest {
   string name = 1;
