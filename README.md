@@ -8,6 +8,7 @@ Builds:
 <!-- [![](https://img.shields.io/docker/build/n0stack/n0stack.svg)](https://hub.docker.com/r/n0stack/n0stack) -->
 
 Documentations: 
+[![Gitter](https://img.shields.io/gitter/room/n0stack/n0sack.svg)](https://gitter.im/n0stack/)
 [![Documentation Status](https://readthedocs.org/projects/n0stack/badge/?version=master)](https://docs.n0st.ac/en/master/?badge=master)
 [![GoDoc](https://godoc.org/github.com/n0stack/n0stack?status.svg)](https://godoc.org/github.com/n0stack/n0stack)
 
