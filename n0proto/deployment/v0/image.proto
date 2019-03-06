@@ -37,7 +37,7 @@ service ImageService {
   }
   rpc ApplyImage(ApplyImageRequest) returns (Image) {
     option (google.api.http) = {
-      put: "/api/v0/image/{id}"
+      put: "/api/v0/image/{name}"
       body: "*"
     };
   }
@@ -49,13 +49,13 @@ service ImageService {
 
   rpc RegisterBlockStorage(RegisterBlockStorageRequest) returns (Image) {
     option (google.api.http) = {
-      post: "/api/v0/image/{name}/registered_block_storage/{block_storage_name}"
+      post: "/api/v0/image/{image_name}/registered_block_storage/{block_storage_name}"
       body: "*"
     };
   }
   rpc UnregisterBlockStorage(UnregisterBlockStorageRequest) returns (Image) {
     option (google.api.http) = {
-      delete: "/api/v0/image/{name}/registered_block_storage/{block_storage_name}"
+      delete: "/api/v0/image/{image_name}/registered_block_storage/{block_storage_name}"
     };    
   }
   rpc GenerateBlockStorage(GenerateBlockStorageRequest) returns (n0stack.provisioning.BlockStorage) {}

@@ -45,7 +45,7 @@ service NetworkService {
   }
   rpc ApplyNetwork(ApplyNetworkRequest) returns (Network) {
     option (google.api.http) = {
-      put: "/api/v0/network/{id}"
+      put: "/api/v0/network/{name}"
       body: "*"
     };
   }

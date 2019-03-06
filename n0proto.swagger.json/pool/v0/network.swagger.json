@@ -30,6 +30,82 @@
           "NetworkService"
         ]
       }
+    },
+    "/api/v0/network/{name}": {
+      "get": {
+        "operationId": "GetNetwork",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/poolNetwork"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "NetworkService"
+        ]
+      },
+      "delete": {
+        "operationId": "DeleteNetwork",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "NetworkService"
+        ]
+      },
+      "put": {
+        "operationId": "ApplyNetwork",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/poolNetwork"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/poolApplyNetworkRequest"
+            }
+          }
+        ],
+        "tags": [
+          "NetworkService"
+        ]
+      }
     }
   },
   "definitions": {
@@ -59,6 +135,29 @@
           "type": "string"
         },
         "ipv6_address": {
+          "type": "string"
+        }
+      }
+    },
+    "poolApplyNetworkRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "ipv4_cidr": {
+          "type": "string"
+        },
+        "ipv6_cidr": {
+          "type": "string"
+        },
+        "domain": {
           "type": "string"
         }
       }

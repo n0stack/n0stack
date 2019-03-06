@@ -30,6 +30,30 @@
           "NodeService"
         ]
       }
+    },
+    "/api/v0/node/{name}": {
+      "get": {
+        "operationId": "GetNode",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/poolNode"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "NodeService"
+        ]
+      }
     }
   },
   "definitions": {
