@@ -7,11 +7,14 @@ import (
 	"net/http"
 	"os"
 
+	pdeployment "github.com/n0stack/n0stack/n0proto.go/deployment/v0"
+
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
 
 	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	pprovisioning "github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
 )
 
 var version = "undefined"
@@ -66,8 +69,21 @@ func ServeBFF(c *cli.Context) error {
 
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithInsecure()}
-	err := ppool.RegisterNodeServiceHandlerFromEndpoint(ctx, mux, "api:20180", opts)
-	if err != nil {
+
+	// とりあえず動くようにした。
+	if err := ppool.RegisterNetworkServiceHandlerFromEndpoint(ctx, mux, "api:20180", opts); err != nil {
+		return err
+	}
+	if err := pprovisioning.RegisterBlockStorageServiceHandlerFromEndpoint(ctx, mux, "api:20180", opts); err != nil {
+		return err
+	}
+	if err := pprovisioning.RegisterVirtualMachineServiceHandlerFromEndpoint(ctx, mux, "api:20180", opts); err != nil {
+		return err
+	}
+	if err := pdeployment.RegisterImageServiceHandlerFromEndpoint(ctx, mux, "api:20180", opts); err != nil {
+		return err
+	}
+	if err := ppool.RegisterNodeServiceHandlerFromEndpoint(ctx, mux, "api:20180", opts); err != nil {
 		return err
 	}
 

@@ -38,9 +38,22 @@ service NetworkService {
       get: "/api/v0/network"
     };
   }
-  rpc GetNetwork(GetNetworkRequest) returns (Network) {}
-  rpc ApplyNetwork(ApplyNetworkRequest) returns (Network) {}
-  rpc DeleteNetwork(DeleteNetworkRequest) returns (google.protobuf.Empty) {}
+  rpc GetNetwork(GetNetworkRequest) returns (Network) {
+    option (google.api.http) = {
+      get: "/api/v0/network/{name}"
+    };
+  }
+  rpc ApplyNetwork(ApplyNetworkRequest) returns (Network) {
+    option (google.api.http) = {
+      put: "/api/v0/network/{id}"
+      body: "*"
+    };
+  }
+  rpc DeleteNetwork(DeleteNetworkRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v0/network/{name}"
+    };
+  }
 
   rpc ReserveNetworkInterface(ReserveNetworkInterfaceRequest) returns (Network) {}
   rpc ReleaseNetworkInterface(ReleaseNetworkInterfaceRequest) returns (google.protobuf.Empty) {}

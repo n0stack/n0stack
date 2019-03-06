@@ -62,21 +62,47 @@ service VirtualMachineService {
       get: "/api/v0/virtual_machine"
     };
   }
-  rpc GetVirtualMachine(GetVirtualMachineRequest) returns (VirtualMachine) {}
+  rpc GetVirtualMachine(GetVirtualMachineRequest) returns (VirtualMachine) {
+    option (google.api.http) = {
+      get: "/api/v0/virtual_machine/{name}"
+    };
+  }
   rpc UpdateVirtualMachine(UpdateVirtualMachineRequest) returns (VirtualMachine) {}
-  rpc DeleteVirtualMachine(DeleteVirtualMachineRequest) returns (google.protobuf.Empty) {}
+  rpc DeleteVirtualMachine(DeleteVirtualMachineRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v0/virtual_machine/{name}"
+    };
+  }
 
   // VM actions
   // -> RUNNING
-  rpc BootVirtualMachine(BootVirtualMachineRequest) returns (VirtualMachine) {}
+  rpc BootVirtualMachine(BootVirtualMachineRequest) returns (VirtualMachine) {
+    option (google.api.http) = {
+      get: "/api/v0/virtual_machine/{name}:boot"
+    };
+  }
   // RUNNING -> RUNNING
-  rpc RebootVirtualMachine(RebootVirtualMachineRequest) returns (VirtualMachine) {}
+  rpc RebootVirtualMachine(RebootVirtualMachineRequest) returns (VirtualMachine) {
+    option (google.api.http) = {
+      get: "/api/v0/virtual_machine/{name}:reboot"
+    };
+  }
   // RUNNING -> SHUTDOWN
-  rpc ShutdownVirtualMachine(ShutdownVirtualMachineRequest) returns (VirtualMachine) {}
-  // RUNNING -> PAUSED
-  rpc SaveVirtualMachine(SaveVirtualMachineRequest) returns (VirtualMachine) {}
+  rpc ShutdownVirtualMachine(ShutdownVirtualMachineRequest) returns (VirtualMachine) {
+    option (google.api.http) = {
+      get: "/api/v0/virtual_machine/{name}:shutdown"
+    };
+  }
 
-  rpc OpenConsole(OpenConsoleRequest) returns (OpenConsoleResponse) {}
+  // RUNNING -> PAUSED
+  // TODO: I doubt the necessity of this end point
+  rpc SaveVirtualMachine(SaveVirtualMachineRequest) returns (VirtualMachine) {}
+  
+  rpc OpenConsole(OpenConsoleRequest) returns (OpenConsoleResponse) {
+    option (google.api.http) = {
+      get: "/api/v0/virtual_machine/{name}:open_console"
+    };
+  }
 
   // rpc MigrateVirtualMachine(MigrateVirtualMachineRequest) returns (VirtualMachine) {}
 }

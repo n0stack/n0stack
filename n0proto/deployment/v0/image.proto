@@ -30,16 +30,47 @@ service ImageService {
       get: "/api/v0/image"
     };
   }
-  rpc GetImage(GetImageRequest) returns (Image) {}
-  rpc ApplyImage(ApplyImageRequest) returns (Image) {}
-  rpc DeleteImage(DeleteImageRequest) returns (google.protobuf.Empty) {}
+  rpc GetImage(GetImageRequest) returns (Image) {
+    option (google.api.http) = {
+      get: "/api/v0/image/{name}"
+    };
+  }
+  rpc ApplyImage(ApplyImageRequest) returns (Image) {
+    option (google.api.http) = {
+      put: "/api/v0/image/{id}"
+      body: "*"
+    };
+  }
+  rpc DeleteImage(DeleteImageRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v0/image/{name}"
+    };
+  }
 
-  rpc RegisterBlockStorage(RegisterBlockStorageRequest) returns (Image) {}
-  rpc UnregisterBlockStorage(UnregisterBlockStorageRequest) returns (Image) {}
+  rpc RegisterBlockStorage(RegisterBlockStorageRequest) returns (Image) {
+    option (google.api.http) = {
+      post: "/api/v0/image/{name}/registered_block_storage/{block_storage_name}"
+      body: "*"
+    };
+  }
+  rpc UnregisterBlockStorage(UnregisterBlockStorageRequest) returns (Image) {
+    option (google.api.http) = {
+      delete: "/api/v0/image/{name}/registered_block_storage/{block_storage_name}"
+    };    
+  }
   rpc GenerateBlockStorage(GenerateBlockStorageRequest) returns (n0stack.provisioning.BlockStorage) {}
 
-  rpc TagImage(TagImageRequest) returns (Image) {}
-  rpc UntagImage(UntagImageRequest) returns (Image) {}
+  rpc TagImage(TagImageRequest) returns (Image) {
+    // option (google.api.http) = {
+    //   post: "/api/v0/image/{name}/tag/{tag}"
+    //   body: "*"
+    // };
+  }
+  rpc UntagImage(UntagImageRequest) returns (Image) {
+    option (google.api.http) = {
+      delete: "/api/v0/image/{name}/tag/{tag}"
+    };
+  }
 }
 
 
@@ -88,6 +119,11 @@ message TagImageRequest {
   string block_storage_name = 2;
 
   repeated string tags = 3;
+
+  // TODO: 多分こう
+  // string image_name = 1;
+  // string block_storage_name = 2;
+  // string tag = 3;
 }
 message UntagImageRequest {
   string name = 1;

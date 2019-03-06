@@ -48,11 +48,26 @@ service BlockStorageService {
     };
   }
 
-  rpc GetBlockStorage(GetBlockStorageRequest) returns (BlockStorage) {}
+  rpc GetBlockStorage(GetBlockStorageRequest) returns (BlockStorage) {
+    option (google.api.http) = {
+      get: "/api/v0/block_storage/{name}"
+    };
+  }
 
   rpc UpdateBlockStorage(UpdateBlockStorageRequest) returns (BlockStorage) {}
 
-  rpc DeleteBlockStorage(DeleteBlockStorageRequest) returns (google.protobuf.Empty) {}
+  rpc DeleteBlockStorage(DeleteBlockStorageRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v0/block_storage/{name}"
+    };
+  }
+
+  rpc DownloadBlockStorage(DownloadBlockStorageRequest) returns (DownloadBlockStorageResponse) {
+    option (google.api.http) = {
+      get: "/api/v0/block_storage/{name}:download"
+    };
+  }
+
 
   // AVAILABLE -> IN_USE
   rpc SetInuseBlockStorage(SetInuseBlockStorageRequest) returns (BlockStorage) {}
@@ -61,7 +76,6 @@ service BlockStorageService {
   // AVAILABLE -> PROTECTED
   rpc SetProtectedBlockStorage(SetProtectedBlockStorageRequest) returns (BlockStorage) {}
 
-  rpc DownloadBlockStorage(DownloadBlockStorageRequest) returns (DownloadBlockStorageResponse) {}
 
   // // when AVAILABLE, not IN_USE
   // rpc MigrateBlockStorage(MigrateBlockStorageRequest) returns (BlockStorage) {}

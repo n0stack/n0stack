@@ -30,6 +30,76 @@
           "BlockStorageService"
         ]
       }
+    },
+    "/api/v0/block_storage/{name}": {
+      "get": {
+        "operationId": "GetBlockStorage",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/provisioningBlockStorage"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BlockStorageService"
+        ]
+      },
+      "delete": {
+        "operationId": "DeleteBlockStorage",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BlockStorageService"
+        ]
+      }
+    },
+    "/api/v0/block_storage/{name}:download": {
+      "get": {
+        "operationId": "DownloadBlockStorage",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/provisioningDownloadBlockStorageResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BlockStorageService"
+        ]
+      }
     }
   },
   "definitions": {

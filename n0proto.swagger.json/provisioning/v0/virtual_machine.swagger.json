@@ -30,6 +30,165 @@
           "VirtualMachineService"
         ]
       }
+    },
+    "/api/v0/virtual_machine/{name}": {
+      "get": {
+        "operationId": "GetVirtualMachine",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/provisioningVirtualMachine"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "VirtualMachineService"
+        ]
+      },
+      "delete": {
+        "operationId": "DeleteVirtualMachine",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "VirtualMachineService"
+        ]
+      }
+    },
+    "/api/v0/virtual_machine/{name}:boot": {
+      "get": {
+        "summary": "VM actions\n-\u003e RUNNING",
+        "operationId": "BootVirtualMachine",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/provisioningVirtualMachine"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "VirtualMachineService"
+        ]
+      }
+    },
+    "/api/v0/virtual_machine/{name}:open_console": {
+      "get": {
+        "operationId": "OpenConsole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/provisioningOpenConsoleResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "VirtualMachineService"
+        ]
+      }
+    },
+    "/api/v0/virtual_machine/{name}:reboot": {
+      "get": {
+        "summary": "RUNNING -\u003e RUNNING",
+        "operationId": "RebootVirtualMachine",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/provisioningVirtualMachine"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "hard",
+            "in": "query",
+            "required": false,
+            "type": "boolean",
+            "format": "boolean"
+          }
+        ],
+        "tags": [
+          "VirtualMachineService"
+        ]
+      }
+    },
+    "/api/v0/virtual_machine/{name}:shutdown": {
+      "get": {
+        "summary": "RUNNING -\u003e SHUTDOWN",
+        "operationId": "ShutdownVirtualMachine",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/provisioningVirtualMachine"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "hard",
+            "in": "query",
+            "required": false,
+            "type": "boolean",
+            "format": "boolean"
+          }
+        ],
+        "tags": [
+          "VirtualMachineService"
+        ]
+      }
     }
   },
   "definitions": {
