@@ -1,0 +1,169 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "provisioning/v0/block_storage.proto",
+    "version": "version not set"
+  },
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/v0/block_storage": {
+      "get": {
+        "operationId": "ListBlockStorages",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/provisioningListBlockStoragesResponse"
+            }
+          }
+        },
+        "tags": [
+          "BlockStorageService"
+        ]
+      }
+    },
+    "/api/v0/block_storage/{name}": {
+      "get": {
+        "operationId": "GetBlockStorage",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/provisioningBlockStorage"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BlockStorageService"
+        ]
+      },
+      "delete": {
+        "operationId": "DeleteBlockStorage",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BlockStorageService"
+        ]
+      }
+    },
+    "/api/v0/block_storage/{name}:download": {
+      "get": {
+        "operationId": "DownloadBlockStorage",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/provisioningDownloadBlockStorageResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BlockStorageService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "BlockStorageBlockStorageState": {
+      "type": "string",
+      "enum": [
+        "UNKNOWN",
+        "PENDING",
+        "AVAILABLE",
+        "IN_USE",
+        "PROTECTED"
+      ],
+      "default": "UNKNOWN",
+      "title": "- UNKNOWN: unknown state because failed to connect for scheduled node after RUNNING\n - PENDING: working API"
+    },
+    "provisioningBlockStorage": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "request_bytes": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "limit_bytes": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "state": {
+          "$ref": "#/definitions/BlockStorageBlockStorageState"
+        },
+        "node_name": {
+          "type": "string"
+        },
+        "storage_name": {
+          "type": "string"
+        }
+      }
+    },
+    "provisioningDownloadBlockStorageResponse": {
+      "type": "object",
+      "properties": {
+        "download_url": {
+          "type": "string"
+        }
+      }
+    },
+    "provisioningListBlockStoragesResponse": {
+      "type": "object",
+      "properties": {
+        "block_storages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/provisioningBlockStorage"
+          }
+        }
+      }
+    }
+  }
+}

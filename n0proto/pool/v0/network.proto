@@ -4,6 +4,7 @@ option go_package = "github.com/n0stack/n0stack/n0proto.go/pool/v0;ppool";
 
 package n0stack.pool;
 
+import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "budget/v0/network_interface.proto";
 
@@ -32,10 +33,27 @@ message Network {
 
 
 service NetworkService {
-  rpc ListNetworks(ListNetworksRequest) returns (ListNetworksResponse) {}
-  rpc GetNetwork(GetNetworkRequest) returns (Network) {}
-  rpc ApplyNetwork(ApplyNetworkRequest) returns (Network) {}
-  rpc DeleteNetwork(DeleteNetworkRequest) returns (google.protobuf.Empty) {}
+  rpc ListNetworks(ListNetworksRequest) returns (ListNetworksResponse) {
+    option (google.api.http) = {
+      get: "/api/v0/network"
+    };
+  }
+  rpc GetNetwork(GetNetworkRequest) returns (Network) {
+    option (google.api.http) = {
+      get: "/api/v0/network/{name}"
+    };
+  }
+  rpc ApplyNetwork(ApplyNetworkRequest) returns (Network) {
+    option (google.api.http) = {
+      put: "/api/v0/network/{name}"
+      body: "*"
+    };
+  }
+  rpc DeleteNetwork(DeleteNetworkRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v0/network/{name}"
+    };
+  }
 
   rpc ReserveNetworkInterface(ReserveNetworkInterfaceRequest) returns (Network) {}
   rpc ReleaseNetworkInterface(ReleaseNetworkInterfaceRequest) returns (google.protobuf.Empty) {}
