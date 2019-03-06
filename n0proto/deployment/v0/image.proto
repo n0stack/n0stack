@@ -4,6 +4,7 @@ option go_package = "github.com/n0stack/n0stack/n0proto.go/deployment/v0;pdeploy
 
 package n0stack.deployment;
 
+import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "provisioning/v0/block_storage.proto";
@@ -24,7 +25,11 @@ message Image {
 
 
 service ImageService {
-  rpc ListImages(ListImagesRequest) returns (ListImagesResponse) {}
+  rpc ListImages(ListImagesRequest) returns (ListImagesResponse) {
+    option (google.api.http) = {
+      get: "/api/v0/image"
+    };
+  }
   rpc GetImage(GetImageRequest) returns (Image) {}
   rpc ApplyImage(ApplyImageRequest) returns (Image) {}
   rpc DeleteImage(DeleteImageRequest) returns (google.protobuf.Empty) {}

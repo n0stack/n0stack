@@ -4,6 +4,7 @@ option go_package = "github.com/n0stack/n0stack/n0proto.go/provisioning/v0;pprov
 
 package n0stack.provisioning;
 
+import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
 
@@ -56,7 +57,11 @@ message VirtualMachine {
 
 service VirtualMachineService {
   rpc CreateVirtualMachine(CreateVirtualMachineRequest) returns (VirtualMachine) {}
-  rpc ListVirtualMachines(ListVirtualMachinesRequest) returns (ListVirtualMachinesResponse) {}
+  rpc ListVirtualMachines(ListVirtualMachinesRequest) returns (ListVirtualMachinesResponse) {
+    option (google.api.http) = {
+      get: "/api/v0/virtual_machine"
+    };
+  }
   rpc GetVirtualMachine(GetVirtualMachineRequest) returns (VirtualMachine) {}
   rpc UpdateVirtualMachine(UpdateVirtualMachineRequest) returns (VirtualMachine) {}
   rpc DeleteVirtualMachine(DeleteVirtualMachineRequest) returns (google.protobuf.Empty) {}

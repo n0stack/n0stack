@@ -4,6 +4,7 @@ option go_package = "github.com/n0stack/n0stack/n0proto.go/provisioning/v0;pprov
 
 package n0stack.provisioning;
 
+import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
 
@@ -41,7 +42,11 @@ service BlockStorageService {
   rpc CopyBlockStorage(CopyBlockStorageRequest) returns (BlockStorage) {}
   // rpc UploadBlockStorage(stream UploadBlockStorageRequest) returns (BlockStorage) {}
 
-  rpc ListBlockStorages(ListBlockStoragesRequest) returns (ListBlockStoragesResponse) {}
+  rpc ListBlockStorages(ListBlockStoragesRequest) returns (ListBlockStoragesResponse) {
+    option (google.api.http) = {
+      get: "/api/v0/block_storage"
+    };
+  }
 
   rpc GetBlockStorage(GetBlockStorageRequest) returns (BlockStorage) {}
 

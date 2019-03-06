@@ -1,0 +1,170 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "pool/v0/node.proto",
+    "version": "version not set"
+  },
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/v0/node": {
+      "get": {
+        "operationId": "ListNodes",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/poolListNodesResponse"
+            }
+          }
+        },
+        "tags": [
+          "NodeService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "NodeNodeState": {
+      "type": "string",
+      "enum": [
+        "NotReady",
+        "Ready"
+      ],
+      "default": "NotReady"
+    },
+    "budgetCompute": {
+      "type": "object",
+      "properties": {
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "request_cpu_milli_core": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "limit_cpu_milli_core": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "request_memory_bytes": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "limit_memory_bytes": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "budgetStorage": {
+      "type": "object",
+      "properties": {
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "request_bytes": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "limit_bytes": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "poolListNodesResponse": {
+      "type": "object",
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/poolNode"
+          }
+        }
+      }
+    },
+    "poolNode": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "address": {
+          "type": "string"
+        },
+        "ipmi_address": {
+          "type": "string"
+        },
+        "serial": {
+          "type": "string"
+        },
+        "cpu_milli_cores": {
+          "type": "integer",
+          "format": "int64",
+          "title": "budget pool"
+        },
+        "memory_bytes": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "storage_bytes": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "datacenter": {
+          "type": "string",
+          "title": "physical placement"
+        },
+        "availability_zone": {
+          "type": "string"
+        },
+        "cell": {
+          "type": "string"
+        },
+        "rack": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "state": {
+          "$ref": "#/definitions/NodeNodeState"
+        },
+        "reserved_computes": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/budgetCompute"
+          }
+        },
+        "reserved_storages": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/budgetStorage"
+          }
+        }
+      }
+    }
+  }
+}

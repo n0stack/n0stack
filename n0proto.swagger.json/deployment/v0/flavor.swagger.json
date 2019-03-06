@@ -1,0 +1,164 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "deployment/v0/flavor.proto",
+    "version": "version not set"
+  },
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {},
+  "definitions": {
+    "VirtualMachineVirtualMachineState": {
+      "type": "string",
+      "enum": [
+        "UNKNOWN",
+        "PENDING",
+        "RUNNING",
+        "SHUTDOWN",
+        "PAUSED"
+      ],
+      "default": "UNKNOWN",
+      "title": "- UNKNOWN: unknown state because failed to connect for scheduled node after RUNNING.\n - PENDING: working API\n - RUNNING: running vm"
+    },
+    "deploymentFlavor": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "limit_cpu_milli_core": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "limit_memory_bytes": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "limit_storage_bytes": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "network_name": {
+          "type": "string"
+        }
+      }
+    },
+    "deploymentListFlavorsResponse": {
+      "type": "object",
+      "properties": {
+        "flavors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/deploymentFlavor"
+          }
+        }
+      }
+    },
+    "provisioningVirtualMachine": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "request_cpu_milli_core": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "limit_cpu_milli_core": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "request_memory_bytes": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "limit_memory_bytes": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "block_storage_names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "nics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/provisioningVirtualMachineNIC"
+          }
+        },
+        "uuid": {
+          "type": "string"
+        },
+        "login_username": {
+          "type": "string"
+        },
+        "ssh_authorized_keys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "state": {
+          "$ref": "#/definitions/VirtualMachineVirtualMachineState"
+        },
+        "compute_node_name": {
+          "type": "string"
+        },
+        "compute_name": {
+          "type": "string"
+        },
+        "network_interface_names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "provisioningVirtualMachineNIC": {
+      "type": "object",
+      "properties": {
+        "network_name": {
+          "type": "string"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "hardware_address": {
+          "type": "string"
+        },
+        "ipv4_address": {
+          "type": "string"
+        },
+        "ipv6_address": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

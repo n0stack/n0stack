@@ -1,0 +1,129 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "deployment/v0/image.proto",
+    "version": "version not set"
+  },
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/v0/image": {
+      "get": {
+        "operationId": "ListImages",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/deploymentListImagesResponse"
+            }
+          }
+        },
+        "tags": [
+          "ImageService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "BlockStorageBlockStorageState": {
+      "type": "string",
+      "enum": [
+        "UNKNOWN",
+        "PENDING",
+        "AVAILABLE",
+        "IN_USE",
+        "PROTECTED"
+      ],
+      "default": "UNKNOWN",
+      "title": "- UNKNOWN: unknown state because failed to connect for scheduled node after RUNNING\n - PENDING: working API"
+    },
+    "ImageRegisteredBlockStorage": {
+      "type": "object",
+      "properties": {
+        "block_storage_name": {
+          "type": "string"
+        },
+        "registered_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "deploymentImage": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "registered_block_storages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImageRegisteredBlockStorage"
+          }
+        },
+        "tags": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "deploymentListImagesResponse": {
+      "type": "object",
+      "properties": {
+        "images": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/deploymentImage"
+          }
+        }
+      }
+    },
+    "provisioningBlockStorage": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "request_bytes": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "limit_bytes": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "state": {
+          "$ref": "#/definitions/BlockStorageBlockStorageState"
+        },
+        "node_name": {
+          "type": "string"
+        },
+        "storage_name": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

@@ -6,11 +6,11 @@ VERSION=$(shell cat VERSION)
 
 # --- Deployment ---
 .PHONY: up
-up: build-n0core-on-docker
+up: build-n0core-on-docker build-n0bff-on-docker
 	mkdir -p sandbox
-	docker-compose up -d --scale mock_agent=0
+	docker-compose up -d
 	docker-compose restart api # reload binary
-
+	docker-compose restart bff # reload binary
 
 # --- Build ---
 .PHONY: all
@@ -53,6 +53,20 @@ build-n0cli-on-docker:
 		n0stack/build-go \
 			make build-n0cli
 
+.PHONY: build-n0bff
+build-n0bff:
+	GOOS=${GOOS} GOARCH=${GOARCH} go build -o bin/n0bff -ldflags "-X main.version=$(VERSION)" -v ./n0bff
+
+.PHONY: build-n0bff-on-docker
+build-n0bff-on-docker:
+	docker run -it --rm \
+		-v $(PWD)/.go-build:/root/.cache/go-build/ \
+		-v $(PWD):/go/src/github.com/n0stack/n0stack \
+		-w /go/src/github.com/n0stack/n0stack \
+		-e GO111MODULE=off \
+		n0stack/build-go \
+			make build-n0bff
+
 .PHONY: build-builder
 build-builder:
 	docker build -t n0stack/build-grpc-go build/grpc/go
@@ -65,8 +79,12 @@ build-n0proto-on-docker:
 		-v $(PWD)/n0proto:/src:ro \
 		-v `go env GOPATH`/src:/dst \
 		n0stack/build-grpc-go \
-			/entry_point.sh --go_out=plugins=grpc:/dst
+			/entry_point.sh \
+			  --go_out=plugins=grpc:/dst \
+				--grpc-gateway_out=logtostderr=true:/dst \
+				--swagger_out=logtostderr=true:/dst/github.com/n0stack/n0stack/n0proto.swagger.json
 	sudo chown -R $(USER) n0proto.go
+	sudo chown -R $(USER) n0proto.swagger.json
 	docker run -it --rm \
 		-v $(PWD)/n0proto:/src:ro \
 		-v $(PWD)/n0proto.py:/dst \
@@ -196,6 +214,7 @@ test-small-on-docker: test-small-n0proto
 test-small-n0proto: build-n0proto-on-docker
 	# git diff --name-status --exit-code n0proto.py
 	git diff --name-status --exit-code n0proto.go
+	git diff --name-status --exit-code n0proto.swagger.json
 
 test-small-go:
 	go test -race -cover ./...

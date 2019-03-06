@@ -1,0 +1,110 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "pool/v0/network.proto",
+    "version": "version not set"
+  },
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/v0/network": {
+      "get": {
+        "operationId": "ListNetworks",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/poolListNetworksResponse"
+            }
+          }
+        },
+        "tags": [
+          "NetworkService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "NetworkNetworkState": {
+      "type": "string",
+      "enum": [
+        "FAILED",
+        "UNKNOWN",
+        "AVAILABLE"
+      ],
+      "default": "FAILED",
+      "description": " - FAILED: falied state because failed some process on API.\n - UNKNOWN: unknown state because failed to connect for scheduled node after RUNNING."
+    },
+    "budgetNetworkInterface": {
+      "type": "object",
+      "properties": {
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "hardware_address": {
+          "type": "string"
+        },
+        "ipv4_address": {
+          "type": "string"
+        },
+        "ipv6_address": {
+          "type": "string"
+        }
+      }
+    },
+    "poolListNetworksResponse": {
+      "type": "object",
+      "properties": {
+        "networks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/poolNetwork"
+          }
+        }
+      }
+    },
+    "poolNetwork": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "ipv4_cidr": {
+          "type": "string"
+        },
+        "ipv6_cidr": {
+          "type": "string"
+        },
+        "domain": {
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/definitions/NetworkNetworkState"
+        },
+        "reserved_network_interfaces": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/budgetNetworkInterface"
+          }
+        }
+      }
+    }
+  }
+}

@@ -4,6 +4,7 @@ option go_package = "github.com/n0stack/n0stack/n0proto.go/pool/v0;ppool";
 
 package n0stack.pool;
 
+import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "budget/v0/compute.proto";
 import "budget/v0/storage.proto";
@@ -42,7 +43,11 @@ message Node {
 
 
 service NodeService {
-  rpc ListNodes(ListNodesRequest) returns (ListNodesResponse) {}
+  rpc ListNodes(ListNodesRequest) returns (ListNodesResponse) {
+    option (google.api.http) = {
+      get: "/api/v0/node"
+    };
+  }
   rpc GetNode(GetNodeRequest) returns (Node) {}
   rpc ApplyNode(ApplyNodeRequest) returns (Node) {}
   rpc DeleteNode(DeleteNodeRequest) returns (google.protobuf.Empty) {}
