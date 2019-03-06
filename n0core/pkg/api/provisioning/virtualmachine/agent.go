@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"time"
 
 	empty "github.com/golang/protobuf/ptypes/empty"
 	"github.com/pkg/errors"
@@ -15,6 +16,8 @@ import (
 	"golang.org/x/crypto/ssh"
 	"google.golang.org/grpc/codes"
 
+	"github.com/n0stack/n0stack/n0core/pkg/datastore"
+	"github.com/n0stack/n0stack/n0core/pkg/datastore/lock"
 	"github.com/n0stack/n0stack/n0core/pkg/driver/cloudinit/configdrive"
 	"github.com/n0stack/n0stack/n0core/pkg/driver/iproute2"
 	"github.com/n0stack/n0stack/n0core/pkg/driver/qemu"
@@ -31,6 +34,7 @@ const (
 
 type VirtualMachineAgent struct {
 	baseDirectory string
+	bridgeMutex   lock.MutexTable
 }
 
 func CreateVirtualMachineAgent(basedir string) (*VirtualMachineAgent, error) {
@@ -47,6 +51,7 @@ func CreateVirtualMachineAgent(basedir string) (*VirtualMachineAgent, error) {
 
 	return &VirtualMachineAgent{
 		baseDirectory: b,
+		bridgeMutex:   lock.NewMemoryMutexTable(100),
 	}, nil
 }
 
@@ -111,72 +116,87 @@ func (a VirtualMachineAgent) BootVirtualMachine(ctx context.Context, req *BootVi
 		eth := make([]*configdrive.CloudConfigEthernet, len(req.Netdevs))
 		{
 			for i, nd := range req.Netdevs {
-				b, err := iproute2.AquireBridge(netutil.StructLinuxNetdevName(nd.NetworkName))
-				if err != nil {
-					return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to create bridge '%s': err='%s'", nd.NetworkName, err.Error())
-				}
-				tx.PushRollback("delete created bridge", func() error {
-					if _, err = b.DeleteIfNoSlave(); err != nil {
-						return fmt.Errorf("Failed to delete bridge '%s': err='%s'", b.Name(), err.Error())
+				err := func() error {
+					bn := netutil.StructLinuxNetdevName(nd.NetworkName)
+					if !lock.WaitUntilLock(a.bridgeMutex, bn, 5*time.Second, 10*time.Millisecond) {
+						return errors.Wrapf(datastore.LockError(), "Faild to lock bridge '%s'")
+					}
+					defer a.bridgeMutex.Unlock(bn)
+
+					b, err := iproute2.NewBridge(bn)
+					if err != nil {
+						return errors.Wrapf(err, "Failed to create bridge '%s'", nd.NetworkName)
+					}
+					tx.PushRollback("delete created bridge", func() error {
+						if !lock.WaitUntilLock(a.bridgeMutex, b.Name(), 5*time.Second, 10*time.Millisecond) {
+							return fmt.Errorf("Failed to lock bridge '%s': err='%s'", b.Name(), datastore.LockError().Error())
+						}
+						defer a.bridgeMutex.Unlock(b.Name())
+
+						if _, err = b.DeleteIfNoSlave(); err != nil {
+							return fmt.Errorf("Failed to delete bridge '%s': err='%s'", b.Name(), err.Error())
+						}
+
+						return nil
+					})
+
+					t, err := iproute2.NewTap(netutil.StructLinuxNetdevName(nd.Name))
+					if err != nil {
+						return grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to create tap '%s': err='%s'", nd.Name, err.Error())
+					}
+					tx.PushRollback("delete created tap", func() error {
+						if err := t.Delete(); err != nil {
+							return fmt.Errorf("Failed to delete tap '%s': err='%s'", nd.Name, err.Error())
+						}
+
+						return nil
+					})
+					if err := t.SetMaster(b); err != nil {
+						return errors.Wrapf(err, "Failed to set master of tap '%s' as '%s'", t.Name(), b.Name())
 					}
 
-					return nil
-				})
-
-				t, err := iproute2.NewTap(netutil.StructLinuxNetdevName(nd.Name))
-				if err != nil {
-					return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to create tap '%s': err='%s'", nd.Name, err.Error())
-				}
-				tx.PushRollback("delete created tap", func() error {
-					if err := t.Delete(); err != nil {
-						return fmt.Errorf("Failed to delete tap '%s': err='%s'", nd.Name, err.Error())
+					hw, err := net.ParseMAC(nd.HardwareAddress)
+					if err != nil {
+						return errors.Wrapf(err, "Hardware address '%s' is invalid on netdev '%s'", nd.HardwareAddress, nd.Name)
+					}
+					if err := q.AttachTap(nd.Name, t.Name(), hw); err != nil {
+						return errors.Wrapf(err, "Failed to attach tap")
 					}
 
-					return nil
-				})
-				if err := t.SetMaster(b); err != nil {
-					return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to set master of tap '%s' as '%s': err='%s'", t.Name(), b.Name(), err.Error())
-				}
-
-				hw, err := net.ParseMAC(nd.HardwareAddress)
-				if err != nil {
-					return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Hardware address '%s' is invalid on netdev '%s'", nd.HardwareAddress, nd.Name)
-				}
-				if err := q.AttachTap(nd.Name, t.Name(), hw); err != nil {
-					return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to attach tap: err='%s'", err.Error())
-				}
-
-				// Cloudinit settings
-				eth[i] = &configdrive.CloudConfigEthernet{
-					MacAddress: hw,
-				}
-
-				if nd.Ipv4AddressCidr != "" {
-					ip := netutil.ParseCIDR(nd.Ipv4AddressCidr)
-					if ip == nil {
-						return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Set valid ipv4_address_cidr: value='%s'", nd.Ipv4AddressCidr)
-					}
-					nameservers := make([]net.IP, len(nd.Nameservers))
-					for i, n := range nd.Nameservers {
-						nameservers[i] = net.ParseIP(n)
+					// Cloudinit settings
+					eth[i] = &configdrive.CloudConfigEthernet{
+						MacAddress: hw,
 					}
 
-					eth[i].Address4 = ip
-					eth[i].Gateway4 = net.ParseIP(nd.Ipv4Gateway)
-					eth[i].NameServers = nameservers
+					if nd.Ipv4AddressCidr != "" {
+						ip := netutil.ParseCIDR(nd.Ipv4AddressCidr)
+						if ip == nil {
+							return fmt.Errorf("Set valid ipv4_address_cidr: value='%s'", nd.Ipv4AddressCidr)
+						}
+						nameservers := make([]net.IP, len(nd.Nameservers))
+						for i, n := range nd.Nameservers {
+							nameservers[i] = net.ParseIP(n)
+						}
 
-					// Gateway settings
-					if nd.Ipv4Gateway != "" {
-						mask := ip.SubnetMaskBits()
-						gatewayIP := fmt.Sprintf("%s/%d", nd.Ipv4Gateway, mask)
-						if err := b.SetAddress(gatewayIP); err != nil {
-							return nil, grpcutil.WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to set gateway IP to bridge: value=%s", gatewayIP).Error())
+						eth[i].Address4 = ip
+						eth[i].Gateway4 = net.ParseIP(nd.Ipv4Gateway)
+						eth[i].NameServers = nameservers
+
+						// Gateway settings
+						if nd.Ipv4Gateway != "" {
+							mask := ip.SubnetMaskBits()
+							gatewayIP := fmt.Sprintf("%s/%d", nd.Ipv4Gateway, mask)
+							if err := b.SetAddress(gatewayIP); err != nil {
+								return errors.Wrapf(err, "Failed to set gateway IP to bridge: value=%s", gatewayIP)
+							}
 						}
 					}
-				}
 
-				if err := b.Release(); err != nil {
-					return nil, err
+					return nil
+				}()
+
+				if err != nil {
+					return nil, grpcutil.WrapGrpcErrorf(codes.Internal, err.Error())
 				}
 			}
 		}
@@ -292,13 +312,27 @@ func (a VirtualMachineAgent) DeleteVirtualMachine(ctx context.Context, req *Dele
 			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "") // TODO #89
 		}
 
-		b, err := iproute2.AquireBridge(netutil.StructLinuxNetdevName(nd.NetworkName))
-		if err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to create bridge '%s'", nd.NetworkName).Error())
-		}
+		err = func() error {
+			bn := netutil.StructLinuxNetdevName(nd.NetworkName)
+			if !lock.WaitUntilLock(a.bridgeMutex, bn, 5*time.Second, 10*time.Millisecond) {
+				return errors.Wrapf(datastore.LockError(), "Faild to lock bridge '%s'")
+			}
+			defer a.bridgeMutex.Unlock(bn)
 
-		if _, err := b.DeleteIfNoSlave(); err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to delete bridge '%s'", b.Name()).Error())
+			b, err := iproute2.NewBridge(bn)
+			if err != nil {
+				return errors.Wrapf(err, "Failed to create bridge '%s'", nd.NetworkName)
+			}
+
+			if _, err := b.DeleteIfNoSlave(); err != nil {
+				return errors.Wrapf(err, "Failed to delete bridge '%s'", b.Name())
+			}
+
+			return nil
+		}()
+
+		if err != nil {
+			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, err.Error())
 		}
 	}
 
