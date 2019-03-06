@@ -119,7 +119,7 @@ func (a VirtualMachineAgent) BootVirtualMachine(ctx context.Context, req *BootVi
 				err := func() error {
 					bn := netutil.StructLinuxNetdevName(nd.NetworkName)
 					if !lock.WaitUntilLock(a.bridgeMutex, bn, 5*time.Second, 10*time.Millisecond) {
-						return errors.Wrapf(datastore.LockError(), "Faild to lock bridge '%s'")
+						return errors.Wrapf(datastore.LockError(), "Failed to lock bridge '%s'", bn)
 					}
 					defer a.bridgeMutex.Unlock(bn)
 
@@ -315,7 +315,7 @@ func (a VirtualMachineAgent) DeleteVirtualMachine(ctx context.Context, req *Dele
 		err = func() error {
 			bn := netutil.StructLinuxNetdevName(nd.NetworkName)
 			if !lock.WaitUntilLock(a.bridgeMutex, bn, 5*time.Second, 10*time.Millisecond) {
-				return errors.Wrapf(datastore.LockError(), "Faild to lock bridge '%s'")
+				return errors.Wrapf(datastore.LockError(), "Failed to lock bridge '%s'", bn)
 			}
 			defer a.bridgeMutex.Unlock(bn)
 
