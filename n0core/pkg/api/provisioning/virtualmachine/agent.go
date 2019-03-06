@@ -133,8 +133,12 @@ func (a VirtualMachineAgent) BootVirtualMachine(ctx context.Context, req *BootVi
 						}
 						defer a.bridgeMutex.Unlock(b.Name())
 
-						if _, err = b.DeleteIfNoSlave(); err != nil {
-							return fmt.Errorf("Failed to delete bridge '%s': err='%s'", b.Name(), err.Error())
+						if d, err := isBridgeDeletable(b); err != nil {
+							return fmt.Errorf("Failed to check whether bridge '%s' is deletable: err='%s'", b.Name(), err.Error())
+						} else if d {
+							if err = b.Delete(); err != nil {
+								return fmt.Errorf("Failed to delete bridge '%s': err='%s'", b.Name(), err.Error())
+							}
 						}
 
 						return nil
@@ -324,8 +328,12 @@ func (a VirtualMachineAgent) DeleteVirtualMachine(ctx context.Context, req *Dele
 				return errors.Wrapf(err, "Failed to create bridge '%s'", nd.NetworkName)
 			}
 
-			if _, err := b.DeleteIfNoSlave(); err != nil {
-				return errors.Wrapf(err, "Failed to delete bridge '%s'", b.Name())
+			if d, err := isBridgeDeletable(b); err != nil {
+				return errors.Wrapf(err, "Failed to check whether bridge '%s' is deletable", b.Name())
+			} else if d {
+				if err := b.Delete(); err != nil {
+					return errors.Wrapf(err, "Failed to delete bridge '%s'", b.Name())
+				}
 			}
 
 			return nil
@@ -337,6 +345,23 @@ func (a VirtualMachineAgent) DeleteVirtualMachine(ctx context.Context, req *Dele
 	}
 
 	return &empty.Empty{}, nil
+}
+
+func isBridgeDeletable(b *iproute2.Bridge) (bool, error) {
+	links, err := b.ListSlaves()
+	if err != nil {
+		return false, err
+	}
+
+	// TODO: 以下遅い気がする
+	i := 0
+	for _, l := range links {
+		if _, err := iproute2.NewTap(l); err == nil {
+			i++
+		}
+	}
+
+	return i == 0, nil
 }
 
 func GetAgentStateFromQemuState(s qemu.Status) VirtualMachineState {

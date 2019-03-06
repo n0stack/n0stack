@@ -75,7 +75,6 @@ func (b Bridge) GetIPv6() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("Failed 'ip addr show': err='%s'", err.Error())
 	}
-
 	if len(a) < 1 {
 		return "", fmt.Errorf("Do not exists IP address")
 	}
@@ -126,33 +125,8 @@ func (b *Bridge) ListSlaves() ([]string, error) {
 	return slaves, nil
 }
 
-func (b *Bridge) DeleteIfNoSlave() (bool, error) {
-	links, err := b.ListSlaves()
-	if err != nil {
-		return false, err
-	}
-
-	// TODO: 以下遅い気がする
-	i := 0
-	for _, l := range links {
-		if _, err := NewTap(l); err == nil {
-			i++
-		}
-	}
-
-	if i != 0 {
-		return false, nil
-	}
-
-	if err := b.del(); err == nil {
-		return false, err
-	}
-
-	return true, nil
-}
-
 // ip link del name $name
-func (b *Bridge) del() error {
+func (b *Bridge) Delete() error {
 	if err := netlink.LinkDel(b.link); err != nil {
 		return fmt.Errorf("Failed 'ip link del %s type bridge': err='%s'", b.name, err.Error())
 	}
