@@ -14,7 +14,7 @@ up: build-n0core-on-docker build-n0bff-on-docker
 
 # --- Build ---
 .PHONY: all
-all: build-builder vendor-on-docker build-n0proto-on-docker build-n0core-on-docker build-n0cli-on-docker
+all: build-builder vendor-on-docker build-n0proto-on-docker build-n0core-on-docker build-n0bff-on-docker build-n0cli-on-docker
 
 .PHONY: build-go
 build-go: build-n0core build-n0cli
@@ -200,9 +200,9 @@ analysis:
 	gofmt -d -s `find ./ -name "*.go" | grep -v vendor`
 	golint ./... | grep -v vendor # https://github.com/golang/lint/issues/320
 
-test-small: test-small-n0proto test-small-go
+test-small: test-small-go
 
-test-small-on-docker: test-small-n0proto
+test-small-on-docker:
 	docker run -it --rm \
 		-v $(PWD)/.go-build:/root/.cache/go-build/ \
 		-v $(PWD):/go/src/github.com/n0stack/n0stack \
@@ -214,7 +214,7 @@ test-small-on-docker: test-small-n0proto
 test-small-n0proto: build-n0proto-on-docker
 	# git diff --name-status --exit-code n0proto.py
 	git diff --name-status --exit-code n0proto.go
-	# git diff --name-status --exit-code n0proto.swagger.json
+	git diff --name-status --exit-code n0proto.swagger.json
 
 test-small-go:
 	go test -race -cover ./...
