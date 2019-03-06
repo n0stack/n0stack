@@ -111,27 +111,13 @@ func (a VirtualMachineAgent) BootVirtualMachine(ctx context.Context, req *BootVi
 		eth := make([]*configdrive.CloudConfigEthernet, len(req.Netdevs))
 		{
 			for i, nd := range req.Netdevs {
-				b, err := iproute2.NewBridge(netutil.StructLinuxNetdevName(nd.NetworkName))
+				b, err := iproute2.AquireBridge(netutil.StructLinuxNetdevName(nd.NetworkName))
 				if err != nil {
 					return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to create bridge '%s': err='%s'", nd.NetworkName, err.Error())
 				}
 				tx.PushRollback("delete created bridge", func() error {
-					links, err := b.ListSlaves()
-					if err != nil {
-						return fmt.Errorf("Failed to list links of bridge '%s': err='%s'", nd.NetworkName, err.Error())
-					}
-
-					// TODO: 以下遅い気がする
-					i := 0
-					for _, l := range links {
-						if _, err := iproute2.NewTap(l); err == nil {
-							i++
-						}
-					}
-					if i == 0 {
-						if err := b.Delete(); err != nil {
-							return fmt.Errorf("Failed to delete bridge '%s': err='%s'", b.Name(), err.Error())
-						}
+					if _, err = b.DeleteIfNoSlave(); err != nil {
+						return fmt.Errorf("Failed to delete bridge '%s': err='%s'", b.Name(), err.Error())
 					}
 
 					return nil
@@ -187,6 +173,10 @@ func (a VirtualMachineAgent) BootVirtualMachine(ctx context.Context, req *BootVi
 							return nil, grpcutil.WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to set gateway IP to bridge: value=%s", gatewayIP).Error())
 						}
 					}
+				}
+
+				if err := b.Release(); err != nil {
+					return nil, err
 				}
 			}
 		}
@@ -302,35 +292,13 @@ func (a VirtualMachineAgent) DeleteVirtualMachine(ctx context.Context, req *Dele
 			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "") // TODO #89
 		}
 
-		b, err := iproute2.NewBridge(netutil.StructLinuxNetdevName(nd.NetworkName))
+		b, err := iproute2.AquireBridge(netutil.StructLinuxNetdevName(nd.NetworkName))
 		if err != nil {
 			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to create bridge '%s'", nd.NetworkName).Error())
 		}
 
-		links, err := b.ListSlaves()
-		if err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to list links of bridge '%s'", nd.NetworkName).Error())
-		}
-
-		// TODO: 以下遅い気がする
-		i := 0
-		for _, l := range links {
-			if _, err := iproute2.NewTap(l); err == nil {
-				i++
-			}
-		}
-		if i == 0 {
-			if err := b.Delete(); err != nil {
-				return nil, grpcutil.WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to delete bridge '%s'", b.Name()).Error())
-			}
-
-			// gateway settings
-			if nd.Ipv4Gateway != "" {
-				ip := netutil.ParseCIDR(nd.Ipv4AddressCidr)
-				if ip == nil {
-					return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Set valid ipv4_address_cidr: value='%s'", nd.Ipv4AddressCidr)
-				}
-			}
+		if _, err := b.DeleteIfNoSlave(); err != nil {
+			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to delete bridge '%s'", b.Name()).Error())
 		}
 	}
 

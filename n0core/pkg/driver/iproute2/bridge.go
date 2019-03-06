@@ -2,15 +2,102 @@ package iproute2
 
 import (
 	"fmt"
+	"sync"
+	"time"
 
+	"github.com/n0stack/n0stack/n0core/pkg/datastore"
+	"github.com/n0stack/n0stack/n0core/pkg/datastore/lock"
 	"github.com/pkg/errors"
 	"github.com/vishvananda/netlink"
 	"github.com/vishvananda/netlink/nl"
 )
 
+type bridgeCounterTable struct {
+	data  map[string]int
+	mutex lock.MutexTable
+}
+
+var bct *bridgeCounterTable
+var once sync.Once
+
+func getBridgeCounterTable() *bridgeCounterTable {
+	once.Do(func() {
+		bct = &bridgeCounterTable{
+			data:  map[string]int{},
+			mutex: lock.NewMemoryMutexTable(100000),
+		}
+	})
+
+	return bct
+}
+
 type Bridge struct {
 	name string
 	link *netlink.Bridge // TODO: exportする必要があるか？
+}
+
+func AquireBridge(name string) (*Bridge, error) {
+	table := getBridgeCounterTable()
+	if !lock.WaitUntilLock(table.mutex, name, 5*time.Second, 10*time.Millisecond) {
+		return nil, datastore.LockError()
+	}
+	defer table.mutex.Unlock(name)
+
+	b, err := NewBridge(name)
+
+	if err != nil {
+		return nil, err
+	}
+
+	table.data[name] += 1
+	return b, nil
+}
+
+func (b *Bridge) Release() error {
+	table := getBridgeCounterTable()
+	if !lock.WaitUntilLock(table.mutex, b.name, 5*time.Second, 10*time.Millisecond) {
+		return datastore.LockError()
+	}
+	defer table.mutex.Unlock(b.name)
+
+	table.data[b.name] -= 1
+	return nil
+}
+
+func (b *Bridge) DeleteIfNoSlave() (bool, error) {
+	table := getBridgeCounterTable()
+	if !lock.WaitUntilLock(table.mutex, b.name, 5*time.Second, 10*time.Millisecond) {
+		return false, datastore.LockError()
+	}
+	defer table.mutex.Unlock(b.name)
+	table.data[b.name] -= 1
+
+	if table.data[b.name] != 0 {
+		return false, nil
+	}
+
+	links, err := b.ListSlaves()
+	if err != nil {
+		return false, err
+	}
+
+	// TODO: 以下遅い気がする
+	i := 0
+	for _, l := range links {
+		if _, err := NewTap(l); err == nil {
+			i++
+		}
+	}
+
+	if i != 0 {
+		return false, nil
+	}
+
+	if err := b.Delete(); err == nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 func NewBridge(name string) (*Bridge, error) {
