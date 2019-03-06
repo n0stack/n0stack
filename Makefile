@@ -14,7 +14,7 @@ up: build-n0core-on-docker build-n0bff-on-docker
 
 # --- Build ---
 .PHONY: all
-all: build-builder vendor-on-docker build-n0proto-on-docker build-n0core-on-docker build-n0bff-on-docker build-n0cli-on-docker
+all: build-builder vendor-on-docker build-n0core-on-docker build-n0bff-on-docker build-n0cli-on-docker
 
 .PHONY: build-go
 build-go: build-n0core build-n0cli
