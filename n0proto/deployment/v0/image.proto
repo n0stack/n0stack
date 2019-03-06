@@ -17,6 +17,7 @@ message Image {
   message RegisteredBlockStorage {
     string block_storage_name = 1;
     google.protobuf.Timestamp registered_at = 2;
+    string sha256 = 3;
   }
   repeated RegisteredBlockStorage registered_block_storages = 50;
   
