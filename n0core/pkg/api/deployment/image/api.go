@@ -10,9 +10,9 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/lock"
-	"github.com/n0stack/n0stack/n0core/pkg/util/grpc"
-	"github.com/n0stack/n0stack/n0proto.go/deployment/v0"
-	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
+	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
+	pdeployment "github.com/n0stack/n0stack/n0proto.go/deployment/v0"
+	pprovisioning "github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 )
@@ -258,18 +258,16 @@ func (a ImageAPI) TagImage(ctx context.Context, req *pdeployment.TagImageRequest
 
 	exists := false
 	for _, bs := range res.RegisteredBlockStorages {
-		if bs.BlockStorageName == req.BlockStorageName {
+		if bs.BlockStorageName == req.RegisteredBlockStorageName {
 			exists = true
 			break
 		}
 	}
 	if !exists {
-		return nil, grpc.Errorf(codes.NotFound, "BlockStorage '%s' is not in RegisteredBlockStorages", req.BlockStorageName)
+		return nil, grpc.Errorf(codes.NotFound, "BlockStorage '%s' is not in RegisteredBlockStorages", req.RegisteredBlockStorageName)
 	}
 
-	for _, t := range req.Tags {
-		res.Tags[t] = req.BlockStorageName
-	}
+	res.Tags[req.Tag] = req.RegisteredBlockStorageName
 
 	if err := a.dataStore.Apply(req.Name, res); err != nil {
 		log.Printf("[WARNING] Failed to apply data for db: err='%s'", err.Error())

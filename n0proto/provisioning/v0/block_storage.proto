@@ -4,6 +4,7 @@ option go_package = "github.com/n0stack/n0stack/n0proto.go/provisioning/v0;pprov
 
 package n0stack.provisioning;
 
+import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
 
@@ -41,13 +42,32 @@ service BlockStorageService {
   rpc CopyBlockStorage(CopyBlockStorageRequest) returns (BlockStorage) {}
   // rpc UploadBlockStorage(stream UploadBlockStorageRequest) returns (BlockStorage) {}
 
-  rpc ListBlockStorages(ListBlockStoragesRequest) returns (ListBlockStoragesResponse) {}
+  rpc ListBlockStorages(ListBlockStoragesRequest) returns (ListBlockStoragesResponse) {
+    option (google.api.http) = {
+      get: "/api/v0/block_storage"
+    };
+  }
 
-  rpc GetBlockStorage(GetBlockStorageRequest) returns (BlockStorage) {}
+  rpc GetBlockStorage(GetBlockStorageRequest) returns (BlockStorage) {
+    option (google.api.http) = {
+      get: "/api/v0/block_storage/{name}"
+    };
+  }
 
   rpc UpdateBlockStorage(UpdateBlockStorageRequest) returns (BlockStorage) {}
 
-  rpc DeleteBlockStorage(DeleteBlockStorageRequest) returns (google.protobuf.Empty) {}
+  rpc DeleteBlockStorage(DeleteBlockStorageRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v0/block_storage/{name}"
+    };
+  }
+
+  rpc DownloadBlockStorage(DownloadBlockStorageRequest) returns (DownloadBlockStorageResponse) {
+    option (google.api.http) = {
+      get: "/api/v0/block_storage/{name}:download"
+    };
+  }
+
 
   // AVAILABLE -> IN_USE
   rpc SetInuseBlockStorage(SetInuseBlockStorageRequest) returns (BlockStorage) {}
@@ -56,7 +76,6 @@ service BlockStorageService {
   // AVAILABLE -> PROTECTED
   rpc SetProtectedBlockStorage(SetProtectedBlockStorageRequest) returns (BlockStorage) {}
 
-  rpc DownloadBlockStorage(DownloadBlockStorageRequest) returns (DownloadBlockStorageResponse) {}
 
   // // when AVAILABLE, not IN_USE
   // rpc MigrateBlockStorage(MigrateBlockStorageRequest) returns (BlockStorage) {}

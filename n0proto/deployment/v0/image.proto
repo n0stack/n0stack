@@ -4,6 +4,7 @@ option go_package = "github.com/n0stack/n0stack/n0proto.go/deployment/v0;pdeploy
 
 package n0stack.deployment;
 
+import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "provisioning/v0/block_storage.proto";
@@ -16,6 +17,7 @@ message Image {
   message RegisteredBlockStorage {
     string block_storage_name = 1;
     google.protobuf.Timestamp registered_at = 2;
+    string sha256 = 3;
   }
   repeated RegisteredBlockStorage registered_block_storages = 50;
   
@@ -24,17 +26,52 @@ message Image {
 
 
 service ImageService {
-  rpc ListImages(ListImagesRequest) returns (ListImagesResponse) {}
-  rpc GetImage(GetImageRequest) returns (Image) {}
-  rpc ApplyImage(ApplyImageRequest) returns (Image) {}
-  rpc DeleteImage(DeleteImageRequest) returns (google.protobuf.Empty) {}
+  rpc ListImages(ListImagesRequest) returns (ListImagesResponse) {
+    option (google.api.http) = {
+      get: "/api/v0/image"
+    };
+  }
+  rpc GetImage(GetImageRequest) returns (Image) {
+    option (google.api.http) = {
+      get: "/api/v0/image/{name}"
+    };
+  }
+  rpc ApplyImage(ApplyImageRequest) returns (Image) {
+    option (google.api.http) = {
+      put: "/api/v0/image/{name}"
+      body: "*"
+    };
+  }
+  rpc DeleteImage(DeleteImageRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v0/image/{name}"
+    };
+  }
 
-  rpc RegisterBlockStorage(RegisterBlockStorageRequest) returns (Image) {}
-  rpc UnregisterBlockStorage(UnregisterBlockStorageRequest) returns (Image) {}
+  rpc RegisterBlockStorage(RegisterBlockStorageRequest) returns (Image) {
+    option (google.api.http) = {
+      post: "/api/v0/image/{image_name}/registered_block_storage/{block_storage_name}"
+      body: "*"
+    };
+  }
+  rpc UnregisterBlockStorage(UnregisterBlockStorageRequest) returns (Image) {
+    option (google.api.http) = {
+      delete: "/api/v0/image/{image_name}/registered_block_storage/{block_storage_name}"
+    };    
+  }
   rpc GenerateBlockStorage(GenerateBlockStorageRequest) returns (n0stack.provisioning.BlockStorage) {}
 
-  rpc TagImage(TagImageRequest) returns (Image) {}
-  rpc UntagImage(UntagImageRequest) returns (Image) {}
+  rpc TagImage(TagImageRequest) returns (Image) {
+    option (google.api.http) = {
+      post: "/api/v0/image/{name}/tag/{tag}"
+      body: "*"
+    };
+  }
+  rpc UntagImage(UntagImageRequest) returns (Image) {
+    option (google.api.http) = {
+      delete: "/api/v0/image/{name}/tag/{tag}"
+    };
+  }
 }
 
 
@@ -80,9 +117,9 @@ message GenerateBlockStorageRequest {
 
 message TagImageRequest {
   string name = 1;
-  string block_storage_name = 2;
+  string tag = 2;
 
-  repeated string tags = 3;
+  string registered_block_storage_name = 3;
 }
 message UntagImageRequest {
   string name = 1;
