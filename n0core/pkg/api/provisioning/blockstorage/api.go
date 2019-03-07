@@ -486,42 +486,51 @@ func (a *BlockStorageAPI) UpdateBlockStorage(ctx context.Context, req *pprovisio
 		newBs.LimitBytes = bs.LimitBytes
 	}
 
-	for k, v := range bs.Annotations {
-		newBs.Annotations[k] = v
+	if an, ok := bs.Annotations[AnnotationBlockStorageFetchFrom]; ok {
+		newBs.Annotations[AnnotationBlockStorageFetchFrom] = an
+	}
+
+	if an, ok := bs.Annotations[AnnotationBlockStorageCopyFrom]; ok {
+		newBs.Annotations[AnnotationBlockStorageCopyFrom] = an
 	}
 
 	if node, ok := req.Annotations[AnnotationBlockStorageRequestNodeName]; ok {
-		src := bs.Annotations[AnnotationBlockStorageRequestNodeName]
-		if src != node {
-			newBs.Annotations[AnnotationBlockStorageRequestNodeName] = node
+		newBs.Annotations[AnnotationBlockStorageRequestNodeName] = node
+	}
 
-			if err := a.ReserveStorage(ctx, tx, newBs); err != nil {
-				return nil, err
-			}
+	if node, ok := newBs.Annotations[AnnotationBlockStorageRequestNodeName]; ok && node != bs.NodeName {
+		if err := a.ReserveStorage(ctx, tx, newBs); err != nil {
+			return nil, err
+		}
 
-			srcNode, err := a.nodeAPI.GetNode(ctx, &ppool.GetNodeRequest{Name: src})
-			if err != nil {
-				return nil, grpcutil.WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to get node '%s' which is hosting source block storage", src).Error())
-			}
+		srcNode, err := a.nodeAPI.GetNode(ctx, &ppool.GetNodeRequest{Name: bs.NodeName})
+		if err != nil {
+			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to get node '%s' which is hosting source block storage", bs.NodeName).Error())
+		}
 
-			srcUrl := &url.URL{
-				Scheme: "http",
-				Host:   fmt.Sprintf("%s:%d", srcNode.Address, 8081),
-				Path:   filepath.Join(DownloadBlockStorageHTTPPrefix, bs.Name),
-			}
+		srcUrl := &url.URL{
+			Scheme: "http",
+			Host:   fmt.Sprintf("%s:%d", srcNode.Address, 8081),
+			Path:   filepath.Join(DownloadBlockStorageHTTPPrefix, bs.Name),
+		}
 
-			if err := a.fetchBlockStorage(ctx, tx, newBs, &FetchBlockStorageRequest{
-				Name:      newBs.Name,
-				Bytes:     newBs.LimitBytes,
-				SourceUrl: srcUrl.String(),
-			}); err != nil {
-				return nil, err
-			}
+		if err := a.fetchBlockStorage(ctx, tx, newBs, &FetchBlockStorageRequest{
+			Name:      newBs.Name,
+			Bytes:     newBs.LimitBytes,
+			SourceUrl: srcUrl.String(),
+		}); err != nil {
+			return nil, err
+		}
 
-			if err := a.deleteBlockStorage(ctx, tx, bs); err != nil {
-				return nil, err
-			}
-		} else if newBs.LimitBytes != bs.LimitBytes {
+		if err := a.deleteBlockStorage(ctx, tx, bs); err != nil {
+			return nil, err
+		}
+	} else {
+		newBs.NodeName = bs.NodeName
+		newBs.StorageName = bs.StorageName
+		newBs.Annotations[AnnotationBlockStorageURL] = bs.Annotations[AnnotationBlockStorageURL]
+
+		if newBs.LimitBytes != bs.LimitBytes {
 			if err := a.ReleaseStorage(ctx, tx, bs); err != nil {
 				return nil, err
 			}
@@ -543,10 +552,11 @@ func (a *BlockStorageAPI) UpdateBlockStorage(ctx context.Context, req *pprovisio
 			}); err != nil {
 				return nil, err
 			}
-		}
-	}
 
-	newBs.State = pprovisioning.BlockStorage_AVAILABLE
+		}
+
+		newBs.State = pprovisioning.BlockStorage_AVAILABLE
+	}
 
 	if err := a.dataStore.Apply(bs.Name, newBs); err != nil {
 		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
