@@ -114,7 +114,7 @@ func (a *BlockStorageAPI) ReleaseStorage(ctx context.Context, tx *transaction.Tr
 			return grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to release compute '%s': please retry", bs.StorageName)
 		}
 	}
-	tx.PushRollback("", func() error {
+	tx.PushRollback("reserve storage", func() error {
 		_, err = a.nodeAPI.ReserveStorage(context.Background(), &ppool.ReserveStorageRequest{
 			NodeName:    bs.NodeName,
 			StorageName: bs.StorageName,
