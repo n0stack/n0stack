@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/fatih/color"
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
 )
@@ -235,7 +236,9 @@ func main() {
 	log.SetOutput(ioutil.Discard)
 
 	if err := app.Run(os.Args); err != nil {
+		color.Set(color.FgRed)
 		fmt.Fprintf(os.Stderr, "Failed to command: %s\n", err.Error())
+		color.Unset()
 		os.Exit(1)
 	}
 }
