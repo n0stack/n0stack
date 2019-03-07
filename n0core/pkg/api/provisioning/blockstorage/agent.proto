@@ -12,6 +12,8 @@ service BlockStorageAgentService {
 
   rpc DeleteBlockStorage(DeleteBlockStorageRequest) returns (google.protobuf.Empty) {}
 
+  rpc ResizeBlockStorage(ResizeBlockStorageRequest) returns (google.protobuf.Empty) {}
+
   // rpc ResizeBlockStorageAgent(ResizeBlockStorageAgentRequest) returns (BlockStorageAgent) {}
   // rpc MigrateBlockStorageAgent(MigrateBlockStorageAgentRequest) returns (BlockStorageAgent) {}
 }
@@ -35,5 +37,10 @@ message FetchBlockStorageResponse {
 }
 
 message DeleteBlockStorageRequest {
+  string path = 3;
+}
+
+message ResizeBlockStorageRequest{
+  uint64 bytes = 2;
   string path = 3;
 }
