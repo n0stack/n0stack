@@ -521,7 +521,7 @@ func (a *BlockStorageAPI) UpdateBlockStorage(ctx context.Context, req *pprovisio
 			if err := a.deleteBlockStorage(ctx, tx, bs); err != nil {
 				return nil, err
 			}
-		} else if newBs.LimitBytes != bs.RequestBytes {
+		} else if newBs.LimitBytes != bs.LimitBytes {
 			if err := a.ReleaseStorage(ctx, tx, bs); err != nil {
 				return nil, err
 			}
