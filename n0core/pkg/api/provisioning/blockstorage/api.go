@@ -101,6 +101,36 @@ func (a *BlockStorageAPI) ReserveStorage(ctx context.Context, tx *transaction.Tr
 	return nil
 }
 
+func (a *BlockStorageAPI) ReleaseStorage(ctx context.Context, tx *transaction.Transaction, bs *pprovisioning.BlockStorage) error {
+	_, err := a.nodeAPI.ReleaseStorage(context.Background(), &ppool.ReleaseStorageRequest{
+		NodeName:    bs.NodeName,
+		StorageName: bs.StorageName,
+	})
+	if err != nil {
+		log.Printf("[ERROR] Failed to release compute '%s': %s", bs.StorageName, err.Error())
+
+		// Notfound でもとりあえず問題ないため、処理を続ける
+		if grpc.Code(err) != codes.NotFound {
+			return grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to release compute '%s': please retry", bs.StorageName)
+		}
+	}
+	tx.PushRollback("", func() error {
+		_, err = a.nodeAPI.ReserveStorage(context.Background(), &ppool.ReserveStorageRequest{
+			NodeName:    bs.NodeName,
+			StorageName: bs.StorageName,
+			Annotations: map[string]string{
+				AnnotationStorageReservedBy: bs.Name,
+			},
+			RequestBytes: bs.RequestBytes,
+			LimitBytes:   bs.LimitBytes,
+		})
+
+		return err
+	})
+
+	return nil
+}
+
 func (a *BlockStorageAPI) CheckAndLock(tx *transaction.Transaction, bs *pprovisioning.BlockStorage) error {
 	prev := &pprovisioning.BlockStorage{}
 	if err := a.dataStore.Get(bs.Name, prev); err != nil {
@@ -491,15 +521,39 @@ func (a *BlockStorageAPI) UpdateBlockStorage(ctx context.Context, req *pprovisio
 			if err := a.deleteBlockStorage(ctx, tx, bs); err != nil {
 				return nil, err
 			}
+		} else if newBs.LimitBytes != bs.RequestBytes {
+			if err := a.ReleaseStorage(ctx, tx, bs); err != nil {
+				return nil, err
+			}
+
+			if err := a.ReserveStorage(ctx, tx, newBs); err != nil {
+				return nil, err
+			}
+
+			cli, done, err := a.getAgent(ctx, newBs.NodeName)
+			if err != nil {
+				return nil, err
+			}
+			defer done()
+
+			u, _ := url.Parse(newBs.Annotations[AnnotationBlockStorageURL]) // TODO: エラー処理
+			if _, err := cli.ResizeBlockStorage(ctx, &ResizeBlockStorageRequest{
+				Bytes: newBs.LimitBytes,
+				Path:  u.Path,
+			}); err != nil {
+				return nil, err
+			}
 		}
 	}
+
+	newBs.State = pprovisioning.BlockStorage_AVAILABLE
 
 	if err := a.dataStore.Apply(bs.Name, newBs); err != nil {
 		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
 	}
 
 	tx.Commit()
-	return bs, nil
+	return newBs, nil
 }
 
 func (a *BlockStorageAPI) DeleteBlockStorage(ctx context.Context, req *pprovisioning.DeleteBlockStorageRequest) (*empty.Empty, error) {
@@ -546,31 +600,9 @@ func (a *BlockStorageAPI) deleteBlockStorage(ctx context.Context, tx *transactio
 		return grpcutil.WrapGrpcErrorf(codes.Internal, "Fail to delete block_storage on node") // TODO #89
 	}
 
-	_, err = a.nodeAPI.ReleaseStorage(context.Background(), &ppool.ReleaseStorageRequest{
-		NodeName:    bs.NodeName,
-		StorageName: bs.StorageName,
-	})
-	if err != nil {
-		log.Printf("[ERROR] Failed to release compute '%s': %s", bs.StorageName, err.Error())
-
-		// Notfound でもとりあえず問題ないため、処理を続ける
-		if grpc.Code(err) != codes.NotFound {
-			return grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to release compute '%s': please retry", bs.StorageName)
-		}
-	}
-	tx.PushRollback("", func() error {
-		_, err = a.nodeAPI.ReserveStorage(context.Background(), &ppool.ReserveStorageRequest{
-			NodeName:    bs.NodeName,
-			StorageName: bs.StorageName,
-			Annotations: map[string]string{
-				AnnotationStorageReservedBy: bs.Name,
-			},
-			RequestBytes: bs.RequestBytes,
-			LimitBytes:   bs.LimitBytes,
-		})
-
+	if err := a.ReleaseStorage(ctx, tx, bs); err != nil {
 		return err
-	})
+	}
 
 	return nil
 }
