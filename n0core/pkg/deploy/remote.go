@@ -86,13 +86,13 @@ func (d RemoteDeployer) SendFile(body []byte, path string, permission os.FileMod
 }
 
 func (d RemoteDeployer) ReadSelf() ([]byte, error) {
-	if !filepath.IsAbs(os.Args[0]) {
-		return nil, fmt.Errorf("Use binary with absolute path to read self")
-	}
-
 	path, err := filepath.Abs(os.Args[0])
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed to get absolute path")
+	}
+
+	if !filepath.IsAbs(path) {
+		return nil, fmt.Errorf("Use binary with absolute path to read self")
 	}
 
 	file, err := os.Open(path)
