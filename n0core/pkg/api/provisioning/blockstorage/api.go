@@ -58,13 +58,13 @@ func CreateBlockStorageAPI(ds datastore.Datastore, na ppool.NodeServiceClient) *
 	return a
 }
 
-func (a *BlockStorageAPI) ReserveStorage(ctx context.Context, tx *transaction.Transaction, bs *pprovisioning.BlockStorage) error {
+func ReserveStorage(ctx context.Context, tx *transaction.Transaction, na ppool.NodeServiceClient, bs *pprovisioning.BlockStorage) error {
 	bs.StorageName = bs.Name
 
 	var n *ppool.Node
 	var err error
 	if node, ok := bs.Annotations[AnnotationBlockStorageRequestNodeName]; !ok {
-		n, err = a.nodeAPI.ScheduleStorage(ctx, &ppool.ScheduleStorageRequest{
+		n, err = na.ScheduleStorage(ctx, &ppool.ScheduleStorageRequest{
 			StorageName: bs.StorageName,
 			Annotations: map[string]string{
 				AnnotationStorageReservedBy: bs.Name,
@@ -73,7 +73,7 @@ func (a *BlockStorageAPI) ReserveStorage(ctx context.Context, tx *transaction.Tr
 			LimitBytes:   bs.LimitBytes,
 		})
 	} else {
-		n, err = a.nodeAPI.ReserveStorage(ctx, &ppool.ReserveStorageRequest{
+		n, err = na.ReserveStorage(ctx, &ppool.ReserveStorageRequest{
 			NodeName:    node,
 			StorageName: bs.StorageName,
 			Annotations: map[string]string{
@@ -90,7 +90,7 @@ func (a *BlockStorageAPI) ReserveStorage(ctx context.Context, tx *transaction.Tr
 	bs.NodeName = n.Name
 
 	tx.PushRollback("release stroage", func() error {
-		_, err := a.nodeAPI.ReleaseStorage(ctx, &ppool.ReleaseStorageRequest{
+		_, err := na.ReleaseStorage(ctx, &ppool.ReleaseStorageRequest{
 			NodeName:    bs.NodeName,
 			StorageName: bs.StorageName,
 		})
@@ -101,8 +101,8 @@ func (a *BlockStorageAPI) ReserveStorage(ctx context.Context, tx *transaction.Tr
 	return nil
 }
 
-func (a *BlockStorageAPI) ReleaseStorage(ctx context.Context, tx *transaction.Transaction, bs *pprovisioning.BlockStorage) error {
-	_, err := a.nodeAPI.ReleaseStorage(context.Background(), &ppool.ReleaseStorageRequest{
+func ReleaseStorage(ctx context.Context, tx *transaction.Transaction, na ppool.NodeServiceClient, bs *pprovisioning.BlockStorage) error {
+	_, err := na.ReleaseStorage(context.Background(), &ppool.ReleaseStorageRequest{
 		NodeName:    bs.NodeName,
 		StorageName: bs.StorageName,
 	})
@@ -115,7 +115,7 @@ func (a *BlockStorageAPI) ReleaseStorage(ctx context.Context, tx *transaction.Tr
 		}
 	}
 	tx.PushRollback("reserve storage", func() error {
-		_, err = a.nodeAPI.ReserveStorage(context.Background(), &ppool.ReserveStorageRequest{
+		_, err = na.ReserveStorage(context.Background(), &ppool.ReserveStorageRequest{
 			NodeName:    bs.NodeName,
 			StorageName: bs.StorageName,
 			Annotations: map[string]string{
@@ -203,7 +203,7 @@ func (a *BlockStorageAPI) CreateBlockStorage(ctx context.Context, req *pprovisio
 		return nil, err
 	}
 
-	if err := a.ReserveStorage(ctx, tx, bs); err != nil {
+	if err := ReserveStorage(ctx, tx, a.nodeAPI, bs); err != nil {
 		return nil, err
 	}
 
@@ -285,7 +285,7 @@ func (a *BlockStorageAPI) FetchBlockStorage(ctx context.Context, req *pprovision
 		return nil, err
 	}
 
-	if err := a.ReserveStorage(ctx, tx, bs); err != nil {
+	if err := ReserveStorage(ctx, tx, a.nodeAPI, bs); err != nil {
 		return nil, err
 	}
 
@@ -364,7 +364,7 @@ func (a *BlockStorageAPI) CopyBlockStorage(ctx context.Context, req *pprovisioni
 		return nil, err
 	}
 
-	if err := a.ReserveStorage(ctx, tx, bs); err != nil {
+	if err := ReserveStorage(ctx, tx, a.nodeAPI, bs); err != nil {
 		return nil, err
 	}
 
@@ -499,7 +499,7 @@ func (a *BlockStorageAPI) UpdateBlockStorage(ctx context.Context, req *pprovisio
 	}
 
 	if node, ok := newBs.Annotations[AnnotationBlockStorageRequestNodeName]; ok && node != bs.NodeName {
-		if err := a.ReserveStorage(ctx, tx, newBs); err != nil {
+		if err := ReserveStorage(ctx, tx, a.nodeAPI, newBs); err != nil {
 			return nil, err
 		}
 
@@ -531,11 +531,11 @@ func (a *BlockStorageAPI) UpdateBlockStorage(ctx context.Context, req *pprovisio
 		newBs.Annotations[AnnotationBlockStorageURL] = bs.Annotations[AnnotationBlockStorageURL]
 
 		if newBs.LimitBytes != bs.LimitBytes {
-			if err := a.ReleaseStorage(ctx, tx, bs); err != nil {
+			if err := ReleaseStorage(ctx, tx, a.nodeAPI, bs); err != nil {
 				return nil, err
 			}
 
-			if err := a.ReserveStorage(ctx, tx, newBs); err != nil {
+			if err := ReserveStorage(ctx, tx, a.nodeAPI, newBs); err != nil {
 				return nil, err
 			}
 
@@ -610,7 +610,7 @@ func (a *BlockStorageAPI) deleteBlockStorage(ctx context.Context, tx *transactio
 		return grpcutil.WrapGrpcErrorf(codes.Internal, "Fail to delete block_storage on node") // TODO #89
 	}
 
-	if err := a.ReleaseStorage(ctx, tx, bs); err != nil {
+	if err := ReleaseStorage(ctx, tx, a.nodeAPI, bs); err != nil {
 		return err
 	}
 
