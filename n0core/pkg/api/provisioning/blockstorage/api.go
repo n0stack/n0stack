@@ -536,6 +536,11 @@ func (a *BlockStorageAPI) UpdateBlockStorage(ctx context.Context, req *pprovisio
 		newBs.Annotations[AnnotationBlockStorageURL] = bs.Annotations[AnnotationBlockStorageURL]
 
 		if newBs.LimitBytes != bs.LimitBytes {
+			/*
+				TODO: Implement ResizeStorage on NodeAPI:
+				Calling ReserveStorage after ReleaseStorage may result in failure:
+				Another thread can reserve a storage of the same name before ReserveStorage is called by this thread.
+			*/
 			if err := ReleaseStorage(ctx, tx, a.nodeAPI, bs); err != nil {
 				return nil, err
 			}
