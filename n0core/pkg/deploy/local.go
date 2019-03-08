@@ -66,6 +66,19 @@ func (d LocalDeployer) SaveFile(body []byte, path string, permission os.FileMode
 	return nil
 }
 
+func (d LocalDeployer) InstallBinary(path string) error {
+	binpath, err := filepath.Abs(os.Args[0])
+	if err != nil {
+		return errors.Wrap(err, "Failed to get absolute path")
+	}
+
+	if err := os.Rename(binpath, filepath.Join(path, filepath.Base(binpath))); err != nil {
+		return errors.Wrap(err, "Failed to move file")
+	}
+
+	return nil
+}
+
 func (d LocalDeployer) LinkSelf(path string) error {
 	self, err := filepath.Abs(os.Args[0])
 	if err != nil {
