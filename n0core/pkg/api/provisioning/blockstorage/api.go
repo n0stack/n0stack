@@ -499,6 +499,8 @@ func (a *BlockStorageAPI) UpdateBlockStorage(ctx context.Context, req *pprovisio
 
 	if node, ok := req.Annotations[AnnotationBlockStorageRequestNodeName]; ok {
 		newBs.Annotations[AnnotationBlockStorageRequestNodeName] = node
+	} else if node, ok = bs.Annotations[AnnotationBlockStorageRequestNodeName]; ok {
+		newBs.Annotations[AnnotationBlockStorageRequestNodeName] = node
 	}
 
 	if node, ok := newBs.Annotations[AnnotationBlockStorageRequestNodeName]; ok && node != bs.NodeName {
@@ -537,7 +539,6 @@ func (a *BlockStorageAPI) UpdateBlockStorage(ctx context.Context, req *pprovisio
 			if err := ReleaseStorage(ctx, tx, a.nodeAPI, bs); err != nil {
 				return nil, err
 			}
-
 			if err := ReserveStorage(ctx, tx, a.nodeAPI, newBs); err != nil {
 				return nil, err
 			}
