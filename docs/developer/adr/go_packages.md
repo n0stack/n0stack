@@ -12,7 +12,7 @@
 
 以下のように区分する。
 
-TODO: 図を入れる
+![](../../_static/images/go_packages.svg)
 
 ### n0core/pkg/api
 
