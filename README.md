@@ -45,7 +45,7 @@ The n0stack wants to solve such problems.
 
 ## Components
 
-![](docs/_statc/images/components.svg)
+![](docs/_static/images/components.svg)
 
 ### [n0proto](n0proto/)
 
