@@ -167,7 +167,7 @@ func (d *RemoteDeployer) CheckPriv() error {
 			}
 			defer sess.Close()
 
-			fmt.Print("input password: ")
+			fmt.Print("[sudo] input password: ")
 			password, err := terminal.ReadPassword(int(syscall.Stdin))
 			if err != nil {
 				return fmt.Errorf("Failed to read password")
