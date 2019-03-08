@@ -103,7 +103,7 @@ update: update-go update-novnc
 
 .PHONY: vendor
 vendor:
-	go mod vendor
+	GO111MODULE=on go mod vendor
 
 .PHONY: vendor-on-docker
 vendor-on-docker:
