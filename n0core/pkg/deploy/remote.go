@@ -134,7 +134,7 @@ func (d RemoteDeployer) Command(command string, stdout, stderr io.Writer) error 
 
 	if err := sess.Run(command); err != nil {
 		if ee, ok := err.(*ssh.ExitError); ok {
-			return fmt.Errorf("'%s' exit status is not 0: code=%d", command, ee.ExitStatus())
+			return fmt.Errorf("'%s' exit status is not 0: code=%d", strings.Replace(command, d.password, "**CENSORED**", -1), ee.ExitStatus())
 		}
 
 		return errors.Wrapf(err, "Failed to command '%s'", command)
