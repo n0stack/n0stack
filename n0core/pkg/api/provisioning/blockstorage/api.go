@@ -58,6 +58,7 @@ func CreateBlockStorageAPI(ds datastore.Datastore, na ppool.NodeServiceClient) *
 	return a
 }
 
+// Reserve a block storage on a node using NodeServiceClient.
 func ReserveStorage(ctx context.Context, tx *transaction.Transaction, na ppool.NodeServiceClient, bs *pprovisioning.BlockStorage) error {
 	bs.StorageName = bs.Name
 
@@ -101,6 +102,7 @@ func ReserveStorage(ctx context.Context, tx *transaction.Transaction, na ppool.N
 	return nil
 }
 
+// Release a block storage on a node using NodeServiceClient.
 func ReleaseStorage(ctx context.Context, tx *transaction.Transaction, na ppool.NodeServiceClient, bs *pprovisioning.BlockStorage) error {
 	_, err := na.ReleaseStorage(context.Background(), &ppool.ReleaseStorageRequest{
 		NodeName:    bs.NodeName,
@@ -449,6 +451,7 @@ func (a *BlockStorageAPI) GetBlockStorage(ctx context.Context, req *pprovisionin
 	return res, nil
 }
 
+// Update a blocok storage: update its request bytes, limit bytes, and request node, a node to host the block storage.
 func (a *BlockStorageAPI) UpdateBlockStorage(ctx context.Context, req *pprovisioning.UpdateBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
 	if !a.dataStore.Lock(req.Name) {
 		return nil, datastore.LockError()
