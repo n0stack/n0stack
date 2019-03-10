@@ -24,6 +24,10 @@ func (a MockBlockStorageAgentAPI) DeleteBlockStorage(ctx context.Context, req *D
 	return &empty.Empty{}, nil
 }
 
+func (a MockBlockStorageAgentAPI) ResizeBlockStorage(ctx context.Context, req *ResizeBlockStorageRequest) (*empty.Empty, error) {
+	return &empty.Empty{}, nil
+}
+
 type MockBlockStorageAgentClient struct {
 	api BlockStorageAgentServiceServer
 }
@@ -41,4 +45,8 @@ func (a MockBlockStorageAgentClient) FetchBlockStorage(ctx context.Context, in *
 }
 func (a MockBlockStorageAgentClient) DeleteBlockStorage(ctx context.Context, in *DeleteBlockStorageRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
 	return a.api.DeleteBlockStorage(ctx, in)
+}
+
+func (a MockBlockStorageAgentClient) ResizeBlockStorage(ctx context.Context, in *ResizeBlockStorageRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+	return a.api.ResizeBlockStorage(ctx, in)
 }

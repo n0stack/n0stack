@@ -121,3 +121,19 @@ func (a *BlockStorageAgentAPI) DeleteBlockStorage(ctx context.Context, req *Dele
 
 	return &empty.Empty{}, nil
 }
+
+func (a *BlockStorageAgentAPI) ResizeBlockStorage(ctx context.Context, req *ResizeBlockStorageRequest) (*empty.Empty, error) {
+	i, err := img.OpenQemuImg(req.Path)
+	if err != nil {
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Cannot open '%s': err='%s'", req.Path, err.Error())
+	}
+	if !i.IsExists() {
+		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "image file do not exists")
+	}
+
+	if err := i.Resize(req.Bytes); err != nil {
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to Resize qemu image: err='%s'", err.Error())
+	}
+
+	return &empty.Empty{}, nil
+}

@@ -134,3 +134,33 @@ func TestAgentFetchBlockStorage(t *testing.T) {
 // 		}
 // 	}
 // }
+
+func TestAgentResizeBlockStorage(t *testing.T) {
+	bsaa, err := CreateBlockStorageAgentAPI(".")
+	if err != nil {
+		t.Fatalf("CreateBlockStorageAgentAPI is failed: err=%s", err.Error())
+	}
+
+	name := "test-empty"
+	size := uint64(20 * bytefmt.MEGABYTE)
+
+	createRes, err := bsaa.CreateEmptyBlockStorage(context.Background(), &CreateEmptyBlockStorageRequest{
+		Name:  name,
+		Bytes: uint64(10 * bytefmt.MEGABYTE),
+	})
+	if err != nil {
+		t.Fatalf("CreateEmptyBlockStorage got error: err=%s", err.Error())
+	}
+
+	if _, err := bsaa.ResizeBlockStorage(context.Background(), &ResizeBlockStorageRequest{
+		Bytes: size,
+		Path:  createRes.Path,
+	}); err != nil {
+		t.Errorf("ResizeBlockStorage got error: err=%s", err.Error())
+	}
+
+	_, err = bsaa.DeleteBlockStorage(context.Background(), &DeleteBlockStorageRequest{Path: createRes.Path})
+	if err != nil {
+		t.Errorf("DeleteBlockStorage got error: err=%s", err.Error())
+	}
+}

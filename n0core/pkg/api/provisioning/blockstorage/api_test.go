@@ -451,3 +451,160 @@ func TestCopyBlockStorageByRemote(t *testing.T) {
 		t.Errorf("Failed to copy block storage: err='%s' %v", err.Error(), bs)
 	}
 }
+
+func TestUpdateBlockStorageByLocal(t *testing.T) {
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	m := memory.NewMemoryDatastore()
+	bsa := NewMockBlcokStorageAPI(m)
+
+	mnode, err := bsa.NodeAPI.SetupMockNode(ctx)
+	if err != nil {
+		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
+	}
+
+	bs := &pprovisioning.BlockStorage{
+		Name: "test-block-storage",
+		Annotations: map[string]string{
+			AnnotationBlockStorageRequestNodeName: mnode.Name,
+			AnnotationBlockStorageURL:             "file:///tmp/test-block-storage",
+		},
+		RequestBytes: 2 * bytefmt.GIGABYTE,
+		LimitBytes:   2 * bytefmt.GIGABYTE,
+		State:        pprovisioning.BlockStorage_AVAILABLE,
+		NodeName:     mnode.Name,
+		StorageName:  "test-block-storage",
+	}
+
+	if _, err := bsa.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
+		Name: bs.Name,
+		Annotations: map[string]string{
+			AnnotationBlockStorageRequestNodeName: mnode.Name,
+		},
+		RequestBytes: bytefmt.GIGABYTE,
+		LimitBytes:   bytefmt.GIGABYTE,
+	}); err != nil {
+		t.Fatalf("Failed to create block storage: err='%s'", err.Error())
+	}
+
+	updateRes, err := bsa.UpdateBlockStorage(ctx, &pprovisioning.UpdateBlockStorageRequest{
+		Name:         bs.Name,
+		RequestBytes: bs.RequestBytes,
+		LimitBytes:   bs.LimitBytes,
+	})
+	if err != nil {
+		t.Fatalf("Failed to update block storage: err='%s'", err.Error())
+	}
+
+	updateRes.XXX_sizecache = 0
+	if diff := cmp.Diff(bs, updateRes); diff != "" {
+		t.Errorf("UpdateBlockStorage response is wrong: diff=(-want +got)\n%s", diff)
+	}
+
+	listRes, err := bsa.ListBlockStorages(ctx, &pprovisioning.ListBlockStoragesRequest{})
+	if err != nil {
+		t.Errorf("ListBlockStorages got error: err='%s'", err.Error())
+	}
+	if len(listRes.BlockStorages) != 1 {
+		t.Errorf("ListBlockStorages return wrong length: res='%s', want=1", listRes)
+	}
+
+	getRes, err := bsa.GetBlockStorage(ctx, &pprovisioning.GetBlockStorageRequest{Name: bs.Name})
+	if err != nil {
+		t.Errorf("GetBlockStorage got error: err='%s'", err.Error())
+	}
+	if diff := cmp.Diff(bs, getRes); diff != "" {
+		t.Errorf("GetBlockStorage response is wrong: diff=(-want +got)\n%s", diff)
+	}
+
+	if _, err := bsa.DeleteBlockStorage(ctx, &pprovisioning.DeleteBlockStorageRequest{Name: bs.Name}); err != nil {
+		t.Errorf("DeleteBlockStorage got error: err='%s'", err.Error())
+	}
+}
+
+func TestUpdateBlockStorageByRemote(t *testing.T) {
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	m := memory.NewMemoryDatastore()
+	bsa := NewMockBlcokStorageAPI(m)
+
+	mnode, err := bsa.NodeAPI.SetupMockNode(ctx)
+	if err != nil {
+		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
+	}
+	dnode, err := bsa.NodeAPI.ApplyNode(ctx, &ppool.ApplyNodeRequest{
+		Name:          "dst",
+		Address:       "127.0.20.181",
+		CpuMilliCores: 16000,
+		MemoryBytes:   64 * bytefmt.GIGABYTE,
+		StorageBytes:  100 * bytefmt.GIGABYTE,
+	})
+	if err != nil {
+		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
+	}
+
+	bs := &pprovisioning.BlockStorage{
+		Name: "test-block-storage",
+		Annotations: map[string]string{
+			AnnotationBlockStorageRequestNodeName: dnode.Name,
+			AnnotationBlockStorageURL:             "file:///tmp/test-block-storage",
+		},
+		RequestBytes: 2 * bytefmt.GIGABYTE,
+		LimitBytes:   2 * bytefmt.GIGABYTE,
+		State:        pprovisioning.BlockStorage_AVAILABLE,
+		NodeName:     dnode.Name,
+		StorageName:  "test-block-storage",
+	}
+
+	if _, err := bsa.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
+		Name: bs.Name,
+		Annotations: map[string]string{
+			AnnotationBlockStorageRequestNodeName: mnode.Name,
+		},
+		RequestBytes: bytefmt.GIGABYTE,
+		LimitBytes:   bytefmt.GIGABYTE,
+	}); err != nil {
+		t.Fatalf("Failed to create block storage: err='%s'", err.Error())
+	}
+
+	updateRes, err := bsa.UpdateBlockStorage(ctx, &pprovisioning.UpdateBlockStorageRequest{
+		Name: bs.Name,
+		Annotations: map[string]string{
+			AnnotationBlockStorageRequestNodeName: dnode.Name,
+		},
+		RequestBytes: bs.RequestBytes,
+		LimitBytes:   bs.LimitBytes,
+	})
+	if err != nil {
+		t.Fatalf("Failed to update block storage: err='%s'", err.Error())
+	}
+
+	updateRes.XXX_sizecache = 0
+	if diff := cmp.Diff(bs, updateRes); diff != "" {
+		t.Errorf("UpdateBlockStorage response is wrong: diff=(-want +got)\n%s", diff)
+	}
+
+	listRes, err := bsa.ListBlockStorages(ctx, &pprovisioning.ListBlockStoragesRequest{})
+	if err != nil {
+		t.Errorf("ListBlockStorages got error: err='%s'", err.Error())
+	}
+	if len(listRes.BlockStorages) != 1 {
+		t.Errorf("ListBlockStorages return wrong length: res='%s', want=1", listRes)
+	}
+
+	getRes, err := bsa.GetBlockStorage(ctx, &pprovisioning.GetBlockStorageRequest{Name: bs.Name})
+	if err != nil {
+		t.Errorf("GetBlockStorage got error: err='%s'", err.Error())
+	}
+	if diff := cmp.Diff(bs, getRes); diff != "" {
+		t.Errorf("GetBlockStorage response is wrong: diff=(-want +got)\n%s", diff)
+	}
+
+	if _, err := bsa.DeleteBlockStorage(ctx, &pprovisioning.DeleteBlockStorageRequest{Name: bs.Name}); err != nil {
+		t.Errorf("DeleteBlockStorage got error: err='%s'", err.Error())
+	}
+}
