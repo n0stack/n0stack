@@ -123,3 +123,56 @@ func deleteImage(name string, conn *grpc.ClientConn) error {
 
 	return nil
 }
+
+func RegisterBlockStorage(tags []string, img, bs string, conn *grpc.ClientConn) error {
+	cl := pdeployment.NewImageServiceClient(conn)
+	res, err := cl.RegisterBlockStorage(context.Background(), &pdeployment.RegisterBlockStorageRequest{ImageName: img, BlockStorageName: bs, Tags: tags})
+	if err != nil {
+		PrintGrpcError(err)
+		return nil
+	}
+
+	marshaler.Marshal(os.Stdout, res)
+	fmt.Println()
+	return nil
+}
+
+
+func UnregisterBlockStorage(img, bs string, conn *grpc.ClientConn) error {
+	cl := pdeployment.NewImageServiceClient(conn)
+	res, err := cl.UnregisterBlockStorage(context.Background(), &pdeployment.UnregisterBlockStorageRequest{ImageName: img, BlockStorageName: bs})
+	if err != nil {
+		PrintGrpcError(err)
+		return nil
+	}
+
+	marshaler.Marshal(os.Stdout, res)
+	fmt.Println()
+	return nil
+}
+
+func Tag(name, tag, bs string, conn *grpc.ClientConn) error {
+	cl := pdeployment.NewImageServiceClient(conn)
+	res, err := cl.TagImage(context.Background(), &pdeployment.TagImageRequest{Name: name, Tag: tag, RegisteredBlockStorageName: bs})
+	if err != nil {
+		PrintGrpcError(err)
+		return nil
+	}
+
+	marshaler.Marshal(os.Stdout, res)
+	fmt.Println()
+	return nil
+}
+
+func Untag(name, tag string, conn *grpc.ClientConn) error {
+	cl := pdeployment.NewImageServiceClient(conn)
+	res, err := cl.UntagImage(context.Background(), &pdeployment.UntagImageRequest{Name: name, Tag: tag})
+	if err != nil {
+		PrintGrpcError(err)
+		return nil
+	}
+
+	marshaler.Marshal(os.Stdout, res)
+	fmt.Println()
+	return nil
+}

@@ -190,6 +190,31 @@ func main() {
 					ArgsUsage: "[Image name]",
 					Action:    DeleteImage,
 				},
+				{
+					Name:      "register",
+					Usage:     "Register Image",
+					ArgsUsage: "[Image name] [BlockStorage name] -t [Tag name]... -t [Tag name]",
+					Flags:     []cli.Flag {cli.StringSliceFlag{Name: "t"}},
+					Action:    RegisterBlockStorage,
+				},
+				{
+					Name:      "unregister",
+					Usage:     "Register Image",
+					ArgsUsage: "[Image name] [BlockStorage name]",
+					Action:    UnregisterBlockStorage,
+				},
+				{
+					Name:      "tag",
+					Usage:     "Tag",
+					ArgsUsage: "[Image name] [Tag name] [BlockStorage name]",
+					Action:    Tag,
+				},
+				{
+					Name:      "unregister",
+					Usage:     "Untag",
+					ArgsUsage: "[Image name] [Tag name]",
+					Action:    Untag,
+				},
 			},
 		},
 	}
