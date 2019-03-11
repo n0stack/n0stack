@@ -54,6 +54,7 @@ func TestCreateBlockStorage(t *testing.T) {
 		Name: "test-block-storage",
 		Annotations: map[string]string{
 			AnnotationBlockStorageRequestNodeName: mnode.Name,
+			AnnotationBlockStorageURL:             "file:///tmp/test-block-storage",
 		},
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
@@ -63,8 +64,10 @@ func TestCreateBlockStorage(t *testing.T) {
 	}
 
 	createRes, err := bsa.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
-		Name:         bs.Name,
-		Annotations:  bs.Annotations,
+		Name: bs.Name,
+		Annotations: map[string]string{
+			AnnotationBlockStorageRequestNodeName: mnode.Name,
+		},
 		RequestBytes: bs.RequestBytes,
 		LimitBytes:   bs.LimitBytes,
 	})
@@ -115,6 +118,8 @@ func TestFetchBlockStorage(t *testing.T) {
 		Name: "test-block-storage",
 		Annotations: map[string]string{
 			AnnotationBlockStorageRequestNodeName: mnode.Name,
+			AnnotationBlockStorageURL:             "file:///tmp/test-block-storage",
+			AnnotationBlockStorageFetchFrom:       "http://test.local",
 		},
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
@@ -124,8 +129,10 @@ func TestFetchBlockStorage(t *testing.T) {
 	}
 
 	createRes, err := bsa.FetchBlockStorage(ctx, &pprovisioning.FetchBlockStorageRequest{
-		Name:         bs.Name,
-		Annotations:  bs.Annotations,
+		Name: bs.Name,
+		Annotations: map[string]string{
+			AnnotationBlockStorageRequestNodeName: mnode.Name,
+		},
 		RequestBytes: bs.RequestBytes,
 		LimitBytes:   bs.LimitBytes,
 		SourceUrl:    "http://test.local",
@@ -180,6 +187,7 @@ func TestBlockStorageAboutInUseState(t *testing.T) {
 		Name: "test-block-storage",
 		Annotations: map[string]string{
 			AnnotationBlockStorageRequestNodeName: mnode.Name,
+			AnnotationBlockStorageURL:             "file:///tmp/test-block-storage",
 		},
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
@@ -189,8 +197,10 @@ func TestBlockStorageAboutInUseState(t *testing.T) {
 	}
 
 	_, err = bsa.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
-		Name:         bs.Name,
-		Annotations:  bs.Annotations,
+		Name: bs.Name,
+		Annotations: map[string]string{
+			AnnotationBlockStorageRequestNodeName: mnode.Name,
+		},
 		RequestBytes: bs.RequestBytes,
 		LimitBytes:   bs.LimitBytes,
 	})
@@ -244,6 +254,7 @@ func TestBlockStorageAboutProtectedState(t *testing.T) {
 		Name: "test-block-storage",
 		Annotations: map[string]string{
 			AnnotationBlockStorageRequestNodeName: mnode.Name,
+			AnnotationBlockStorageURL:             "file:///tmp/test-block-storage",
 		},
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
@@ -253,8 +264,10 @@ func TestBlockStorageAboutProtectedState(t *testing.T) {
 	}
 
 	_, err = bsa.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
-		Name:         bs.Name,
-		Annotations:  bs.Annotations,
+		Name: bs.Name,
+		Annotations: map[string]string{
+			AnnotationBlockStorageRequestNodeName: mnode.Name,
+		},
 		RequestBytes: bs.RequestBytes,
 		LimitBytes:   bs.LimitBytes,
 	})
@@ -308,6 +321,8 @@ func TestCopyBlockStorage(t *testing.T) {
 		Name: "test-block-storage",
 		Annotations: map[string]string{
 			AnnotationBlockStorageRequestNodeName: mnode.Name,
+			AnnotationBlockStorageURL:             "file:///tmp/test-block-storage",
+			AnnotationBlockStorageCopyFrom:        "source",
 		},
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
@@ -317,8 +332,10 @@ func TestCopyBlockStorage(t *testing.T) {
 	}
 
 	src, err := bsa.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
-		Name:         "source",
-		Annotations:  bs.Annotations,
+		Name: "source",
+		Annotations: map[string]string{
+			AnnotationBlockStorageRequestNodeName: mnode.Name,
+		},
 		RequestBytes: bs.RequestBytes,
 		LimitBytes:   bs.LimitBytes,
 	})
@@ -327,8 +344,10 @@ func TestCopyBlockStorage(t *testing.T) {
 	}
 
 	copyRes, err := bsa.CopyBlockStorage(ctx, &pprovisioning.CopyBlockStorageRequest{
-		Name:         bs.Name,
-		Annotations:  bs.Annotations,
+		Name: bs.Name,
+		Annotations: map[string]string{
+			AnnotationBlockStorageRequestNodeName: mnode.Name,
+		},
 		RequestBytes: bs.RequestBytes,
 		LimitBytes:   bs.LimitBytes,
 
@@ -381,6 +400,7 @@ func TestCopyBlockStorageByLocal(t *testing.T) {
 		Name: "src",
 		Annotations: map[string]string{
 			AnnotationBlockStorageRequestNodeName: mnode.Name,
+			AnnotationBlockStorageURL:             "file:///tmp/test-block-storage",
 		},
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
