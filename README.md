@@ -35,11 +35,11 @@ The n0stack is...
 
 Cloud providers have various forms depending on users.
 This problem has been solved with many options and add-ons (e.g. OpenStack configuration file is very long.)
-However, it is difficult to adapt to the application by options, then it is necessary to read or rewrite long abstracted codes.
-Therefore, I thought that it would be better to code on your hands from beginning.
+It is difficult to adapt to the application with options, therefore it is necessary to read or rewrite long abstracted code.
+I think it is better to code it yourself from the beginning.
 
-There are some problems to develop cloud providers from scratch: no library, software quality, man-hour, and deployment.
-The n0stack wants to solve such problems.
+There are some problems to develop cloud providers from scratch: no libraries, software quality, man-hours, and deployment.
+The n0stack wants to solve these problems.
 
 <!-- ## Demo -->
 
