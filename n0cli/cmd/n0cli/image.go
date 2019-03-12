@@ -137,10 +137,34 @@ func RegisterBlockStorage(c *cli.Context) error {
 		img := c.Args().Get(0)
 		bs := c.Args().Get(1)
 		tags := c.StringSlice("t")
+		a := c.Bool("apply-image")
+		if a == true {
+	        cl := pdeployment.NewImageServiceClient(conn)
+	        _, err = cl.GetImage(context.Background(), &pdeployment.GetImageRequest{Name: img})
+			if err != nil {
+				err = registerApplyImage(img, conn)
+				if err != nil {
+					return err
+				}
+			}
+		}
 		return registerBlockStorage(tags, img, bs, conn)
 	}
 
 	return fmt.Errorf("set valid arguments.")
+}
+
+func registerApplyImage(name string, conn *grpc.ClientConn) error {
+	cl := pdeployment.NewImageServiceClient(conn)
+	res, err := cl.ApplyImage(context.Background(), &pdeployment.ApplyImageRequest{Name: name})
+	if err != nil {
+		PrintGrpcError(err)
+		return nil
+	}
+
+	marshaler.Marshal(os.Stdout, res)
+	fmt.Println()
+	return nil
 }
 
 func registerBlockStorage(tags []string, img, bs string, conn *grpc.ClientConn) error {
@@ -208,6 +232,7 @@ func Tag(c *cli.Context) error {
 
 func tag(name, tag, bs string, conn *grpc.ClientConn) error {
 	cl := pdeployment.NewImageServiceClient(conn)
+	fmt.Println(name, tag, bs)
 	res, err := cl.TagImage(context.Background(), &pdeployment.TagImageRequest{Name: name, Tag: tag, RegisteredBlockStorageName: bs})
 	if err != nil {
 		PrintGrpcError(err)

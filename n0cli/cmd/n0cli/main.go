@@ -193,8 +193,8 @@ func main() {
 				{
 					Name:      "register",
 					Usage:     "Register Image",
-					ArgsUsage: "-t [Tag name]... -t [Tag name] [Image name] [BlockStorage name]",
-					Flags:     []cli.Flag {cli.StringSliceFlag{Name: "t"}},
+					ArgsUsage: "-t [Tag name]... -t [Tag name] -a(ApplyImageFlag) [Image name] [BlockStorage name]",
+					Flags:     []cli.Flag {cli.StringSliceFlag{Name: "t"}, cli.BoolFlag{Name: "apply-image, a"}},
 					Action:    RegisterBlockStorage,
 				},
 				{
