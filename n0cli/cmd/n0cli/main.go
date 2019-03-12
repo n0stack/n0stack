@@ -210,7 +210,7 @@ func main() {
 					Action:    Tag,
 				},
 				{
-					Name:      "unregister",
+					Name:      "untag",
 					Usage:     "Untag",
 					ArgsUsage: "[Image name] [Tag name]",
 					Action:    Untag,
