@@ -124,7 +124,26 @@ func deleteImage(name string, conn *grpc.ClientConn) error {
 	return nil
 }
 
-func RegisterBlockStorage(tags []string, img, bs string, conn *grpc.ClientConn) error {
+func RegisterBlockStorage(c *cli.Context) error {
+	endpoint := c.GlobalString("api-endpoint")
+	conn, err := grpc.Dial(endpoint, grpc.WithInsecure())
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	log.Printf("[DEBUG] Connected to '%s'\n", endpoint)
+
+	if c.NArg() == 2 {
+		img := c.Args().Get(0)
+		bs := c.Args().Get(1)
+		tags := c.StringSlice("t")
+		return registerBlockStorage(tags, img, bs, conn)
+	}
+
+	return fmt.Errorf("set valid arguments.")
+}
+
+func registerBlockStorage(tags []string, img, bs string, conn *grpc.ClientConn) error {
 	cl := pdeployment.NewImageServiceClient(conn)
 	res, err := cl.RegisterBlockStorage(context.Background(), &pdeployment.RegisterBlockStorageRequest{ImageName: img, BlockStorageName: bs, Tags: tags})
 	if err != nil {
@@ -137,8 +156,25 @@ func RegisterBlockStorage(tags []string, img, bs string, conn *grpc.ClientConn) 
 	return nil
 }
 
+func UnregisterBlockStorage(c *cli.Context) error {
+	endpoint := c.GlobalString("api-endpoint")
+	conn, err := grpc.Dial(endpoint, grpc.WithInsecure())
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	log.Printf("[DEBUG] Connected to '%s'\n", endpoint)
 
-func UnregisterBlockStorage(img, bs string, conn *grpc.ClientConn) error {
+	if c.NArg() == 2 {
+		img := c.Args().Get(0)
+		bs := c.Args().Get(1)
+		return unregisterBlockStorage(img, bs, conn)
+	}
+
+	return fmt.Errorf("set valid arguments.")
+}
+
+func unregisterBlockStorage(img, bs string, conn *grpc.ClientConn) error {
 	cl := pdeployment.NewImageServiceClient(conn)
 	res, err := cl.UnregisterBlockStorage(context.Background(), &pdeployment.UnregisterBlockStorageRequest{ImageName: img, BlockStorageName: bs})
 	if err != nil {
@@ -151,7 +187,26 @@ func UnregisterBlockStorage(img, bs string, conn *grpc.ClientConn) error {
 	return nil
 }
 
-func Tag(name, tag, bs string, conn *grpc.ClientConn) error {
+func Tag(c *cli.Context) error {
+	endpoint := c.GlobalString("api-endpoint")
+	conn, err := grpc.Dial(endpoint, grpc.WithInsecure())
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	log.Printf("[DEBUG] Connected to '%s'\n", endpoint)
+
+	if c.NArg() == 3 {
+		img := c.Args().Get(0)
+		t := c.Args().Get(1)
+		bs := c.Args().Get(2)
+		return tag(img, t, bs, conn)
+	}
+
+	return fmt.Errorf("set valid arguments.")
+}
+
+func tag(name, tag, bs string, conn *grpc.ClientConn) error {
 	cl := pdeployment.NewImageServiceClient(conn)
 	res, err := cl.TagImage(context.Background(), &pdeployment.TagImageRequest{Name: name, Tag: tag, RegisteredBlockStorageName: bs})
 	if err != nil {
@@ -164,7 +219,25 @@ func Tag(name, tag, bs string, conn *grpc.ClientConn) error {
 	return nil
 }
 
-func Untag(name, tag string, conn *grpc.ClientConn) error {
+func Untag(c *cli.Context) error {
+	endpoint := c.GlobalString("api-endpoint")
+	conn, err := grpc.Dial(endpoint, grpc.WithInsecure())
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	log.Printf("[DEBUG] Connected to '%s'\n", endpoint)
+
+	if c.NArg() == 2 {
+		name := c.Args().Get(0)
+		tag := c.Args().Get(1)
+		return untag(name, tag, conn)
+	}
+
+	return fmt.Errorf("set valid arguments.")
+}
+
+func untag(name, tag string, conn *grpc.ClientConn) error {
 	cl := pdeployment.NewImageServiceClient(conn)
 	res, err := cl.UntagImage(context.Background(), &pdeployment.UntagImageRequest{Name: name, Tag: tag})
 	if err != nil {
