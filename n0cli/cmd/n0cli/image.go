@@ -139,8 +139,8 @@ func RegisterBlockStorage(c *cli.Context) error {
 		tags := c.StringSlice("t")
 		a := c.Bool("apply-image")
 		if a == true {
-	        cl := pdeployment.NewImageServiceClient(conn)
-	        _, err = cl.GetImage(context.Background(), &pdeployment.GetImageRequest{Name: img})
+			cl := pdeployment.NewImageServiceClient(conn)
+			_, err = cl.GetImage(context.Background(), &pdeployment.GetImageRequest{Name: img})
 			if err != nil {
 				err = registerApplyImage(img, conn)
 				if err != nil {
