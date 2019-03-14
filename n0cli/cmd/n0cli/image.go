@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/gobwas/glob"
 	"github.com/urfave/cli"
@@ -136,21 +137,22 @@ func RegisterBlockStorage(c *cli.Context) error {
 	if c.NArg() == 2 {
 		img := c.Args().Get(0)
 		bs := c.Args().Get(1)
-		tags := c.StringSlice("t")
 		a := c.Bool("apply-image")
 		if a == true {
+			fmt.Println("Try GetImageRequest ", img)
 			cl := pdeployment.NewImageServiceClient(conn)
 			_, err = cl.GetImage(context.Background(), &pdeployment.GetImageRequest{Name: img})
 			if err != nil {
+				PrintGrpcError(err)
+				fmt.Println("Send ApplyImageRequest ", img)
 				err = registerApplyImage(img, conn)
 				if err != nil {
 					return err
 				}
 			}
 		}
-		return registerBlockStorage(tags, img, bs, conn)
+		return registerBlockStorage(img, bs, conn)
 	}
-
 	return fmt.Errorf("set valid arguments.")
 }
 
@@ -161,20 +163,18 @@ func registerApplyImage(name string, conn *grpc.ClientConn) error {
 		PrintGrpcError(err)
 		return nil
 	}
-
 	marshaler.Marshal(os.Stdout, res)
 	fmt.Println()
 	return nil
 }
 
-func registerBlockStorage(tags []string, img, bs string, conn *grpc.ClientConn) error {
+func registerBlockStorage(img, bs string, conn *grpc.ClientConn) error {
 	cl := pdeployment.NewImageServiceClient(conn)
-	res, err := cl.RegisterBlockStorage(context.Background(), &pdeployment.RegisterBlockStorageRequest{ImageName: img, BlockStorageName: bs, Tags: tags})
+	res, err := cl.RegisterBlockStorage(context.Background(), &pdeployment.RegisterBlockStorageRequest{ImageName: img, BlockStorageName: bs})
 	if err != nil {
 		PrintGrpcError(err)
 		return nil
 	}
-
 	marshaler.Marshal(os.Stdout, res)
 	fmt.Println()
 	return nil
@@ -194,7 +194,6 @@ func UnregisterBlockStorage(c *cli.Context) error {
 		bs := c.Args().Get(1)
 		return unregisterBlockStorage(img, bs, conn)
 	}
-
 	return fmt.Errorf("set valid arguments.")
 }
 
@@ -205,7 +204,6 @@ func unregisterBlockStorage(img, bs string, conn *grpc.ClientConn) error {
 		PrintGrpcError(err)
 		return nil
 	}
-
 	marshaler.Marshal(os.Stdout, res)
 	fmt.Println()
 	return nil
@@ -220,13 +218,14 @@ func Tag(c *cli.Context) error {
 	defer conn.Close()
 	log.Printf("[DEBUG] Connected to '%s'\n", endpoint)
 
-	if c.NArg() == 3 {
-		img := c.Args().Get(0)
-		t := c.Args().Get(1)
-		bs := c.Args().Get(2)
-		return tag(img, t, bs, conn)
+	if c.NArg() == 2 {
+		str := strings.Split(c.Args().Get(0), ":")
+		if len(str) != 2 {
+			return fmt.Errorf("set valid arguments.")
+		}
+		bs := c.Args().Get(1)
+		return tag(str[0], str[1], bs, conn)
 	}
-
 	return fmt.Errorf("set valid arguments.")
 }
 
@@ -238,7 +237,6 @@ func tag(name, tag, bs string, conn *grpc.ClientConn) error {
 		PrintGrpcError(err)
 		return nil
 	}
-
 	marshaler.Marshal(os.Stdout, res)
 	fmt.Println()
 	return nil
@@ -253,12 +251,13 @@ func Untag(c *cli.Context) error {
 	defer conn.Close()
 	log.Printf("[DEBUG] Connected to '%s'\n", endpoint)
 
-	if c.NArg() == 2 {
-		name := c.Args().Get(0)
-		tag := c.Args().Get(1)
-		return untag(name, tag, conn)
+	if c.NArg() == 1 {
+		str := strings.Split(c.Args().Get(0), ":")
+		if len(str) != 2 {
+			return fmt.Errorf("set valid arguments.")
+		}
+		return untag(str[0], str[1], conn)
 	}
-
 	return fmt.Errorf("set valid arguments.")
 }
 
@@ -269,7 +268,6 @@ func untag(name, tag string, conn *grpc.ClientConn) error {
 		PrintGrpcError(err)
 		return nil
 	}
-
 	marshaler.Marshal(os.Stdout, res)
 	fmt.Println()
 	return nil
