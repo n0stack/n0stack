@@ -137,19 +137,13 @@ func TestImageAboutRegister(t *testing.T) {
 		t.Fatalf("ApplyImage got error: err='%s'", err.Error())
 	}
 
-	bs := &pprovisioning.BlockStorage{
+	bs, err := bsa.CreateBlockStorage(context.Background(), &pprovisioning.CreateBlockStorageRequest{
 		Name: "test-image",
 		Annotations: map[string]string{
 			provisioning.AnnotationRequestNodeName: "mock-node",
 		},
 		RequestBytes: 10 * bytefmt.MEGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
-	}
-	_, err = bsa.CreateBlockStorage(context.Background(), &pprovisioning.CreateBlockStorageRequest{
-		Name:         bs.Name,
-		Annotations:  bs.Annotations,
-		RequestBytes: bs.RequestBytes,
-		LimitBytes:   bs.LimitBytes,
 	})
 	if err != nil {
 		t.Fatalf("Failed to create test-image on BlockStorageAPI got error: err='%s'", err.Error())
@@ -187,7 +181,6 @@ func TestImageAboutRegister(t *testing.T) {
 		t.Errorf("Second RegisterBlockStorage got no error")
 	}
 
-
 	rbs, err := bsa.GetBlockStorage(context.Background(), &pprovisioning.GetBlockStorageRequest{Name: bs.Name})
 	if err != nil {
 		t.Errorf("Failed to get test-image on BlockStorageAPI got error: err='%s'", err.Error())
@@ -200,9 +193,11 @@ func TestImageAboutRegister(t *testing.T) {
 		ImageName:        i.Name,
 		Tag:              "test-tag",
 		BlockStorageName: "generated-image",
-		Annotations:      bs.Annotations,
-		RequestBytes:     10 * bytefmt.MEGABYTE,
-		LimitBytes:       10 * bytefmt.GIGABYTE,
+		Annotations: map[string]string{
+			provisioning.AnnotationRequestNodeName: "mock-node",
+		},
+		RequestBytes: 10 * bytefmt.MEGABYTE,
+		LimitBytes:   10 * bytefmt.GIGABYTE,
 	})
 	if err != nil {
 		t.Errorf("Failed to generate BlockStorageAPI got error: err='%s'", err.Error())
@@ -261,19 +256,13 @@ func TestImageAboutTag(t *testing.T) {
 		t.Fatalf("ApplyImage got error: err='%s'", err.Error())
 	}
 
-	bs := &pprovisioning.BlockStorage{
+	bs, err = bsa.CreateBlockStorage(context.Background(), &pprovisioning.CreateBlockStorageRequest{
 		Name: "test-image",
 		Annotations: map[string]string{
 			provisioning.AnnotationRequestNodeName: "mock-node",
 		},
 		RequestBytes: 10 * bytefmt.MEGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
-	}
-	_, err = bsa.CreateBlockStorage(context.Background(), &pprovisioning.CreateBlockStorageRequest{
-		Name:         bs.Name,
-		Annotations:  bs.Annotations,
-		RequestBytes: bs.RequestBytes,
-		LimitBytes:   bs.LimitBytes,
 	})
 	if err != nil {
 		t.Fatalf("Failed to create test-image on BlockStorageAPI got error: err='%s'", err.Error())

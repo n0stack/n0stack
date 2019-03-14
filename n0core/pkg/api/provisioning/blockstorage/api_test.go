@@ -50,26 +50,30 @@ func TestCreateBlockStorage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
 	}
-	bs := &pprovisioning.BlockStorage{
+
+	createRes, err := bsa.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
 		Name: "test-block-storage",
 		Annotations: map[string]string{
 			AnnotationBlockStorageRequestNodeName: mnode.Name,
 		},
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
-		State:        pprovisioning.BlockStorage_AVAILABLE,
-		NodeName:     mnode.Name,
-		StorageName:  "test-block-storage",
-	}
-
-	createRes, err := bsa.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
-		Name:         bs.Name,
-		Annotations:  bs.Annotations,
-		RequestBytes: bs.RequestBytes,
-		LimitBytes:   bs.LimitBytes,
 	})
 	if err != nil {
 		t.Errorf("Failed to create block storage: err='%s'", err.Error())
+	}
+
+	bs := &pprovisioning.BlockStorage{
+		Name: "test-block-storage",
+		Annotations: map[string]string{
+			AnnotationBlockStorageRequestNodeName: mnode.Name,
+			AnnotationBlockStorageURL:             "file:///tmp/test-block-storage",
+		},
+		RequestBytes: 1 * bytefmt.GIGABYTE,
+		LimitBytes:   1 * bytefmt.GIGABYTE,
+		State:        pprovisioning.BlockStorage_AVAILABLE,
+		NodeName:     mnode.Name,
+		StorageName:  "test-block-storage",
 	}
 
 	createRes.XXX_sizecache = 0
@@ -111,27 +115,31 @@ func TestFetchBlockStorage(t *testing.T) {
 		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
 	}
 
-	bs := &pprovisioning.BlockStorage{
+	createRes, err := bsa.FetchBlockStorage(ctx, &pprovisioning.FetchBlockStorageRequest{
 		Name: "test-block-storage",
 		Annotations: map[string]string{
 			AnnotationBlockStorageRequestNodeName: mnode.Name,
 		},
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
-		State:        pprovisioning.BlockStorage_AVAILABLE,
-		NodeName:     mnode.Name,
-		StorageName:  "test-block-storage",
-	}
-
-	createRes, err := bsa.FetchBlockStorage(ctx, &pprovisioning.FetchBlockStorageRequest{
-		Name:         bs.Name,
-		Annotations:  bs.Annotations,
-		RequestBytes: bs.RequestBytes,
-		LimitBytes:   bs.LimitBytes,
 		SourceUrl:    "http://test.local",
 	})
 	if err != nil {
 		t.Errorf("Failed to create block storage: err='%s'", err.Error())
+	}
+
+	bs := &pprovisioning.BlockStorage{
+		Name: "test-block-storage",
+		Annotations: map[string]string{
+			AnnotationBlockStorageRequestNodeName: mnode.Name,
+			AnnotationBlockStorageURL:             "file:///tmp/test-block-storage",
+			AnnotationBlockStorageFetchFrom:       "http://test.local",
+		},
+		RequestBytes: 1 * bytefmt.GIGABYTE,
+		LimitBytes:   1 * bytefmt.GIGABYTE,
+		State:        pprovisioning.BlockStorage_AVAILABLE,
+		NodeName:     mnode.Name,
+		StorageName:  "test-block-storage",
 	}
 
 	createRes.XXX_sizecache = 0
@@ -176,49 +184,39 @@ func TestBlockStorageAboutInUseState(t *testing.T) {
 		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
 	}
 
-	bs := &pprovisioning.BlockStorage{
+	createRes, err := bsa.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
 		Name: "test-block-storage",
 		Annotations: map[string]string{
 			AnnotationBlockStorageRequestNodeName: mnode.Name,
 		},
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
-		State:        pprovisioning.BlockStorage_AVAILABLE,
-		NodeName:     mnode.Name,
-		StorageName:  "test-block-storage",
-	}
-
-	_, err = bsa.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
-		Name:         bs.Name,
-		Annotations:  bs.Annotations,
-		RequestBytes: bs.RequestBytes,
-		LimitBytes:   bs.LimitBytes,
 	})
 	if err != nil {
 		t.Fatalf("Failed to create block storage: err='%s'", err.Error())
 	}
 
-	inuse, err := bsa.SetInuseBlockStorage(ctx, &pprovisioning.SetInuseBlockStorageRequest{Name: bs.Name})
+	inuse, err := bsa.SetInuseBlockStorage(ctx, &pprovisioning.SetInuseBlockStorageRequest{Name: createRes.Name})
 	if err != nil {
 		t.Errorf("[Valid: AVAILABLE -> IN_USE] SetInuseBlockStorage got error: err='%s'", err.Error())
 	}
 	if inuse.State != pprovisioning.BlockStorage_IN_USE {
 		t.Errorf("[Valid: AVAILABLE -> IN_USE] SetInuseBlockStorage response wrong state: want=%+v, have=%+v", pprovisioning.BlockStorage_IN_USE, inuse.State)
 	}
-	getRes, _ := bsa.GetBlockStorage(ctx, &pprovisioning.GetBlockStorageRequest{Name: bs.Name})
+	getRes, _ := bsa.GetBlockStorage(ctx, &pprovisioning.GetBlockStorageRequest{Name: createRes.Name})
 	if getRes.State != pprovisioning.BlockStorage_IN_USE {
 		t.Errorf("[Valid: AVAILABLE -> IN_USE] SetInuseBlockStorage store wrong state: want=%+v, have=%+v", pprovisioning.BlockStorage_IN_USE, getRes.State)
 	}
 
-	_, err = bsa.SetProtectedBlockStorage(ctx, &pprovisioning.SetProtectedBlockStorageRequest{Name: bs.Name})
+	_, err = bsa.SetProtectedBlockStorage(ctx, &pprovisioning.SetProtectedBlockStorageRequest{Name: createRes.Name})
 	if err != nil && grpc.Code(err) != codes.FailedPrecondition {
 		t.Errorf("[Invalid: IN_USE -> PROTECTED] SetProtectedBlockStorage got error, not FailedPrecondition: err='%s'", err.Error())
 	}
-	_, err = bsa.SetInuseBlockStorage(ctx, &pprovisioning.SetInuseBlockStorageRequest{Name: bs.Name})
+	_, err = bsa.SetInuseBlockStorage(ctx, &pprovisioning.SetInuseBlockStorageRequest{Name: createRes.Name})
 	if err == nil {
 		t.Errorf("[Inalid: IN_USE -> IN_USE] SetInuseBlockStorage got no error")
 	}
-	available, err := bsa.SetAvailableBlockStorage(ctx, &pprovisioning.SetAvailableBlockStorageRequest{Name: bs.Name})
+	available, err := bsa.SetAvailableBlockStorage(ctx, &pprovisioning.SetAvailableBlockStorageRequest{Name: createRes.Name})
 	if err != nil {
 		t.Errorf("[Valid: IN_USE -> AVAILABLE] SetAvailableBlockStorage got error: err='%s'", err.Error())
 	}
@@ -240,49 +238,39 @@ func TestBlockStorageAboutProtectedState(t *testing.T) {
 		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
 	}
 
-	bs := &pprovisioning.BlockStorage{
+	createRes, err := bsa.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
 		Name: "test-block-storage",
 		Annotations: map[string]string{
 			AnnotationBlockStorageRequestNodeName: mnode.Name,
 		},
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
-		State:        pprovisioning.BlockStorage_AVAILABLE,
-		NodeName:     mnode.Name,
-		StorageName:  "test-block-storage",
-	}
-
-	_, err = bsa.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
-		Name:         bs.Name,
-		Annotations:  bs.Annotations,
-		RequestBytes: bs.RequestBytes,
-		LimitBytes:   bs.LimitBytes,
 	})
 	if err != nil {
 		t.Fatalf("Failed to create block storage: err='%s'", err.Error())
 	}
 
-	protected, err := bsa.SetProtectedBlockStorage(ctx, &pprovisioning.SetProtectedBlockStorageRequest{Name: bs.Name})
+	protected, err := bsa.SetProtectedBlockStorage(ctx, &pprovisioning.SetProtectedBlockStorageRequest{Name: createRes.Name})
 	if err != nil {
 		t.Errorf("[Valid: AVAILABLE -> PROTECTED] SetProtectedBlockStorage got error: err='%s'", err.Error())
 	}
 	if protected.State != pprovisioning.BlockStorage_PROTECTED {
 		t.Errorf("[Valid: AVAILABLE -> PROTECTED] SetProtectedBlockStorage response wrong state: want=%+v, have=%+v", pprovisioning.BlockStorage_PROTECTED, protected.State)
 	}
-	getRes, _ := bsa.GetBlockStorage(ctx, &pprovisioning.GetBlockStorageRequest{Name: bs.Name})
+	getRes, _ := bsa.GetBlockStorage(ctx, &pprovisioning.GetBlockStorageRequest{Name: createRes.Name})
 	if getRes.State != pprovisioning.BlockStorage_PROTECTED {
 		t.Errorf("[Valid: AVAILABLE -> PROTECTED] SetInuseBlockStorage store wrong state: want=%+v, have=%+v", pprovisioning.BlockStorage_PROTECTED, getRes.State)
 	}
 
-	_, err = bsa.SetInuseBlockStorage(ctx, &pprovisioning.SetInuseBlockStorageRequest{Name: bs.Name})
+	_, err = bsa.SetInuseBlockStorage(ctx, &pprovisioning.SetInuseBlockStorageRequest{Name: createRes.Name})
 	if err != nil && grpc.Code(err) != codes.FailedPrecondition {
 		t.Errorf("[InValid: PROTECTED -> IN_USE] SetInuseBlockStorage got error: err='%s'", err.Error())
 	}
-	_, err = bsa.SetProtectedBlockStorage(ctx, &pprovisioning.SetProtectedBlockStorageRequest{Name: bs.Name})
+	_, err = bsa.SetProtectedBlockStorage(ctx, &pprovisioning.SetProtectedBlockStorageRequest{Name: createRes.Name})
 	if err == nil {
 		t.Errorf("[Valid: PROTECTED -> PROTECTED] SetProtectedBlockStorage got no error")
 	}
-	available, err := bsa.SetAvailableBlockStorage(ctx, &pprovisioning.SetAvailableBlockStorageRequest{Name: bs.Name})
+	available, err := bsa.SetAvailableBlockStorage(ctx, &pprovisioning.SetAvailableBlockStorageRequest{Name: createRes.Name})
 	if err != nil {
 		t.Errorf("[Valid: PROTECTED -> AVAILABLE] SetAvailableBlockStorage got error: err='%s'", err.Error())
 	}
@@ -304,38 +292,44 @@ func TestCopyBlockStorage(t *testing.T) {
 		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
 	}
 
-	bs := &pprovisioning.BlockStorage{
-		Name: "test-block-storage",
+	src, err := bsa.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
+		Name: "source",
 		Annotations: map[string]string{
 			AnnotationBlockStorageRequestNodeName: mnode.Name,
 		},
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
-		State:        pprovisioning.BlockStorage_AVAILABLE,
-		NodeName:     mnode.Name,
-		StorageName:  "test-block-storage",
-	}
-
-	src, err := bsa.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
-		Name:         "source",
-		Annotations:  bs.Annotations,
-		RequestBytes: bs.RequestBytes,
-		LimitBytes:   bs.LimitBytes,
 	})
 	if err != nil {
 		t.Fatalf("Failed to create block storage: err='%s'", err.Error())
 	}
 
 	copyRes, err := bsa.CopyBlockStorage(ctx, &pprovisioning.CopyBlockStorageRequest{
-		Name:         bs.Name,
-		Annotations:  bs.Annotations,
-		RequestBytes: bs.RequestBytes,
-		LimitBytes:   bs.LimitBytes,
+		Name: "test-block-storage",
+		Annotations: map[string]string{
+			AnnotationBlockStorageRequestNodeName: mnode.Name,
+		},
+		RequestBytes: 1 * bytefmt.GIGABYTE,
+		LimitBytes:   1 * bytefmt.GIGABYTE,
 
 		SourceBlockStorage: src.Name,
 	})
 	if err != nil {
 		t.Fatalf("Failed to create block storage: err='%s'", err.Error())
+	}
+
+	bs := &pprovisioning.BlockStorage{
+		Name: "test-block-storage",
+		Annotations: map[string]string{
+			AnnotationBlockStorageRequestNodeName: mnode.Name,
+			AnnotationBlockStorageURL:             "file:///tmp/test-block-storage",
+			AnnotationBlockStorageCopyFrom:        "source",
+		},
+		RequestBytes: 1 * bytefmt.GIGABYTE,
+		LimitBytes:   1 * bytefmt.GIGABYTE,
+		State:        pprovisioning.BlockStorage_AVAILABLE,
+		NodeName:     mnode.Name,
+		StorageName:  "test-block-storage",
 	}
 
 	copyRes.XXX_sizecache = 0
@@ -465,6 +459,27 @@ func TestUpdateBlockStorageByLocal(t *testing.T) {
 		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
 	}
 
+	createRes, err := bsa.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
+		Name: "test-block-storage",
+		Annotations: map[string]string{
+			AnnotationBlockStorageRequestNodeName: mnode.Name,
+		},
+		RequestBytes: bytefmt.GIGABYTE,
+		LimitBytes:   bytefmt.GIGABYTE,
+	})
+	if err != nil {
+		t.Fatalf("Failed to create block storage: err='%s'", err.Error())
+	}
+
+	updateRes, err := bsa.UpdateBlockStorage(ctx, &pprovisioning.UpdateBlockStorageRequest{
+		Name:         createRes.Name,
+		RequestBytes: 2 * bytefmt.GIGABYTE,
+		LimitBytes:   2 * bytefmt.GIGABYTE,
+	})
+	if err != nil {
+		t.Fatalf("Failed to update block storage: err='%s'", err.Error())
+	}
+
 	bs := &pprovisioning.BlockStorage{
 		Name: "test-block-storage",
 		Annotations: map[string]string{
@@ -476,26 +491,6 @@ func TestUpdateBlockStorageByLocal(t *testing.T) {
 		State:        pprovisioning.BlockStorage_AVAILABLE,
 		NodeName:     mnode.Name,
 		StorageName:  "test-block-storage",
-	}
-
-	if _, err := bsa.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
-		Name: bs.Name,
-		Annotations: map[string]string{
-			AnnotationBlockStorageRequestNodeName: mnode.Name,
-		},
-		RequestBytes: bytefmt.GIGABYTE,
-		LimitBytes:   bytefmt.GIGABYTE,
-	}); err != nil {
-		t.Fatalf("Failed to create block storage: err='%s'", err.Error())
-	}
-
-	updateRes, err := bsa.UpdateBlockStorage(ctx, &pprovisioning.UpdateBlockStorageRequest{
-		Name:         bs.Name,
-		RequestBytes: bs.RequestBytes,
-		LimitBytes:   bs.LimitBytes,
-	})
-	if err != nil {
-		t.Fatalf("Failed to update block storage: err='%s'", err.Error())
 	}
 
 	updateRes.XXX_sizecache = 0
@@ -547,6 +542,30 @@ func TestUpdateBlockStorageByRemote(t *testing.T) {
 		t.Fatalf("Failed to set up mocked node: err=%s", err.Error())
 	}
 
+	createRes, err := bsa.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
+		Name: "test-block-storage",
+		Annotations: map[string]string{
+			AnnotationBlockStorageRequestNodeName: mnode.Name,
+		},
+		RequestBytes: bytefmt.GIGABYTE,
+		LimitBytes:   bytefmt.GIGABYTE,
+	})
+	if err != nil {
+		t.Fatalf("Failed to create block storage: err='%s'", err.Error())
+	}
+
+	updateRes, err := bsa.UpdateBlockStorage(ctx, &pprovisioning.UpdateBlockStorageRequest{
+		Name: createRes.Name,
+		Annotations: map[string]string{
+			AnnotationBlockStorageRequestNodeName: dnode.Name,
+		},
+		RequestBytes: 2 * bytefmt.GIGABYTE,
+		LimitBytes:   2 * bytefmt.GIGABYTE,
+	})
+	if err != nil {
+		t.Fatalf("Failed to update block storage: err='%s'", err.Error())
+	}
+
 	bs := &pprovisioning.BlockStorage{
 		Name: "test-block-storage",
 		Annotations: map[string]string{
@@ -558,29 +577,6 @@ func TestUpdateBlockStorageByRemote(t *testing.T) {
 		State:        pprovisioning.BlockStorage_AVAILABLE,
 		NodeName:     dnode.Name,
 		StorageName:  "test-block-storage",
-	}
-
-	if _, err := bsa.CreateBlockStorage(ctx, &pprovisioning.CreateBlockStorageRequest{
-		Name: bs.Name,
-		Annotations: map[string]string{
-			AnnotationBlockStorageRequestNodeName: mnode.Name,
-		},
-		RequestBytes: bytefmt.GIGABYTE,
-		LimitBytes:   bytefmt.GIGABYTE,
-	}); err != nil {
-		t.Fatalf("Failed to create block storage: err='%s'", err.Error())
-	}
-
-	updateRes, err := bsa.UpdateBlockStorage(ctx, &pprovisioning.UpdateBlockStorageRequest{
-		Name: bs.Name,
-		Annotations: map[string]string{
-			AnnotationBlockStorageRequestNodeName: dnode.Name,
-		},
-		RequestBytes: bs.RequestBytes,
-		LimitBytes:   bs.LimitBytes,
-	})
-	if err != nil {
-		t.Fatalf("Failed to update block storage: err='%s'", err.Error())
 	}
 
 	updateRes.XXX_sizecache = 0

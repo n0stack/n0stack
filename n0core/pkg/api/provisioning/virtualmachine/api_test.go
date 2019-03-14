@@ -36,6 +36,31 @@ func TestCreateVirtualMachine(t *testing.T) {
 		t.Fatalf("Failed to factory bloclstorage: err='%s'", err.Error())
 	}
 
+	createRes, err := vma.CreateVirtualMachine(ctx, &pprovisioning.CreateVirtualMachineRequest{
+		Name: "test-virtual-machine",
+		Annotations: map[string]string{
+			AnnotationVirtualMachineRequestNodeName: mnode.Name,
+		},
+
+		LimitCpuMilliCore:   1000,
+		RequestCpuMilliCore: 100,
+		LimitMemoryBytes:    1 * bytefmt.GIGABYTE,
+		RequestMemoryBytes:  1 * bytefmt.GIGABYTE,
+		BlockStorageNames:   []string{bs.Name},
+		Nics: []*pprovisioning.VirtualMachineNIC{
+			{
+				NetworkName: network.Name,
+				// TODO: 決め打ちなので恒常的に正しいとは限らない
+				Ipv4Address:     ip.Next().IP().String(),
+				HardwareAddress: "52:54:78:fe:71:fd",
+			},
+		},
+		Uuid: "1d5fd196-b6c9-4f58-86f2-3ef227018e47",
+	})
+	if err != nil {
+		t.Fatalf("Failed to create virtual machine: err='%s'", err.Error())
+	}
+
 	vm := &pprovisioning.VirtualMachine{
 		Name: "test-virtual-machine",
 		Annotations: map[string]string{
@@ -64,20 +89,6 @@ func TestCreateVirtualMachine(t *testing.T) {
 		NetworkInterfaceNames: []string{"test-virtual-machine0"},
 	}
 
-	createRes, err := vma.CreateVirtualMachine(ctx, &pprovisioning.CreateVirtualMachineRequest{
-		Name:                vm.Name,
-		Annotations:         vm.Annotations,
-		LimitCpuMilliCore:   vm.LimitCpuMilliCore,
-		RequestCpuMilliCore: vm.RequestCpuMilliCore,
-		LimitMemoryBytes:    vm.LimitMemoryBytes,
-		RequestMemoryBytes:  vm.RequestMemoryBytes,
-		BlockStorageNames:   vm.BlockStorageNames,
-		Nics:                vm.Nics,
-		Uuid:                vm.Uuid,
-	})
-	if err != nil {
-		t.Fatalf("Failed to create virtual machine: err='%s'", err.Error())
-	}
 	createRes.XXX_sizecache = 0
 	createRes.Nics[0].XXX_sizecache = 0
 	vm.Nics[0].XXX_sizecache = 0
@@ -131,11 +142,10 @@ func TestCreateVirtualMachineFailedOnNetworkInterface(t *testing.T) {
 		t.Fatalf("Failed to factory bloclstorage: err='%s'", err.Error())
 	}
 
-	vm := &pprovisioning.VirtualMachine{
+	if _, err = vma.CreateVirtualMachine(ctx, &pprovisioning.CreateVirtualMachineRequest{
 		Name: "test-virtual-machine",
 		Annotations: map[string]string{
-			AnnotationVirtualMachineRequestNodeName:  mnode.Name,
-			AnnotationVirtualMachineVncWebSocketPort: "6900",
+			AnnotationVirtualMachineRequestNodeName: mnode.Name,
 		},
 
 		LimitCpuMilliCore:   1000,
@@ -155,25 +165,7 @@ func TestCreateVirtualMachineFailedOnNetworkInterface(t *testing.T) {
 			},
 		},
 		Uuid: "1d5fd196-b6c9-4f58-86f2-3ef227018e47",
-
-		State:                 pprovisioning.VirtualMachine_RUNNING,
-		ComputeNodeName:       mnode.Name,
-		ComputeName:           "test-virtual-machine",
-		NetworkInterfaceNames: []string{"test-virtual-machine0"},
-	}
-
-	_, err = vma.CreateVirtualMachine(ctx, &pprovisioning.CreateVirtualMachineRequest{
-		Name:                vm.Name,
-		Annotations:         vm.Annotations,
-		LimitCpuMilliCore:   vm.LimitCpuMilliCore,
-		RequestCpuMilliCore: vm.RequestCpuMilliCore,
-		LimitMemoryBytes:    vm.LimitMemoryBytes,
-		RequestMemoryBytes:  vm.RequestMemoryBytes,
-		BlockStorageNames:   vm.BlockStorageNames,
-		Nics:                vm.Nics,
-		Uuid:                vm.Uuid,
-	})
-	if err == nil {
+	}); err == nil {
 		t.Fatalf("Create virtual machine do not failed")
 	}
 
@@ -209,11 +201,10 @@ func TestCreateVirtualMachineFailedOnBlockStorage(t *testing.T) {
 		t.Fatalf("Failed to factory bloclstorage: err='%s'", err.Error())
 	}
 
-	vm := &pprovisioning.VirtualMachine{
+	if _, err := vma.CreateVirtualMachine(ctx, &pprovisioning.CreateVirtualMachineRequest{
 		Name: "test-virtual-machine",
 		Annotations: map[string]string{
-			AnnotationVirtualMachineRequestNodeName:  mnode.Name,
-			AnnotationVirtualMachineVncWebSocketPort: "6900",
+			AnnotationVirtualMachineRequestNodeName: mnode.Name,
 		},
 
 		LimitCpuMilliCore:   1000,
@@ -232,25 +223,7 @@ func TestCreateVirtualMachineFailedOnBlockStorage(t *testing.T) {
 			},
 		},
 		Uuid: "1d5fd196-b6c9-4f58-86f2-3ef227018e47",
-
-		State:                 pprovisioning.VirtualMachine_RUNNING,
-		ComputeNodeName:       mnode.Name,
-		ComputeName:           "test-virtual-machine",
-		NetworkInterfaceNames: []string{"test-virtual-machine0"},
-	}
-
-	_, err = vma.CreateVirtualMachine(ctx, &pprovisioning.CreateVirtualMachineRequest{
-		Name:                vm.Name,
-		Annotations:         vm.Annotations,
-		LimitCpuMilliCore:   vm.LimitCpuMilliCore,
-		RequestCpuMilliCore: vm.RequestCpuMilliCore,
-		LimitMemoryBytes:    vm.LimitMemoryBytes,
-		RequestMemoryBytes:  vm.RequestMemoryBytes,
-		BlockStorageNames:   vm.BlockStorageNames,
-		Nics:                vm.Nics,
-		Uuid:                vm.Uuid,
-	})
-	if err == nil {
+	}); err == nil {
 		t.Fatalf("Create virtual machine do not failed")
 	}
 
@@ -286,11 +259,10 @@ func TestDeleteVirtualMachineFailedOnBlockStorage(t *testing.T) {
 		t.Fatalf("Failed to factory bloclstorage: err='%s'", err.Error())
 	}
 
-	vm := &pprovisioning.VirtualMachine{
+	vm, err := vma.CreateVirtualMachine(ctx, &pprovisioning.CreateVirtualMachineRequest{
 		Name: "test-virtual-machine",
 		Annotations: map[string]string{
-			AnnotationVirtualMachineRequestNodeName:  mnode.Name,
-			AnnotationVirtualMachineVncWebSocketPort: "6900",
+			AnnotationVirtualMachineRequestNodeName: mnode.Name,
 		},
 
 		LimitCpuMilliCore:   1000,
@@ -308,23 +280,6 @@ func TestDeleteVirtualMachineFailedOnBlockStorage(t *testing.T) {
 			},
 		},
 		Uuid: "1d5fd196-b6c9-4f58-86f2-3ef227018e47",
-
-		State:                 pprovisioning.VirtualMachine_RUNNING,
-		ComputeNodeName:       mnode.Name,
-		ComputeName:           "test-virtual-machine",
-		NetworkInterfaceNames: []string{"test-virtual-machine0"},
-	}
-
-	vm, err = vma.CreateVirtualMachine(ctx, &pprovisioning.CreateVirtualMachineRequest{
-		Name:                vm.Name,
-		Annotations:         vm.Annotations,
-		LimitCpuMilliCore:   vm.LimitCpuMilliCore,
-		RequestCpuMilliCore: vm.RequestCpuMilliCore,
-		LimitMemoryBytes:    vm.LimitMemoryBytes,
-		RequestMemoryBytes:  vm.RequestMemoryBytes,
-		BlockStorageNames:   vm.BlockStorageNames,
-		Nics:                vm.Nics,
-		Uuid:                vm.Uuid,
 	})
 	if err != nil {
 		t.Fatalf("failed to create virtual machine")
