@@ -139,17 +139,18 @@ func RegisterBlockStorage(c *cli.Context) error {
 		bs := c.Args().Get(1)
 		a := c.Bool("apply-image")
 		if a == true {
-			fmt.Println("Try: GetImageRequest ", img)
+			fmt.Println("---> Try 'GetImageRequest ", img, "'")
 			cl := pdeployment.NewImageServiceClient(conn)
 			_, err = cl.GetImage(context.Background(), &pdeployment.GetImageRequest{Name: img})
 			if err != nil {
 				PrintGrpcError(err)
-				fmt.Println("Send: ApplyImageRequest ", img)
+				fmt.Println("---> Send 'ApplyImageRequest ", img, "'")
 				err = registerApplyImage(img, conn)
 				if err != nil {
 					return err
 				}
-				fmt.Println("Success! Send: RegisterBlockStorageRequest")
+				fmt.Println("---> Success 'ApplyImageRequest ", img, "'")
+				fmt.Println("---> Send 'RegisterBlockStorageRequest'")
 			}
 		}
 		return registerBlockStorage(img, bs, conn)
