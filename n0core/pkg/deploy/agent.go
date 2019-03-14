@@ -49,6 +49,11 @@ func (d LocalDeployer) CreateAgentUnit(command string) []byte {
 			Value:   "process",
 		},
 		{
+			Section: "Service",
+			Name:    "TasksMax",
+			Value:   "infinity",
+		},
+		{
 			Section: "Install",
 			Name:    "WantedBy",
 			Value:   "multi-user.target",

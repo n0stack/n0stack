@@ -22,6 +22,7 @@ Restart=always
 StartLimitInterval=0
 RestartSec=10
 KillMode=process
+TasksMax=infinity
 
 [Install]
 WantedBy=multi-user.target
