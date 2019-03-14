@@ -631,8 +631,17 @@ func (a *VirtualMachineAPI) bootVirtualMachine(ctx context.Context, req *pprovis
 			return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to CreateVirtualMachineAgent: desc=%s", grpc.ErrorDesc(err))
 		}
 		tx.PushRollback("", func() error {
-			_, err := cli.DeleteVirtualMachine(ctx, &DeleteVirtualMachineRequest{Name: vm.Name})
-			return err
+			cli, done, err := a.getAgent(ctx, vm.ComputeNodeName)
+			if err != nil {
+				return err
+			}
+			defer done()
+
+			if _, err := cli.DeleteVirtualMachine(ctx, &DeleteVirtualMachineRequest{Name: vm.Name}); err != nil {
+				return err
+			}
+
+			return nil
 		})
 
 		vm.Annotations[AnnotationVirtualMachineVncWebSocketPort] = strconv.Itoa(int(res.WebsocketPort))
