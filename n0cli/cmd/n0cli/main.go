@@ -1,19 +1,30 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 
+	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
+
 	"github.com/fatih/color"
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
+
+	grpccmd "github.com/n0stack/n0stack/n0cli/grpc_cmd"
 )
 
 var version = "undefined"
 
 func main() {
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	outputter := grpccmd.DefaultOutputer()
+
 	app := cli.NewApp()
 	app.Name = "n0cli"
 	app.Version = version
@@ -29,6 +40,7 @@ func main() {
 	`
 
 	app.Flags = []cli.Flag{
+		grpccmd.API_URL_FLAG,
 		cli.StringFlag{
 			Name:   "api-endpoint",
 			Value:  "localhost:20180",
@@ -103,13 +115,32 @@ func main() {
 					Name:      "get",
 					Usage:     "Get Network(s)",
 					ArgsUsage: "[Network name (optional) ...]",
-					Action:    GetNetwork,
+					Action: func(c *cli.Context) error {
+						out := outputter.GenerateOutputMethod([]string{"name", "ipv4_cidr", "ipv6_cidr"})
+						if c.NArg() == 0 {
+							f := grpccmd.GenerateAction(ctx, out, ppool.NetworkServiceClient.ListNetworks, []string{})
+							return f(c)
+						} else if c.NArg() == 1 {
+							f := grpccmd.GenerateAction(ctx, out, ppool.NetworkServiceClient.GetNetwork, []string{"name"})
+							return f(c)
+						}
+
+						return fmt.Errorf("set valid arguments")
+					},
+					Flags: append(grpccmd.GenerateFlags(ppool.NetworkServiceClient.GetNetwork), grpccmd.OUTPUT_TYPE_FLAG),
 				},
 				{
 					Name:      "delete",
 					Usage:     "Delete Network",
 					ArgsUsage: "[Network name]",
 					Action:    DeleteNetwork,
+				},
+				{
+					Name:      "apply",
+					Usage:     "Apply Network",
+					ArgsUsage: "[Network name]",
+					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, ppool.NetworkServiceClient.ApplyNetwork, []string{"name"}),
+					Flags:     grpccmd.GenerateFlags(ppool.NetworkServiceClient.ApplyNetwork),
 				},
 			},
 		},
@@ -217,6 +248,7 @@ func main() {
 					Usage:     c2.Usage,
 					ArgsUsage: c2.ArgsUsage,
 					Action:    c2.Action,
+					Flags:     c2.Flags,
 				})
 			} else if c2.Name == "delete" {
 				deleteCommand.Subcommands = append(deleteCommand.Subcommands, cli.Command{
@@ -225,6 +257,7 @@ func main() {
 					Usage:     c2.Usage,
 					ArgsUsage: c2.ArgsUsage,
 					Action:    c2.Action,
+					Flags:     c2.Flags,
 				})
 			}
 		}
