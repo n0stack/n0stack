@@ -221,6 +221,37 @@ func main() {
 					ArgsUsage: "[Image name]",
 					Action:    DeleteImage,
 				},
+				{
+					Name:      "register",
+					Usage:     "Add [BlockStorage] to [Image name] WITH ApplyImageRequest [Image name]",
+					Description: "register blockstorage to image.",
+					ArgsUsage: "-a [Image name] [BlockStorage name]",
+					Flags:     []cli.Flag {
+						cli.BoolFlag{
+							Name: "apply-image, a",
+					    Usage: "If [Image name] doesn't exist, it send ApplyImageRequest.",
+						},
+					},
+					Action:    RegisterBlockStorage,
+				},
+				{
+					Name:      "unregister",
+					Usage:     "Remove [BlockStorage name] from [Image name]",
+					ArgsUsage: "[Image name] [BlockStorage name]",
+					Action:    UnregisterBlockStorage,
+				},
+				{
+					Name:      "tag",
+					Usage:     "Add [Tag name] to [BlockStorage name] of [Image name]",
+					ArgsUsage: "[Image name]:[Tag name] [BlockStorage name]",
+					Action:    Tag,
+				},
+				{
+					Name:      "untag",
+					Usage:     "Remove [Tag name] from [Image name]",
+					ArgsUsage: "[Image name]:[Tag name]",
+					Action:    Untag,
+				},
 			},
 		},
 	}
