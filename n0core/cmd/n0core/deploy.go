@@ -51,7 +51,7 @@ func DeployAgent(ctx *cli.Context) error {
 	}
 	defer conn.Close()
 
-	d, err := deploy.NewRemoteDeployer(conn, target)
+	d, err := deploy.NewRemoteDeployer(conn, "/tmp/")
 	if err != nil {
 		return err
 	}
@@ -66,7 +66,7 @@ func DeployAgent(ctx *cli.Context) error {
 		return err
 	}
 
-	cmd := fmt.Sprintf("%s install agent -base-directory %s -arguments '%s'", filepath.Join(target, binLocation), target, args)
+	cmd := fmt.Sprintf("%s install agent -base-directory %s -arguments '%s'", filepath.Join("/tmp/", binLocation), target, args)
 	fmt.Printf("---> [DEPLOY] Running install '%s'...\n", cmd)
 	if err := d.Command(cmd, os.Stdout, os.Stderr); err != nil {
 		return err
