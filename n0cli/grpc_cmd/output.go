@@ -76,7 +76,7 @@ func (o Outputter) OutputJson(m proto.Message) error {
 
 func (o Outputter) OutputTable(m proto.Message, keys []string) error {
 	buf := &bytes.Buffer{}
-	err := marshaler.Marshal(buf, m) // エラーを潰している
+	err := marshaler.Marshal(buf, m)
 	if err != nil {
 		return errors.Wrapf(err, "failed to marshal message to json")
 	}

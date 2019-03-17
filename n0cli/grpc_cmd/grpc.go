@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"os"
 	"reflect"
 	"strings"
 
@@ -100,9 +101,14 @@ func GenerateGRPCGetter(f interface{}, argsKeys []string, newGrpcClient interfac
 		cli := newCli.Call([]reflect.Value{reflect.ValueOf(conn)})[0]
 		out := v.Call([]reflect.Value{cli, reflect.ValueOf(ctx), req})
 		if err, _ := out[1].Interface().(error); err != nil {
-			return nil, fmt.Errorf("got error response: %s", err.Error())
+			PrintGrpcError(err)
+			return nil, fmt.Errorf("")
 		}
 
 		return out[0].Interface().(proto.Message), nil
 	}
+}
+
+func PrintGrpcError(err error) {
+	fmt.Fprintf(os.Stderr, "[%s] %s\n", grpc.Code(err).String(), grpc.ErrorDesc(err))
 }
