@@ -33,6 +33,9 @@ func GenerateFlags(targetGRPC interface{}) []cli.Flag {
 		case reflect.String:
 			flags = append(flags, cli.StringFlag{Name: tag})
 
+		case reflect.Bool:
+			flags = append(flags, cli.BoolFlag{Name: tag})
+
 		case reflect.Int64:
 			flags = append(flags, cli.Int64Flag{Name: tag})
 		case reflect.Int32:

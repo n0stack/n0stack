@@ -66,6 +66,9 @@ func GenerateGRPCGetter(f interface{}, argsKeys []string, newGrpcClient interfac
 			case reflect.String:
 				target.Set(reflect.ValueOf(c.String(tag)))
 
+			case reflect.Bool:
+				target.Set(reflect.ValueOf(c.Bool(tag)))
+
 			case reflect.Int64:
 				target.Set(reflect.ValueOf(c.Int64(tag)))
 			case reflect.Int32:
