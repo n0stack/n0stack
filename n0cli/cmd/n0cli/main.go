@@ -118,10 +118,10 @@ func main() {
 					Action: func(c *cli.Context) error {
 						out := outputter.GenerateOutputMethod([]string{"name", "ipv4_cidr", "ipv6_cidr"})
 						if c.NArg() == 0 {
-							f := grpccmd.GenerateAction(ctx, out, ppool.NetworkServiceClient.ListNetworks, []string{})
+							f := grpccmd.GenerateAction(ctx, out, ppool.NewNetworkServiceClient, ppool.NetworkServiceClient.ListNetworks, []string{})
 							return f(c)
 						} else if c.NArg() == 1 {
-							f := grpccmd.GenerateAction(ctx, out, ppool.NetworkServiceClient.GetNetwork, []string{"name"})
+							f := grpccmd.GenerateAction(ctx, out, ppool.NewNetworkServiceClient, ppool.NetworkServiceClient.GetNetwork, []string{"name"})
 							return f(c)
 						}
 
@@ -139,7 +139,7 @@ func main() {
 					Name:      "apply",
 					Usage:     "Apply Network",
 					ArgsUsage: "[Network name]",
-					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, ppool.NetworkServiceClient.ApplyNetwork, []string{"name"}),
+					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, ppool.NewNetworkServiceClient, ppool.NetworkServiceClient.ApplyNetwork, []string{"name"}),
 					Flags:     grpccmd.GenerateFlags(ppool.NetworkServiceClient.ApplyNetwork),
 				},
 			},
@@ -222,17 +222,17 @@ func main() {
 					Action:    DeleteImage,
 				},
 				{
-					Name:      "register",
-					Usage:     "Add [BlockStorage] to [Image name] WITH ApplyImageRequest [Image name]",
+					Name:        "register",
+					Usage:       "Add [BlockStorage] to [Image name] WITH ApplyImageRequest [Image name]",
 					Description: "register blockstorage to image.",
-					ArgsUsage: "-a [Image name] [BlockStorage name]",
-					Flags:     []cli.Flag {
+					ArgsUsage:   "-a [Image name] [BlockStorage name]",
+					Flags: []cli.Flag{
 						cli.BoolFlag{
-							Name: "apply-image, a",
-					    Usage: "If [Image name] doesn't exist, it send ApplyImageRequest.",
+							Name:  "apply-image, a",
+							Usage: "If [Image name] doesn't exist, it send ApplyImageRequest.",
 						},
 					},
-					Action:    RegisterBlockStorage,
+					Action: RegisterBlockStorage,
 				},
 				{
 					Name:      "unregister",

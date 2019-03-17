@@ -11,8 +11,6 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
-
-	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
 )
 
 var API_URL_FLAG = cli.StringFlag{
@@ -38,7 +36,7 @@ func Connect2gRPC(c *cli.Context) (*grpc.ClientConn, error) {
 }
 
 // this function panic when set an argument that is not gRPC method.
-func GenerateGRPCGetter(f interface{}, argsKeys []string) func(c *cli.Context, ctx context.Context, conn *grpc.ClientConn) (proto.Message, error) {
+func GenerateGRPCGetter(f interface{}, argsKeys []string, newGrpcClient interface{}) func(c *cli.Context, ctx context.Context, conn *grpc.ClientConn) (proto.Message, error) {
 	t := reflect.TypeOf(f)
 	v := reflect.ValueOf(f)
 
@@ -98,8 +96,9 @@ func GenerateGRPCGetter(f interface{}, argsKeys []string) func(c *cli.Context, c
 		}
 
 		log.Printf("[DEBUG] request: %+v", req)
-		cli := ppool.NewNetworkServiceClient(conn) // TODO: ここをうまくやる
-		out := v.Call([]reflect.Value{reflect.ValueOf(cli), reflect.ValueOf(ctx), req})
+		newCli := reflect.ValueOf(newGrpcClient)
+		cli := newCli.Call([]reflect.Value{reflect.ValueOf(conn)})[0]
+		out := v.Call([]reflect.Value{cli, reflect.ValueOf(ctx), req})
 		if err, _ := out[1].Interface().(error); err != nil {
 			return nil, fmt.Errorf("got error response: %s", err.Error())
 		}

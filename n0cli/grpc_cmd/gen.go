@@ -62,8 +62,8 @@ func GenerateFlags(targetGRPC interface{}) []cli.Flag {
 	return flags
 }
 
-func GenerateAction(ctx context.Context, output OutputMessage, targetGRPC interface{}, argsKeys []string) func(*cli.Context) error {
-	getter := GenerateGRPCGetter(targetGRPC, argsKeys)
+func GenerateAction(ctx context.Context, output OutputMessage, newGrpcClient interface{}, targetGRPC interface{}, argsKeys []string) func(*cli.Context) error {
+	getter := GenerateGRPCGetter(targetGRPC, argsKeys, newGrpcClient)
 
 	return func(c *cli.Context) error {
 		conn, err := Connect2gRPC(c)
