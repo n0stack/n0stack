@@ -7,11 +7,13 @@ import (
 	"log"
 	"os"
 
-	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
-
 	"github.com/fatih/color"
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
+
+	pdeployment "github.com/n0stack/n0stack/n0proto.go/deployment/v0"
+	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	pprovisioning "github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
 
 	grpccmd "github.com/n0stack/n0stack/n0cli/grpc_cmd"
 )
@@ -116,7 +118,7 @@ func main() {
 					Usage:     "Get Network(s)",
 					ArgsUsage: "[Network name (optional) ...]",
 					Action: func(c *cli.Context) error {
-						out := outputter.GenerateOutputMethod([]string{"name", "ipv4_cidr", "ipv6_cidr"})
+						out := outputter.GenerateOutputMethod([]string{"name", "state", "ipv4_cidr", "ipv6_cidr"})
 						if c.NArg() == 0 {
 							f := grpccmd.GenerateAction(ctx, out, ppool.NewNetworkServiceClient, ppool.NetworkServiceClient.ListNetworks, []string{})
 							return f(c)
@@ -164,10 +166,32 @@ func main() {
 					Action:    DeleteVirtualMachine,
 				},
 				{
+					Name:      "create",
+					Usage:     "Create VirtualMachine",
+					ArgsUsage: "[VirtualMachine name]",
+					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pprovisioning.NewVirtualMachineServiceClient, pprovisioning.VirtualMachineServiceClient.CreateVirtualMachine, []string{"name"}),
+					Flags:     grpccmd.GenerateFlags(pprovisioning.VirtualMachineServiceClient.CreateVirtualMachine),
+				},
+				{
 					Name:      "boot",
 					Usage:     "Boot VirtualMachine",
 					ArgsUsage: "[VirtualMachine name]",
-					Action:    BootVirtualMachine,
+					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pprovisioning.NewVirtualMachineServiceClient, pprovisioning.VirtualMachineServiceClient.BootVirtualMachine, []string{"name"}),
+					Flags:     grpccmd.GenerateFlags(pprovisioning.VirtualMachineServiceClient.BootVirtualMachine),
+				},
+				{
+					Name:      "reboot",
+					Usage:     "Reboot VirtualMachine",
+					ArgsUsage: "[VirtualMachine name]",
+					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pprovisioning.NewVirtualMachineServiceClient, pprovisioning.VirtualMachineServiceClient.RebootVirtualMachine, []string{"name"}),
+					Flags:     grpccmd.GenerateFlags(pprovisioning.VirtualMachineServiceClient.RebootVirtualMachine),
+				},
+				{
+					Name:      "shutdown",
+					Usage:     "Shutdown VirtualMachine",
+					ArgsUsage: "[VirtualMachine name]",
+					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pprovisioning.NewVirtualMachineServiceClient, pprovisioning.VirtualMachineServiceClient.ShutdownVirtualMachine, []string{"name"}),
+					Flags:     grpccmd.GenerateFlags(pprovisioning.VirtualMachineServiceClient.ShutdownVirtualMachine),
 				},
 				{
 					Name:      "open_console",
@@ -197,6 +221,34 @@ func main() {
 					Action:    DeleteBlockStorage,
 				},
 				{
+					Name:      "create",
+					Usage:     "Create BlockStorage",
+					ArgsUsage: "[BlockStorage name]",
+					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.CreateBlockStorage, []string{"name"}),
+					Flags:     grpccmd.GenerateFlags(pprovisioning.BlockStorageServiceClient.CreateBlockStorage),
+				},
+				{
+					Name:      "copy",
+					Usage:     "Create BlockStorage",
+					ArgsUsage: "[BlockStorage name]",
+					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.CopyBlockStorage, []string{"name"}),
+					Flags:     grpccmd.GenerateFlags(pprovisioning.BlockStorageServiceClient.CopyBlockStorage),
+				},
+				{
+					Name:      "fetch",
+					Usage:     "Fetch BlockStorage",
+					ArgsUsage: "[BlockStorage name]",
+					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.FetchBlockStorage, []string{"name"}),
+					Flags:     grpccmd.GenerateFlags(pprovisioning.BlockStorageServiceClient.FetchBlockStorage),
+				},
+				{
+					Name:      "update",
+					Usage:     "Update BlockStorage",
+					ArgsUsage: "[BlockStorage name]",
+					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.UpdateBlockStorage, []string{"name"}),
+					Flags:     grpccmd.GenerateFlags(pprovisioning.BlockStorageServiceClient.UpdateBlockStorage),
+				},
+				{
 					Name:      "download",
 					Usage:     "Get URL to download BlockStorage",
 					ArgsUsage: "[BlockStorage name]",
@@ -220,6 +272,13 @@ func main() {
 					Usage:     "Delete Image",
 					ArgsUsage: "[Image name]",
 					Action:    DeleteImage,
+				},
+				{
+					Name:      "apply",
+					Usage:     "Apply Image",
+					ArgsUsage: "[Image name]",
+					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pdeployment.NewImageServiceClient, pdeployment.ImageServiceClient.ApplyImage, []string{"name"}),
+					Flags:     grpccmd.GenerateFlags(pdeployment.ImageServiceClient.ApplyImage),
 				},
 				{
 					Name:        "register",
