@@ -44,7 +44,7 @@ func DefaultOutputer() *Outputter {
 
 func (o Outputter) GenerateOutputMethod(tableKeys []string) OutputMessage {
 	return func(c *cli.Context, m proto.Message) error {
-		output := c.String(OUTPUT_TYPE_FLAG.Name)
+		output := c.String("output")
 
 		switch output {
 		case "table":
@@ -57,8 +57,12 @@ func (o Outputter) GenerateOutputMethod(tableKeys []string) OutputMessage {
 			// 	return o.OutputYaml(m)
 		}
 
-		return nil
+		return errors.New("invalid output type")
 	}
+}
+
+func (o Outputter) OutputJsonAsOutputMessage(c *cli.Context, m proto.Message) error {
+	return o.OutputJson(m)
 }
 
 func (o Outputter) OutputJson(m proto.Message) error {
