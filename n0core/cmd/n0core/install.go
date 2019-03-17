@@ -46,16 +46,15 @@ func InstallAgent(ctx *cli.Context) error {
 		return errors.Wrap(err, "Failed to stop systemd daemon")
 	}
 
-	binPath := "/var/lib/n0core"
-	fmt.Printf("---> [INSTALL] Installing self to %s...\n", binPath)
-	installPath, err := d.InstallBinary(binPath)
+	fmt.Printf("---> [INSTALL] Installing self to %s...\n", target)
+	installPath, err := d.InstallBinary(target)
 	if err != nil {
 		return errors.Wrap(err, "Failed to install binary")
 	}
 
 	binLocation := "/usr/bin/n0core"
 	fmt.Printf("---> [INSTALL] Linking self to %s...\n", binLocation)
-	if err := d.LinkSelf(installPath, binLocation); err != nil {
+	if err := d.Link(installPath, binLocation); err != nil {
 		return errors.Wrap(err, "Failed to link self")
 	}
 

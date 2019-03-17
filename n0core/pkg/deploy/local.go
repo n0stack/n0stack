@@ -80,7 +80,7 @@ func (d LocalDeployer) InstallBinary(path string) (string, error) {
 	return installPath, nil
 }
 
-func (d LocalDeployer) LinkSelf(srcpath, dstpath string) error {
+func (d LocalDeployer) Link(srcpath, dstpath string) error {
 	self, err := filepath.Abs(srcpath)
 	if err != nil {
 		return errors.Wrap(err, "Failed to get self absolute path")

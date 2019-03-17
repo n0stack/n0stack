@@ -27,6 +27,7 @@ func DeployAgent(ctx *cli.Context) error {
 	keyPath := ctx.String("identity-file")
 	args := strings.Join(ctx.Args()[1:], " ")
 	target := ctx.String("base-directory")
+	sendTo := ctx.String("send-to")
 
 	buf, err := ioutil.ReadFile(keyPath)
 	if err != nil {
@@ -51,7 +52,7 @@ func DeployAgent(ctx *cli.Context) error {
 	}
 	defer conn.Close()
 
-	d, err := deploy.NewRemoteDeployer(conn, "/tmp/")
+	d, err := deploy.NewRemoteDeployer(conn, sendTo)
 	if err != nil {
 		return err
 	}
@@ -66,7 +67,7 @@ func DeployAgent(ctx *cli.Context) error {
 		return err
 	}
 
-	cmd := fmt.Sprintf("%s install agent -base-directory %s -arguments '%s'", filepath.Join("/tmp/", binLocation), target, args)
+	cmd := fmt.Sprintf("%s install agent -base-directory %s -arguments '%s'", filepath.Join(sendTo, binLocation), target, args)
 	fmt.Printf("---> [DEPLOY] Running install '%s'...\n", cmd)
 	if err := d.Command(cmd, os.Stdout, os.Stderr); err != nil {
 		return err

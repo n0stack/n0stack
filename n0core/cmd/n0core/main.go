@@ -111,6 +111,10 @@ func main() {
 							Value: "/var/lib/n0core",
 						},
 						cli.StringFlag{
+							Name:  "send-to",
+							Value: "/tmp",
+						},
+						cli.StringFlag{
 							Name: "identity-file, i",
 						},
 					},
