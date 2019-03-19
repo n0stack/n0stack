@@ -111,12 +111,6 @@ func main() {
 					},
 					Flags: append(grpccmd.GenerateFlags(ppool.NodeServiceClient.GetNode, []string{"name"}), grpccmd.OUTPUT_TYPE_FLAG),
 				},
-				{
-					Name:      "delete",
-					Usage:     "Delete Node",
-					ArgsUsage: "[Node name]",
-					Action:    DeleteNode,
-				},
 			},
 		},
 		{
@@ -147,7 +141,8 @@ func main() {
 					Name:      "delete",
 					Usage:     "Delete Network",
 					ArgsUsage: "[Network name]",
-					Action:    DeleteNetwork,
+					Action:    grpccmd.GenerateAction(ctx, outputter.OutputNone, ppool.NewNetworkServiceClient, ppool.NetworkServiceClient.DeleteNetwork, []string{"name"}),
+					Flags:     grpccmd.GenerateFlags(ppool.NetworkServiceClient.DeleteNetwork, []string{"name"}),
 				},
 				{
 					Name:      "apply",
@@ -187,7 +182,8 @@ func main() {
 					Name:      "delete",
 					Usage:     "Delete VirtualMachine",
 					ArgsUsage: "[VirtualMachine name]",
-					Action:    DeleteVirtualMachine,
+					Action:    grpccmd.GenerateAction(ctx, outputter.OutputNone, pprovisioning.NewVirtualMachineServiceClient, pprovisioning.VirtualMachineServiceClient.DeleteVirtualMachine, []string{"name"}),
+					Flags:     grpccmd.GenerateFlags(pprovisioning.VirtualMachineServiceClient.DeleteVirtualMachine, []string{"name"}),
 				},
 				{
 					Name:      "create",
@@ -254,7 +250,8 @@ func main() {
 					Name:      "delete",
 					Usage:     "Delete BlockStorage",
 					ArgsUsage: "[BlockStorage name]",
-					Action:    DeleteBlockStorage,
+					Action:    grpccmd.GenerateAction(ctx, outputter.OutputNone, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.DeleteBlockStorage, []string{"name"}),
+					Flags:     grpccmd.GenerateFlags(pprovisioning.BlockStorageServiceClient.DeleteBlockStorage, []string{"name"}),
 				},
 				{
 					Name:      "create",
@@ -319,7 +316,8 @@ func main() {
 					Name:      "delete",
 					Usage:     "Delete Image",
 					ArgsUsage: "[Image name]",
-					Action:    DeleteImage,
+					Action:    grpccmd.GenerateAction(ctx, outputter.OutputNone, pdeployment.NewImageServiceClient, pdeployment.ImageServiceClient.DeleteImage, []string{"name"}),
+					Flags:     grpccmd.GenerateFlags(pdeployment.ImageServiceClient.DeleteImage, []string{"name"}),
 				},
 				{
 					Name:      "apply",

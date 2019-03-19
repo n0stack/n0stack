@@ -61,6 +61,10 @@ func (o Outputter) GenerateOutputMethod(tableKeys []string) OutputMessage {
 	}
 }
 
+func (o Outputter) OutputNone(c *cli.Context, m proto.Message) error {
+	return nil
+}
+
 func (o Outputter) OutputJsonAsOutputMessage(c *cli.Context, m proto.Message) error {
 	return o.OutputJson(m)
 }
