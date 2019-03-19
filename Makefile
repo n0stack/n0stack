@@ -41,7 +41,7 @@ build-n0core-on-docker:
 
 .PHONY: build-n0cli
 build-n0cli:
-	GOOS=${GOOS} GOARCH=${GOARCH} go build -o bin/n0cli -ldflags "-X main.version=$(VERSION)" -v ./n0cli/cmd/n0cli
+	GOOS=${GOOS} GOARCH=${GOARCH} go build -o bin/n0cli -ldflags "-X main.version=$(VERSION)" -v ./n0cli
 
 .PHONY: build-n0cli-on-docker
 build-n0cli-on-docker:
