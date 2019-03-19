@@ -96,8 +96,20 @@ func main() {
 				{
 					Name:      "get",
 					Usage:     "Get Node(s)",
-					ArgsUsage: "[Node name (optional) ...]",
-					Action:    GetNode,
+					ArgsUsage: "[Node name (optional)]",
+					Action: func(c *cli.Context) error {
+						out := outputter.GenerateOutputMethod([]string{"name", "state", "address", "ipmi_address", "serial"})
+						if c.NArg() == 0 {
+							f := grpccmd.GenerateAction(ctx, out, ppool.NewNodeServiceClient, ppool.NodeServiceClient.ListNodes, []string{})
+							return f(c)
+						} else if c.NArg() == 1 {
+							f := grpccmd.GenerateAction(ctx, out, ppool.NewNodeServiceClient, ppool.NodeServiceClient.GetNode, []string{"name"})
+							return f(c)
+						}
+
+						return fmt.Errorf("set valid arguments")
+					},
+					Flags: append(grpccmd.GenerateFlags(ppool.NodeServiceClient.GetNode, []string{"name"}), grpccmd.OUTPUT_TYPE_FLAG),
 				},
 				{
 					Name:      "delete",
@@ -116,7 +128,7 @@ func main() {
 				{
 					Name:      "get",
 					Usage:     "Get Network(s)",
-					ArgsUsage: "[Network name (optional) ...]",
+					ArgsUsage: "[Network name (optional)]",
 					Action: func(c *cli.Context) error {
 						out := outputter.GenerateOutputMethod([]string{"name", "state", "ipv4_cidr", "ipv6_cidr"})
 						if c.NArg() == 0 {
@@ -156,8 +168,20 @@ func main() {
 				{
 					Name:      "get",
 					Usage:     "Get VirtualMachine(s)",
-					ArgsUsage: "[VirtualMachine name (optional) ...]",
-					Action:    GetVirtualMachine,
+					ArgsUsage: "[VirtualMachine name (optional)]",
+					Action: func(c *cli.Context) error {
+						out := outputter.GenerateOutputMethod([]string{"name", "state", "uuid", "request_cpu_milli_core", "limit_cpu_milli_core", "request_memory_bytes", "limit_memory_bytes"})
+						if c.NArg() == 0 {
+							f := grpccmd.GenerateAction(ctx, out, pprovisioning.NewVirtualMachineServiceClient, pprovisioning.VirtualMachineServiceClient.ListVirtualMachines, []string{})
+							return f(c)
+						} else if c.NArg() == 1 {
+							f := grpccmd.GenerateAction(ctx, out, pprovisioning.NewVirtualMachineServiceClient, pprovisioning.VirtualMachineServiceClient.GetVirtualMachine, []string{"name"})
+							return f(c)
+						}
+
+						return fmt.Errorf("set valid arguments")
+					},
+					Flags: append(grpccmd.GenerateFlags(pprovisioning.VirtualMachineServiceClient.GetVirtualMachine, []string{"name"}), grpccmd.OUTPUT_TYPE_FLAG),
 				},
 				{
 					Name:      "delete",
@@ -211,8 +235,20 @@ func main() {
 				{
 					Name:      "get",
 					Usage:     "Get BlockStorage(s)",
-					ArgsUsage: "[BlockStorage name (optional) ...]",
-					Action:    GetBlockStorage,
+					ArgsUsage: "[BlockStorage name (optional)]",
+					Action: func(c *cli.Context) error {
+						out := outputter.GenerateOutputMethod([]string{"name", "state", "request_bytes", "limit_bytes"})
+						if c.NArg() == 0 {
+							f := grpccmd.GenerateAction(ctx, out, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.ListBlockStorages, []string{})
+							return f(c)
+						} else if c.NArg() == 1 {
+							f := grpccmd.GenerateAction(ctx, out, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.GetBlockStorage, []string{"name"})
+							return f(c)
+						}
+
+						return fmt.Errorf("set valid arguments")
+					},
+					Flags: append(grpccmd.GenerateFlags(pprovisioning.BlockStorageServiceClient.GetBlockStorage, []string{"name"}), grpccmd.OUTPUT_TYPE_FLAG),
 				},
 				{
 					Name:      "delete",
@@ -264,8 +300,20 @@ func main() {
 				{
 					Name:      "get",
 					Usage:     "Get Image(s)",
-					ArgsUsage: "[Image name (optional) ...]",
-					Action:    GetImage,
+					ArgsUsage: "[Image name (optional)]",
+					Action: func(c *cli.Context) error {
+						out := outputter.GenerateOutputMethod([]string{"name", "tags"})
+						if c.NArg() == 0 {
+							f := grpccmd.GenerateAction(ctx, out, pdeployment.NewImageServiceClient, pdeployment.ImageServiceClient.ListImages, []string{})
+							return f(c)
+						} else if c.NArg() == 1 {
+							f := grpccmd.GenerateAction(ctx, out, pdeployment.NewImageServiceClient, pdeployment.ImageServiceClient.GetImage, []string{"name"})
+							return f(c)
+						}
+
+						return fmt.Errorf("set valid arguments")
+					},
+					Flags: append(grpccmd.GenerateFlags(pdeployment.ImageServiceClient.GetImage, []string{"name"}), grpccmd.OUTPUT_TYPE_FLAG),
 				},
 				{
 					Name:      "delete",
@@ -316,14 +364,12 @@ func main() {
 	}
 
 	getCommand := cli.Command{
-		Name:      "get",
-		Usage:     "Get resource(s)",
-		ArgsUsage: "[resource name (optional) ...]",
+		Name:  "get",
+		Usage: "Get resource(s)",
 	}
 	deleteCommand := cli.Command{
-		Name:      "delete",
-		Usage:     "Delete resource",
-		ArgsUsage: "[resource name]",
+		Name:  "delete",
+		Usage: "Delete resource",
 	}
 	for _, c1 := range app.Commands {
 		if c1.Name == "do" {
