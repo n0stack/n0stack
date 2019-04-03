@@ -17,6 +17,8 @@ ApplyImage:
   action: ApplyImage
   args:
     name: cloudimage-ubuntu
+    labels:
+      test-label: testing
 
 RegisterBlockStorage:
   type: Image
