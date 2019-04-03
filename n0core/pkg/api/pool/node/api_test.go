@@ -8,7 +8,7 @@ import (
 	"code.cloudfoundry.org/bytefmt"
 	"github.com/google/go-cmp/cmp"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/memory"
-	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 )
@@ -38,28 +38,14 @@ func TestApplyNode(t *testing.T) {
 	m := memory.NewMemoryDatastore()
 	na := NewMockNodeAPI(m)
 
-	n := &ppool.Node{
-		Name: "test-node",
-
-		Address:     "10.0.0.1",
-		IpmiAddress: "192.168.0.1",
-		Serial:      "aa",
-
-		CpuMilliCores: 1000,
-		MemoryBytes:   1 * bytefmt.GIGABYTE,
-		StorageBytes:  10 * bytefmt.GIGABYTE,
-
-		Datacenter:       "test-dc",
-		AvailabilityZone: "test-az",
-		Cell:             "test-cell",
-		Rack:             "test-rack",
-		Unit:             1,
-
-		State: ppool.Node_Ready,
-	}
-
 	applyRes, err := na.ApplyNode(context.Background(), &ppool.ApplyNodeRequest{
 		Name: "test-node",
+		Annotations: map[string]string{
+			"test-annotation": "testing",
+		},
+		Labels: map[string]string{
+			"test-label": "testing",
+		},
 
 		Address:     "10.0.0.1",
 		IpmiAddress: "192.168.0.1",
@@ -79,9 +65,34 @@ func TestApplyNode(t *testing.T) {
 		t.Fatalf("Failed to apply node: err='%s'", err.Error())
 	}
 
+	expected := &ppool.Node{
+		Name: "test-node",
+		Annotations: map[string]string{
+			"test-annotation": "testing",
+		},
+		Labels: map[string]string{
+			"test-label": "testing",
+		},
+
+		Address:     "10.0.0.1",
+		IpmiAddress: "192.168.0.1",
+		Serial:      "aa",
+
+		CpuMilliCores: 1000,
+		MemoryBytes:   1 * bytefmt.GIGABYTE,
+		StorageBytes:  10 * bytefmt.GIGABYTE,
+
+		Datacenter:       "test-dc",
+		AvailabilityZone: "test-az",
+		Cell:             "test-cell",
+		Rack:             "test-rack",
+		Unit:             1,
+
+		State: ppool.Node_Ready,
+	}
 	// diffが取れないので
 	applyRes.XXX_sizecache = 0
-	if diff := cmp.Diff(n, applyRes); diff != "" {
+	if diff := cmp.Diff(expected, applyRes); diff != "" {
 		t.Fatalf("ApplyNode response is wrong: diff=(-want +got)\n%s", diff)
 	}
 
@@ -93,15 +104,15 @@ func TestApplyNode(t *testing.T) {
 		t.Errorf("ListNodes response is wrong: have='%d', want='%d'", len(listRes.Nodes), 1)
 	}
 
-	getRes, err := na.GetNode(context.Background(), &ppool.GetNodeRequest{Name: n.Name})
+	getRes, err := na.GetNode(context.Background(), &ppool.GetNodeRequest{Name: expected.Name})
 	if err != nil {
 		t.Errorf("GetNode got error: err='%s'", err.Error())
 	}
-	if diff := cmp.Diff(n, getRes); diff != "" {
+	if diff := cmp.Diff(expected, getRes); diff != "" {
 		t.Errorf("GetNode response is wrong: diff=(-want +got)\n%s", diff)
 	}
 
-	if _, err := na.DeleteNode(context.Background(), &ppool.DeleteNodeRequest{Name: n.Name}); err != nil {
+	if _, err := na.DeleteNode(context.Background(), &ppool.DeleteNodeRequest{Name: expected.Name}); err != nil {
 		t.Errorf("DeleteNode got error: err='%s'", err.Error())
 	}
 }

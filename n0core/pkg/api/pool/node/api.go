@@ -89,6 +89,7 @@ func (a NodeAPI) ApplyNode(ctx context.Context, req *ppool.ApplyNodeRequest) (*p
 
 	res.Name = req.Name
 	res.Annotations = req.Annotations
+	res.Labels = req.Labels
 	res.Address = req.Address
 	res.IpmiAddress = req.IpmiAddress
 	res.Serial = req.Serial
