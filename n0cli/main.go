@@ -254,6 +254,20 @@ func main() {
 					Flags:     grpccmd.GenerateFlags(pprovisioning.BlockStorageServiceClient.DeleteBlockStorage, []string{"name"}),
 				},
 				{
+					Name:      "undelete",
+					Usage:     "Undelete BlockStorage",
+					ArgsUsage: "[BlockStorage name]",
+					Action:    grpccmd.GenerateAction(ctx, outputter.OutputNone, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.UndeleteBlockStorage, []string{"name"}),
+					Flags:     grpccmd.GenerateFlags(pprovisioning.BlockStorageServiceClient.UndeleteBlockStorage, []string{"name"}),
+				},
+				{
+					Name:      "purge",
+					Usage:     "Purge BlockStorage",
+					ArgsUsage: "[BlockStorage name]",
+					Action:    grpccmd.GenerateAction(ctx, outputter.OutputNone, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.PurgeBlockStorage, []string{"name"}),
+					Flags:     grpccmd.GenerateFlags(pprovisioning.BlockStorageServiceClient.PurgeBlockStorage, []string{"name"}),
+				},
+				{
 					Name:      "create",
 					Usage:     "Create BlockStorage",
 					ArgsUsage: "[BlockStorage name]",

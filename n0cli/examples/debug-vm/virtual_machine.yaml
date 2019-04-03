@@ -27,6 +27,22 @@ dbs2:
   depends_on:
     - dvm2
   ignore_error: true
+pbs1:
+  type: BlockStorage
+  action: PurgeBlockStorage
+  args:
+    name: vm1
+  depends_on:
+    - dbs1
+  ignore_error: true
+pbs2:
+  type: BlockStorage
+  action: PurgeBlockStorage
+  args:
+    name: vm2
+  depends_on:
+    - dbs2
+  ignore_error: true
 
 gbs1:
   type: Image
@@ -40,7 +56,7 @@ gbs1:
     request_bytes: 1073741824
     limit_bytes: 10737418240
   depends_on:
-    - dbs1
+    - pbs1
 gbs2:
   type: Image
   action: GenerateBlockStorage
@@ -53,7 +69,7 @@ gbs2:
     request_bytes: 1073741824
     limit_bytes: 10737418240
   depends_on:
-    - dbs2
+    - pbs2
 
 an:
   type: Network
