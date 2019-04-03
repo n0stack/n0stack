@@ -179,7 +179,7 @@ artifacts/%.tar.gz:
 	$(eval BINNAME := $(word 1,$(BASENAME_WORDS)))
 	$(eval GOOS := $(word 2,$(BASENAME_WORDS)))
 	$(eval GOARCH := $(word 3,$(BASENAME_WORDS)))
-	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o artifacts/$(BINNAME) $(GOFLAGS) ./$(BINNAME)/cmd/$(BINNAME)
+	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o artifacts/$(BINNAME) $(GOFLAGS) ./$(BINNAME)
 	cd artifacts && tar czvf $(notdir $@) $(BINNAME) --owner=n0stack:0 --group=n0stack:0
 	rm artifacts/$(BINNAME)
 
