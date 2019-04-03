@@ -76,9 +76,6 @@ func GetMessageType(s string, conn *grpc.ClientConn) (reflect.Type, reflect.Valu
 	case "image", "Image":
 		t = reflect.TypeOf(pdeployment.NewImageServiceClient(conn))
 		v = reflect.ValueOf(pdeployment.NewImageServiceClient(conn))
-	case "flavor", "Flavor":
-		t = reflect.TypeOf(pdeployment.NewFlavorServiceClient(conn))
-		v = reflect.ValueOf(pdeployment.NewFlavorServiceClient(conn))
 	default:
 		return nil, v, false
 	}
