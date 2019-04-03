@@ -102,7 +102,7 @@ func (a *VirtualMachineAPI) lockOptimistically(vm *pprovisioning.VirtualMachine)
 
 	f := func() error {
 		if vm.State == pprovisioning.VirtualMachine_PENDING {
-			vm.State = pprovisioning.VirtualMachine_UNKNOWN
+			vm.State = pprovisioning.VirtualMachine_VIRTUAL_MACHINE_UNSPECIFIED
 		}
 
 		return a.dataStore.Apply(vm.Name, vm)
@@ -179,7 +179,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 			return a.dataStore.Delete(vm.Name)
 		})
 
-		vm.State = pprovisioning.VirtualMachine_UNKNOWN
+		vm.State = pprovisioning.VirtualMachine_VIRTUAL_MACHINE_UNSPECIFIED
 	}
 
 	{
@@ -333,7 +333,7 @@ func GetAPIStateFromAgentState(s VirtualMachineState) pprovisioning.VirtualMachi
 		return pprovisioning.VirtualMachine_PAUSED
 	}
 
-	return pprovisioning.VirtualMachine_UNKNOWN
+	return pprovisioning.VirtualMachine_VIRTUAL_MACHINE_UNSPECIFIED
 }
 
 func (a *VirtualMachineAPI) ListVirtualMachines(ctx context.Context, req *pprovisioning.ListVirtualMachinesRequest) (*pprovisioning.ListVirtualMachinesResponse, error) {

@@ -103,7 +103,7 @@ func (a NodeAPI) ApplyNode(ctx context.Context, req *ppool.ApplyNodeRequest) (*p
 	res.Unit = req.Unit
 
 	// res.State = prev.State
-	res.State = ppool.Node_Ready
+	res.State = ppool.Node_READY
 
 	// TODO: 何らかの仕組みで死活監視
 	// res.Status.State = ppool.NodeStatus_NotReady

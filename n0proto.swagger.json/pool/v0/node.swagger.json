@@ -60,10 +60,11 @@
     "NodeNodeState": {
       "type": "string",
       "enum": [
-        "NotReady",
-        "Ready"
+        "NODE_UNSPECIFIED",
+        "READY",
+        "NOT_READY"
       ],
-      "default": "NotReady"
+      "default": "NODE_UNSPECIFIED"
     },
     "budgetCompute": {
       "type": "object",

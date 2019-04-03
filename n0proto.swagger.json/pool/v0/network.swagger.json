@@ -112,12 +112,12 @@
     "NetworkNetworkState": {
       "type": "string",
       "enum": [
-        "FAILED",
+        "NETWORK_UNSPECIFIED",
         "UNKNOWN",
         "AVAILABLE"
       ],
-      "default": "FAILED",
-      "description": " - FAILED: falied state because failed some process on API.\n - UNKNOWN: unknown state because failed to connect for scheduled node after RUNNING."
+      "default": "NETWORK_UNSPECIFIED",
+      "description": " - NETWORK_UNSPECIFIED: falied state because failed some process on API.\n - UNKNOWN: unknown state because failed to connect for scheduled node after RUNNING."
     },
     "budgetNetworkInterface": {
       "type": "object",

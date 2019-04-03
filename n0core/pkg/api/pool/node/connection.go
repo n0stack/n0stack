@@ -6,7 +6,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
 	"github.com/pkg/errors"
 )
 
@@ -16,7 +16,7 @@ func GetConnection(ctx context.Context, api ppool.NodeServiceClient, nodeName st
 		return nil, errors.Wrap(err, "Failed to get node from API")
 	}
 
-	if n.State != ppool.Node_Ready {
+	if n.State != ppool.Node_READY {
 		return nil, nil
 	}
 

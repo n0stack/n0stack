@@ -106,14 +106,14 @@
     "BlockStorageBlockStorageState": {
       "type": "string",
       "enum": [
-        "UNKNOWN",
+        "BLOCK_STORAGE_UNSPECIFIED",
         "PENDING",
         "AVAILABLE",
         "IN_USE",
         "PROTECTED"
       ],
-      "default": "UNKNOWN",
-      "title": "- UNKNOWN: unknown state because failed to connect for scheduled node after RUNNING\n - PENDING: working API"
+      "default": "BLOCK_STORAGE_UNSPECIFIED",
+      "title": "- PENDING: working API"
     },
     "provisioningBlockStorage": {
       "type": "object",

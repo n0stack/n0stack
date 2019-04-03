@@ -42,8 +42,9 @@ message Node {
   uint32 unit = 20;
 
   enum NodeState {
-    NotReady = 0;
-    Ready = 1;
+    NODE_UNSPECIFIED = 0;
+    READY = 1;
+    NOT_READY = 2;
   }
   NodeState state = 50;
 

@@ -29,7 +29,7 @@ message Network {
 
   enum NetworkState {
     // falied state because failed some process on API.
-    FAILED = 0;
+    NETWORK_UNSPECIFIED = 0;
 
     // unknown state because failed to connect for scheduled node after RUNNING.
     UNKNOWN = 1;

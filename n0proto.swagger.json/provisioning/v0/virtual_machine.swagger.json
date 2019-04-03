@@ -195,14 +195,14 @@
     "VirtualMachineVirtualMachineState": {
       "type": "string",
       "enum": [
-        "UNKNOWN",
+        "VIRTUAL_MACHINE_UNSPECIFIED",
         "PENDING",
         "RUNNING",
         "SHUTDOWN",
         "PAUSED"
       ],
-      "default": "UNKNOWN",
-      "title": "- UNKNOWN: unknown state because failed to connect for scheduled node after RUNNING.\n - PENDING: working API\n - RUNNING: running vm"
+      "default": "VIRTUAL_MACHINE_UNSPECIFIED",
+      "title": "- PENDING: working API\n - RUNNING: running vm"
     },
     "provisioningListVirtualMachinesResponse": {
       "type": "object",

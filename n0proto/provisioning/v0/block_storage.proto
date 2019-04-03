@@ -29,8 +29,8 @@ message BlockStorage {
   // bool cd = 4;
 
   enum BlockStorageState {
-    // unknown state because failed to connect for scheduled node after RUNNING
-    UNKNOWN = 0;
+    BLOCK_STORAGE_UNSPECIFIED = 0;
+  
     // working API
     PENDING = 1;
 

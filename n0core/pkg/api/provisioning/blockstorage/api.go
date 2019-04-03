@@ -658,7 +658,7 @@ func (a *BlockStorageAPI) SetAvailableBlockStorage(ctx context.Context, req *ppr
 		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "")
 	}
 
-	if res.State == pprovisioning.BlockStorage_UNKNOWN {
+	if res.State == pprovisioning.BlockStorage_PENDING {
 		return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "Can change state to AVAILABLE when UNKNOWN")
 	}
 	res.State = pprovisioning.BlockStorage_AVAILABLE
