@@ -72,24 +72,38 @@ func TestApplyNetwork(t *testing.T) {
 	m := memory.NewMemoryDatastore()
 	na := NewMockNetworkAPI(m)
 
-	n := &ppool.Network{
-		Name:     "test-network",
+	applyRes, err := na.ApplyNetwork(context.Background(), &ppool.ApplyNetworkRequest{
+		Name: "test-network",
+		Annotations: map[string]string{
+			"test-annotation": "testing",
+		},
+		Labels: map[string]string{
+			"test-label": "testing",
+		},
+
 		Ipv4Cidr: "192.168.0.0/30",
 		Domain:   "test.local",
-		State:    ppool.Network_AVAILABLE,
-	}
-
-	applyRes, err := na.ApplyNetwork(context.Background(), &ppool.ApplyNetworkRequest{
-		Name:     n.Name,
-		Ipv4Cidr: n.Ipv4Cidr,
-		Domain:   n.Domain,
 	})
 	if err != nil {
 		t.Fatalf("Failed to apply network: err='%s'", err.Error())
 	}
+
+	expected := &ppool.Network{
+		Name: "test-network",
+		Annotations: map[string]string{
+			"test-annotation": "testing",
+		},
+		Labels: map[string]string{
+			"test-label": "testing",
+		},
+
+		Ipv4Cidr: "192.168.0.0/30",
+		Domain:   "test.local",
+		State:    ppool.Network_AVAILABLE,
+	}
 	// diffが取れないので
 	applyRes.XXX_sizecache = 0
-	if diff := cmp.Diff(n, applyRes); diff != "" {
+	if diff := cmp.Diff(expected, applyRes); diff != "" {
 		t.Fatalf("ApplyNetwork response is wrong: diff=(-want +got)\n%s", diff)
 	}
 
@@ -101,15 +115,15 @@ func TestApplyNetwork(t *testing.T) {
 		t.Errorf("ListNetworks response is wrong: have='%d', want='%d'", len(listRes.Networks), 1)
 	}
 
-	getRes, err := na.GetNetwork(context.Background(), &ppool.GetNetworkRequest{Name: n.Name})
+	getRes, err := na.GetNetwork(context.Background(), &ppool.GetNetworkRequest{Name: expected.Name})
 	if err != nil {
 		t.Errorf("GetNetwork got error: err='%s'", err.Error())
 	}
-	if diff := cmp.Diff(n, getRes); diff != "" {
+	if diff := cmp.Diff(expected, getRes); diff != "" {
 		t.Errorf("GetNetwork response is wrong: diff=(-want +got)\n%s", diff)
 	}
 
-	if _, err := na.DeleteNetwork(context.Background(), &ppool.DeleteNetworkRequest{Name: n.Name}); err != nil {
+	if _, err := na.DeleteNetwork(context.Background(), &ppool.DeleteNetworkRequest{Name: expected.Name}); err != nil {
 		t.Errorf("DeleteNetwork got error: err='%s'", err.Error())
 	}
 }

@@ -130,6 +130,7 @@ func (a NetworkAPI) ApplyNetwork(ctx context.Context, req *ppool.ApplyNetworkReq
 
 	network.Name = req.Name
 	network.Annotations = req.Annotations
+	network.Labels = req.Labels
 	network.Ipv4Cidr = req.Ipv4Cidr
 	network.Ipv6Cidr = req.Ipv6Cidr
 	network.Domain = req.Domain
