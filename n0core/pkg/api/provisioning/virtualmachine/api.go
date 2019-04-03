@@ -145,8 +145,9 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 	vm := &pprovisioning.VirtualMachine{
 		Name:        req.Name,
 		Annotations: req.Annotations,
-		Uuid:        id.String(),
+		Labels:      req.Labels,
 
+		Uuid:                id.String(),
 		RequestCpuMilliCore: req.RequestCpuMilliCore,
 		LimitCpuMilliCore:   req.LimitCpuMilliCore,
 		RequestMemoryBytes:  req.RequestMemoryBytes,

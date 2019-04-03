@@ -40,6 +40,10 @@ func TestCreateVirtualMachine(t *testing.T) {
 		Name: "test-virtual-machine",
 		Annotations: map[string]string{
 			AnnotationVirtualMachineRequestNodeName: mnode.Name,
+			"test-annotation":                       "testing",
+		},
+		Labels: map[string]string{
+			"test-label": "testing",
 		},
 
 		LimitCpuMilliCore:   1000,
@@ -61,11 +65,15 @@ func TestCreateVirtualMachine(t *testing.T) {
 		t.Fatalf("Failed to create virtual machine: err='%s'", err.Error())
 	}
 
-	vm := &pprovisioning.VirtualMachine{
+	expected := &pprovisioning.VirtualMachine{
 		Name: "test-virtual-machine",
 		Annotations: map[string]string{
 			AnnotationVirtualMachineRequestNodeName:  mnode.Name,
 			AnnotationVirtualMachineVncWebSocketPort: "6900",
+			"test-annotation":                        "testing",
+		},
+		Labels: map[string]string{
+			"test-label": "testing",
 		},
 
 		LimitCpuMilliCore:   1000,
@@ -91,8 +99,8 @@ func TestCreateVirtualMachine(t *testing.T) {
 
 	createRes.XXX_sizecache = 0
 	createRes.Nics[0].XXX_sizecache = 0
-	vm.Nics[0].XXX_sizecache = 0
-	if diff := cmp.Diff(vm, createRes); diff != "" {
+	expected.Nics[0].XXX_sizecache = 0
+	if diff := cmp.Diff(expected, createRes); diff != "" {
 		t.Errorf("CreateVirtualMachine response is wrong: diff=(-want +got)\n%s", diff)
 	}
 
@@ -104,16 +112,16 @@ func TestCreateVirtualMachine(t *testing.T) {
 		t.Errorf("ListVirtualMachines return wrong length: res='%s', want=1", listRes)
 	}
 
-	getRes, err := vma.GetVirtualMachine(ctx, &pprovisioning.GetVirtualMachineRequest{Name: vm.Name})
+	getRes, err := vma.GetVirtualMachine(ctx, &pprovisioning.GetVirtualMachineRequest{Name: expected.Name})
 	if err != nil {
 		t.Errorf("GetVirtualMachine got error: err='%s'", err.Error())
 	}
 	getRes.Nics[0].XXX_sizecache = 0
-	if diff := cmp.Diff(vm, getRes); diff != "" {
+	if diff := cmp.Diff(expected, getRes); diff != "" {
 		t.Errorf("GetVirtualMachine response is wrong: diff=(-want +got)\n%s", diff)
 	}
 
-	if _, err := vma.DeleteVirtualMachine(ctx, &pprovisioning.DeleteVirtualMachineRequest{Name: vm.Name}); err != nil {
+	if _, err := vma.DeleteVirtualMachine(ctx, &pprovisioning.DeleteVirtualMachineRequest{Name: expected.Name}); err != nil {
 		t.Errorf("DeleteVirtualMachine got error: err='%s'", err.Error())
 	}
 }
