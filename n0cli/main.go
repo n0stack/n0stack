@@ -98,7 +98,7 @@ func main() {
 					Usage:     "Get Node(s)",
 					ArgsUsage: "[Node name (optional)]",
 					Action: func(c *cli.Context) error {
-						out := outputter.GenerateOutputMethod([]string{"name", "state", "address", "ipmi_address", "serial"})
+						out := outputter.GenerateOutputMethod([]string{"name", "labels", "state", "address", "ipmi_address", "serial"})
 						if c.NArg() == 0 {
 							f := grpccmd.GenerateAction(ctx, out, ppool.NewNodeServiceClient, ppool.NodeServiceClient.ListNodes, []string{})
 							return f(c)
@@ -124,7 +124,7 @@ func main() {
 					Usage:     "Get Network(s)",
 					ArgsUsage: "[Network name (optional)]",
 					Action: func(c *cli.Context) error {
-						out := outputter.GenerateOutputMethod([]string{"name", "state", "ipv4_cidr", "ipv6_cidr"})
+						out := outputter.GenerateOutputMethod([]string{"name", "labels", "state", "ipv4_cidr", "ipv6_cidr"})
 						if c.NArg() == 0 {
 							f := grpccmd.GenerateAction(ctx, out, ppool.NewNetworkServiceClient, ppool.NetworkServiceClient.ListNetworks, []string{})
 							return f(c)
@@ -165,7 +165,7 @@ func main() {
 					Usage:     "Get VirtualMachine(s)",
 					ArgsUsage: "[VirtualMachine name (optional)]",
 					Action: func(c *cli.Context) error {
-						out := outputter.GenerateOutputMethod([]string{"name", "state", "uuid", "request_cpu_milli_core", "limit_cpu_milli_core", "request_memory_bytes", "limit_memory_bytes"})
+						out := outputter.GenerateOutputMethod([]string{"name", "labels", "state", "uuid", "request_cpu_milli_core", "limit_cpu_milli_core", "request_memory_bytes", "limit_memory_bytes"})
 						if c.NArg() == 0 {
 							f := grpccmd.GenerateAction(ctx, out, pprovisioning.NewVirtualMachineServiceClient, pprovisioning.VirtualMachineServiceClient.ListVirtualMachines, []string{})
 							return f(c)
@@ -233,7 +233,7 @@ func main() {
 					Usage:     "Get BlockStorage(s)",
 					ArgsUsage: "[BlockStorage name (optional)]",
 					Action: func(c *cli.Context) error {
-						out := outputter.GenerateOutputMethod([]string{"name", "state", "request_bytes", "limit_bytes"})
+						out := outputter.GenerateOutputMethod([]string{"name", "labels", "state", "request_bytes", "limit_bytes"})
 						if c.NArg() == 0 {
 							f := grpccmd.GenerateAction(ctx, out, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.ListBlockStorages, []string{})
 							return f(c)
@@ -299,7 +299,7 @@ func main() {
 					Usage:     "Get Image(s)",
 					ArgsUsage: "[Image name (optional)]",
 					Action: func(c *cli.Context) error {
-						out := outputter.GenerateOutputMethod([]string{"name", "tags"})
+						out := outputter.GenerateOutputMethod([]string{"name", "labels", "tags"})
 						if c.NArg() == 0 {
 							f := grpccmd.GenerateAction(ctx, out, pdeployment.NewImageServiceClient, pdeployment.ImageServiceClient.ListImages, []string{})
 							return f(c)
