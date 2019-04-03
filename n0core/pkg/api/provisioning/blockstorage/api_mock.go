@@ -8,7 +8,7 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/memory"
-	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
+	pprovisioning "github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
 	"google.golang.org/grpc"
 )
 
@@ -61,8 +61,14 @@ func (a MockBlockStorageAPI) GetBlockStorage(ctx context.Context, in *pprovision
 func (a MockBlockStorageAPI) UpdateBlockStorage(ctx context.Context, in *pprovisioning.UpdateBlockStorageRequest, opts ...grpc.CallOption) (*pprovisioning.BlockStorage, error) {
 	return a.api.UpdateBlockStorage(ctx, in)
 }
-func (a MockBlockStorageAPI) DeleteBlockStorage(ctx context.Context, in *pprovisioning.DeleteBlockStorageRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+func (a MockBlockStorageAPI) DeleteBlockStorage(ctx context.Context, in *pprovisioning.DeleteBlockStorageRequest, opts ...grpc.CallOption) (*pprovisioning.BlockStorage, error) {
 	return a.api.DeleteBlockStorage(ctx, in)
+}
+func (a MockBlockStorageAPI) UndeleteBlockStorage(ctx context.Context, in *pprovisioning.UndeleteBlockStorageRequest, opts ...grpc.CallOption) (*pprovisioning.BlockStorage, error) {
+	return a.api.UndeleteBlockStorage(ctx, in)
+}
+func (a MockBlockStorageAPI) PurgeBlockStorage(ctx context.Context, in *pprovisioning.PurgeBlockStorageRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+	return a.api.PurgeBlockStorage(ctx, in)
 }
 func (a MockBlockStorageAPI) SetInuseBlockStorage(ctx context.Context, in *pprovisioning.SetInuseBlockStorageRequest, opts ...grpc.CallOption) (*pprovisioning.BlockStorage, error) {
 	return a.api.SetInuseBlockStorage(ctx, in)

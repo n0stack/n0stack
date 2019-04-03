@@ -37,6 +37,8 @@ message BlockStorage {
     AVAILABLE = 2;
     IN_USE = 3;
     PROTECTED = 4;
+
+    DELETED = 5;
   }
   BlockStorageState state = 50;
   // string state_reason = 51;
@@ -65,9 +67,19 @@ service BlockStorageService {
 
   rpc UpdateBlockStorage(UpdateBlockStorageRequest) returns (BlockStorage) {}
 
-  rpc DeleteBlockStorage(DeleteBlockStorageRequest) returns (google.protobuf.Empty) {
+  rpc DeleteBlockStorage(DeleteBlockStorageRequest) returns (BlockStorage) {
     option (google.api.http) = {
       delete: "/api/v0/block_storage/{name}"
+    };
+  }
+  rpc UndeleteBlockStorage(UndeleteBlockStorageRequest) returns (BlockStorage) {
+    option (google.api.http) = {
+      post: "/api/v0/block_storage/{name}:undelete"
+    };
+  }
+  rpc PurgeBlockStorage(PurgeBlockStorageRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v0/block_storage/{name}:purge"
     };
   }
 
@@ -142,6 +154,12 @@ message UpdateBlockStorageRequest {
 }
 
 message DeleteBlockStorageRequest {
+  string name = 1;
+}
+message UndeleteBlockStorageRequest {
+  string name = 1;
+}
+message PurgeBlockStorageRequest {
   string name = 1;
 }
 

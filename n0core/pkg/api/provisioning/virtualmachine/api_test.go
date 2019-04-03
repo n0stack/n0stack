@@ -299,6 +299,9 @@ func TestDeleteVirtualMachineFailedOnBlockStorage(t *testing.T) {
 	if _, err = vma.BlockStorageAPI.DeleteBlockStorage(ctx, &pprovisioning.DeleteBlockStorageRequest{Name: bs.Name}); err != nil {
 		t.Fatalf("failed to delete block storage (precondition)")
 	}
+	if _, err = vma.BlockStorageAPI.PurgeBlockStorage(ctx, &pprovisioning.PurgeBlockStorageRequest{Name: bs.Name}); err != nil {
+		t.Fatalf("failed to delete block storage (precondition)")
+	}
 
 	if _, err := vma.DeleteVirtualMachine(ctx, &pprovisioning.DeleteVirtualMachineRequest{Name: vm.Name}); err == nil {
 		t.Errorf("completed to delete virtual machine")

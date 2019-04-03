@@ -248,7 +248,8 @@
         "PENDING",
         "AVAILABLE",
         "IN_USE",
-        "PROTECTED"
+        "PROTECTED",
+        "DELETED"
       ],
       "default": "BLOCK_STORAGE_UNSPECIFIED",
       "title": "- PENDING: working API"

@@ -593,7 +593,57 @@ func (a *BlockStorageAPI) UpdateBlockStorage(ctx context.Context, req *pprovisio
 	return newBs, nil
 }
 
-func (a *BlockStorageAPI) DeleteBlockStorage(ctx context.Context, req *pprovisioning.DeleteBlockStorageRequest) (*empty.Empty, error) {
+func (a *BlockStorageAPI) DeleteBlockStorage(ctx context.Context, req *pprovisioning.DeleteBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
+	if !a.dataStore.Lock(req.Name) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.Name)
+
+	bs := &pprovisioning.BlockStorage{}
+	if err := a.dataStore.Get(req.Name, bs); err != nil {
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
+	} else if bs.Name == "" {
+		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "")
+	}
+
+	if bs.State != pprovisioning.BlockStorage_AVAILABLE {
+		return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "Can change state to DELETED when AVAILABLE")
+	}
+	bs.State = pprovisioning.BlockStorage_DELETED
+
+	if err := a.dataStore.Apply(req.Name, bs); err != nil {
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to store '%s' for db, please retry or contact for the administrator of this cluster", req.Name)
+	}
+
+	return bs, nil
+}
+
+func (a *BlockStorageAPI) UndeleteBlockStorage(ctx context.Context, req *pprovisioning.UndeleteBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
+	if !a.dataStore.Lock(req.Name) {
+		return nil, datastore.LockError()
+	}
+	defer a.dataStore.Unlock(req.Name)
+
+	bs := &pprovisioning.BlockStorage{}
+	if err := a.dataStore.Get(req.Name, bs); err != nil {
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
+	} else if bs.Name == "" {
+		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "")
+	}
+
+	if bs.State != pprovisioning.BlockStorage_DELETED {
+		return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "Can change state to AVAILABLE when DELETED")
+	}
+	bs.State = pprovisioning.BlockStorage_AVAILABLE
+
+	if err := a.dataStore.Apply(req.Name, bs); err != nil {
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to store '%s' for db, please retry or contact for the administrator of this cluster", req.Name)
+	}
+
+	return bs, nil
+}
+
+func (a *BlockStorageAPI) PurgeBlockStorage(ctx context.Context, req *pprovisioning.PurgeBlockStorageRequest) (*empty.Empty, error) {
 	if !a.dataStore.Lock(req.Name) {
 		return nil, datastore.LockError()
 	}
@@ -607,8 +657,8 @@ func (a *BlockStorageAPI) DeleteBlockStorage(ctx context.Context, req *pprovisio
 		return nil, err
 	}
 
-	if bs.State != pprovisioning.BlockStorage_AVAILABLE {
-		return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "BlockStorage '%s' is not available: now=%d", req.Name, bs.State)
+	if bs.State != pprovisioning.BlockStorage_DELETED {
+		return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "BlockStorage '%s' is not deleted: now=%d", req.Name, bs.State)
 	}
 
 	if err := a.deleteBlockStorage(ctx, tx, bs); err != nil {

@@ -88,7 +88,7 @@ func TestApplyNode(t *testing.T) {
 		Rack:             "test-rack",
 		Unit:             1,
 
-		State: ppool.Node_Ready,
+		State: ppool.Node_READY,
 	}
 	// diffが取れないので
 	applyRes.XXX_sizecache = 0
@@ -138,7 +138,7 @@ func TestNodeAboutCompute(t *testing.T) {
 		Rack:             "test-rack",
 		Unit:             1,
 
-		State: ppool.Node_Ready,
+		State: ppool.Node_READY,
 	}
 
 	_, err := na.ApplyNode(context.Background(), &ppool.ApplyNodeRequest{
@@ -314,7 +314,7 @@ func TestNodeAboutStorage(t *testing.T) {
 		Rack:             "test-rack",
 		Unit:             1,
 
-		State: ppool.Node_Ready,
+		State: ppool.Node_READY,
 	}
 
 	_, err := na.ApplyNode(context.Background(), &ppool.ApplyNodeRequest{

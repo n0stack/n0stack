@@ -60,7 +60,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "properties": {}
+              "$ref": "#/definitions/provisioningBlockStorage"
             }
           }
         },
@@ -100,6 +100,54 @@
           "BlockStorageService"
         ]
       }
+    },
+    "/api/v0/block_storage/{name}:purge": {
+      "post": {
+        "operationId": "PurgeBlockStorage",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BlockStorageService"
+        ]
+      }
+    },
+    "/api/v0/block_storage/{name}:undelete": {
+      "post": {
+        "operationId": "UndeleteBlockStorage",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/provisioningBlockStorage"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BlockStorageService"
+        ]
+      }
     }
   },
   "definitions": {
@@ -110,7 +158,8 @@
         "PENDING",
         "AVAILABLE",
         "IN_USE",
-        "PROTECTED"
+        "PROTECTED",
+        "DELETED"
       ],
       "default": "BLOCK_STORAGE_UNSPECIFIED",
       "title": "- PENDING: working API"
