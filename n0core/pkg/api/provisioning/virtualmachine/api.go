@@ -582,6 +582,15 @@ func (a *VirtualMachineAPI) bootVirtualMachine(ctx context.Context, req *pprovis
 
 	netdevs := make([]*NetDev, len(vm.Nics))
 	{
+		gatewayIndex := 0
+		for i, nic := range vm.Nics {
+			if nic.Annotations != nil {
+				if _, ok := nic.Annotations[AnnotationVirtualMachineNICIsGateway]; ok {
+					gatewayIndex = i
+				}
+			}
+		}
+
 		for i, nic := range vm.Nics {
 			network, err := a.networkAPI.GetNetwork(ctx, &ppool.GetNetworkRequest{Name: nic.NetworkName})
 			if err != nil {
@@ -604,9 +613,12 @@ func (a *VirtualMachineAPI) bootVirtualMachine(ctx context.Context, req *pprovis
 				}
 
 				netdevs[i].Ipv4AddressCidr = fmt.Sprintf("%s/%d", vm.Nics[i].Ipv4Address, ip.SubnetMaskBits())
-				netdevs[i].Ipv4Gateway = gateway
-				netdevs[i].Nameservers = []string{"8.8.8.8"} // TODO: 取るようにする
-				// TODO: domain searchはnetworkのdomainから取る
+
+				if gatewayIndex == i {
+					netdevs[i].Ipv4Gateway = gateway
+					netdevs[i].Nameservers = []string{"8.8.8.8"} // TODO: 取るようにする
+					// TODO: domain searchはnetworkのdomainから取る
+				}
 			}
 		}
 	}
