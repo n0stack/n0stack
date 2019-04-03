@@ -194,6 +194,7 @@ func (d LocalDeployer) InstallPackages(packages []string, stdout, stderr io.Writ
 		c := exec.Command(cmd[0], cmd[1:]...)
 		c.Stdout = stdout
 		c.Stderr = stderr
+		c.Env = append(os.Environ(), "DEBIAN_FRONTEND=noninteractive")
 		if err := c.Run(); err != nil {
 			return errors.Wrap(err, "Failed to command 'apt'")
 		}
