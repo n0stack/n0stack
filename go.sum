@@ -19,6 +19,8 @@ github.com/digitalocean/go-libvirt v0.0.0-20181105201604-08f982c676c6 h1:mKdfLT5
 github.com/digitalocean/go-libvirt v0.0.0-20181105201604-08f982c676c6/go.mod h1:PRcPVAAma6zcLpFd4GZrjR/MRpood3TamjKI2m/z/Uw=
 github.com/digitalocean/go-qemu v0.0.0-20181112162955-dd7bb9c771b8 h1:N7nH2py78LcMqYY3rZjjrsX6N7uCN7sjvaosgpXN9Ow=
 github.com/digitalocean/go-qemu v0.0.0-20181112162955-dd7bb9c771b8/go.mod h1:/YnlngP1PARC0SKAZx6kaAEMOp8bNTQGqS+Ka3MctNI=
+github.com/fatih/color v1.7.0 h1:DkWD4oS2D8LGGgTQ6IvwJJXSL5Vp2ffcQg58nFV38Ys=
+github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/go-ole/go-ole v1.2.2/go.mod h1:pnvuG7BrDMZ8ifMurTQmxwhQM/odqm9sSqNe5BUI7v4=
 github.com/go-ole/go-ole v1.2.3 h1:cj5c5yaFQVe/yaw6/B96aryMP/z5tgq9phGp7mMXOi8=
