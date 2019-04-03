@@ -127,6 +127,12 @@
             "type": "string"
           }
         },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
         "request_bytes": {
           "type": "string",
           "format": "uint64"

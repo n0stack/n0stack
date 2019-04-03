@@ -45,7 +45,8 @@ message ApplyFlavorRequest {
 
   uint32 limit_cpu_milli_core = 10;
   uint64 limit_memory_bytes = 11;
-  string network_name = 12;
+  uint64 limit_storage_bytes = 12;
+  string network_name = 13;
 }
 
 message DeleteFlavorRequest {

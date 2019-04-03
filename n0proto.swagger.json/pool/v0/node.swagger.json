@@ -134,6 +134,12 @@
             "type": "string"
           }
         },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
         "address": {
           "type": "string"
         },

@@ -151,6 +151,12 @@
             "type": "string"
           }
         },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
         "ipv4_cidr": {
           "type": "string"
         },
@@ -180,6 +186,12 @@
           "type": "string"
         },
         "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "labels": {
           "type": "object",
           "additionalProperties": {
             "type": "string"

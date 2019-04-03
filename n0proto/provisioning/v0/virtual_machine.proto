@@ -20,6 +20,7 @@ message VirtualMachineNIC {
 message VirtualMachine {
   string name = 1;
   map<string, string> annotations = 3;
+  map<string, string> labels = 4;
 
   uint32 request_cpu_milli_core = 10;
   uint32 limit_cpu_milli_core = 11;
@@ -110,6 +111,7 @@ service VirtualMachineService {
 message CreateVirtualMachineRequest {
   string name = 1;
   map<string, string> annotations = 3;
+  map<string, string> labels = 4;
 
   uint32 request_cpu_milli_core = 10;
   uint32 limit_cpu_milli_core = 11;
@@ -138,6 +140,7 @@ message GetVirtualMachineRequest {
 message UpdateVirtualMachineRequest {
   string name = 1;
   map<string, string> annotations = 3;
+  map<string, string> labels = 4;
 
   uint32 request_cpu_milli_core = 10;
   // uint32 limit_cpu_milli_core = 11;

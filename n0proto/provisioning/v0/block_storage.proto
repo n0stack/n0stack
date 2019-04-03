@@ -11,6 +11,7 @@ import "google/protobuf/empty.proto";
 message BlockStorage {
   string name = 1;
   map<string, string> annotations = 3;
+  map<string, string> labels = 4;
 
   uint64 request_bytes = 10;
   uint64 limit_bytes = 11;
@@ -40,7 +41,6 @@ service BlockStorageService {
   rpc CreateBlockStorage(CreateBlockStorageRequest) returns (BlockStorage) {}
   rpc FetchBlockStorage(FetchBlockStorageRequest) returns (BlockStorage) {}
   rpc CopyBlockStorage(CopyBlockStorageRequest) returns (BlockStorage) {}
-  // rpc UploadBlockStorage(stream UploadBlockStorageRequest) returns (BlockStorage) {}
 
   rpc ListBlockStorages(ListBlockStoragesRequest) returns (ListBlockStoragesResponse) {
     option (google.api.http) = {
@@ -88,6 +88,7 @@ message BlockStorageChunk {
 message CreateBlockStorageRequest {
   string name = 1;
   map<string, string> annotations = 3;
+  map<string, string> labels = 4;
 
   uint64 request_bytes = 10;
   uint64 limit_bytes = 11;
@@ -101,23 +102,10 @@ message FetchBlockStorageRequest {
 
   string source_url = 100;
 }
-message UploadBlockStorageRequest {
-  message UploadBlockStorageMetadata {
-    string name = 1;
-    map<string, string> annotations = 3;
-
-    uint64 request_bytes = 10;
-    uint64 limit_bytes = 11;
-  }
-
-  oneof value {
-    UploadBlockStorageMetadata metadata = 1;
-    BlockStorageChunk chunk = 2;
-  }
-}
 message CopyBlockStorageRequest {
   string name = 1;
   map<string, string> annotations = 3;
+  map<string, string> labels = 4;
 
   uint64 request_bytes = 10;
   uint64 limit_bytes = 11;
@@ -137,6 +125,7 @@ message GetBlockStorageRequest {
 message UpdateBlockStorageRequest {
   string name = 1;
   map<string, string> annotations = 3;
+  map<string, string> labels = 4;
 
   uint64 request_bytes = 10;
   uint64 limit_bytes = 11;

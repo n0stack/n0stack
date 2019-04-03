@@ -12,6 +12,7 @@ import "budget/v0/network_interface.proto";
 message Network {
   string name = 1;
   map<string, string> annotations = 3;
+  map<string, string> labels = 4;
 
   string ipv4_cidr = 10;
   string ipv6_cidr = 11;
@@ -72,6 +73,7 @@ message GetNetworkRequest {
 message ApplyNetworkRequest {
   string name = 1;
   map<string, string> annotations = 3;
+  map<string, string> labels = 4;
 
   string ipv4_cidr = 10;
   string ipv6_cidr = 11;

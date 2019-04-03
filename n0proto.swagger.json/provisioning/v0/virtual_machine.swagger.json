@@ -235,6 +235,12 @@
             "type": "string"
           }
         },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
         "request_cpu_milli_core": {
           "type": "integer",
           "format": "int64"
