@@ -56,6 +56,10 @@ func TestCreateBlockStorage(t *testing.T) {
 		Annotations: map[string]string{
 			AnnotationBlockStorageRequestNodeName: mnode.Name,
 		},
+		Labels: map[string]string{
+			"test-label": "testing",
+		},
+
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
 	})
@@ -63,12 +67,16 @@ func TestCreateBlockStorage(t *testing.T) {
 		t.Errorf("Failed to create block storage: err='%s'", err.Error())
 	}
 
-	bs := &pprovisioning.BlockStorage{
+	expected := &pprovisioning.BlockStorage{
 		Name: "test-block-storage",
 		Annotations: map[string]string{
 			AnnotationBlockStorageRequestNodeName: mnode.Name,
 			AnnotationBlockStorageURL:             "file:///tmp/test-block-storage",
 		},
+		Labels: map[string]string{
+			"test-label": "testing",
+		},
+
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
 		State:        pprovisioning.BlockStorage_AVAILABLE,
@@ -77,7 +85,7 @@ func TestCreateBlockStorage(t *testing.T) {
 	}
 
 	createRes.XXX_sizecache = 0
-	if diff := cmp.Diff(bs, createRes); diff != "" {
+	if diff := cmp.Diff(expected, createRes); diff != "" {
 		t.Errorf("CreateBlockStorage response is wrong: diff=(-want +got)\n%s", diff)
 	}
 
@@ -89,15 +97,15 @@ func TestCreateBlockStorage(t *testing.T) {
 		t.Errorf("ListBlockStorages return wrong length: res='%s', want=1", listRes)
 	}
 
-	getRes, err := bsa.GetBlockStorage(ctx, &pprovisioning.GetBlockStorageRequest{Name: bs.Name})
+	getRes, err := bsa.GetBlockStorage(ctx, &pprovisioning.GetBlockStorageRequest{Name: expected.Name})
 	if err != nil {
 		t.Errorf("GetBlockStorage got error: err='%s'", err.Error())
 	}
-	if diff := cmp.Diff(bs, getRes); diff != "" {
+	if diff := cmp.Diff(expected, getRes); diff != "" {
 		t.Errorf("GetBlockStorage response is wrong: diff=(-want +got)\n%s", diff)
 	}
 
-	if _, err := bsa.DeleteBlockStorage(ctx, &pprovisioning.DeleteBlockStorageRequest{Name: bs.Name}); err != nil {
+	if _, err := bsa.DeleteBlockStorage(ctx, &pprovisioning.DeleteBlockStorageRequest{Name: expected.Name}); err != nil {
 		t.Errorf("DeleteBlockStorage got error: err='%s'", err.Error())
 	}
 }
@@ -120,6 +128,10 @@ func TestFetchBlockStorage(t *testing.T) {
 		Annotations: map[string]string{
 			AnnotationBlockStorageRequestNodeName: mnode.Name,
 		},
+		Labels: map[string]string{
+			"test-label": "testing",
+		},
+
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
 		SourceUrl:    "http://test.local",
@@ -128,13 +140,17 @@ func TestFetchBlockStorage(t *testing.T) {
 		t.Errorf("Failed to create block storage: err='%s'", err.Error())
 	}
 
-	bs := &pprovisioning.BlockStorage{
+	expected := &pprovisioning.BlockStorage{
 		Name: "test-block-storage",
 		Annotations: map[string]string{
 			AnnotationBlockStorageRequestNodeName: mnode.Name,
 			AnnotationBlockStorageURL:             "file:///tmp/test-block-storage",
 			AnnotationBlockStorageFetchFrom:       "http://test.local",
 		},
+		Labels: map[string]string{
+			"test-label": "testing",
+		},
+
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
 		State:        pprovisioning.BlockStorage_AVAILABLE,
@@ -143,7 +159,7 @@ func TestFetchBlockStorage(t *testing.T) {
 	}
 
 	createRes.XXX_sizecache = 0
-	if diff := cmp.Diff(bs, createRes); diff != "" {
+	if diff := cmp.Diff(expected, createRes); diff != "" {
 		t.Errorf("CreateBlockStorage response is wrong: diff=(-want +got)\n%s", diff)
 	}
 
@@ -155,15 +171,15 @@ func TestFetchBlockStorage(t *testing.T) {
 		t.Errorf("ListBlockStorages return wrong length: res='%s', want=1", listRes)
 	}
 
-	getRes, err := bsa.GetBlockStorage(ctx, &pprovisioning.GetBlockStorageRequest{Name: bs.Name})
+	getRes, err := bsa.GetBlockStorage(ctx, &pprovisioning.GetBlockStorageRequest{Name: expected.Name})
 	if err != nil {
 		t.Errorf("GetBlockStorage got error: err='%s'", err.Error())
 	}
-	if diff := cmp.Diff(bs, getRes); diff != "" {
+	if diff := cmp.Diff(expected, getRes); diff != "" {
 		t.Errorf("GetBlockStorage response is wrong: diff=(-want +got)\n%s", diff)
 	}
 
-	if _, err := bsa.DeleteBlockStorage(ctx, &pprovisioning.DeleteBlockStorageRequest{Name: bs.Name}); err != nil {
+	if _, err := bsa.DeleteBlockStorage(ctx, &pprovisioning.DeleteBlockStorageRequest{Name: expected.Name}); err != nil {
 		t.Errorf("DeleteBlockStorage got error: err='%s'", err.Error())
 	}
 }
@@ -297,6 +313,11 @@ func TestCopyBlockStorage(t *testing.T) {
 		Annotations: map[string]string{
 			AnnotationBlockStorageRequestNodeName: mnode.Name,
 		},
+		Labels: map[string]string{
+			"test-duplicate":     "should be deleted",
+			"test-not-duplicate": "should be deleted",
+		},
+
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
 	})
@@ -309,6 +330,10 @@ func TestCopyBlockStorage(t *testing.T) {
 		Annotations: map[string]string{
 			AnnotationBlockStorageRequestNodeName: mnode.Name,
 		},
+		Labels: map[string]string{
+			"test-duplicate": "correct",
+		},
+
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
 
@@ -318,13 +343,17 @@ func TestCopyBlockStorage(t *testing.T) {
 		t.Fatalf("Failed to create block storage: err='%s'", err.Error())
 	}
 
-	bs := &pprovisioning.BlockStorage{
+	expected := &pprovisioning.BlockStorage{
 		Name: "test-block-storage",
 		Annotations: map[string]string{
 			AnnotationBlockStorageRequestNodeName: mnode.Name,
 			AnnotationBlockStorageURL:             "file:///tmp/test-block-storage",
 			AnnotationBlockStorageCopyFrom:        "source",
 		},
+		Labels: map[string]string{
+			"test-duplicate": "correct",
+		},
+
 		RequestBytes: 1 * bytefmt.GIGABYTE,
 		LimitBytes:   1 * bytefmt.GIGABYTE,
 		State:        pprovisioning.BlockStorage_AVAILABLE,
@@ -333,7 +362,7 @@ func TestCopyBlockStorage(t *testing.T) {
 	}
 
 	copyRes.XXX_sizecache = 0
-	if diff := cmp.Diff(bs, copyRes); diff != "" {
+	if diff := cmp.Diff(expected, copyRes); diff != "" {
 		t.Errorf("CreateBlockStorage response is wrong: diff=(-want +got)\n%s", diff)
 	}
 
@@ -345,15 +374,15 @@ func TestCopyBlockStorage(t *testing.T) {
 		t.Errorf("ListBlockStorages return wrong length: res='%s', want=1", listRes)
 	}
 
-	getRes, err := bsa.GetBlockStorage(ctx, &pprovisioning.GetBlockStorageRequest{Name: bs.Name})
+	getRes, err := bsa.GetBlockStorage(ctx, &pprovisioning.GetBlockStorageRequest{Name: expected.Name})
 	if err != nil {
 		t.Errorf("GetBlockStorage got error: err='%s'", err.Error())
 	}
-	if diff := cmp.Diff(bs, getRes); diff != "" {
+	if diff := cmp.Diff(expected, getRes); diff != "" {
 		t.Errorf("GetBlockStorage response is wrong: diff=(-want +got)\n%s", diff)
 	}
 
-	if _, err := bsa.DeleteBlockStorage(ctx, &pprovisioning.DeleteBlockStorageRequest{Name: bs.Name}); err != nil {
+	if _, err := bsa.DeleteBlockStorage(ctx, &pprovisioning.DeleteBlockStorageRequest{Name: expected.Name}); err != nil {
 		t.Errorf("DeleteBlockStorage got error: err='%s'", err.Error())
 	}
 }

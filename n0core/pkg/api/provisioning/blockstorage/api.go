@@ -195,8 +195,10 @@ func (a *BlockStorageAPI) CreateBlockStorage(ctx context.Context, req *pprovisio
 	defer tx.RollbackWithLog()
 
 	bs := &pprovisioning.BlockStorage{
-		Name:         req.Name,
-		Annotations:  req.Annotations,
+		Name:        req.Name,
+		Annotations: req.Annotations,
+		Labels:      req.Labels,
+
 		RequestBytes: req.RequestBytes,
 		LimitBytes:   req.LimitBytes,
 	}
@@ -279,8 +281,10 @@ func (a *BlockStorageAPI) FetchBlockStorage(ctx context.Context, req *pprovision
 	defer tx.RollbackWithLog()
 
 	bs := &pprovisioning.BlockStorage{
-		Name:         req.Name,
-		Annotations:  req.Annotations,
+		Name:        req.Name,
+		Annotations: req.Annotations,
+		Labels:      req.Labels,
+
 		RequestBytes: req.RequestBytes,
 		LimitBytes:   req.LimitBytes,
 	}
@@ -364,8 +368,10 @@ func (a *BlockStorageAPI) CopyBlockStorage(ctx context.Context, req *pprovisioni
 	defer tx.RollbackWithLog()
 
 	bs := &pprovisioning.BlockStorage{
-		Name:         req.Name,
-		Annotations:  req.Annotations,
+		Name:        req.Name,
+		Annotations: req.Annotations,
+		Labels:      req.Labels,
+
 		RequestBytes: req.RequestBytes,
 		LimitBytes:   req.LimitBytes,
 	}
