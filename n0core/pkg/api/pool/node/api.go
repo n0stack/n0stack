@@ -27,23 +27,6 @@ func CreateNodeAPI(ds datastore.Datastore) *NodeAPI {
 		dataStore: ds.AddPrefix("node"),
 	}
 
-	// c := memberlist.DefaultLANConfig()
-	// c.Events = &NodeAPIEventDelegate{ds: ds}
-	// // c.Name = a.id.String()
-
-	// var err error
-	// a.list, err = memberlist.Create(c)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// if starter != "" {
-	// 	_, err := a.list.Join([]string{starter})
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// }
-
 	return a
 }
 
