@@ -227,19 +227,22 @@
       "type": "object",
       "properties": {
         "name": {
-          "type": "string"
+          "type": "string",
+          "description": "Name is a unique field."
         },
         "annotations": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
-          }
+          },
+          "description": "Annotations can store metadata used by the system for control.\nIn particular, implementation-dependent fields that can not be set as protobuf fields are targeted.\nThe control specified by n0stack may delete metadata specified by the user."
         },
         "labels": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
-          }
+          },
+          "description": "Labels stores user-defined metadata.\nThe n0stack system must not rewrite this value."
         },
         "request_cpu_milli_core": {
           "type": "integer",

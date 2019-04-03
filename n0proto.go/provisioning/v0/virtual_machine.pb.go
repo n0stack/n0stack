@@ -57,7 +57,7 @@ func (x VirtualMachine_VirtualMachineState) String() string {
 	return proto.EnumName(VirtualMachine_VirtualMachineState_name, int32(x))
 }
 func (VirtualMachine_VirtualMachineState) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_virtual_machine_492e8fdd69a4b30c, []int{1, 0}
+	return fileDescriptor_virtual_machine_f80b58be4c499566, []int{1, 0}
 }
 
 type VirtualMachineNIC struct {
@@ -75,7 +75,7 @@ func (m *VirtualMachineNIC) Reset()         { *m = VirtualMachineNIC{} }
 func (m *VirtualMachineNIC) String() string { return proto.CompactTextString(m) }
 func (*VirtualMachineNIC) ProtoMessage()    {}
 func (*VirtualMachineNIC) Descriptor() ([]byte, []int) {
-	return fileDescriptor_virtual_machine_492e8fdd69a4b30c, []int{0}
+	return fileDescriptor_virtual_machine_f80b58be4c499566, []int{0}
 }
 func (m *VirtualMachineNIC) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_VirtualMachineNIC.Unmarshal(m, b)
@@ -131,8 +131,14 @@ func (m *VirtualMachineNIC) GetIpv6Address() string {
 }
 
 type VirtualMachine struct {
-	Name                  string                             `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
-	Annotations           map[string]string                  `protobuf:"bytes,3,rep,name=annotations" json:"annotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Name is a unique field.
+	Name string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+	// Annotations can store metadata used by the system for control.
+	// In particular, implementation-dependent fields that can not be set as protobuf fields are targeted.
+	// The control specified by n0stack may delete metadata specified by the user.
+	Annotations map[string]string `protobuf:"bytes,3,rep,name=annotations" json:"annotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Labels stores user-defined metadata.
+	// The n0stack system must not rewrite this value.
 	Labels                map[string]string                  `protobuf:"bytes,4,rep,name=labels" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	RequestCpuMilliCore   uint32                             `protobuf:"varint,10,opt,name=request_cpu_milli_core,json=requestCpuMilliCore" json:"request_cpu_milli_core,omitempty"`
 	LimitCpuMilliCore     uint32                             `protobuf:"varint,11,opt,name=limit_cpu_milli_core,json=limitCpuMilliCore" json:"limit_cpu_milli_core,omitempty"`
@@ -156,7 +162,7 @@ func (m *VirtualMachine) Reset()         { *m = VirtualMachine{} }
 func (m *VirtualMachine) String() string { return proto.CompactTextString(m) }
 func (*VirtualMachine) ProtoMessage()    {}
 func (*VirtualMachine) Descriptor() ([]byte, []int) {
-	return fileDescriptor_virtual_machine_492e8fdd69a4b30c, []int{1}
+	return fileDescriptor_virtual_machine_f80b58be4c499566, []int{1}
 }
 func (m *VirtualMachine) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_VirtualMachine.Unmarshal(m, b)
@@ -310,7 +316,7 @@ func (m *CreateVirtualMachineRequest) Reset()         { *m = CreateVirtualMachin
 func (m *CreateVirtualMachineRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateVirtualMachineRequest) ProtoMessage()    {}
 func (*CreateVirtualMachineRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_virtual_machine_492e8fdd69a4b30c, []int{2}
+	return fileDescriptor_virtual_machine_f80b58be4c499566, []int{2}
 }
 func (m *CreateVirtualMachineRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateVirtualMachineRequest.Unmarshal(m, b)
@@ -424,7 +430,7 @@ func (m *ListVirtualMachinesRequest) Reset()         { *m = ListVirtualMachinesR
 func (m *ListVirtualMachinesRequest) String() string { return proto.CompactTextString(m) }
 func (*ListVirtualMachinesRequest) ProtoMessage()    {}
 func (*ListVirtualMachinesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_virtual_machine_492e8fdd69a4b30c, []int{3}
+	return fileDescriptor_virtual_machine_f80b58be4c499566, []int{3}
 }
 func (m *ListVirtualMachinesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListVirtualMachinesRequest.Unmarshal(m, b)
@@ -455,7 +461,7 @@ func (m *ListVirtualMachinesResponse) Reset()         { *m = ListVirtualMachines
 func (m *ListVirtualMachinesResponse) String() string { return proto.CompactTextString(m) }
 func (*ListVirtualMachinesResponse) ProtoMessage()    {}
 func (*ListVirtualMachinesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_virtual_machine_492e8fdd69a4b30c, []int{4}
+	return fileDescriptor_virtual_machine_f80b58be4c499566, []int{4}
 }
 func (m *ListVirtualMachinesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListVirtualMachinesResponse.Unmarshal(m, b)
@@ -493,7 +499,7 @@ func (m *GetVirtualMachineRequest) Reset()         { *m = GetVirtualMachineReque
 func (m *GetVirtualMachineRequest) String() string { return proto.CompactTextString(m) }
 func (*GetVirtualMachineRequest) ProtoMessage()    {}
 func (*GetVirtualMachineRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_virtual_machine_492e8fdd69a4b30c, []int{5}
+	return fileDescriptor_virtual_machine_f80b58be4c499566, []int{5}
 }
 func (m *GetVirtualMachineRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetVirtualMachineRequest.Unmarshal(m, b)
@@ -536,7 +542,7 @@ func (m *UpdateVirtualMachineRequest) Reset()         { *m = UpdateVirtualMachin
 func (m *UpdateVirtualMachineRequest) String() string { return proto.CompactTextString(m) }
 func (*UpdateVirtualMachineRequest) ProtoMessage()    {}
 func (*UpdateVirtualMachineRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_virtual_machine_492e8fdd69a4b30c, []int{6}
+	return fileDescriptor_virtual_machine_f80b58be4c499566, []int{6}
 }
 func (m *UpdateVirtualMachineRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpdateVirtualMachineRequest.Unmarshal(m, b)
@@ -609,7 +615,7 @@ func (m *DeleteVirtualMachineRequest) Reset()         { *m = DeleteVirtualMachin
 func (m *DeleteVirtualMachineRequest) String() string { return proto.CompactTextString(m) }
 func (*DeleteVirtualMachineRequest) ProtoMessage()    {}
 func (*DeleteVirtualMachineRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_virtual_machine_492e8fdd69a4b30c, []int{7}
+	return fileDescriptor_virtual_machine_f80b58be4c499566, []int{7}
 }
 func (m *DeleteVirtualMachineRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteVirtualMachineRequest.Unmarshal(m, b)
@@ -647,7 +653,7 @@ func (m *BootVirtualMachineRequest) Reset()         { *m = BootVirtualMachineReq
 func (m *BootVirtualMachineRequest) String() string { return proto.CompactTextString(m) }
 func (*BootVirtualMachineRequest) ProtoMessage()    {}
 func (*BootVirtualMachineRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_virtual_machine_492e8fdd69a4b30c, []int{8}
+	return fileDescriptor_virtual_machine_f80b58be4c499566, []int{8}
 }
 func (m *BootVirtualMachineRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_BootVirtualMachineRequest.Unmarshal(m, b)
@@ -686,7 +692,7 @@ func (m *RebootVirtualMachineRequest) Reset()         { *m = RebootVirtualMachin
 func (m *RebootVirtualMachineRequest) String() string { return proto.CompactTextString(m) }
 func (*RebootVirtualMachineRequest) ProtoMessage()    {}
 func (*RebootVirtualMachineRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_virtual_machine_492e8fdd69a4b30c, []int{9}
+	return fileDescriptor_virtual_machine_f80b58be4c499566, []int{9}
 }
 func (m *RebootVirtualMachineRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RebootVirtualMachineRequest.Unmarshal(m, b)
@@ -732,7 +738,7 @@ func (m *ShutdownVirtualMachineRequest) Reset()         { *m = ShutdownVirtualMa
 func (m *ShutdownVirtualMachineRequest) String() string { return proto.CompactTextString(m) }
 func (*ShutdownVirtualMachineRequest) ProtoMessage()    {}
 func (*ShutdownVirtualMachineRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_virtual_machine_492e8fdd69a4b30c, []int{10}
+	return fileDescriptor_virtual_machine_f80b58be4c499566, []int{10}
 }
 func (m *ShutdownVirtualMachineRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ShutdownVirtualMachineRequest.Unmarshal(m, b)
@@ -777,7 +783,7 @@ func (m *SaveVirtualMachineRequest) Reset()         { *m = SaveVirtualMachineReq
 func (m *SaveVirtualMachineRequest) String() string { return proto.CompactTextString(m) }
 func (*SaveVirtualMachineRequest) ProtoMessage()    {}
 func (*SaveVirtualMachineRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_virtual_machine_492e8fdd69a4b30c, []int{11}
+	return fileDescriptor_virtual_machine_f80b58be4c499566, []int{11}
 }
 func (m *SaveVirtualMachineRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SaveVirtualMachineRequest.Unmarshal(m, b)
@@ -815,7 +821,7 @@ func (m *OpenConsoleRequest) Reset()         { *m = OpenConsoleRequest{} }
 func (m *OpenConsoleRequest) String() string { return proto.CompactTextString(m) }
 func (*OpenConsoleRequest) ProtoMessage()    {}
 func (*OpenConsoleRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_virtual_machine_492e8fdd69a4b30c, []int{12}
+	return fileDescriptor_virtual_machine_f80b58be4c499566, []int{12}
 }
 func (m *OpenConsoleRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_OpenConsoleRequest.Unmarshal(m, b)
@@ -853,7 +859,7 @@ func (m *OpenConsoleResponse) Reset()         { *m = OpenConsoleResponse{} }
 func (m *OpenConsoleResponse) String() string { return proto.CompactTextString(m) }
 func (*OpenConsoleResponse) ProtoMessage()    {}
 func (*OpenConsoleResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_virtual_machine_492e8fdd69a4b30c, []int{13}
+	return fileDescriptor_virtual_machine_f80b58be4c499566, []int{13}
 }
 func (m *OpenConsoleResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_OpenConsoleResponse.Unmarshal(m, b)
@@ -1287,10 +1293,10 @@ var _VirtualMachineService_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("provisioning/v0/virtual_machine.proto", fileDescriptor_virtual_machine_492e8fdd69a4b30c)
+	proto.RegisterFile("provisioning/v0/virtual_machine.proto", fileDescriptor_virtual_machine_f80b58be4c499566)
 }
 
-var fileDescriptor_virtual_machine_492e8fdd69a4b30c = []byte{
+var fileDescriptor_virtual_machine_f80b58be4c499566 = []byte{
 	// 1213 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x58, 0x5d, 0x6f, 0xdb, 0x54,
 	0x18, 0x9e, 0x9b, 0xac, 0x6c, 0x6f, 0xfa, 0x91, 0x9c, 0x66, 0x9d, 0x9b, 0x0c, 0x16, 0x02, 0xa5,

@@ -51,12 +51,18 @@ func (x Network_NetworkState) String() string {
 	return proto.EnumName(Network_NetworkState_name, int32(x))
 }
 func (Network_NetworkState) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_network_d28ce39aa9e907b5, []int{0, 0}
+	return fileDescriptor_network_19c3de1b41c399b8, []int{0, 0}
 }
 
 type Network struct {
-	Name                      string                          `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
-	Annotations               map[string]string               `protobuf:"bytes,3,rep,name=annotations" json:"annotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Name is a unique field.
+	Name string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+	// Annotations can store metadata used by the system for control.
+	// In particular, implementation-dependent fields that can not be set as protobuf fields are targeted.
+	// The control specified by n0stack may delete metadata specified by the user.
+	Annotations map[string]string `protobuf:"bytes,3,rep,name=annotations" json:"annotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Labels stores user-defined metadata.
+	// The n0stack system must not rewrite this value.
 	Labels                    map[string]string               `protobuf:"bytes,4,rep,name=labels" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	Ipv4Cidr                  string                          `protobuf:"bytes,10,opt,name=ipv4_cidr,json=ipv4Cidr" json:"ipv4_cidr,omitempty"`
 	Ipv6Cidr                  string                          `protobuf:"bytes,11,opt,name=ipv6_cidr,json=ipv6Cidr" json:"ipv6_cidr,omitempty"`
@@ -72,7 +78,7 @@ func (m *Network) Reset()         { *m = Network{} }
 func (m *Network) String() string { return proto.CompactTextString(m) }
 func (*Network) ProtoMessage()    {}
 func (*Network) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_d28ce39aa9e907b5, []int{0}
+	return fileDescriptor_network_19c3de1b41c399b8, []int{0}
 }
 func (m *Network) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Network.Unmarshal(m, b)
@@ -158,7 +164,7 @@ func (m *ListNetworksRequest) Reset()         { *m = ListNetworksRequest{} }
 func (m *ListNetworksRequest) String() string { return proto.CompactTextString(m) }
 func (*ListNetworksRequest) ProtoMessage()    {}
 func (*ListNetworksRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_d28ce39aa9e907b5, []int{1}
+	return fileDescriptor_network_19c3de1b41c399b8, []int{1}
 }
 func (m *ListNetworksRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNetworksRequest.Unmarshal(m, b)
@@ -189,7 +195,7 @@ func (m *ListNetworksResponse) Reset()         { *m = ListNetworksResponse{} }
 func (m *ListNetworksResponse) String() string { return proto.CompactTextString(m) }
 func (*ListNetworksResponse) ProtoMessage()    {}
 func (*ListNetworksResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_d28ce39aa9e907b5, []int{2}
+	return fileDescriptor_network_19c3de1b41c399b8, []int{2}
 }
 func (m *ListNetworksResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNetworksResponse.Unmarshal(m, b)
@@ -227,7 +233,7 @@ func (m *GetNetworkRequest) Reset()         { *m = GetNetworkRequest{} }
 func (m *GetNetworkRequest) String() string { return proto.CompactTextString(m) }
 func (*GetNetworkRequest) ProtoMessage()    {}
 func (*GetNetworkRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_d28ce39aa9e907b5, []int{3}
+	return fileDescriptor_network_19c3de1b41c399b8, []int{3}
 }
 func (m *GetNetworkRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetNetworkRequest.Unmarshal(m, b)
@@ -270,7 +276,7 @@ func (m *ApplyNetworkRequest) Reset()         { *m = ApplyNetworkRequest{} }
 func (m *ApplyNetworkRequest) String() string { return proto.CompactTextString(m) }
 func (*ApplyNetworkRequest) ProtoMessage()    {}
 func (*ApplyNetworkRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_d28ce39aa9e907b5, []int{4}
+	return fileDescriptor_network_19c3de1b41c399b8, []int{4}
 }
 func (m *ApplyNetworkRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ApplyNetworkRequest.Unmarshal(m, b)
@@ -343,7 +349,7 @@ func (m *DeleteNetworkRequest) Reset()         { *m = DeleteNetworkRequest{} }
 func (m *DeleteNetworkRequest) String() string { return proto.CompactTextString(m) }
 func (*DeleteNetworkRequest) ProtoMessage()    {}
 func (*DeleteNetworkRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_d28ce39aa9e907b5, []int{5}
+	return fileDescriptor_network_19c3de1b41c399b8, []int{5}
 }
 func (m *DeleteNetworkRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteNetworkRequest.Unmarshal(m, b)
@@ -386,7 +392,7 @@ func (m *ReserveNetworkInterfaceRequest) Reset()         { *m = ReserveNetworkIn
 func (m *ReserveNetworkInterfaceRequest) String() string { return proto.CompactTextString(m) }
 func (*ReserveNetworkInterfaceRequest) ProtoMessage()    {}
 func (*ReserveNetworkInterfaceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_d28ce39aa9e907b5, []int{6}
+	return fileDescriptor_network_19c3de1b41c399b8, []int{6}
 }
 func (m *ReserveNetworkInterfaceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ReserveNetworkInterfaceRequest.Unmarshal(m, b)
@@ -460,7 +466,7 @@ func (m *ReleaseNetworkInterfaceRequest) Reset()         { *m = ReleaseNetworkIn
 func (m *ReleaseNetworkInterfaceRequest) String() string { return proto.CompactTextString(m) }
 func (*ReleaseNetworkInterfaceRequest) ProtoMessage()    {}
 func (*ReleaseNetworkInterfaceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_network_d28ce39aa9e907b5, []int{7}
+	return fileDescriptor_network_19c3de1b41c399b8, []int{7}
 }
 func (m *ReleaseNetworkInterfaceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ReleaseNetworkInterfaceRequest.Unmarshal(m, b)
@@ -749,9 +755,9 @@ var _NetworkService_serviceDesc = grpc.ServiceDesc{
 	Metadata: "pool/v0/network.proto",
 }
 
-func init() { proto.RegisterFile("pool/v0/network.proto", fileDescriptor_network_d28ce39aa9e907b5) }
+func init() { proto.RegisterFile("pool/v0/network.proto", fileDescriptor_network_19c3de1b41c399b8) }
 
-var fileDescriptor_network_d28ce39aa9e907b5 = []byte{
+var fileDescriptor_network_19c3de1b41c399b8 = []byte{
 	// 824 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x56, 0x5f, 0x6f, 0xda, 0x48,
 	0x10, 0x0f, 0x10, 0x48, 0x32, 0x90, 0x84, 0x6c, 0x08, 0xf1, 0x99, 0x53, 0x0e, 0xfc, 0x70, 0x97,
