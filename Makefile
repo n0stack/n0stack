@@ -172,8 +172,8 @@ build-artifacts-to-release: artifacts/n0core_linux_amd64.tar.gz \
                             artifacts/n0cli_freebsd_amd64.tar.gz \
                             artifacts/n0cli_windows_amd64.zip
 
-.PHONY: artifacts/%.tar.gz
-artifacts/%.tar.gz:
+.PHONY: artifacts/n0cli%.tar.gz
+artifacts/n0cli%.tar.gz:
 	$(eval BASENAME := $(subst .tar.gz,,$(notdir $@)))
 	$(eval BASENAME_WORDS := $(subst _, ,$(BASENAME)))
 	$(eval BINNAME := $(word 1,$(BASENAME_WORDS)))
@@ -182,8 +182,28 @@ artifacts/%.tar.gz:
 	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o artifacts/$(BINNAME) $(GOFLAGS) ./$(BINNAME)
 	cd artifacts && tar czvf $(notdir $@) $(BINNAME) --owner=n0stack:0 --group=n0stack:0
 	rm artifacts/$(BINNAME)
+.PHONY: artifacts/%.tar.gz
+artifacts/%.tar.gz:
+	$(eval BASENAME := $(subst .tar.gz,,$(notdir $@)))
+	$(eval BASENAME_WORDS := $(subst _, ,$(BASENAME)))
+	$(eval BINNAME := $(word 1,$(BASENAME_WORDS)))
+	$(eval GOOS := $(word 2,$(BASENAME_WORDS)))
+	$(eval GOARCH := $(word 3,$(BASENAME_WORDS)))
+	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o artifacts/$(BINNAME) $(GOFLAGS) ./$(BINNAME)/cmd/$(BINNAME)
+	cd artifacts && tar czvf $(notdir $@) $(BINNAME) --owner=n0stack:0 --group=n0stack:0
+	rm artifacts/$(BINNAME)
 
 # windows
+.PHONY: vendor artifacts/n0cli%.zip
+artifacts/n0cli%.zip:
+	$(eval BASENAME := $(subst .zip,,$(notdir $@)))
+	$(eval BASENAME_WORDS := $(subst _, ,$(BASENAME)))
+	$(eval BINNAME := $(word 1,$(BASENAME_WORDS)))
+	$(eval GOOS := $(word 2,$(BASENAME_WORDS)))
+	$(eval GOARCH := $(word 3,$(BASENAME_WORDS)))
+	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o artifacts/$(BINNAME).exe $(GOFLAGS) ./$(BINNAME)
+	cd artifacts && zip $(notdir $@) $(BINNAME).exe
+	rm artifacts/$(BINNAME).exe
 .PHONY: vendor artifacts/%.zip
 artifacts/%.zip:
 	$(eval BASENAME := $(subst .zip,,$(notdir $@)))

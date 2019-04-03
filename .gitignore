@@ -12,6 +12,7 @@
 *.out
 
 vendor/
+artifacts/
 
 **/debug
 .vscode/
