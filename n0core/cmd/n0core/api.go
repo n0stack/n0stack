@@ -11,7 +11,6 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/n0stack/n0stack/n0core/pkg/api/deployment/flavor"
 	"github.com/n0stack/n0stack/n0core/pkg/api/deployment/image"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/network"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
@@ -90,7 +89,7 @@ func ServeAPI(ctx *cli.Context) error {
 	}
 	defer vmds.Close()
 	vma := virtualmachine.CreateVirtualMachineAPI(vmds, noc, nec, bsc)
-	vmc := pprovisioning.NewVirtualMachineServiceClient(conn)
+	// vmc := pprovisioning.NewVirtualMachineServiceClient(conn)
 
 	statikFs, err := fs.New()
 	if err != nil {
@@ -103,14 +102,7 @@ func ServeAPI(ctx *cli.Context) error {
 	}
 	defer ids.Close()
 	ia := image.CreateImageAPI(ids, bsc)
-	ic := pdeployment.NewImageServiceClient(conn)
-
-	fds, err := etcd.NewEtcdDatastore(etcdEndpoints)
-	if err != nil {
-		return err
-	}
-	defer fds.Close()
-	fa := flavor.CreateFlavorAPI(fds, vmc, ic)
+	// ic := pdeployment.NewImageServiceClient(conn)
 
 	// とりあえず log を表示するため利用する
 	// zapLogger, err := zap.NewProduction()
@@ -137,7 +129,6 @@ func ServeAPI(ctx *cli.Context) error {
 	pprovisioning.RegisterBlockStorageServiceServer(grpcServer, bsa)
 	pprovisioning.RegisterVirtualMachineServiceServer(grpcServer, vma)
 	pdeployment.RegisterImageServiceServer(grpcServer, ia)
-	pdeployment.RegisterFlavorServiceServer(grpcServer, fa)
 	reflection.Register(grpcServer)
 
 	e := echo.New()
