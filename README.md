@@ -45,6 +45,12 @@ The n0stack wants to solve these problems.
 
 ## Components
 
+The final goal of n0stack is to represent the state of all clusters with n0proto.
+Implementations such as n0core manipulates the cluster according to the information specified by n0proto.
+The implementation of n0proto is left to each developer.
+This repository is just a reference implementation.
+However, please share actively usable libraries such as `n0core/pkg/driver`.
+
 ![](docs/_static/images/components.svg)
 
 ### [n0proto](n0proto/)
