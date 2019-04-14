@@ -61,11 +61,11 @@ func (a ImageAPI) ListImages(ctx context.Context, req *pdeployment.ListImagesReq
 func (a ImageAPI) GetImage(ctx context.Context, req *pdeployment.GetImageRequest) (*pdeployment.Image, error) {
 	res := &pdeployment.Image{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	}
-	if res.Name == "" {
-		return nil, grpc.Errorf(codes.NotFound, "")
+		if datastore.IsNotFound(err) {
+			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+		}
+
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	return res, nil
@@ -78,9 +78,8 @@ func (a ImageAPI) ApplyImage(ctx context.Context, req *pdeployment.ApplyImageReq
 	defer a.dataStore.Unlock(req.Name)
 
 	image := &pdeployment.Image{}
-	if err := a.dataStore.Get(req.Name, image); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
+	if err := a.dataStore.Get(req.Name, image); err != nil && !datastore.IsNotFound(err) {
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	image.Name = req.Name
@@ -103,11 +102,11 @@ func (a ImageAPI) DeleteImage(ctx context.Context, req *pdeployment.DeleteImageR
 
 	prev := &pdeployment.Image{}
 	if err := a.dataStore.Get(req.Name, prev); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	}
-	if prev.Name == "" {
-		return nil, grpc.Errorf(codes.NotFound, "Image '%s' is not found", req.Name)
+		if datastore.IsNotFound(err) {
+			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+		}
+
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	for _, bs := range prev.RegisteredBlockStorages {
@@ -133,11 +132,11 @@ func (a ImageAPI) RegisterBlockStorage(ctx context.Context, req *pdeployment.Reg
 
 	res := &pdeployment.Image{}
 	if err := a.dataStore.Get(req.ImageName, res); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.ImageName)
-	}
-	if res.Name == "" {
-		return nil, grpc.Errorf(codes.NotFound, "Image '%s' is not found", req.ImageName)
+		if datastore.IsNotFound(err) {
+			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+		}
+
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 	if res.Tags == nil {
 		res.Tags = make(map[string]string)
@@ -172,11 +171,11 @@ func (a ImageAPI) UnregisterBlockStorage(ctx context.Context, req *pdeployment.U
 
 	res := &pdeployment.Image{}
 	if err := a.dataStore.Get(req.ImageName, res); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.ImageName)
-	}
-	if res.Name == "" {
-		return nil, grpc.Errorf(codes.NotFound, "Image '%s' is not found", req.ImageName)
+		if datastore.IsNotFound(err) {
+			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+		}
+
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 	if res.Tags == nil {
 		res.Tags = make(map[string]string)
@@ -212,11 +211,11 @@ func (a ImageAPI) UnregisterBlockStorage(ctx context.Context, req *pdeployment.U
 func (a ImageAPI) GenerateBlockStorage(ctx context.Context, req *pdeployment.GenerateBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
 	prev := &pdeployment.Image{}
 	if err := a.dataStore.Get(req.ImageName, prev); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.ImageName)
-	}
-	if prev.Name == "" {
-		return nil, grpc.Errorf(codes.NotFound, "Image '%s' is not found", req.ImageName)
+		if datastore.IsNotFound(err) {
+			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+		}
+
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 	if prev.Tags == nil {
 		return nil, grpc.Errorf(codes.NotFound, "Tag '%s' is not found", req.Tag)
@@ -247,11 +246,11 @@ func (a ImageAPI) TagImage(ctx context.Context, req *pdeployment.TagImageRequest
 
 	res := &pdeployment.Image{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	}
-	if res.Name == "" {
-		return nil, grpc.Errorf(codes.NotFound, "Image '%s' is not found", req.Name)
+		if datastore.IsNotFound(err) {
+			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+		}
+
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 	if res.Tags == nil {
 		res.Tags = make(map[string]string)
@@ -286,11 +285,11 @@ func (a ImageAPI) UntagImage(ctx context.Context, req *pdeployment.UntagImageReq
 
 	res := &pdeployment.Image{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	}
-	if res.Name == "" {
-		return nil, grpc.Errorf(codes.NotFound, "Image '%s' is not found", req.Name)
+		if datastore.IsNotFound(err) {
+			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+		}
+
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 	if res.Tags == nil {
 		return nil, grpc.Errorf(codes.NotFound, "Tag '%s' is not found", req.Tag)

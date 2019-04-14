@@ -6,6 +6,7 @@ import (
 	"google.golang.org/grpc/codes"
 
 	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
+	"github.com/pkg/errors"
 )
 
 func LockError() error {
@@ -47,3 +48,7 @@ func IsNotFound(err error) bool {
 // func LockErrorMessage() string {
 // 	return "this is locked, wait a moment"
 // }
+
+func DefaultErrorMessage(err error) string {
+	return errors.Wrap(err, "Failed to operate on datastore").Error()
+}

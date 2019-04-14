@@ -165,10 +165,10 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 
 	{
 		prev := &pprovisioning.VirtualMachine{}
-		if err := a.dataStore.Get(vm.Name, prev); err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get data for db: err='%s'", err.Error())
-		} else if prev.Name != "" {
+		if err := a.dataStore.Get(vm.Name, prev); err == nil {
 			return nil, grpcutil.WrapGrpcErrorf(codes.AlreadyExists, "VirtualMachine '%s' is already exists", vm.Name)
+		} else if !datastore.IsNotFound(err) {
+			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 		}
 
 		vm.State = pprovisioning.VirtualMachine_PENDING
@@ -366,11 +366,11 @@ func (a *VirtualMachineAPI) ListVirtualMachines(ctx context.Context, req *pprovi
 func (a *VirtualMachineAPI) GetVirtualMachine(ctx context.Context, req *pprovisioning.GetVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
 	vm := &pprovisioning.VirtualMachine{}
 	if err := a.dataStore.Get(req.Name, vm); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	}
-	if vm.Name == "" {
-		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "")
+		if datastore.IsNotFound(err) {
+			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+		}
+
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	return vm, nil
@@ -392,9 +392,11 @@ func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprov
 	vm := &pprovisioning.VirtualMachine{}
 	{
 		if err := a.dataStore.Get(req.Name, vm); err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get '%s' from db: err='%s'", req.Name, err.Error())
-		} else if vm.Name == "" {
-			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "")
+			if datastore.IsNotFound(err) {
+				return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+			}
+
+			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 		}
 
 		if vm.State == pprovisioning.VirtualMachine_PENDING {
@@ -544,9 +546,11 @@ func (a *VirtualMachineAPI) bootVirtualMachine(ctx context.Context, req *pprovis
 	vm := &pprovisioning.VirtualMachine{}
 	{
 		if err := a.dataStore.Get(req.Name, vm); err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get data for db: err='%s'", err.Error())
-		} else if vm.Name == "" {
-			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "VirtualMachine '%s' is not found", vm.Name)
+			if datastore.IsNotFound(err) {
+				return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+			}
+
+			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 		}
 
 		if vm.State == pprovisioning.VirtualMachine_PENDING {
@@ -685,10 +689,11 @@ func (a *VirtualMachineAPI) SaveVirtualMachine(ctx context.Context, req *pprovis
 func (a *VirtualMachineAPI) OpenConsole(ctx context.Context, req *pprovisioning.OpenConsoleRequest) (*pprovisioning.OpenConsoleResponse, error) {
 	vm := &pprovisioning.VirtualMachine{}
 	if err := a.dataStore.Get(req.Name, vm); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	} else if vm.Name == "" {
-		return nil, grpc.Errorf(codes.NotFound, "")
+		if datastore.IsNotFound(err) {
+			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+		}
+
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	u := &url.URL{
@@ -708,10 +713,12 @@ func (a *VirtualMachineAPI) ProxyWebsocket() func(echo.Context) error {
 
 		vm := &pprovisioning.VirtualMachine{}
 		if err := a.dataStore.Get(vmName, vm); err != nil {
+			if datastore.IsNotFound(err) {
+				return err
+			}
+
 			log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
 			return fmt.Errorf("db error")
-		} else if vm.Name == "" {
-			return err
 		}
 
 		node, err := a.nodeAPI.GetNode(context.Background(), &ppool.GetNodeRequest{Name: vm.ComputeNodeName})

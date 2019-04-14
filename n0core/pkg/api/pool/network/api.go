@@ -67,11 +67,11 @@ func (a NetworkAPI) GetNetwork(ctx context.Context, req *ppool.GetNetworkRequest
 
 	res := &ppool.Network{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	}
-	if res.Name == "" {
-		return nil, grpc.Errorf(codes.NotFound, "")
+		if datastore.IsNotFound(err) {
+			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+		}
+
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	return res, nil
@@ -96,8 +96,8 @@ func (a NetworkAPI) ApplyNetwork(ctx context.Context, req *ppool.ApplyNetworkReq
 	defer a.dataStore.Unlock(req.Name)
 
 	network := &ppool.Network{}
-	if err := a.dataStore.Get(req.Name, network); err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get data from db: err='%s'", err.Error())
+	if err := a.dataStore.Get(req.Name, network); err != nil && !datastore.IsNotFound(err) {
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	{
@@ -155,10 +155,11 @@ func (a NetworkAPI) DeleteNetwork(ctx context.Context, req *ppool.DeleteNetworkR
 
 	network := &ppool.Network{}
 	if err := a.dataStore.Get(req.Name, network); err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get data from db: err='%s'", err.Error())
-	}
-	if network.Name == "" {
-		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "")
+		if datastore.IsNotFound(err) {
+			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+		}
+
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	if IsLockedForDeletion(network) {
@@ -185,12 +186,13 @@ func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.Rese
 
 	res := &ppool.Network{}
 	if err := a.dataStore.Get(req.NetworkName, res); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.NetworkName)
+		if datastore.IsNotFound(err) {
+			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+		}
+
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get data from db: err='%s'", err.Error())
 	}
-	if res.Name == "" {
-		return nil, grpc.Errorf(codes.NotFound, "Network '%s' is not found", req.NetworkName)
-	}
+
 	if res.ReservedNetworkInterfaces == nil {
 		res.ReservedNetworkInterfaces = make(map[string]*pbudget.NetworkInterface)
 	}
@@ -247,11 +249,11 @@ func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.Rese
 func (a NetworkAPI) ReleaseNetworkInterface(ctx context.Context, req *ppool.ReleaseNetworkInterfaceRequest) (*empty.Empty, error) {
 	n := &ppool.Network{}
 	if err := a.dataStore.Get(req.NetworkName, n); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpc.Errorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.NetworkName)
-	}
-	if n.Name == "" {
-		return nil, grpc.Errorf(codes.NotFound, "Do not exists network '%s'", req.NetworkName)
+		if datastore.IsNotFound(err) {
+			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+		}
+
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get data from db: err='%s'", err.Error())
 	}
 
 	if !lock.WaitUntilLock(a.dataStore, req.NetworkName, 5*time.Second, 50*time.Millisecond) {

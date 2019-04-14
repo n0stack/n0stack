@@ -135,11 +135,10 @@ func ReleaseStorage(ctx context.Context, tx *transaction.Transaction, na ppool.N
 
 func (a *BlockStorageAPI) CheckAndLock(tx *transaction.Transaction, bs *pprovisioning.BlockStorage) error {
 	prev := &pprovisioning.BlockStorage{}
-	if err := a.dataStore.Get(bs.Name, prev); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", bs.Name)
-	} else if prev.Name != "" {
+	if err := a.dataStore.Get(bs.Name, prev); err == nil {
 		return grpcutil.WrapGrpcErrorf(codes.AlreadyExists, "BlockStorage '%s' is already exists", bs.Name)
+	} else if !datastore.IsNotFound(err) {
+		return grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	bs.State = pprovisioning.BlockStorage_PENDING
@@ -156,10 +155,11 @@ func (a *BlockStorageAPI) CheckAndLock(tx *transaction.Transaction, bs *pprovisi
 func (a *BlockStorageAPI) GetAndLock(tx *transaction.Transaction, name string) (*pprovisioning.BlockStorage, error) {
 	bs := &pprovisioning.BlockStorage{}
 	if err := a.dataStore.Get(name, bs); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", name)
-	} else if bs.Name == "" {
-		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "")
+		if datastore.IsNotFound(err) {
+			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+		}
+
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	if bs.State == pprovisioning.BlockStorage_PENDING {
@@ -392,10 +392,11 @@ func (a *BlockStorageAPI) CopyBlockStorage(ctx context.Context, req *pprovisioni
 	{
 		src := &pprovisioning.BlockStorage{}
 		if err := a.dataStore.Get(req.SourceBlockStorage, src); err != nil {
-			log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", src.Name)
-		} else if src.Name == "" {
-			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "BlockStorage '%s' is not exists", src.Name)
+			if datastore.IsNotFound(err) {
+				return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+			}
+
+			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 		}
 
 		srcNode, err := a.nodeAPI.GetNode(ctx, &ppool.GetNodeRequest{Name: src.NodeName})
@@ -459,11 +460,11 @@ func (a *BlockStorageAPI) ListBlockStorages(ctx context.Context, req *pprovision
 func (a *BlockStorageAPI) GetBlockStorage(ctx context.Context, req *pprovisioning.GetBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
 	res := &pprovisioning.BlockStorage{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	}
-	if res.Name == "" {
-		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "")
+		if datastore.IsNotFound(err) {
+			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+		}
+
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	return res, nil
@@ -601,9 +602,11 @@ func (a *BlockStorageAPI) DeleteBlockStorage(ctx context.Context, req *pprovisio
 
 	bs := &pprovisioning.BlockStorage{}
 	if err := a.dataStore.Get(req.Name, bs); err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	} else if bs.Name == "" {
-		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "")
+		if datastore.IsNotFound(err) {
+			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+		}
+
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	if bs.State != pprovisioning.BlockStorage_AVAILABLE {
@@ -626,9 +629,11 @@ func (a *BlockStorageAPI) UndeleteBlockStorage(ctx context.Context, req *pprovis
 
 	bs := &pprovisioning.BlockStorage{}
 	if err := a.dataStore.Get(req.Name, bs); err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	} else if bs.Name == "" {
-		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "")
+		if datastore.IsNotFound(err) {
+			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+		}
+
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	if bs.State != pprovisioning.BlockStorage_DELETED {
@@ -702,10 +707,11 @@ func (a *BlockStorageAPI) SetAvailableBlockStorage(ctx context.Context, req *ppr
 
 	res := &pprovisioning.BlockStorage{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	} else if res.Name == "" {
-		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "")
+		if datastore.IsNotFound(err) {
+			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+		}
+
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	if res.State == pprovisioning.BlockStorage_PENDING {
@@ -729,10 +735,11 @@ func (a *BlockStorageAPI) SetInuseBlockStorage(ctx context.Context, req *pprovis
 
 	res := &pprovisioning.BlockStorage{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	} else if res.Name == "" {
-		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "")
+		if datastore.IsNotFound(err) {
+			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+		}
+
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	if res.State != pprovisioning.BlockStorage_AVAILABLE {
@@ -756,10 +763,11 @@ func (a *BlockStorageAPI) SetProtectedBlockStorage(ctx context.Context, req *ppr
 
 	res := &pprovisioning.BlockStorage{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	} else if res.Name == "" {
-		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "")
+		if datastore.IsNotFound(err) {
+			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+		}
+
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	if res.State != pprovisioning.BlockStorage_AVAILABLE {
@@ -778,10 +786,11 @@ func (a *BlockStorageAPI) SetProtectedBlockStorage(ctx context.Context, req *ppr
 func (a *BlockStorageAPI) DownloadBlockStorage(ctx context.Context, req *pprovisioning.DownloadBlockStorageRequest) (*pprovisioning.DownloadBlockStorageResponse, error) {
 	bs := &pprovisioning.BlockStorage{}
 	if err := a.dataStore.Get(req.Name, bs); err != nil {
-		log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get '%s' from db, please retry or contact for the administrator of this cluster", req.Name)
-	} else if bs.Name == "" {
-		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "")
+		if datastore.IsNotFound(err) {
+			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+		}
+
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	u := &url.URL{
@@ -802,10 +811,12 @@ func (a *BlockStorageAPI) ProxyDownloadBlockStorage(agentPort int, basePath stri
 
 		bs := &pprovisioning.BlockStorage{}
 		if err := a.dataStore.Get(name, bs); err != nil {
+			if datastore.IsNotFound(err) {
+				return c.String(http.StatusNotFound, err.Error())
+			}
+
 			log.Printf("[WARNING] Failed to get data from db: err='%s'", err.Error())
-			return c.String(http.StatusInternalServerError, errors.Wrap(err, "Failed to get data from db").Error())
-		} else if bs.Name == "" {
-			return c.String(http.StatusNotFound, "")
+			return c.String(http.StatusInternalServerError, datastore.DefaultErrorMessage(err))
 		}
 
 		ctx := context.Background()
