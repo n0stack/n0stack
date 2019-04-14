@@ -263,9 +263,6 @@
         "registered_at": {
           "type": "string",
           "format": "date-time"
-        },
-        "sha256": {
-          "type": "string"
         }
       }
     },
