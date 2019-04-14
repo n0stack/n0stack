@@ -36,7 +36,7 @@ func (e NotFound) Error() string {
 	return fmt.Sprintf("Key '%s' is not found", e.key)
 }
 
-func IsNotfound(err error) bool {
+func IsNotFound(err error) bool {
 	if e, ok := err.(NotFoundError); ok {
 		return e.IsNotFound()
 	}

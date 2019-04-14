@@ -64,7 +64,7 @@ func TestMemoryDatastoreNotFound(t *testing.T) {
 	k := "test"
 
 	e := &datastore.Test{}
-	if err := m.Get(k, e); err == nil || !datastore.IsNotfound(err) {
+	if err := m.Get(k, e); err == nil || !datastore.IsNotFound(err) {
 		t.Errorf("error is wrong, required NotFoundError")
 	}
 
@@ -73,7 +73,7 @@ func TestMemoryDatastoreNotFound(t *testing.T) {
 	}
 	defer m.Unlock(k)
 
-	if err := m.Delete(k); err == nil || !datastore.IsNotfound(err) {
+	if err := m.Delete(k); err == nil || !datastore.IsNotFound(err) {
 		t.Errorf("error is wrong, required NotFoundError")
 	}
 }
