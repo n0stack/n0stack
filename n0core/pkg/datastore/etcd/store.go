@@ -83,7 +83,7 @@ func (d EtcdDatastore) Get(key string, pb proto.Message) error {
 	}
 	if resp.Count == 0 {
 		pb = nil
-		return nil
+		return datastore.NewNotFound(key)
 	}
 
 	err = proto.Unmarshal(resp.Kvs[0].Value, pb)

@@ -63,7 +63,7 @@ func (m MemoryDatastore) Get(key string, pb proto.Message) error {
 	v, ok := m.Data[m.prefix+key]
 	if !ok {
 		pb = nil
-		return nil
+		return datastore.NewNotFound(key)
 	}
 
 	err := proto.Unmarshal(v, pb)
@@ -101,7 +101,7 @@ func (m *MemoryDatastore) Delete(key string) error {
 		return nil
 	}
 
-	return nil
+	return datastore.NewNotFound(key)
 }
 
 func (m MemoryDatastore) getKey(key string) string {

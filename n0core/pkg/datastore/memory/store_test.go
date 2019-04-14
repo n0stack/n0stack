@@ -58,6 +58,26 @@ func TestMemoryDatastore(t *testing.T) {
 	}
 }
 
+func TestMemoryDatastoreNotFound(t *testing.T) {
+	m := NewMemoryDatastore()
+
+	k := "test"
+
+	e := &datastore.Test{}
+	if err := m.Get(k, e); err == nil || !datastore.IsNotfound(err) {
+		t.Errorf("error is wrong, required NotFoundError")
+	}
+
+	if !m.Lock(k) {
+		t.Errorf("Failed to lock")
+	}
+	defer m.Unlock(k)
+
+	if err := m.Delete(k); err == nil || !datastore.IsNotfound(err) {
+		t.Errorf("error is wrong, required NotFoundError")
+	}
+}
+
 func TestCheckDataIsSame(t *testing.T) {
 	m := NewMemoryDatastore()
 
