@@ -7,16 +7,17 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"runtime/debug"
-	"strings"
 	"syscall"
+
+	"github.com/n0stack/n0stack/n0core/pkg/datastore/embed"
 
 	"github.com/n0stack/n0stack/n0core/pkg/api/deployment/image"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/network"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
 	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/blockstorage"
 	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/virtualmachine"
-	"github.com/n0stack/n0stack/n0core/pkg/datastore/etcd"
 	pdeployment "github.com/n0stack/n0stack/n0proto.go/deployment/v0"
 	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
 	pprovisioning "github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
@@ -44,7 +45,8 @@ func OutputRecoveryLog(p interface{}) (err error) {
 }
 
 func ServeAPI(ctx *cli.Context) error {
-	etcdEndpoints := strings.Split(ctx.String("etcd-endpoints"), ",")
+	baseDir := ctx.String("base-directory")
+	dbDir := filepath.Join(baseDir, "db")
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", ctx.String("bind-address"), ctx.Int("bind-port")))
 	if err != nil {
@@ -59,36 +61,22 @@ func ServeAPI(ctx *cli.Context) error {
 	}
 	defer conn.Close()
 
-	nods, err := etcd.NewEtcdDatastore(etcdEndpoints)
+	ds, err := embed.NewEmbedDatastore(dbDir)
 	if err != nil {
 		return err
 	}
-	defer nods.Close()
-	noa := node.CreateNodeAPI(nods)
+	defer ds.Close()
+
+	noa := node.CreateNodeAPI(ds)
 	noc := ppool.NewNodeServiceClient(conn)
 
-	neds, err := etcd.NewEtcdDatastore(etcdEndpoints)
-	if err != nil {
-		return err
-	}
-	defer neds.Close()
-	nea := network.CreateNetworkAPI(neds)
+	nea := network.CreateNetworkAPI(ds)
 	nec := ppool.NewNetworkServiceClient(conn)
 
-	bsds, err := etcd.NewEtcdDatastore(etcdEndpoints)
-	if err != nil {
-		return err
-	}
-	defer bsds.Close()
-	bsa := blockstorage.CreateBlockStorageAPI(bsds, noc)
+	bsa := blockstorage.CreateBlockStorageAPI(ds, noc)
 	bsc := pprovisioning.NewBlockStorageServiceClient(conn)
 
-	vmds, err := etcd.NewEtcdDatastore(etcdEndpoints)
-	if err != nil {
-		return err
-	}
-	defer vmds.Close()
-	vma := virtualmachine.CreateVirtualMachineAPI(vmds, noc, nec, bsc)
+	vma := virtualmachine.CreateVirtualMachineAPI(ds, noc, nec, bsc)
 	// vmc := pprovisioning.NewVirtualMachineServiceClient(conn)
 
 	statikFs, err := fs.New()
@@ -96,12 +84,7 @@ func ServeAPI(ctx *cli.Context) error {
 		return err
 	}
 
-	ids, err := etcd.NewEtcdDatastore(etcdEndpoints)
-	if err != nil {
-		return err
-	}
-	defer ids.Close()
-	ia := image.CreateImageAPI(ids, bsc)
+	ia := image.CreateImageAPI(ds, bsc)
 	// ic := pdeployment.NewImageServiceClient(conn)
 
 	// とりあえず log を表示するため利用する

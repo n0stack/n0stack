@@ -35,9 +35,6 @@ func main() {
 					Action: ServeAPI,
 					Flags: []cli.Flag{
 						cli.StringFlag{
-							Name: "etcd-endpoints",
-						},
-						cli.StringFlag{
 							// interfaceからも取れるようにしたい
 							Name:  "bind-address",
 							Value: "0.0.0.0",
@@ -45,6 +42,10 @@ func main() {
 						cli.IntFlag{
 							Name:  "bind-port",
 							Value: 20180,
+						},
+						cli.StringFlag{
+							Name:  "base-directory",
+							Value: "/var/lib/n0core",
 						},
 					},
 				},

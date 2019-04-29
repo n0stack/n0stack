@@ -28,6 +28,10 @@ func NewEmbedDatastore(dbDirectory string) (*EmbedDatastore, error) {
 	}, nil
 }
 
+func (ds *EmbedDatastore) Close() error {
+	return ds.db.Close()
+}
+
 func (m *EmbedDatastore) AddPrefix(prefix string) datastore.Datastore {
 	return &EmbedDatastore{
 		db:    m.db.AddPrefix(prefix),
