@@ -2,95 +2,70 @@ package memory
 
 import (
 	"path/filepath"
-	"strings"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/store"
 )
 
-type MemoryStore struct {
-	// 本当は `proto.Message` を入れたいが、何故か中身がなかったのでとりあえずシリアライズする
-	Data map[string][]byte
+var data map[string]map[string][]byte
 
+func init() {
+	data = make(map[string]map[string][]byte)
+	data[""] = make(map[string][]byte)
+}
+
+type MemoryStore struct {
 	prefix string
 }
 
 func NewMemoryStore() *MemoryStore {
+	return &MemoryStore{}
+}
+
+func (m *MemoryStore) AddPrefix(prefix string) *MemoryStore {
+	p := filepath.Join(m.prefix, prefix)
+	data[p] = make(map[string][]byte)
+
 	return &MemoryStore{
-		Data: map[string][]byte{},
+		prefix: p,
 	}
 }
 
-func (m *MemoryStore) AddPrefix(prefix string) store.Store {
-	return &MemoryStore{
-		Data:   m.Data,
-		prefix: filepath.Join(m.prefix+prefix, "/"),
-	}
-}
-
-func (m MemoryStore) List(f func(length int) []proto.Message) error {
-	l := 0
-	for k, _ := range m.Data {
-		if strings.HasPrefix(k, m.prefix) {
-			l++
-		}
-	}
-
-	pb := f(l)
+func (m MemoryStore) List() ([][]byte, error) {
+	l := make([][]byte, len(data[m.prefix]))
 	i := 0
-	for k, v := range m.Data {
-		if !strings.HasPrefix(k, m.prefix) {
-			continue
-		}
-
-		err := proto.Unmarshal(v, pb[i])
-		if err != nil {
-			return err
-		}
-
+	for _, v := range data[m.prefix] {
+		l[i] = v
 		i++
 	}
 
-	return nil
+	return l, nil
 }
 
-func (m MemoryStore) Get(key string, pb proto.Message) error {
-	v, ok := m.Data[m.prefix+key]
+func (m MemoryStore) Get(key string) ([]byte, error) {
+	v, ok := data[m.prefix][key]
 	if !ok {
-		pb = nil
-		return store.NewNotFound(key)
+		return nil, store.NewNotFound(key)
 	}
 
-	err := proto.Unmarshal(v, pb)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return v, nil
 }
 
-func (m *MemoryStore) Apply(key string, pb proto.Message) error {
-	s, err := proto.Marshal(pb)
-	if err != nil {
-		return err
-	}
-
-	m.Data[m.getKey(key)] = s
+func (m *MemoryStore) Apply(key string, value []byte) error {
+	data[m.prefix][key] = value
 
 	return nil
 }
 
 func (m *MemoryStore) Delete(key string) error {
-	var ok bool
-	_, ok = m.Data[m.getKey(key)]
-	if ok {
-		delete(m.Data, m.getKey(key))
-		return nil
+	if !m.IsExisting(key) {
+		return store.NewNotFound(key)
 	}
 
-	return store.NewNotFound(key)
+	delete(data[m.prefix], key)
+	return nil
 }
 
-func (m MemoryStore) getKey(key string) string {
-	return filepath.Join(m.prefix, key)
+func (m MemoryStore) IsExisting(key string) bool {
+	_, ok := data[m.prefix][key]
+	return ok
 }
