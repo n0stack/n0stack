@@ -48,3 +48,81 @@ func TestSqliteStore(t *testing.T) {
 		t.Errorf("failed to close db: %s", err.Error())
 	}
 }
+
+func BenchmarkSqliteStoreApply(b *testing.B) {
+	m, err := NewSqliteStore("test.db")
+	if err != nil {
+		b.Fatalf("failed to generate sqlite datastore: %s", err.Error())
+	}
+	defer os.Remove(dbFile)
+
+	k := "key"
+	v := []byte("value")
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		key := k + string(i)
+		m.Apply(key, v)
+	}
+}
+
+func BenchmarkSqliteStoreDeleteAfterApply(b *testing.B) {
+	m, err := NewSqliteStore("test.db")
+	if err != nil {
+		b.Fatalf("failed to generate sqlite datastore: %s", err.Error())
+	}
+	defer os.Remove(dbFile)
+
+	k := "key"
+	v := []byte("value")
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		key := k + string(i)
+		m.Apply(key, v)
+		m.Delete(key)
+	}
+}
+
+func BenchmarkSqliteStoreGet(b *testing.B) {
+	m, err := NewSqliteStore("test.db")
+	if err != nil {
+		b.Fatalf("failed to generate sqlite datastore: %s", err.Error())
+	}
+	defer os.Remove(dbFile)
+
+	k := "key"
+	v := []byte("value")
+
+	for i := 0; i < b.N; i++ {
+		key := k + string(i)
+		m.Apply(key, v)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		key := k + string(i)
+		m.Get(key)
+	}
+}
+
+func BenchmarkSqliteStoreList(b *testing.B) {
+	m, err := NewSqliteStore("test.db")
+	if err != nil {
+		b.Fatalf("failed to generate sqlite datastore: %s", err.Error())
+	}
+	defer os.Remove(dbFile)
+
+	k := "key"
+	v := []byte("value")
+
+	for i := 0; i < 100; i++ {
+		key := k + string(i)
+		m.Apply(key, v)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		m.List()
+	}
+}
