@@ -5,10 +5,6 @@ import (
 	"testing"
 
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/store"
-
-	"github.com/google/go-cmp/cmp"
-
-	"github.com/n0stack/n0stack/n0core/pkg/datastore"
 )
 
 const dbFile = "test.db"
@@ -21,9 +17,9 @@ func TestSqliteStore(t *testing.T) {
 	defer os.Remove(dbFile)
 
 	k := "key"
-	v := &datastore.Test{Name: "value"}
+	v := []byte("value")
 
-	if err := ds.Get(k, &datastore.Test{}); err == nil {
+	if _, err := ds.Get(k); err == nil {
 		t.Errorf("Get() does not return error, want NotFound")
 	} else if !store.IsNotFound(err) {
 		t.Errorf("Get() return wrong error, want NotFound: %s", err.Error())
@@ -33,19 +29,16 @@ func TestSqliteStore(t *testing.T) {
 		t.Fatalf("failed to apply data: %s", err.Error())
 	}
 
-	got := &datastore.Test{}
-	if err := ds.Get(k, got); err != nil {
+	if b, err := ds.Get(k); err != nil {
 		t.Errorf("failed to get stored data: %s", err.Error())
-	}
-	v.XXX_sizecache = 0
-	if diff := cmp.Diff(v, got); diff != "" {
-		t.Errorf("Get result is wrong: diff=(-want +got)\n%s", diff)
+	} else if string(v) != string(b) {
+		t.Errorf("Get result is wrong: want=%s, have=%s", string(v), string(b))
 	}
 
 	if err := ds.Delete(k); err != nil {
 		t.Errorf("failed to delete data: %s", err.Error())
 	}
-	if err := ds.Get(k, &datastore.Test{}); err == nil {
+	if _, err := ds.Get(k); err == nil {
 		t.Errorf("Get() does not return error, want NotFound")
 	} else if !store.IsNotFound(err) {
 		t.Errorf("Get() return wrong error, want NotFound: %s", err.Error())

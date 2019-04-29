@@ -6,7 +6,6 @@ import (
 
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/store"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/jinzhu/gorm"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/pkg/errors"
@@ -52,50 +51,40 @@ func (ds *SqliteStore) Close() error {
 	return ds.db.Close()
 }
 
-func (ds *SqliteStore) AddPrefix(prefix string) store.Store {
+func (ds *SqliteStore) AddPrefix(prefix string) *SqliteStore {
 	return &SqliteStore{
 		db:     ds.db,
 		prefix: filepath.Join(ds.prefix, prefix),
 	}
 }
 
-func (ds *SqliteStore) List(f func(length int) []proto.Message) error {
-	return nil
+func (ds *SqliteStore) List() ([][]byte, error) {
+	return nil, nil
 }
 
-func (ds *SqliteStore) Get(key string, pb proto.Message) error {
+func (ds *SqliteStore) Get(key string) ([]byte, error) {
 	l := &Log{}
 	if err := ds.db.Last(&l).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {
-			return store.NewNotFound(key)
+			return nil, store.NewNotFound(key)
 		}
 
-		return err
+		return nil, err
 	}
 
 	if l.Type == LOGTYPE_DELETE {
-		return store.NewNotFound(key)
+		return nil, store.NewNotFound(key)
 	}
 
-	err := proto.Unmarshal(l.Value, pb)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return l.Value, nil
 }
 
-func (ds *SqliteStore) Apply(key string, pb proto.Message) error {
-	s, err := proto.Marshal(pb)
-	if err != nil {
-		return err
-	}
-
+func (ds *SqliteStore) Apply(key string, value []byte) error {
 	return ds.db.Create(&Log{
 		Type:   LOGTYPE_APPLY,
 		Prefix: ds.prefix,
 		Key:    key,
-		Value:  s,
+		Value:  value,
 	}).Error
 }
 
