@@ -44,7 +44,11 @@ func (ds *LeveldbStore) List() ([][]byte, error) {
 
 	iter := ds.db.NewIterator(util.BytesPrefix([]byte(ds.prefix)), nil)
 	for iter.Next() {
-		res = append(res, iter.Value())
+		// NOTE: iter.Value() doesn't allocate new address for retrieved value,
+		//       so we need to copy it into new array
+		v := make([]byte, len(iter.Value()), len(iter.Value()))
+		copy(v, iter.Value())
+		res = append(res, v)
 	}
 	iter.Release()
 
