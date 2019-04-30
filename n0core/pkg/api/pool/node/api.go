@@ -74,7 +74,7 @@ func (a NodeAPI) GetNode(ctx context.Context, req *ppool.GetNodeRequest) (*ppool
 
 func (a NodeAPI) ApplyNode(ctx context.Context, req *ppool.ApplyNodeRequest) (*ppool.Node, error) {
 	if req.Name == "" {
-		return nil, grpc.Errorf(codes.InvalidArgument, "Name should not be empty")
+		return nil, grpc.Errorf(codes.InvalidArgument, "Name is required")
 	}
 
 	if !a.dataStore.Lock(req.Name) {
@@ -87,7 +87,11 @@ func (a NodeAPI) ApplyNode(ctx context.Context, req *ppool.ApplyNodeRequest) (*p
 		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
-	if len(req.Address) == 0 {
+	res.Name = req.Name
+	res.Annotations = req.Annotations
+	res.Labels = req.Labels
+
+	if req.Address == "" {
 		p, ok := peer.FromContext(ctx)
 		if !ok {
 			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get gRPC peer information from request")
@@ -103,9 +107,6 @@ func (a NodeAPI) ApplyNode(ctx context.Context, req *ppool.ApplyNodeRequest) (*p
 		res.Address = req.Address
 	}
 
-	res.Name = req.Name
-	res.Annotations = req.Annotations
-	res.Labels = req.Labels
 	res.IpmiAddress = req.IpmiAddress
 	res.Serial = req.Serial
 	res.CpuMilliCores = req.CpuMilliCores
