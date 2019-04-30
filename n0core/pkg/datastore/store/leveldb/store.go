@@ -18,7 +18,7 @@ type LeveldbStore struct {
 }
 
 func NewLeveldbStore(directory string) (*LeveldbStore, error) {
-	db, err := leveldb.OpenFile("test.db", nil)
+	db, err := leveldb.OpenFile(directory, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to connect database")
 	}
