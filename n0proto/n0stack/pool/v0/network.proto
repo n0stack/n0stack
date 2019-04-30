@@ -2,11 +2,11 @@ syntax = "proto3";
 
 option go_package = "github.com/n0stack/n0stack/n0proto.go/pool/v0;ppool";
 
-package n0stack.pool;
+package n0stack.pool.v0;
 
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
-import "budget/v0/network_interface.proto";
+import "n0stack/budget/v0/network_interface.proto";
 
 
 message Network {
@@ -38,7 +38,7 @@ message Network {
   }
   NetworkState state = 50;
 
-  map<string, n0stack.budget.NetworkInterface> reserved_network_interfaces = 51;
+  map<string, n0stack.budget.v0.NetworkInterface> reserved_network_interfaces = 51;
 }
 
 

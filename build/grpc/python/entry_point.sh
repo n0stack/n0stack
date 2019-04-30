@@ -1,11 +1,14 @@
 #!/bin/bash
 set -x
 
-dirs=`find /src -type d | grep -v .git | grep -v test`
+mkdir -p /tmp/build/n0proto
+mkdir -p /tmp/dst
+cp -r /src/* /tmp/build/n0proto
+dirs=`find /tmp/build/n0proto -type d | grep -v .git | grep -v test`
+rm -r /dst/*
 
 for d in $dirs
 do
-  # rm $d/*.py
   # touch $d/__init__.py
 
   # 複数のファイルを指定できない
@@ -14,9 +17,17 @@ do
     python \
       -m grpc_tools.protoc \
       -I/usr/local/include \
-      -I/src \
-      --python_out=/dst \
-      --grpc_python_out=/dst \
+      -I/tmp/build/n0proto \
+      --python_out=/tmp/dst \
+      --grpc_python_out=/tmp/dst \
       $* $d/*.proto
   fi
+done
+
+mv /tmp/dst/n0proto/* /dst
+
+dirs=`find /dst -type d | grep -v .git | grep -v test`
+for d in $dirs
+do
+  touch $d/__init__.py
 done

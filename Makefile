@@ -80,10 +80,15 @@ build-n0proto-on-docker:
 		-v `go env GOPATH`/src:/dst \
 		n0stack/build-grpc-go \
 			/entry_point.sh \
-			  --go_out=plugins=grpc:/dst \
-				--grpc-gateway_out=logtostderr=true:/dst \
-				--swagger_out=logtostderr=true:/dst/github.com/n0stack/n0stack/n0proto.swagger.json
+				--go_out=plugins=grpc:/dst \
+				--grpc-gateway_out=logtostderr=true:/dst
 	sudo chown -R $(USER) n0proto.go
+	docker run -it --rm \
+		-v $(PWD)/n0proto:/src:ro \
+		-v $(PWD)/n0proto.swagger.json:/dst \
+		n0stack/build-grpc-go \
+			/swagger.sh \
+			  /dst
 	sudo chown -R $(USER) n0proto.swagger.json
 	docker run -it --rm \
 		-v $(PWD)/n0proto:/src:ro \

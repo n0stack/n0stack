@@ -2,6 +2,7 @@
 set -x
 
 dirs=`find /src -type d | grep -v .git | grep -v test`
+echo > n0stack.swagger.json
 
 for d in $dirs
 do
@@ -13,6 +14,7 @@ do
       -I/tmp/include \
       -I${GOPATH}/src \
       -I${GOPATH}/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
-      $* $d/*.proto
+      --swagger_out=logtostderr=true,allow_merge=true,merge_file_name=n0stack.swagger.json:/tmp \
+      $d/*.proto
   fi
 done

@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option go_package = "github.com/n0stack/n0stack/n0proto.go/budget/v0;pbudget";
 
-package n0stack.budget;
+package n0stack.budget.v0;
 
 message Storage {
   map<string, string> annotations = 1;

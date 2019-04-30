@@ -2,12 +2,12 @@ syntax = "proto3";
 
 option go_package = "github.com/n0stack/n0stack/n0proto.go/deployment/v0;pdeployment";
 
-package n0stack.deployment;
+package n0stack.deployment.v0;
 
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
-import "provisioning/v0/block_storage.proto";
+import "n0stack/provisioning/v0/block_storage.proto";
 
 
 message Image {
@@ -68,7 +68,7 @@ service ImageService {
       delete: "/api/v0/image/{image_name}/registered_block_storage/{block_storage_name}"
     };    
   }
-  rpc GenerateBlockStorage(GenerateBlockStorageRequest) returns (n0stack.provisioning.BlockStorage) {}
+  rpc GenerateBlockStorage(GenerateBlockStorageRequest) returns (n0stack.provisioning.v0.BlockStorage) {}
 
   rpc TagImage(TagImageRequest) returns (Image) {
     option (google.api.http) = {

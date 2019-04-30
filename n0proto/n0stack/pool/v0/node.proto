@@ -2,12 +2,12 @@ syntax = "proto3";
 
 option go_package = "github.com/n0stack/n0stack/n0proto.go/pool/v0;ppool";
 
-package n0stack.pool;
+package n0stack.pool.v0;
 
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
-import "budget/v0/compute.proto";
-import "budget/v0/storage.proto";
+import "n0stack/budget/v0/compute.proto";
+import "n0stack/budget/v0/storage.proto";
 
 
 message Node {
@@ -48,8 +48,8 @@ message Node {
   }
   NodeState state = 50;
 
-  map<string, n0stack.budget.Compute> reserved_computes = 51;
-  map<string, n0stack.budget.Storage> reserved_storages = 52;
+  map<string, n0stack.budget.v0.Compute> reserved_computes = 51;
+  map<string, n0stack.budget.v0.Storage> reserved_storages = 52;
 }
 
 
