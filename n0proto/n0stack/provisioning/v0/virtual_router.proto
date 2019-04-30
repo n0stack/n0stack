@@ -31,11 +31,11 @@ message VirtualRouter {
   }
   VirtualRouterState state = 50;
   
-  message VirtualRouterNetworkInterface {
+  message VirtualRouterConnectedNetwork {
     string network_name = 1;
     string network_interface_name = 2;
   }
-  repeated VirtualRouterNetworkInterface network_interfaces = 51;
+  repeated VirtualRouterConnectedNetwork connected_network = 51;
 
   message VirtualIP {
     string network_name = 1;
@@ -50,6 +50,7 @@ service VirtualRouterService {
   rpc CreateVirtualRouter(CreateVirtualRouterRequest) returns (VirtualRouter) {
     option (google.api.http) = {
       post: "/api/v0/virtual_router"
+      body: "*"
     };
   }
   rpc ListVirtualRouters(ListVirtualRoutersRequest) returns (ListVirtualRoutersResponse) {
@@ -71,18 +72,20 @@ service VirtualRouterService {
 
   rpc ConnectNetwork(ConnectNetworkRequest) returns (VirtualRouter) {
     option (google.api.http) = {
-      post: "/api/v0/virtual_router/{virtual_router_name}/network"
+      post: "/api/v0/virtual_router/{virtual_router_name}/connected_network"
+      body: "*"
     };
   }
   rpc DisconnectNetwork(DisconnectNetworkRequest) returns (VirtualRouter) {
     option (google.api.http) = {
-      delete: "/api/v0/virtual_router/{virtual_router_name}/network/{network_name}"
+      delete: "/api/v0/virtual_router/{virtual_router_name}/connected_network/{network_name}"
     };
   }
 
   rpc ApplyVirtualIP(ApplyVirtualIPRequest) returns (VirtualRouter) {
     option (google.api.http) = {
-      post: "/api/v0/virtual_router/{virtual_router_name}/virtual_ip"
+      put: "/api/v0/virtual_router/{virtual_router_name}/virtual_ip"
+      body: "*"
     };
   }
   rpc DeleteVirtualIP(DeleteVirtualIPRequest) returns (VirtualRouter) {

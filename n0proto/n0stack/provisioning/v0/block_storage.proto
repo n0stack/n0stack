@@ -49,9 +49,24 @@ message BlockStorage {
 
 
 service BlockStorageService {
-  rpc CreateBlockStorage(CreateBlockStorageRequest) returns (BlockStorage) {}
-  rpc FetchBlockStorage(FetchBlockStorageRequest) returns (BlockStorage) {}
-  rpc CopyBlockStorage(CopyBlockStorageRequest) returns (BlockStorage) {}
+  rpc CreateBlockStorage(CreateBlockStorageRequest) returns (BlockStorage) {
+    option (google.api.http) = {
+      post: "/api/v0/block_storage"
+      body: "*"
+    };
+  }
+  rpc FetchBlockStorage(FetchBlockStorageRequest) returns (BlockStorage) {
+    option (google.api.http) = {
+      post: "/api/v0/virtual_router:fetch"
+      body: "*"
+    };
+  }
+  rpc CopyBlockStorage(CopyBlockStorageRequest) returns (BlockStorage) {
+    option (google.api.http) = {
+      post: "/api/v0/block_storage:copy"
+      body: "*"
+    };
+  }
 
   rpc ListBlockStorages(ListBlockStoragesRequest) returns (ListBlockStoragesResponse) {
     option (google.api.http) = {

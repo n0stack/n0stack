@@ -66,7 +66,12 @@ message VirtualMachine {
 
 
 service VirtualMachineService {
-  rpc CreateVirtualMachine(CreateVirtualMachineRequest) returns (VirtualMachine) {}
+  rpc CreateVirtualMachine(CreateVirtualMachineRequest) returns (VirtualMachine) {
+    option (google.api.http) = {
+      post: "/api/v0/virtual_router"
+      body: "*"
+    };
+  }
   rpc ListVirtualMachines(ListVirtualMachinesRequest) returns (ListVirtualMachinesResponse) {
     option (google.api.http) = {
       get: "/api/v0/virtual_machine"
@@ -88,19 +93,19 @@ service VirtualMachineService {
   // -> RUNNING
   rpc BootVirtualMachine(BootVirtualMachineRequest) returns (VirtualMachine) {
     option (google.api.http) = {
-      get: "/api/v0/virtual_machine/{name}:boot"
+      post: "/api/v0/virtual_machine/{name}:boot"
     };
   }
   // RUNNING -> RUNNING
   rpc RebootVirtualMachine(RebootVirtualMachineRequest) returns (VirtualMachine) {
     option (google.api.http) = {
-      get: "/api/v0/virtual_machine/{name}:reboot"
+      post: "/api/v0/virtual_machine/{name}:reboot"
     };
   }
   // RUNNING -> SHUTDOWN
   rpc ShutdownVirtualMachine(ShutdownVirtualMachineRequest) returns (VirtualMachine) {
     option (google.api.http) = {
-      get: "/api/v0/virtual_machine/{name}:shutdown"
+      post: "/api/v0/virtual_machine/{name}:shutdown"
     };
   }
 

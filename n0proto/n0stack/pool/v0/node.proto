@@ -67,8 +67,18 @@ service NodeService {
   }
 
   // it is not necessary for end-user to call these endpoints, so do not export http.
-  rpc ApplyNode(ApplyNodeRequest) returns (Node) {}
-  rpc DeleteNode(DeleteNodeRequest) returns (google.protobuf.Empty) {}
+  rpc ApplyNode(ApplyNodeRequest) returns (Node) {
+    option (google.api.http) = {
+      put: "/api/v0/node/{name}"
+      body: "*"
+    };
+  }
+
+  rpc DeleteNode(DeleteNodeRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v0/node/{name}"
+    };
+  }
 
   rpc ScheduleCompute(ScheduleComputeRequest) returns (Node) {}
   rpc ReserveCompute(ReserveComputeRequest) returns (Node) {}

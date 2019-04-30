@@ -147,6 +147,32 @@
         }
       }
     },
+    "/api/v0/block_storage:copy": {
+      "post": {
+        "tags": [
+          "BlockStorageService"
+        ],
+        "operationId": "CopyBlockStorage",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v0CopyBlockStorageRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v0BlockStorage"
+            }
+          }
+        }
+      }
+    },
     "/api/v0/image": {
       "get": {
         "tags": [
@@ -497,6 +523,56 @@
             }
           }
         }
+      },
+      "put": {
+        "tags": [
+          "NodeService"
+        ],
+        "operationId": "ApplyNode",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v0ApplyNodeRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v0Node"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "NodeService"
+        ],
+        "operationId": "DeleteNode",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {}
+          }
+        }
       }
     },
     "/api/v0/virtual_machine": {
@@ -560,7 +636,7 @@
       }
     },
     "/api/v0/virtual_machine/{name}:boot": {
-      "get": {
+      "post": {
         "tags": [
           "VirtualMachineService"
         ],
@@ -608,7 +684,7 @@
       }
     },
     "/api/v0/virtual_machine/{name}:reboot": {
-      "get": {
+      "post": {
         "tags": [
           "VirtualMachineService"
         ],
@@ -619,12 +695,6 @@
             "name": "name",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "boolean",
-            "format": "boolean",
-            "name": "hard",
-            "in": "query"
           }
         ],
         "responses": {
@@ -638,7 +708,7 @@
       }
     },
     "/api/v0/virtual_machine/{name}:shutdown": {
-      "get": {
+      "post": {
         "tags": [
           "VirtualMachineService"
         ],
@@ -649,12 +719,6 @@
             "name": "name",
             "in": "path",
             "required": true
-          },
-          {
-            "type": "boolean",
-            "format": "boolean",
-            "name": "hard",
-            "in": "query"
           }
         ],
         "responses": {
@@ -687,6 +751,16 @@
           "VirtualRouterService"
         ],
         "operationId": "CreateVirtualRouter",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v0CreateVirtualRouterRequest"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -741,7 +815,7 @@
         }
       }
     },
-    "/api/v0/virtual_router/{virtual_router_name}/network": {
+    "/api/v0/virtual_router/{virtual_router_name}/connected_network": {
       "post": {
         "tags": [
           "VirtualRouterService"
@@ -753,6 +827,14 @@
             "name": "virtual_router_name",
             "in": "path",
             "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v0ConnectNetworkRequest"
+            }
           }
         ],
         "responses": {
@@ -765,7 +847,7 @@
         }
       }
     },
-    "/api/v0/virtual_router/{virtual_router_name}/network/{network_name}": {
+    "/api/v0/virtual_router/{virtual_router_name}/connected_network/{network_name}": {
       "delete": {
         "tags": [
           "VirtualRouterService"
@@ -796,7 +878,7 @@
       }
     },
     "/api/v0/virtual_router/{virtual_router_name}/virtual_ip": {
-      "post": {
+      "put": {
         "tags": [
           "VirtualRouterService"
         ],
@@ -807,6 +889,14 @@
             "name": "virtual_router_name",
             "in": "path",
             "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v0ApplyVirtualIPRequest"
+            }
           }
         ],
         "responses": {
@@ -844,6 +934,32 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v0VirtualRouter"
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/virtual_router:fetch": {
+      "post": {
+        "tags": [
+          "BlockStorageService"
+        ],
+        "operationId": "FetchBlockStorage",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v0FetchBlockStorageRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v0BlockStorage"
             }
           }
         }
@@ -938,7 +1054,7 @@
         }
       }
     },
-    "VirtualRouterVirtualRouterNetworkInterface": {
+    "VirtualRouterVirtualRouterConnectedNetwork": {
       "type": "object",
       "properties": {
         "network_interface_name": {
@@ -1102,6 +1218,95 @@
         }
       }
     },
+    "v0ApplyNodeRequest": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "availability_zone": {
+          "type": "string"
+        },
+        "cell": {
+          "type": "string"
+        },
+        "cpu_milli_cores": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "datacenter": {
+          "type": "string"
+        },
+        "ipmi_address": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "memory_bytes": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "rack": {
+          "type": "string"
+        },
+        "serial": {
+          "type": "string"
+        },
+        "storage_bytes": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "unit": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "v0ApplyVirtualIPRequest": {
+      "type": "object",
+      "properties": {
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "ipv4_address": {
+          "type": "string"
+        },
+        "ipv6_address": {
+          "type": "string"
+        },
+        "network_name": {
+          "type": "string"
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v0VirtualIPTarget"
+          }
+        },
+        "virtual_ip_name": {
+          "type": "string"
+        },
+        "virtual_router_name": {
+          "type": "string"
+        }
+      }
+    },
     "v0BlockStorage": {
       "type": "object",
       "properties": {
@@ -1169,10 +1374,203 @@
         }
       }
     },
+    "v0ConnectNetworkRequest": {
+      "type": "object",
+      "properties": {
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "ipv4_address": {
+          "type": "string"
+        },
+        "ipv6_address": {
+          "type": "string"
+        },
+        "network_name": {
+          "type": "string"
+        },
+        "virtual_router_name": {
+          "type": "string"
+        }
+      }
+    },
+    "v0CopyBlockStorageRequest": {
+      "type": "object",
+      "properties": {
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "limit_bytes": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "request_bytes": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "source_block_storage": {
+          "type": "string"
+        }
+      }
+    },
+    "v0CreateBlockStorageRequest": {
+      "type": "object",
+      "properties": {
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "limit_bytes": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "request_bytes": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "v0CreateVirtualMachineRequest": {
+      "type": "object",
+      "properties": {
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "block_storage_names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "limit_cpu_milli_core": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "limit_memory_bytes": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "login_username": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "nics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v0VirtualMachineNIC"
+          }
+        },
+        "request_cpu_milli_core": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "request_memory_bytes": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "ssh_authorized_keys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "uuid": {
+          "type": "string"
+        }
+      }
+    },
+    "v0CreateVirtualRouterRequest": {
+      "type": "object",
+      "properties": {
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
     "v0DownloadBlockStorageResponse": {
       "type": "object",
       "properties": {
         "download_url": {
+          "type": "string"
+        }
+      }
+    },
+    "v0FetchBlockStorageRequest": {
+      "type": "object",
+      "properties": {
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "limit_bytes": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "request_bytes": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "source_url": {
           "type": "string"
         }
       }
@@ -1596,6 +1994,12 @@
             "type": "string"
           }
         },
+        "connected_network": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/VirtualRouterVirtualRouterConnectedNetwork"
+          }
+        },
         "labels": {
           "type": "object",
           "additionalProperties": {
@@ -1604,12 +2008,6 @@
         },
         "name": {
           "type": "string"
-        },
-        "network_interfaces": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/VirtualRouterVirtualRouterNetworkInterface"
-          }
         },
         "state": {
           "$ref": "#/definitions/VirtualRouterVirtualRouterState"
