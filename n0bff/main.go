@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"os"
@@ -91,9 +92,13 @@ func ServeBFF(c *cli.Context) error {
 		return err
 	}
 
-	u := &url.URL{
+	n0core := &url.URL{
 		Scheme: "http",
 		Host:   "api:8080",
+	}
+	swagger := &url.URL{
+		Scheme: "http",
+		Host:   "swagger:8080",
 	}
 	// /n0core にプロキシ
 	e := echo.New()
@@ -101,7 +106,8 @@ func ServeBFF(c *cli.Context) error {
 	e.Use(middleware.Recover())
 	e.GET("/api/*", echo.WrapHandler(mux))
 	// websocket proxy ができてない
-	e.GET("/n0core/*", echo.WrapHandler(httputil.NewSingleHostReverseProxy(u)))
+	e.GET("/n0core/*", echo.WrapHandler(httputil.NewSingleHostReverseProxy(n0core)))
+	e.GET("/swagger/*", echo.WrapHandler(http.StripPrefix("/swagger", httputil.NewSingleHostReverseProxy(swagger))))
 
 	log.Printf("[INFO] Started BFF: version=%s", version)
 	return e.Start("0.0.0.0:8080")
