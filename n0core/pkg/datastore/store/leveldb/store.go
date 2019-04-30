@@ -2,13 +2,13 @@ package leveldb
 
 import (
 	"path/filepath"
-	"strings"
 
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/store"
 
 	"github.com/pkg/errors"
 	"github.com/syndtr/goleveldb/leveldb"
 	lerrors "github.com/syndtr/goleveldb/leveldb/errors"
+	"github.com/syndtr/goleveldb/leveldb/util"
 )
 
 type LeveldbStore struct {
@@ -42,13 +42,9 @@ func (ds *LeveldbStore) AddPrefix(prefix string) *LeveldbStore {
 func (ds *LeveldbStore) List() ([][]byte, error) {
 	res := make([][]byte, 0)
 
-	iter := ds.db.NewIterator(nil, nil)
+	iter := ds.db.NewIterator(util.BytesPrefix([]byte(ds.prefix)), nil)
 	for iter.Next() {
-		key := string(iter.Key())
-
-		if strings.HasPrefix(key, ds.prefix) {
-			res = append(res, iter.Value())
-		}
+		res = append(res, iter.Value())
 	}
 	iter.Release()
 
