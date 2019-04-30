@@ -11,7 +11,6 @@ up: build-n0core-on-docker build-n0bff-on-docker
 	docker-compose up -d
 	docker-compose restart api # reload binary
 	docker-compose restart bff # reload binary
-	docker-compose restart swagger # reload binary
 
 # --- Build ---
 .PHONY: all
