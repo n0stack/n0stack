@@ -8,6 +8,22 @@ import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "n0stack/provisioning/v0/block_storage.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+  info: {
+    title: "n0stack";
+    contact: {
+      name: "n0stack";
+      url: "https://github.com/n0stack/n0stack";
+    }
+  }
+  
+  schemes: HTTP;
+  schemes: HTTPS;
+  consumes: "application/json";
+  produces: "application/json";
+};
 
 
 message Image {

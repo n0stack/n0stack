@@ -6,10 +6,26 @@ package n0stack.provisioning.v0;
 
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+  info: {
+    title: "n0stack";
+    contact: {
+      name: "n0stack";
+      url: "https://github.com/n0stack/n0stack";
+    };
+  };
+  
+  schemes: HTTP;
+  schemes: HTTPS;
+  consumes: "application/json";
+  produces: "application/json";
+};
 
 
-// target must be selected by connected network
 message VirtualIPTarget {
+// target must be selected by connected network
   string network_name = 1;
   string network_interface_name = 2;
 }

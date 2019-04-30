@@ -29,15 +29,15 @@ services:
   swagger:
     image: swaggerapi/swagger-ui
     volumes:
-      - ./n0proto.swagger.json/n0stack.swagger.json:/usr/share/nginx/html/n0stack.swagger.json
+      - ./n0proto.swagger.json/n0stack.swagger.json:/usr/share/nginx/html/swagger/n0stack.swagger.json
     environment:
-      API_URL: n0stack.swagger.json
+      API_URL: swagger/n0stack.swagger.json
     ports:
       - "1234:8080"
 
-networks:
-  default:
-    driver: bridge
-    ipam:
-      config:
-      - subnet: '10.20.180.0/24'
+# networks:
+#   default:
+#     driver: bridge
+#     ipam:
+#       config:
+#       - subnet: '10.20.180.0/24'

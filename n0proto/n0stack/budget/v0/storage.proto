@@ -4,6 +4,24 @@ option go_package = "github.com/n0stack/n0stack/n0proto.go/budget/v0;pbudget";
 
 package n0stack.budget.v0;
 
+import "protoc-gen-swagger/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+  info: {
+    title: "n0stack";
+    contact: {
+      name: "n0stack";
+      url: "https://github.com/n0stack/n0stack";
+    };
+  };
+  
+  schemes: HTTP;
+  schemes: HTTPS;
+  consumes: "application/json";
+  produces: "application/json";
+};
+
+
 message Storage {
   map<string, string> annotations = 1;
 

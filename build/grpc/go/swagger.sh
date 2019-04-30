@@ -13,6 +13,7 @@ do
       -I/src \
       -I/tmp/include \
       -I${GOPATH}/src \
+      -I${GOPATH}/src/github.com/grpc-ecosystem/grpc-gateway \
       -I${GOPATH}/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
       --swagger_out=logtostderr=true,allow_merge=true:/tmp \
       $d/*.proto

@@ -11,7 +11,11 @@
   ],
   "swagger": "2.0",
   "info": {
-    "title": "n0stack/budget/v0/compute.proto",
+    "title": "n0stack",
+    "contact": {
+      "name": "n0stack",
+      "url": "https://github.com/n0stack/n0stack"
+    },
     "version": "version not set"
   },
   "paths": {
@@ -26,6 +30,30 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v0ListBlockStoragesResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "BlockStorageService"
+        ],
+        "operationId": "CreateBlockStorage",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v0CreateBlockStorageRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v0BlockStorage"
             }
           }
         }
@@ -1874,13 +1902,13 @@
     },
     "v0VirtualIPTarget": {
       "type": "object",
-      "title": "target must be selected by connected network",
       "properties": {
         "network_interface_name": {
           "type": "string"
         },
         "network_name": {
-          "type": "string"
+          "type": "string",
+          "title": "target must be selected by connected network"
         }
       }
     },

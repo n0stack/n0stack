@@ -12,6 +12,7 @@ do
       -I/src \
       -I/tmp/include \
       -I${GOPATH}/src \
+      -I${GOPATH}/src/github.com/grpc-ecosystem/grpc-gateway \
       -I${GOPATH}/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
       $* $d/*.proto
   fi
