@@ -117,14 +117,18 @@ func ServeAPI(ctx *cli.Context) error {
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	e.GET("/api/v0/virtual_machines/:name/vncwebsocket", vma.ProxyWebsocket())
-	e.GET("/api/v0/block_storage/download/:name", bsa.ProxyDownloadBlockStorage(8081, "/api/v0/block_storage/download/")) // ダウンロードしたときのファイル名を指定するため、このように指定した
-	e.GET("/static/virtual_machines/*", echo.WrapHandler(http.StripPrefix("/static/virtual_machines/", http.FileServer(statikFs))))
+	e.GET("/n0core/api/v0/virtual_machines/:name/vncwebsocket", vma.ProxyWebsocket())
+	e.GET("/n0core/api/v0/block_storage/download/:name", bsa.ProxyDownloadBlockStorage(8081, "/n0core/api/v0/block_storage/download/")) // ダウンロードしたときのファイル名を指定するため、このように指定した
+	e.GET("/n0core/static/virtual_machines/*", echo.WrapHandler(http.StripPrefix("/n0core/static/virtual_machines/", http.FileServer(statikFs))))
 
 	log.Printf("[INFO] Started API: version=%s", version)
 
 	// 本当は panic させる必要がある
-	go e.Start("0.0.0.0:8080")
+	go func() {
+		if err := e.Start("0.0.0.0:8080"); err != nil {
+			panic(err)
+		}
+	}()
 
 	go func() {
 		ch := make(chan os.Signal)

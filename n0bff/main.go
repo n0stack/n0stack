@@ -4,9 +4,12 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"os"
 
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	pdeployment "github.com/n0stack/n0stack/n0proto.go/deployment/v0"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -69,23 +72,37 @@ func ServeBFF(c *cli.Context) error {
 
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithInsecure()}
+	api := "api:20180"
 
 	// とりあえず動くようにした。
-	if err := ppool.RegisterNetworkServiceHandlerFromEndpoint(ctx, mux, "api:20180", opts); err != nil {
+	if err := ppool.RegisterNetworkServiceHandlerFromEndpoint(ctx, mux, api, opts); err != nil {
 		return err
 	}
-	if err := pprovisioning.RegisterBlockStorageServiceHandlerFromEndpoint(ctx, mux, "api:20180", opts); err != nil {
+	if err := pprovisioning.RegisterBlockStorageServiceHandlerFromEndpoint(ctx, mux, api, opts); err != nil {
 		return err
 	}
-	if err := pprovisioning.RegisterVirtualMachineServiceHandlerFromEndpoint(ctx, mux, "api:20180", opts); err != nil {
+	if err := pprovisioning.RegisterVirtualMachineServiceHandlerFromEndpoint(ctx, mux, api, opts); err != nil {
 		return err
 	}
-	if err := pdeployment.RegisterImageServiceHandlerFromEndpoint(ctx, mux, "api:20180", opts); err != nil {
+	if err := pdeployment.RegisterImageServiceHandlerFromEndpoint(ctx, mux, api, opts); err != nil {
 		return err
 	}
-	if err := ppool.RegisterNodeServiceHandlerFromEndpoint(ctx, mux, "api:20180", opts); err != nil {
+	if err := ppool.RegisterNodeServiceHandlerFromEndpoint(ctx, mux, api, opts); err != nil {
 		return err
 	}
 
-	return http.ListenAndServe(":80", mux)
+	u := &url.URL{
+		Scheme: "http",
+		Host:   "api:8080",
+	}
+	// /n0core にプロキシ
+	e := echo.New()
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+	e.GET("/api/*", echo.WrapHandler(mux))
+	// websocket proxy ができてない
+	e.GET("/n0core/*", echo.WrapHandler(httputil.NewSingleHostReverseProxy(u)))
+
+	log.Printf("[INFO] Started BFF: version=%s", version)
+	return e.Start("0.0.0.0:8080")
 }

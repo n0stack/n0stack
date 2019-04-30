@@ -795,7 +795,7 @@ func (a *BlockStorageAPI) DownloadBlockStorage(ctx context.Context, req *pprovis
 
 	u := &url.URL{
 		Scheme: "http",
-		Path:   fmt.Sprintf("/api/v0/block_storage/download/%s", req.Name),
+		Path:   fmt.Sprintf("/n0core/api/v0/block_storage/download/%s", req.Name),
 	}
 	res := &pprovisioning.DownloadBlockStorageResponse{
 		DownloadUrl: u.String(),

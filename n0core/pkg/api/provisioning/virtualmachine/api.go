@@ -698,8 +698,8 @@ func (a *VirtualMachineAPI) OpenConsole(ctx context.Context, req *pprovisioning.
 
 	u := &url.URL{
 		Scheme:   "http",
-		Path:     "/static/virtual_machines/vnc.html",
-		RawQuery: fmt.Sprintf("path=api/v0/virtual_machines/%s/vncwebsocket", vm.Name),
+		Path:     "/n0core/static/virtual_machines/vnc.html",
+		RawQuery: fmt.Sprintf("path=n0core/api/v0/virtual_machines/%s/vncwebsocket", vm.Name),
 	}
 
 	return &pprovisioning.OpenConsoleResponse{
