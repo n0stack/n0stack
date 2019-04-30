@@ -96,9 +96,9 @@ func (d RemoteDeployer) SendFile(body []byte, path string, permission os.FileMod
 }
 
 func (d RemoteDeployer) ReadSelf() ([]byte, error) {
-	path, err := filepath.Abs(os.Args[0])
+	path, err := os.Executable()
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed to get absolute path")
+		return nil, errors.Wrap(err, "Failed to get executable path")
 	}
 
 	if !filepath.IsAbs(path) {
@@ -107,7 +107,7 @@ func (d RemoteDeployer) ReadSelf() ([]byte, error) {
 
 	file, err := os.Open(path)
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed to open self")
+		return nil, errors.Wrap(err, "Failed to open binary itself")
 	}
 	defer file.Close()
 
