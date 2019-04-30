@@ -14,7 +14,7 @@ do
       -I/tmp/include \
       -I${GOPATH}/src \
       -I${GOPATH}/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
-      --swagger_out=logtostderr=true,allow_merge=true,merge_file_name=n0stack.swagger.json:/tmp \
+      --swagger_out=logtostderr=true,allow_merge=true,merge_file_name=n0stack.swagger.json:$* \
       $d/*.proto
   fi
 done
