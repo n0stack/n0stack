@@ -106,4 +106,5 @@ The example for implementations about n0stack API.
 ## License
 
 [![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)](https://opensource.org/licenses/BSD-2-Clause)
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fn0stack%2Fn0stack.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fn0stack%2Fn0stack?ref=badge_shield)
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fn0stack%2Fn0stack.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fn0stack%2Fn0stack?ref=badge_large)
