@@ -3,11 +3,13 @@ package node
 import (
 	"context"
 	"log"
+	"net"
 	"time"
 
 	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/peer"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
@@ -72,7 +74,7 @@ func (a NodeAPI) GetNode(ctx context.Context, req *ppool.GetNodeRequest) (*ppool
 
 func (a NodeAPI) ApplyNode(ctx context.Context, req *ppool.ApplyNodeRequest) (*ppool.Node, error) {
 	if req.Name == "" {
-		return nil, grpc.Errorf(codes.InvalidArgument, "Set something to Name")
+		return nil, grpc.Errorf(codes.InvalidArgument, "Name is required")
 	}
 
 	if !a.dataStore.Lock(req.Name) {
@@ -88,7 +90,23 @@ func (a NodeAPI) ApplyNode(ctx context.Context, req *ppool.ApplyNodeRequest) (*p
 	res.Name = req.Name
 	res.Annotations = req.Annotations
 	res.Labels = req.Labels
-	res.Address = req.Address
+
+	if req.Address == "" {
+		p, ok := peer.FromContext(ctx)
+		if !ok {
+			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get gRPC peer information from request")
+		}
+
+		switch addr := p.Addr.(type) {
+		case *net.TCPAddr:
+			res.Address = addr.IP.String()
+		default:
+			return nil, grpc.Errorf(codes.Internal, "Expected peer address is net.TCPAddr, but received %T", addr)
+		}
+	} else {
+		res.Address = req.Address
+	}
+
 	res.IpmiAddress = req.IpmiAddress
 	res.Serial = req.Serial
 	res.CpuMilliCores = req.CpuMilliCores
