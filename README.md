@@ -7,15 +7,6 @@ Builds:
 [![](https://img.shields.io/docker/pulls/n0stack/n0stack.svg)](https://hub.docker.com/r/n0stack/n0stack)
 <!-- [![](https://img.shields.io/docker/build/n0stack/n0stack.svg)](https://hub.docker.com/r/n0stack/n0stack) -->
 
-Documentations: 
-[![Gitter](https://img.shields.io/gitter/room/n0stack/n0sack.svg)](https://gitter.im/n0stack/)
-[![Documentation Status](https://readthedocs.org/projects/n0stack/badge/?version=master)](https://docs.n0st.ac/en/master/?badge=master)
-[![GoDoc](https://godoc.org/github.com/n0stack/n0stack?status.svg)](https://godoc.org/github.com/n0stack/n0stack)
-
-License: 
-[![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)](https://opensource.org/licenses/BSD-2-Clause)
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fn0stack%2Fn0stack.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fn0stack%2Fn0stack?ref=badge_shield)
-
 The n0stack is a simple cloud provider using gRPC.
 
 ## Description
@@ -42,6 +33,37 @@ There are some problems to develop cloud providers from scratch: no libraries, s
 The n0stack wants to solve these problems.
 
 <!-- ## Demo -->
+
+## Getting started
+
+### Prerequisites
+
+- Docker
+- docker-compose
+- Ubuntu 18.04 LTS
+
+### Deploy all in one
+
+1. You can start controllers on docker and install agent as follows:
+
+```
+wget https://raw.githubusercontent.com/n0stack/n0stack/master/deploy/docker-compose.yml
+docker-compose up
+docker run -it --rm n0stack/n0stack n0core install agent -a "--node-api-endpoint=localhost:20180 --location=////1"
+```
+
+2. Download n0cli from [Github releases](https://github.com/n0stack/n0stack/releases/latest).
+3. Operate resources like [documents](https://docs.n0st.ac/en/master/user/usecases/README.html).
+
+## Documentations
+
+[![Gitter](https://img.shields.io/gitter/room/n0stack/n0sack.svg)](https://gitter.im/n0stack/)
+[![Documentation Status](https://readthedocs.org/projects/n0stack/badge/?version=master)](https://docs.n0st.ac/en/master/?badge=master)
+[![GoDoc](https://godoc.org/github.com/n0stack/n0stack?status.svg)](https://godoc.org/github.com/n0stack/n0stack)
+
+User documentations and specifications is [readthedocs](https://docs.n0st.ac/en/master/?badge=master).
+
+Golang library documentations is [GoDoc](https://godoc.org/github.com/n0stack/n0stack).
 
 ## Components
 
@@ -72,3 +94,16 @@ BFF(Backends for Frontend) of n0stack API. This provide features: API gateway, a
 ### [n0core](n0core/)
 
 The example for implementations about n0stack API.
+
+## Contributing
+
+1. Fork it
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Add some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create new Pull Request 
+
+## License
+
+[![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)](https://opensource.org/licenses/BSD-2-Clause)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fn0stack%2Fn0stack.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fn0stack%2Fn0stack?ref=badge_shield)

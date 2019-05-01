@@ -6,7 +6,6 @@ services:
       - /usr/local/bin/n0core
       - serve
       - api
-      - --etcd-endpoints=etcd:2379
     ports:
       - "8080:8080"
       - "20180:20180"
