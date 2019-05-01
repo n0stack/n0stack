@@ -81,6 +81,49 @@ func TestEmbedDatastoreNotFound(t *testing.T) {
 	}
 }
 
+func TestEmbedDatastoreList(t *testing.T) {
+	m, err := NewEmbedDatastore(dbDir)
+	if err != nil {
+		t.Fatalf("failed to generate leveldb datastore: %s", err.Error())
+	}
+	defer os.RemoveAll(dbDir)
+
+	v := &datastore.Test{Name: "value"}
+	for i := 0; i < 100; i++ {
+		k := "test" + string(i)
+
+		if !m.Lock(k) {
+			t.Errorf("Failed to lock")
+		}
+		defer m.Unlock(k)
+
+		if err := m.Apply(k, v); err != nil {
+			t.Errorf("Failed to apply: err='%s'", err.Error())
+		}
+	}
+
+	res := []*datastore.Test{}
+	f := func(s int) []proto.Message {
+		res = make([]*datastore.Test, s)
+		for i := range res {
+			res[i] = &datastore.Test{}
+		}
+
+		m := make([]proto.Message, s)
+		for i, v := range res {
+			m[i] = v
+		}
+
+		return m
+	}
+	if err := m.List(f); err != nil {
+		t.Errorf("Failed to list: err='%s'", err.Error())
+	}
+	if len(res) != 100 {
+		t.Errorf("Number of listed keys is mismatch: have='%d', want='%d'", len(res), 1)
+	}
+}
+
 func TestCheckDataIsSame(t *testing.T) {
 	m, err := NewEmbedDatastore(dbDir)
 	if err != nil {

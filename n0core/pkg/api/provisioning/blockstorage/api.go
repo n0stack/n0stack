@@ -447,8 +447,7 @@ func (a *BlockStorageAPI) ListBlockStorages(ctx context.Context, req *pprovision
 	}
 
 	if err := a.dataStore.List(f); err != nil {
-		log.Printf("[WARNING] Failed to list data from db: err='%s'", err.Error())
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to list from db, please retry or contact for the administrator of this cluster")
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to list data from db: err='%s'", err.Error())
 	}
 	if len(res.BlockStorages) == 0 {
 		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "")
