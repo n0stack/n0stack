@@ -1,6 +1,5 @@
 # n0stack
 
-Builds: 
 [![Build Status](https://travis-ci.org/n0stack/n0stack.svg?branch=master)](https://travis-ci.org/n0stack/n0stack)
 [![CircleCI](https://circleci.com/gh/n0stack/n0stack/tree/master.svg?style=shield)](https://circleci.com/gh/n0stack/n0stack/tree/master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/n0stack/n0stack)](https://goreportcard.com/report/github.com/n0stack/n0stack)
@@ -46,14 +45,15 @@ The n0stack wants to solve these problems.
 
 1. You can start controllers on docker and install agent as follows:
 
-```
+```sh
 wget https://raw.githubusercontent.com/n0stack/n0stack/master/deploy/docker-compose.yml
-docker-compose up
-docker run -it --rm n0stack/n0stack n0core install agent -a "--node-api-endpoint=localhost:20180 --location=////1"
+docker-compose up -d
+docker run -it --rm -v $PWD:/dst n0stack/n0stack cp /usr/local/bin/n0core /dst
+./n0core install agent -a "--node-api-endpoint=localhost:20180 --location=////1"
 ```
 
 2. Download n0cli from [Github releases](https://github.com/n0stack/n0stack/releases/latest).
-3. Operate resources like [documents](https://docs.n0st.ac/en/master/user/usecases/README.html).
+3. Try [use cases](https://docs.n0st.ac/en/master/user/usecases/README.html).
 
 ## Documentations
 
