@@ -73,7 +73,7 @@ service BlockStorageService {
   }
   rpc FetchBlockStorage(FetchBlockStorageRequest) returns (BlockStorage) {
     option (google.api.http) = {
-      post: "/api/v0/virtual_router:fetch"
+      post: "/api/v0/block_storage:fetch"
       body: "*"
     };
   }

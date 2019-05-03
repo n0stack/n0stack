@@ -447,7 +447,7 @@ func RegisterBlockStorageServiceHandlerClient(ctx context.Context, mux *runtime.
 var (
 	pattern_BlockStorageService_CreateBlockStorage_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v0", "block_storage"}, ""))
 
-	pattern_BlockStorageService_FetchBlockStorage_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v0", "virtual_router"}, "fetch"))
+	pattern_BlockStorageService_FetchBlockStorage_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v0", "block_storage"}, "fetch"))
 
 	pattern_BlockStorageService_CopyBlockStorage_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v0", "block_storage"}, "copy"))
 
