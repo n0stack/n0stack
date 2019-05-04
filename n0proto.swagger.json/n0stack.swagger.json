@@ -201,6 +201,32 @@
         }
       }
     },
+    "/api/v0/block_storage:fetch": {
+      "post": {
+        "tags": [
+          "BlockStorageService"
+        ],
+        "operationId": "FetchBlockStorage",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v0FetchBlockStorageRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v0BlockStorage"
+            }
+          }
+        }
+      }
+    },
     "/api/v0/image": {
       "get": {
         "tags": [
@@ -962,32 +988,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v0VirtualRouter"
-            }
-          }
-        }
-      }
-    },
-    "/api/v0/virtual_router:fetch": {
-      "post": {
-        "tags": [
-          "BlockStorageService"
-        ],
-        "operationId": "FetchBlockStorage",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v0FetchBlockStorageRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v0BlockStorage"
             }
           }
         }
