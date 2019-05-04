@@ -85,28 +85,3 @@ bin/n0core install agent -a "$agent_args"
 | Scalability | No (for each network) |
 
 ![](../docs/_static/images/n0core_network_design.svg)
-
-## How to develop
-
-- see also [Makefile](../Makefile)
-
-### Build
-
-```sh
-cd ..
-make build-builder # once
-make build-n0core
-```
-
-### Run API
-
-```sh
-cd ..
-make up
-```
-
-### Run Agent
-
-- Recommended way is...
-    1. Boot VM
-    2. `n0core deploy` to booted VM

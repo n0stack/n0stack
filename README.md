@@ -103,6 +103,23 @@ The example for implementations about n0stack API.
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request 
 
+### How to develop
+
+- see also [Makefile](Makefile)
+
+1. Start containers
+
+```sh
+make build-builder # once
+make up
+```
+
+2.  Start a Agent
+    - Recommended way is...
+        1. Boot VM
+        2. [Deploy agent](n0core/README.md) to booted VM
+3. Develop features and restart containers or a agent
+
 ## License
 
 [![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)](https://opensource.org/licenses/BSD-2-Clause)
