@@ -21,10 +21,11 @@ func ValidateCopy(line string) (string, string, error) {
 	}
 
 	if len(args) != 3 {
-		return "", "", fmt.Errorf("COPY instruction takes 2 arguments")
+		return "", "", fmt.Errorf("COPY takes 2 arguments")
 	}
-	// srcがpwdから出る場合はエラーを返す
-	// if args[1]
+	if strings.HasPrefix(filepath.Clean(args[1]), "..") {
+		return "", "", fmt.Errorf("COPY source must not refer to the parent directory")
+	}
 
 	if !filepath.IsAbs(args[2]) {
 		return "", "", fmt.Errorf("Set an absolute path for COPY destination")

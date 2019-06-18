@@ -27,3 +27,10 @@ func TestParse(t *testing.T) {
 		t.Errorf("Parse() return wrong deploy[0]:\n have=%s\n  want=%s", n0dep.Bootstrap[1].String(), "COPY ./src /dst")
 	}
 }
+
+func TestValidateCopy(t *testing.T) {
+	_, _, err := ValidateCopy("COPY ./hoge/../../bar /tmp")
+	if err == nil {
+		t.Errorf("ValidateCopy(\"COPY ./hoge/../../bar /tmp\") do not return error")
+	}
+}
