@@ -67,6 +67,20 @@ build-n0bff-on-docker:
 		n0stack/build-go \
 			make build-n0bff
 
+.PHONY: build-n0deploy
+build-n0deploy:
+	GOOS=${GOOS} GOARCH=${GOARCH} go build -o bin/n0deploy -ldflags "-X main.version=$(VERSION)" -v ./n0core/cmd/n0deploy
+
+.PHONY: build-n0deploy-on-docker
+build-n0deploy-on-docker:
+	docker run -it --rm \
+		-v $(PWD)/.go-build:/root/.cache/go-build/ \
+		-v $(PWD):/go/src/github.com/n0stack/n0stack \
+		-w /go/src/github.com/n0stack/n0stack \
+		-e GO111MODULE=off \
+		n0stack/build-go \
+			make build-n0deploy
+
 .PHONY: build-builder
 build-builder:
 	docker build -t n0stack/build-grpc-go build/grpc/go
