@@ -1,0 +1,6 @@
+RUN echo foo \
+ && echo bar
+COPY test.n0deploy /tmp/test.n0deploy
+
+DEPLOY
+RUN echo hogehoge

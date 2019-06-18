@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/n0stack/n0stack/n0core/pkg/driver/n0deploy"
@@ -16,8 +17,6 @@ import (
 )
 
 var version = "undefined"
-
-const n0deployFilename = "n0deployfile"
 
 type SubcommandType int
 
@@ -39,6 +38,10 @@ func WrapAction(t SubcommandType) func(cctx *cli.Context) error {
 		host := h[1]
 
 		keyPath := cctx.GlobalString("identity-file")
+		n0depFilepath := cctx.GlobalString("n0deploy-file")
+		n0depDir := filepath.Dir(n0depFilepath)
+		n0depFile := filepath.Base(n0depFilepath)
+		os.Chdir(n0depDir)
 
 		buf, err := ioutil.ReadFile(keyPath)
 		if err != nil {
@@ -66,15 +69,15 @@ func WrapAction(t SubcommandType) func(cctx *cli.Context) error {
 
 		// sudo permission
 
-		b, err := ioutil.ReadFile(n0deployFilename)
+		b, err := ioutil.ReadFile(n0depFile)
 		if err != nil {
-			return errors.Wrapf(err, "Failed to read n0deployfile")
+			return errors.Wrapf(err, "Failed to read n0deploy file")
 		}
 
 		parser := n0deploy.NewSshParser(conn)
 		n0dep, err := parser.Parse(string(b))
 		if err != nil {
-			return errors.Wrapf(err, "Failed to parse n0deployfile")
+			return errors.Wrapf(err, "Failed to parse n0deploy file")
 		}
 
 		out := os.Stdout
@@ -88,7 +91,7 @@ func WrapAction(t SubcommandType) func(cctx *cli.Context) error {
 		}
 
 		for i, ins := range inss {
-			fmt.Fprintf(out, ">>> Step %d/%d: %s\n", i+1, len(n0dep.Bootstrap), ins.String())
+			fmt.Fprintf(out, ">>> Step %d/%d: %s\n", i+1, len(inss), ins.String())
 
 			if err := ins.Do(ctx, out); err != nil {
 				return errors.Wrapf(err, "Failed to do instruction")
@@ -111,6 +114,9 @@ func main() {
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name: "identity-file, i",
+		},
+		cli.StringFlag{
+			Name: "n0deploy-file, f",
 		},
 	}
 
