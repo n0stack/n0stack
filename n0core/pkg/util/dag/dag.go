@@ -6,6 +6,8 @@ import (
 	"io"
 	"strings"
 	"sync"
+
+	raceutil "github.com/n0stack/n0stack/n0core/pkg/util/race"
 )
 
 const ResultChanLength = 10
@@ -71,7 +73,6 @@ func (d DAG) getInverseIndex() (map[string][]string, error) {
 
 // topological sort
 // 実際遅いけどもういいや O(E^2 + V)
-// 副作用をなくしたい
 func (d DAG) Check() error {
 	result := 0
 
@@ -152,11 +153,13 @@ func (d DAG) Do(ctx context.Context, out io.Writer) error {
 		return err
 	}
 
-	done, runErrs := d.run(ctx, children, out)
+	mout := raceutil.NewLockedWriter(out)
+
+	done, runErrs := d.run(ctx, children, mout)
 
 	rollbackErrs := map[string]error(nil)
 	if runErrs != nil {
-		rollbackErrs = d.rollback(done, children, out)
+		rollbackErrs = d.rollback(done, children, mout)
 	}
 
 	if runErrs != nil || rollbackErrs != nil {
