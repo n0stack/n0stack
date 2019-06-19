@@ -18,6 +18,7 @@ require (
 	github.com/gorilla/websocket v1.4.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.0.0
 	github.com/grpc-ecosystem/grpc-gateway v1.8.5
+	github.com/hashicorp/hcl2 v0.0.0-20190618163856-0b64543c968c
 	github.com/jinzhu/gorm v1.9.4
 	github.com/koding/websocketproxy v0.0.0-20181220232114-7ed82d81a28c
 	github.com/kr/fs v0.1.0 // indirect
@@ -40,7 +41,6 @@ require (
 	github.com/vishvananda/netlink v1.0.0
 	github.com/vishvananda/netns v0.0.0-20180720170159-13995c7128cc // indirect
 	golang.org/x/crypto v0.0.0-20190426145343-a29dc8fdc734
-	golang.org/x/net v0.0.0-20190424112056-4829fb13d2c6 // indirect
 	google.golang.org/genproto v0.0.0-20190425155659-357c62f0e4bb
 	google.golang.org/grpc v1.20.1
 	gopkg.in/yaml.v2 v2.2.2
