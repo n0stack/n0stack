@@ -250,10 +250,12 @@ func (d DAG) rollback(done []string, children map[string][]string, out io.Writer
 		depending[n] = len(children[n])
 	}
 	for n := range d.Tasks {
+		f := false
 		for _, k := range done {
-			if n == k {
-				continue
-			}
+			f = f || n == k
+		}
+		if f {
+			continue
 		}
 
 		for _, k := range d.Tasks[n].DependsOn {
