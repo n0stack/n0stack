@@ -18,7 +18,7 @@ func TestIsDAG(t *testing.T) {
 		{
 			"loop",
 			&DAG{
-				nodes: map[string]*Node{
+				map[string]*Task{
 					"g1": {
 						DependsOn: []string{
 							"g2",
@@ -41,7 +41,7 @@ func TestIsDAG(t *testing.T) {
 		{
 			"liner",
 			&DAG{
-				map[string]*Node{
+				map[string]*Task{
 					"g1": {
 						DependsOn: []string{
 							"g2",
@@ -80,7 +80,7 @@ func TestDoDAG(t *testing.T) {
 		{
 			"forward",
 			&DAG{
-				map[string]*Node{
+				map[string]*Task{
 					"g1": {
 						task: func(ctx context.Context, out io.Writer) error {
 							fmt.Fprintf(out, "first")
@@ -115,7 +115,7 @@ func TestDoDAG(t *testing.T) {
 		{
 			"triangle",
 			&DAG{
-				map[string]*Node{
+				map[string]*Task{
 					"g1": {
 						task: func(ctx context.Context, out io.Writer) error {
 							fmt.Fprintf(out, "first")
@@ -151,7 +151,7 @@ func TestDoDAG(t *testing.T) {
 		{
 			"rollback",
 			&DAG{
-				map[string]*Node{
+				map[string]*Task{
 					"g1": {
 						task: func(ctx context.Context, out io.Writer) error {
 							fmt.Fprintf(out, "first")
@@ -165,7 +165,11 @@ func TestDoDAG(t *testing.T) {
 					"g2": {
 						task: func(ctx context.Context, out io.Writer) error {
 							fmt.Fprintf(out, "second")
-							return fmt.Errorf("error")
+							return nil
+						},
+						rollback: func(ctx context.Context, out io.Writer) error {
+							fmt.Fprintf(out, "second")
+							return nil
 						},
 						DependsOn: []string{
 							"g1",
@@ -174,7 +178,7 @@ func TestDoDAG(t *testing.T) {
 					"g3": {
 						task: func(ctx context.Context, out io.Writer) error {
 							fmt.Fprintf(out, "third")
-							return nil
+							return fmt.Errorf("error")
 						},
 						DependsOn: []string{
 							"g2",
@@ -183,9 +187,13 @@ func TestDoDAG(t *testing.T) {
 				},
 			},
 			[]string{
-				"firstsecondfirst",
+				"firstsecondthirdsecondfirst",
 			},
-			errors.New("some tasks are failed\n  g2: error"),
+			&TaskErrors{
+				RunErrors: map[string]error{
+					"g3": errors.New("error"),
+				},
+			},
 		},
 	}
 

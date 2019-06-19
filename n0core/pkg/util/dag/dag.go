@@ -2,22 +2,15 @@ package dag
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"strings"
 	"sync"
-
-	"github.com/golang/protobuf/jsonpb"
 )
 
-var Marshaler = &jsonpb.Marshaler{
-	EnumsAsInts:  true,
-	EmitDefaults: false,
-	OrigName:     true,
-}
+const ResultChanLength = 10
 
-type Node struct {
+type Task struct {
 	task     func(context.Context, io.Writer) error
 	rollback func(context.Context, io.Writer) error
 
@@ -25,31 +18,47 @@ type Node struct {
 	// IgnoreError bool     `yaml:"ignore_error"`
 }
 
-func NewNode() *Node {
-	return nil
-}
-
-func (n Node) Do(ctx context.Context, out io.Writer) error {
+func (n Task) Run(ctx context.Context, out io.Writer) error {
 	return n.task(ctx, out)
 }
 
-func (n Node) Rollback(ctx context.Context, out io.Writer) error {
+func (n Task) Rollback(ctx context.Context, out io.Writer) error {
 	return n.rollback(ctx, out)
 }
 
 type DAG struct {
-	nodes map[string]*Node
+	Tasks map[string]*Task `yaml:"tasks"`
 }
 
-func (d *DAG) getInverseIndex() (map[string][]string, error) {
+func (d *DAG) AddTask(name string, task, rollback func(context.Context, io.Writer) error, dependsOn []string) error {
+	for _, t := range dependsOn {
+		if _, ok := d.Tasks[t]; !ok {
+			return fmt.Errorf("Depending task '%s' do not exist", t)
+		}
+	}
+
+	if _, ok := d.Tasks[name]; !ok {
+		return fmt.Errorf("The task name '%s' is duplicated", name)
+	}
+
+	d.Tasks[name] = &Task{
+		task:      task,
+		rollback:  rollback,
+		DependsOn: dependsOn,
+	}
+
+	return nil
+}
+
+func (d DAG) getInverseIndex() (map[string][]string, error) {
 	children := make(map[string][]string)
-	for k := range d.nodes {
+	for k := range d.Tasks {
 		children[k] = make([]string, 0)
 	}
 
-	for k, v := range d.nodes {
+	for k, v := range d.Tasks {
 		for _, n := range v.DependsOn {
-			if _, ok := d.nodes[n]; !ok {
+			if _, ok := d.Tasks[n]; !ok {
 				return nil, fmt.Errorf("Depended task '%s' do not exist", n)
 			}
 
@@ -63,12 +72,12 @@ func (d *DAG) getInverseIndex() (map[string][]string, error) {
 // topological sort
 // 実際遅いけどもういいや O(E^2 + V)
 // 副作用をなくしたい
-func (d *DAG) Check() error {
+func (d DAG) Check() error {
 	result := 0
 
 	depending := make(map[string]int)
-	for k := range d.nodes {
-		depending[k] = len(d.nodes[k].DependsOn)
+	for k := range d.Tasks {
+		depending[k] = len(d.Tasks[k].DependsOn)
 	}
 
 	children, err := d.getInverseIndex()
@@ -76,8 +85,8 @@ func (d *DAG) Check() error {
 		return err
 	}
 
-	s := make([]string, 0, len(d.nodes))
-	for k := range d.nodes {
+	s := make([]string, 0, len(d.Tasks))
+	for k := range d.Tasks {
 		if depending[k] == 0 {
 			s = append(s, k)
 			result++
@@ -97,11 +106,34 @@ func (d *DAG) Check() error {
 		}
 	}
 
-	if result != len(d.nodes) {
+	if result != len(d.Tasks) {
 		return fmt.Errorf("This request is not DAG")
 	}
 
 	return nil
+}
+
+type TaskErrors struct {
+	RunErrors      map[string]error
+	RollbackErrors map[string]error
+}
+
+func (d TaskErrors) Error() string {
+	errorList := make([]string, 1, 1+len(d.RunErrors)+len(d.RollbackErrors))
+	errorList[0] = "some tasks are failed"
+
+	for k, v := range d.RunErrors {
+		errorList = append(errorList, fmt.Sprintf("  %s: %s", k, v.Error()))
+	}
+	for k, v := range d.RollbackErrors {
+		errorList = append(errorList, fmt.Sprintf("  rollback/%s: %s", k, v.Error()))
+	}
+
+	if len(errorList) != 1 {
+		return strings.Join(errorList, "\n  ")
+	}
+
+	return ""
 }
 
 type ActionResult struct {
@@ -110,7 +142,7 @@ type ActionResult struct {
 }
 
 // 出力で時間を出したほうがよさそう
-func (d *DAG) Do(ctx context.Context, out io.Writer) error {
+func (d DAG) Do(ctx context.Context, out io.Writer) error {
 	if err := d.Check(); err != nil {
 		return err
 	}
@@ -120,26 +152,41 @@ func (d *DAG) Do(ctx context.Context, out io.Writer) error {
 		return err
 	}
 
-	errorList := []string{
-		"some tasks are failed",
+	done, runErrs := d.run(ctx, children, out)
+
+	rollbackErrs := map[string]error(nil)
+	if runErrs != nil {
+		rollbackErrs = d.rollback(done, children, out)
 	}
 
+	if runErrs != nil || rollbackErrs != nil {
+		return &TaskErrors{
+			RunErrors:      runErrs,
+			RollbackErrors: rollbackErrs,
+		}
+	}
+
+	return nil
+}
+
+func (d DAG) run(ctx context.Context, children map[string][]string, out io.Writer) ([]string, map[string]error) {
 	depending := make(map[string]int)
-	for k := range d.nodes {
-		depending[k] = len(d.nodes[k].DependsOn)
+	for k := range d.Tasks {
+		depending[k] = len(d.Tasks[k].DependsOn)
 	}
 
-	resultChan := make(chan ActionResult, 100)
+	resultChan := make(chan ActionResult, ResultChanLength)
 	wg := new(sync.WaitGroup)
-	total := len(d.nodes)
+	total := len(d.Tasks)
 	done := make([]string, 0, total)
+	errs := make(map[string]error)
 
 	taskCtx := context.Background()
 	runTask := func(taskName string) {
 		wg.Add(1)
 		defer wg.Done()
 
-		err := d.nodes[taskName].Do(taskCtx, out)
+		err := d.Tasks[taskName].Run(taskCtx, out)
 		resultChan <- ActionResult{
 			Name: taskName,
 			Err:  err,
@@ -148,6 +195,7 @@ func (d *DAG) Do(ctx context.Context, out io.Writer) error {
 
 	canceled := false
 	ctxWithCancel, cancel := context.WithCancel(ctx)
+	defer cancel()
 	go func() {
 		<-ctxWithCancel.Done()
 
@@ -156,7 +204,7 @@ func (d *DAG) Do(ctx context.Context, out io.Writer) error {
 		close(resultChan)
 	}()
 
-	for k := range d.nodes {
+	for k := range d.Tasks {
 		if depending[k] == 0 {
 			go runTask(k)
 		}
@@ -166,14 +214,13 @@ func (d *DAG) Do(ctx context.Context, out io.Writer) error {
 		if r.Err == nil {
 			done = append(done, r.Name)
 		} else {
-			errorList = append(errorList, fmt.Sprintf("%s: %s", r.Name, r.Err))
+			errs[r.Name] = r.Err
 		}
 
 		if !canceled {
 			if r.Err != nil {
 				canceled = true
 				cancel()
-
 			} else {
 				// queueing
 				for _, n := range children[r.Name] {
@@ -186,77 +233,81 @@ func (d *DAG) Do(ctx context.Context, out io.Writer) error {
 
 			// Successful completion
 			if len(done) == total {
-				close(resultChan)
+				cancel()
 			}
 		}
 	}
 
-	// TODO: rollback
-	if canceled {
-		depending := make(map[string]int)
-		for n := range d.nodes {
-			depending[n] = len(children[n])
-		}
-		for n := range d.nodes {
-			for _, k := range done {
-				if n == k {
-					continue
-				}
-			}
+	if len(errs) != 0 {
+		return done, errs
+	}
+	return done, nil
+}
 
-			for _, k := range d.nodes[n].DependsOn {
-				depending[k]--
-			}
-		}
-
-		resultChan := make(chan ActionResult, 100)
-		wg := new(sync.WaitGroup)
-		total := len(done)
-		rollbacked := 0
-
-		taskCtx := context.Background()
-		rollbackTask := func(taskName string) {
-			wg.Add(1)
-			defer wg.Done()
-
-			err := d.nodes[taskName].Rollback(taskCtx, out)
-			resultChan <- ActionResult{
-				Name: taskName,
-				Err:  err,
-			}
-		}
-
+func (d DAG) rollback(done []string, children map[string][]string, out io.Writer) map[string]error {
+	depending := make(map[string]int)
+	for n := range d.Tasks {
+		depending[n] = len(children[n])
+	}
+	for n := range d.Tasks {
 		for _, k := range done {
-			if depending[k] == 0 {
-				go rollbackTask(k)
+			if n == k {
+				continue
 			}
 		}
 
-		for r := range resultChan {
-			rollbacked++
+		for _, k := range d.Tasks[n].DependsOn {
+			depending[k]--
+		}
+	}
 
-			if r.Err != nil {
-				errorList = append(errorList, fmt.Sprintf("rollback/%s: %s", r.Name, r.Err))
-			}
+	resultChan := make(chan ActionResult, ResultChanLength)
+	wg := new(sync.WaitGroup)
+	total := len(done)
+	rollbacked := 0
+	errs := make(map[string]error)
 
-			// Successful completion
-			if rollbacked == total {
-				close(resultChan)
-			}
+	taskCtx := context.Background()
+	rollbackTask := func(taskName string) {
+		wg.Add(1)
+		defer wg.Done()
 
-			// queueing
-			for _, n := range d.nodes[r.Name].DependsOn {
-				depending[n]--
-				if depending[n] == 0 {
-					go rollbackTask(n)
-				}
+		err := d.Tasks[taskName].Rollback(taskCtx, out)
+		resultChan <- ActionResult{
+			Name: taskName,
+			Err:  err,
+		}
+	}
+
+	for _, k := range done {
+		if depending[k] == 0 {
+			go rollbackTask(k)
+		}
+	}
+
+	for r := range resultChan {
+		rollbacked++
+
+		if r.Err != nil {
+			errs[r.Name] = r.Err
+		}
+
+		// Successful completion
+		if rollbacked == total {
+			close(resultChan)
+		}
+
+		// queueing
+		for _, n := range d.Tasks[r.Name].DependsOn {
+			depending[n]--
+			if depending[n] == 0 {
+				go rollbackTask(n)
 			}
 		}
 	}
 
-	if len(errorList) != 1 {
-		return errors.New(strings.Join(errorList, "\n  "))
+	if len(errs) != 0 {
+		return errs
 	}
-
 	return nil
 }
