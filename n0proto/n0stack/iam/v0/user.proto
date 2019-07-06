@@ -1,0 +1,111 @@
+syntax = "proto3";
+
+option go_package = "github.com/n0stack/n0stack/n0proto.go/iam/v0;piam";
+
+package n0stack.iam.v0;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+// import "google/protobuf/timestamp.proto";
+// import "n0stack/provisioning/v0/block_storage.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+  info: {
+    title: "n0stack";
+    contact: {
+      name: "n0stack";
+      url: "https://github.com/n0stack/n0stack";
+    }
+  }
+  
+  schemes: HTTP;
+  schemes: HTTPS;
+  consumes: "application/json";
+  produces: "application/json";
+};
+
+
+message User {
+  // Name is a unique field.
+  string name = 1;
+  // string namespace = 2;
+
+  // Annotations can store metadata used by the system for control.
+  // In particular, implementation-dependent fields that can not be set as protobuf fields are targeted.
+  // The control specified by n0stack may delete metadata specified by the user.
+  map<string, string> annotations = 3;
+
+  // Labels stores user-defined metadata.
+  // The n0stack system must not rewrite this value.
+  map<string, string> labels = 4;
+
+  map<string, string> ssh_public_keys = 51;
+}
+
+
+service UserService {
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+    option (google.api.http) = {
+      get: "/api/v0/user"
+    };
+  }
+  rpc GetUser(GetUserRequest) returns (User) {
+    option (google.api.http) = {
+      get: "/api/v0/user/{name}"
+    };
+  }
+  rpc CreateUser(CreateUserRequest) returns (User) {
+    option (google.api.http) = {
+      post: "/api/v0/user/{name}"
+      body: "*"
+    };
+  }
+  rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v0/user/{name}"
+    };
+  }
+
+  rpc AddSshPublicKey(AddSshPublicKeyRequest) returns (User) {
+    option (google.api.http) = {
+      post: "/api/v0/user/{user_name}/ssh_public_key/{ssh_public_key_name}"
+      body: "*"
+    };
+  }
+  rpc DeleteSshPublicKey(DeleteSshPublicKeyRequest) returns (User) {
+    option (google.api.http) = {
+      delete: "/api/v0/user/{user_name}/ssh_public_key/{ssh_public_key_name}"
+    };    
+  }
+}
+
+
+message ListUsersRequest {}
+message ListUsersResponse {
+  repeated User users = 1;
+}
+
+message GetUserRequest {
+  string name = 1;
+}
+
+message CreateUserRequest {
+  string name = 1;
+  map<string, string> annotations = 3;
+  map<string, string> labels = 4;
+}
+
+message DeleteUserRequest {
+  string name = 1;
+}
+
+message AddSshPublicKeyRequest {
+  string user_name = 1;
+  string ssh_public_key_name = 2;
+  string ssh_public_key = 3;
+}
+message DeleteSshPublicKeyRequest {
+  string user_name = 1;
+  string ssh_public_key_name = 2;
+}
