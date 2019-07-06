@@ -629,6 +629,162 @@
         }
       }
     },
+    "/api/v0/user": {
+      "get": {
+        "tags": [
+          "UserService"
+        ],
+        "operationId": "ListUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v0ListUsersResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/user/{name}": {
+      "get": {
+        "tags": [
+          "UserService"
+        ],
+        "operationId": "GetUser",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v0User"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "UserService"
+        ],
+        "operationId": "CreateUser",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v0CreateUserRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v0User"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "UserService"
+        ],
+        "operationId": "DeleteUser",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/api/v0/user/{user_name}/ssh_public_key/{ssh_public_key_name}": {
+      "post": {
+        "tags": [
+          "UserService"
+        ],
+        "operationId": "AddSshPublicKey",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "user_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "ssh_public_key_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v0AddSshPublicKeyRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v0User"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "UserService"
+        ],
+        "operationId": "DeleteSshPublicKey",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "user_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "ssh_public_key_name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v0User"
+            }
+          }
+        }
+      }
+    },
     "/api/v0/virtual_machine": {
       "get": {
         "tags": [
@@ -1197,6 +1353,20 @@
         }
       }
     },
+    "v0AddSshPublicKeyRequest": {
+      "type": "object",
+      "properties": {
+        "ssh_public_key": {
+          "type": "string"
+        },
+        "ssh_public_key_name": {
+          "type": "string"
+        },
+        "user_name": {
+          "type": "string"
+        }
+      }
+    },
     "v0ApplyImageRequest": {
       "type": "object",
       "properties": {
@@ -1484,6 +1654,26 @@
         }
       }
     },
+    "v0CreateUserRequest": {
+      "type": "object",
+      "properties": {
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
     "v0CreateVirtualMachineRequest": {
       "type": "object",
       "properties": {
@@ -1678,6 +1868,17 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/v0Node"
+          }
+        }
+      }
+    },
+    "v0ListUsersResponse": {
+      "type": "object",
+      "properties": {
+        "users": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v0User"
           }
         }
       }
@@ -1897,6 +2098,35 @@
         },
         "tag": {
           "type": "string"
+        }
+      }
+    },
+    "v0User": {
+      "type": "object",
+      "properties": {
+        "annotations": {
+          "description": "Annotations can store metadata used by the system for control.\nIn particular, implementation-dependent fields that can not be set as protobuf fields are targeted.\nThe control specified by n0stack may delete metadata specified by the user.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "labels": {
+          "description": "Labels stores user-defined metadata.\nThe n0stack system must not rewrite this value.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "name": {
+          "description": "Name is a unique field.",
+          "type": "string"
+        },
+        "ssh_public_keys": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
         }
       }
     },
