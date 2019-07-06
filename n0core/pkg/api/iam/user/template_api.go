@@ -4,6 +4,7 @@ package userapi
 
 import (
 	"context"
+
 	"github.com/golang/protobuf/proto"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
 	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
