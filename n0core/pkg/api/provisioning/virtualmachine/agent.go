@@ -16,7 +16,7 @@ import (
 	"golang.org/x/crypto/ssh"
 	"google.golang.org/grpc/codes"
 
-	"github.com/n0stack/n0stack/n0core/pkg/datastore"
+	stdapi "github.com/n0stack/n0stack/n0core/pkg/api/standard_api"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/lock"
 	"github.com/n0stack/n0stack/n0core/pkg/driver/cloudinit/configdrive"
 	"github.com/n0stack/n0stack/n0core/pkg/driver/iproute2"
@@ -119,7 +119,7 @@ func (a VirtualMachineAgent) BootVirtualMachine(ctx context.Context, req *BootVi
 				err := func() error {
 					bn := netutil.StructLinuxNetdevName(nd.NetworkName)
 					if !lock.WaitUntilLock(a.bridgeMutex, bn, 5*time.Second, 10*time.Millisecond) {
-						return errors.Wrapf(datastore.LockError(), "Failed to lock bridge '%s'", bn)
+						return errors.Wrapf(stdapi.LockError(), "Failed to lock bridge '%s'", bn)
 					}
 					defer a.bridgeMutex.Unlock(bn)
 
@@ -129,7 +129,7 @@ func (a VirtualMachineAgent) BootVirtualMachine(ctx context.Context, req *BootVi
 					}
 					tx.PushRollback("delete created bridge", func() error {
 						if !lock.WaitUntilLock(a.bridgeMutex, b.Name(), 5*time.Second, 10*time.Millisecond) {
-							return fmt.Errorf("Failed to lock bridge '%s': err='%s'", b.Name(), datastore.LockError().Error())
+							return fmt.Errorf("Failed to lock bridge '%s': err='%s'", b.Name(), stdapi.LockError().Error())
 						}
 						defer a.bridgeMutex.Unlock(b.Name())
 
@@ -319,7 +319,7 @@ func (a VirtualMachineAgent) DeleteVirtualMachine(ctx context.Context, req *Dele
 		err = func() error {
 			bn := netutil.StructLinuxNetdevName(nd.NetworkName)
 			if !lock.WaitUntilLock(a.bridgeMutex, bn, 5*time.Second, 10*time.Millisecond) {
-				return errors.Wrapf(datastore.LockError(), "Failed to lock bridge '%s'", bn)
+				return errors.Wrapf(stdapi.LockError(), "Failed to lock bridge '%s'", bn)
 			}
 			defer a.bridgeMutex.Unlock(bn)
 
