@@ -256,6 +256,7 @@ test-small-n0proto: build-n0proto-on-docker
 	git diff --name-status --exit-code n0proto.swagger.json
 
 test-small-go:
+	go test -race -cover ./n0core/internal/...
 	go test -race -cover ./...
 
 test-medium: up # with root, having dependency for external
