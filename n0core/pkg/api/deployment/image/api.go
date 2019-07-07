@@ -8,6 +8,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/empty"
+	stdapi "github.com/n0stack/n0stack/n0core/pkg/api/standard_api"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/lock"
 	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
@@ -73,7 +74,7 @@ func (a ImageAPI) GetImage(ctx context.Context, req *pdeployment.GetImageRequest
 
 func (a ImageAPI) ApplyImage(ctx context.Context, req *pdeployment.ApplyImageRequest) (*pdeployment.Image, error) {
 	if !a.dataStore.Lock(req.Name) {
-		return nil, datastore.LockError()
+		return nil, stdapi.LockError()
 	}
 	defer a.dataStore.Unlock(req.Name)
 
@@ -96,7 +97,7 @@ func (a ImageAPI) ApplyImage(ctx context.Context, req *pdeployment.ApplyImageReq
 
 func (a ImageAPI) DeleteImage(ctx context.Context, req *pdeployment.DeleteImageRequest) (*empty.Empty, error) {
 	if !a.dataStore.Lock(req.Name) {
-		return nil, datastore.LockError()
+		return nil, stdapi.LockError()
 	}
 	defer a.dataStore.Unlock(req.Name)
 
@@ -126,7 +127,7 @@ func (a ImageAPI) DeleteImage(ctx context.Context, req *pdeployment.DeleteImageR
 
 func (a ImageAPI) RegisterBlockStorage(ctx context.Context, req *pdeployment.RegisterBlockStorageRequest) (*pdeployment.Image, error) {
 	if !lock.WaitUntilLock(a.dataStore, req.ImageName, 5*time.Second, 50*time.Millisecond) {
-		return nil, datastore.LockError()
+		return nil, stdapi.LockError()
 	}
 	defer a.dataStore.Unlock(req.ImageName)
 
@@ -165,7 +166,7 @@ func (a ImageAPI) RegisterBlockStorage(ctx context.Context, req *pdeployment.Reg
 
 func (a ImageAPI) UnregisterBlockStorage(ctx context.Context, req *pdeployment.UnregisterBlockStorageRequest) (*pdeployment.Image, error) {
 	if !lock.WaitUntilLock(a.dataStore, req.ImageName, 5*time.Second, 50*time.Millisecond) {
-		return nil, datastore.LockError()
+		return nil, stdapi.LockError()
 	}
 	defer a.dataStore.Unlock(req.ImageName)
 
@@ -240,7 +241,7 @@ func (a ImageAPI) GenerateBlockStorage(ctx context.Context, req *pdeployment.Gen
 
 func (a ImageAPI) TagImage(ctx context.Context, req *pdeployment.TagImageRequest) (*pdeployment.Image, error) {
 	if !lock.WaitUntilLock(a.dataStore, req.Name, 5*time.Second, 10*time.Millisecond) {
-		return nil, datastore.LockError()
+		return nil, stdapi.LockError()
 	}
 	defer a.dataStore.Unlock(req.Name)
 
@@ -279,7 +280,7 @@ func (a ImageAPI) TagImage(ctx context.Context, req *pdeployment.TagImageRequest
 
 func (a ImageAPI) UntagImage(ctx context.Context, req *pdeployment.UntagImageRequest) (*pdeployment.Image, error) {
 	if !lock.WaitUntilLock(a.dataStore, req.Name, 5*time.Second, 10*time.Millisecond) {
-		return nil, datastore.LockError()
+		return nil, stdapi.LockError()
 	}
 	defer a.dataStore.Unlock(req.Name)
 

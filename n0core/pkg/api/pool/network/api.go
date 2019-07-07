@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/golang/protobuf/ptypes/empty"
+	stdapi "github.com/n0stack/n0stack/n0core/pkg/api/standard_api"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/lock"
 	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
@@ -91,7 +92,7 @@ func (a NetworkAPI) ApplyNetwork(ctx context.Context, req *ppool.ApplyNetworkReq
 	}
 
 	if !a.dataStore.Lock(req.Name) {
-		return nil, datastore.LockError()
+		return nil, stdapi.LockError()
 	}
 	defer a.dataStore.Unlock(req.Name)
 
@@ -149,7 +150,7 @@ func (a NetworkAPI) DeleteNetwork(ctx context.Context, req *ppool.DeleteNetworkR
 	}
 
 	if !a.dataStore.Lock(req.Name) {
-		return nil, datastore.LockError()
+		return nil, stdapi.LockError()
 	}
 	defer a.dataStore.Unlock(req.Name)
 
@@ -180,7 +181,7 @@ func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.Rese
 	}
 
 	if !lock.WaitUntilLock(a.dataStore, req.NetworkName, 5*time.Second, 50*time.Millisecond) {
-		return nil, datastore.LockError()
+		return nil, stdapi.LockError()
 	}
 	defer a.dataStore.Unlock(req.NetworkName)
 
@@ -257,7 +258,7 @@ func (a NetworkAPI) ReleaseNetworkInterface(ctx context.Context, req *ppool.Rele
 	}
 
 	if !lock.WaitUntilLock(a.dataStore, req.NetworkName, 5*time.Second, 50*time.Millisecond) {
-		return nil, datastore.LockError()
+		return nil, stdapi.LockError()
 	}
 	defer a.dataStore.Unlock(req.NetworkName)
 

@@ -21,6 +21,7 @@ import (
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/network"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
 	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/blockstorage"
+	stdapi "github.com/n0stack/n0stack/n0core/pkg/api/standard_api"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/lock"
 	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
@@ -135,7 +136,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 	}
 
 	if !a.dataStore.Lock(req.Name) {
-		return nil, datastore.LockError()
+		return nil, stdapi.LockError()
 	}
 	defer a.dataStore.Unlock(req.Name)
 
@@ -382,7 +383,7 @@ func (a *VirtualMachineAPI) UpdateVirtualMachine(ctx context.Context, req *pprov
 
 func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprovisioning.DeleteVirtualMachineRequest) (*empty.Empty, error) {
 	if !a.dataStore.Lock(req.Name) {
-		return nil, datastore.LockError()
+		return nil, stdapi.LockError()
 	}
 	defer a.dataStore.Unlock(req.Name)
 
@@ -530,7 +531,7 @@ func (a *VirtualMachineAPI) BootVirtualMachine(ctx context.Context, req *pprovis
 	}
 
 	if !lock.WaitUntilLock(a.dataStore, req.Name, 5*time.Second, 10*time.Millisecond) {
-		return nil, datastore.LockError()
+		return nil, stdapi.LockError()
 	}
 	defer a.dataStore.Unlock(req.Name)
 

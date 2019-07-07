@@ -82,6 +82,7 @@ const GetAndPendExistingTemplate = `func GetAndPendExisting%[2]s(tx *transaction
 	if err := Apply%[2]s(ds, resource); err != nil {
 		return nil, err
 	}
+	resource.State = current
 	tx.PushRollback("free optimistic lock", func() error {
 		resource.State = current
 		return ds.Apply(resource.Name, resource)
