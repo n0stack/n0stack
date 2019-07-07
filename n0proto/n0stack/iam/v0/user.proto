@@ -40,7 +40,17 @@ message User {
   // The n0stack system must not rewrite this value.
   map<string, string> labels = 4;
 
-  map<string, string> ssh_public_keys = 51;
+  map<string, string> ssh_public_keys = 10;
+
+  enum UserState {
+    USER_UNSPECIFIED = 0;
+
+    // working API
+    PENDING = 1;
+
+    AVAILABLE = 2;
+  }
+  UserState state = 50;
 }
 
 

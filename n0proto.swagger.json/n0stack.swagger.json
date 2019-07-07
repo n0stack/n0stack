@@ -1209,6 +1209,16 @@
         }
       }
     },
+    "UserUserState": {
+      "type": "string",
+      "title": "- PENDING: working API",
+      "default": "USER_UNSPECIFIED",
+      "enum": [
+        "USER_UNSPECIFIED",
+        "PENDING",
+        "AVAILABLE"
+      ]
+    },
     "VirtualMachineVirtualMachineState": {
       "type": "string",
       "title": "- PENDING: working API\n - RUNNING: running vm",
@@ -2127,6 +2137,9 @@
           "additionalProperties": {
             "type": "string"
           }
+        },
+        "state": {
+          "$ref": "#/definitions/UserUserState"
         }
       }
     },
