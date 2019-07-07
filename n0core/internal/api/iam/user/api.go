@@ -1,17 +1,17 @@
-package userapi
+package iuser
 
 import (
 	"context"
 
 	"google.golang.org/grpc/codes"
 
-	"github.com/n0stack/n0stack/n0proto.go/pkg/transaction"
-
 	"github.com/golang/protobuf/ptypes/empty"
+	auser "github.com/n0stack/n0stack/n0core/pkg/api/iam/user"
 	stdapi "github.com/n0stack/n0stack/n0core/pkg/api/standard_api"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
 	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
 	piam "github.com/n0stack/n0stack/n0proto.go/iam/v0"
+	"github.com/n0stack/n0stack/n0proto.go/pkg/transaction"
 )
 
 type UserAPI struct {
@@ -19,11 +19,11 @@ type UserAPI struct {
 }
 
 func (a *UserAPI) ListUsers(ctx context.Context, req *piam.ListUsersRequest) (*piam.ListUsersResponse, error) {
-	return ListUsers(ctx, req, a.dataStore)
+	return auser.ListUsers(ctx, req, a.dataStore)
 }
 
 func (a *UserAPI) GetUser(ctx context.Context, req *piam.GetUserRequest) (*piam.User, error) {
-	return GetUser(ctx, req, a.dataStore)
+	return auser.GetUser(ctx, req, a.dataStore)
 }
 
 func (a *UserAPI) CreateUser(ctx context.Context, req *piam.CreateUserRequest) (*piam.User, error) {
@@ -35,7 +35,7 @@ func (a *UserAPI) CreateUser(ctx context.Context, req *piam.CreateUserRequest) (
 	tx := transaction.Begin()
 	defer tx.RollbackWithLog()
 
-	if err := PendNewUser(tx, a.dataStore, req.Name); err != nil {
+	if err := auser.PendNewUser(tx, a.dataStore, req.Name); err != nil {
 		return nil, err
 	}
 
@@ -47,7 +47,7 @@ func (a *UserAPI) CreateUser(ctx context.Context, req *piam.CreateUserRequest) (
 		State: piam.User_AVAILABLE,
 	}
 
-	if err := ApplyUser(a.dataStore, user); err != nil {
+	if err := auser.ApplyUser(a.dataStore, user); err != nil {
 		return nil, err
 	}
 
@@ -64,12 +64,12 @@ func (a *UserAPI) DeleteUser(ctx context.Context, req *piam.DeleteUserRequest) (
 	tx := transaction.Begin()
 	defer tx.RollbackWithLog()
 
-	user, err := GetAndPendExistingUser(tx, a.dataStore, req.Name)
+	user, err := auser.GetAndPendExistingUser(tx, a.dataStore, req.Name)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := DeleteUser(a.dataStore, user.Name); err != nil {
+	if err := auser.DeleteUser(a.dataStore, user.Name); err != nil {
 		return nil, err
 	}
 
@@ -86,7 +86,7 @@ func (a *UserAPI) AddSshPublicKey(ctx context.Context, req *piam.AddSshPublicKey
 	tx := transaction.Begin()
 	defer tx.RollbackWithLog()
 
-	user, err := GetAndPendExistingUser(tx, a.dataStore, req.UserName)
+	user, err := auser.GetAndPendExistingUser(tx, a.dataStore, req.UserName)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func (a *UserAPI) AddSshPublicKey(ctx context.Context, req *piam.AddSshPublicKey
 	}
 	user.SshPublicKeys[req.SshPublicKeyName] = req.SshPublicKey
 
-	if err := ApplyUser(a.dataStore, user); err != nil {
+	if err := auser.ApplyUser(a.dataStore, user); err != nil {
 		return nil, err
 	}
 
@@ -113,7 +113,7 @@ func (a *UserAPI) DeleteSshPublicKey(ctx context.Context, req *piam.DeleteSshPub
 	tx := transaction.Begin()
 	defer tx.RollbackWithLog()
 
-	user, err := GetAndPendExistingUser(tx, a.dataStore, req.UserName)
+	user, err := auser.GetAndPendExistingUser(tx, a.dataStore, req.UserName)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +127,7 @@ func (a *UserAPI) DeleteSshPublicKey(ctx context.Context, req *piam.DeleteSshPub
 
 	delete(user.SshPublicKeys, req.SshPublicKeyName)
 
-	if err := ApplyUser(a.dataStore, user); err != nil {
+	if err := auser.ApplyUser(a.dataStore, user); err != nil {
 		return nil, err
 	}
 

@@ -1,4 +1,4 @@
-package userapi
+package auser
 
 import (
 	"testing"
@@ -8,7 +8,7 @@ import (
 )
 
 func TestGenerate(t *testing.T) {
-	g := generator.NewGoCodeGenerator("template_api", "userapi")
+	g := generator.NewGoCodeGenerator("stdapi", "auser")
 	stdapi.GenerateTemplateAPI(g, "iam", "User")
 
 	if err := g.WriteAsTemplateFileName(); err != nil {
