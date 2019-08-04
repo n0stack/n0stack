@@ -16,7 +16,9 @@
 - シンプルな構成にするため、同期的に処理を伝播していく
     - APIでユーザーからのリクエストを受理し、APIが各ノードのAgentに指示をだす
     - [Designing Distributed Systems](https://azure.microsoft.com/en-us/resources/designing-distributed-systems/en-us/) でいうScatter/Gatherパターンであり、ミドルウェアは永続化を行うデータベースだけとなる
-- RPCインターフェイスを作る
+- gRPCインターフェイスを作る
+
+![](../../_static/images/synchronous_rpc_system_architecture.svg)
 
 ### [Transaction](transaction.md)
 
