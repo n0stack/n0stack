@@ -6,8 +6,8 @@
 
 ## Context
 
-OpenStackの問題点を考えた際に、非常に規模が大きいことが問題であると考えていた。
-よって、全体的なアーキテクチャを考える際に、OpenStackを小さいスケールにすれば良いはずである。
+OpenStackの問題点を考えた際に、無駄に規模が大きいことが問題であると考えていた。
+よって、OpenStackのスケールを小さくしたアーキテクチャを考えれば良いと考えた。
 
 ## Decision
 
@@ -15,6 +15,8 @@ OpenStackの問題点を考えた際に、非常に規模が大きいことが�
 やろうと思ったことは [これ](https://www.slideshare.net/TakeshiTake/n0stack-81419210) を参照してほしい。
 
 ## Consequences
+
+力不足も相まって形にすることができず、 [Synchronous RPC System Architecture](synchronous_rpc_system_architecture.md) に設計方針を変更した。
 
 ### Pros
 
