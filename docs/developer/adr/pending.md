@@ -1,4 +1,4 @@
-# About pending state
+# Pending State
 
 |||
 |--|--|
