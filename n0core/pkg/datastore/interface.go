@@ -9,14 +9,8 @@ type Datastore interface {
 
 	List(f func(length int) []proto.Message) error
 
-	// if result is empty, set pb as nil.
-	Get(key string, pb proto.Message) error
+	Get(key string, pb proto.Message) (int64, error)
 
-	// update process requires locking in advance
-	Apply(key string, pb proto.Message) error
-	Delete(key string) error
-
-	Lock(key string) bool
-	Unlock(key string) bool
-	IsLocked(key string) bool
+	Apply(key string, pb proto.Message, currentVersion int64) (int64, error)
+	Delete(key string, currentVersion int64) error
 }

@@ -45,3 +45,9 @@ func IsNotFound(err error) bool {
 func DefaultErrorMessage(err error) string {
 	return errors.Wrap(err, "Failed to operate on datastore").Error()
 }
+
+type ConflictedError struct{}
+
+func (c ConflictedError) Error() string {
+	return "conflicted"
+}
