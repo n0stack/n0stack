@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"context"
 	"strings"
 
 	"github.com/golang/protobuf/proto"
@@ -32,7 +33,7 @@ func (m *MemoryDatastore) AddPrefix(prefix string) datastore.Datastore {
 	}
 }
 
-func (m MemoryDatastore) List(f func(length int) []proto.Message) error {
+func (m MemoryDatastore) List(ctx context.Context, f func(length int) []proto.Message) error {
 	l := 0
 	for k, _ := range m.Data {
 		if strings.HasPrefix(k, m.prefix) {
@@ -58,7 +59,7 @@ func (m MemoryDatastore) List(f func(length int) []proto.Message) error {
 	return nil
 }
 
-func (m MemoryDatastore) Get(key string, pb proto.Message) (int64, error) {
+func (m MemoryDatastore) Get(ctx context.Context, key string, pb proto.Message) (int64, error) {
 	v, ok := m.Data[m.prefix+key]
 	if !ok {
 		pb = nil
@@ -73,7 +74,7 @@ func (m MemoryDatastore) Get(key string, pb proto.Message) (int64, error) {
 	return v.Version, nil
 }
 
-func (m *MemoryDatastore) Apply(key string, pb proto.Message, currentVersion int64) (int64, error) {
+func (m *MemoryDatastore) Apply(ctx context.Context, key string, pb proto.Message, currentVersion int64) (int64, error) {
 	var nextVersion int64 = 1
 	if v, ok := m.Data[m.getKey(key)]; ok {
 		if currentVersion < v.Version {
@@ -96,7 +97,7 @@ func (m *MemoryDatastore) Apply(key string, pb proto.Message, currentVersion int
 	return nextVersion, nil
 }
 
-func (m *MemoryDatastore) Delete(key string, currentVersion int64) error {
+func (m *MemoryDatastore) Delete(ctx context.Context, key string, currentVersion int64) error {
 	v, ok := m.Data[m.getKey(key)]
 	if ok {
 		if currentVersion < v.Version {
