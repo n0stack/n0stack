@@ -10,7 +10,7 @@ import (
 	"strings"
 	"syscall"
 
-	iuser "github.com/n0stack/n0stack/n0core/internal/api/iam/user"
+	user "github.com/n0stack/n0stack/n0core/pkg/api/iam/user"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/etcd"
 	piam "github.com/n0stack/n0stack/n0proto.go/iam/v1alpha"
 
@@ -50,7 +50,7 @@ func ServeAPI(cctx *cli.Context) error {
 	}
 	defer ds.Close()
 
-	userapi := iuser.CreateUserAPI(ds)
+	userapi := user.CreateUserAPI(ds)
 
 	grpcServer := grpc.NewServer(
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
