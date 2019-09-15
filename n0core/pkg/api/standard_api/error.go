@@ -1,11 +1,10 @@
 package stdapi
 
 import (
-	"google.golang.org/grpc/codes"
-
 	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
+	"google.golang.org/grpc/codes"
 )
 
-func LockError() error {
-	return grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "this is locked, wait a moment")
+func ValidationError(field, validationFormat string) error {
+	return grpcutil.Errorf(codes.InvalidArgument, "the %s filed validation is failed: the format is %s", field, validationFormat)
 }
