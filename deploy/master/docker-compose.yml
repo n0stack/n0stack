@@ -1,5 +1,17 @@
 version: '3'
 services:
+  nginx:
+    image: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    links:
+      - api
+    volumes:
+      - ./nginx/etc/nginx/ssl:/etc/nginx/ssl:ro
+      - ./nginx/etc/nginx/conf.d:/etc/nginx/conf.d:ro
+      # - ./nginx/etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+  
   api:
     image: n0stack/n0stack
     command:
