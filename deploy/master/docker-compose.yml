@@ -21,8 +21,6 @@ services:
       - --etcd-endpoints=etcd:2379
     links:
       - etcd
-    ports:
-      - "20180:20180"
 
   etcd:
     image: quay.io/coreos/etcd:v3.3
