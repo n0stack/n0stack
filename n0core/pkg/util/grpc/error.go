@@ -7,9 +7,9 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-// WrapGrpcErrorf returns grpc.Errorf
+// Errorf returns grpc.Errorf
 // in the case of 'Internal', logging message because the server has failed
-func WrapGrpcErrorf(c codes.Code, format string, a ...interface{}) error {
+func Errorf(c codes.Code, format string, a ...interface{}) error {
 	err := grpc.Errorf(c, format, a...)
 
 	if c == codes.Internal {

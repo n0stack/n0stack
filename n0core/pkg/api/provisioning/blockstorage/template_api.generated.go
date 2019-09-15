@@ -30,10 +30,10 @@ func ListBlockStorages(ctx context.Context, req *pprovisioning.ListBlockStorages
 	}
 
 	if err := ds.List(f); err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to list from db, please retry or contact for the administrator of this cluster")
+		return nil, grpcutil.Errorf(codes.Internal, "Failed to list from db, please retry or contact for the administrator of this cluster")
 	}
 	if len(res.BlockStorages) == 0 {
-		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "")
+		return nil, grpcutil.Errorf(codes.NotFound, "")
 	}
 
 	return res, nil
@@ -43,10 +43,10 @@ func GetBlockStorage(ctx context.Context, req *pprovisioning.GetBlockStorageRequ
 	resourse := &pprovisioning.BlockStorage{}
 	if err := ds.Get(req.Name, resourse); err != nil {
 		if datastore.IsNotFound(err) {
-			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+			return nil, grpcutil.Errorf(codes.NotFound, err.Error())
 		}
 
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
+		return nil, grpcutil.Errorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	return resourse, nil
@@ -56,14 +56,14 @@ func GetAndPendExistingBlockStorage(tx *transaction.Transaction, ds datastore.Da
 	resource := &pprovisioning.BlockStorage{}
 	if err := ds.Get(name, resource); err != nil {
 		if datastore.IsNotFound(err) {
-			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+			return nil, grpcutil.Errorf(codes.NotFound, err.Error())
 		}
 
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
+		return nil, grpcutil.Errorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	if resource.State == pprovisioning.BlockStorage_PENDING {
-		return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "BlockStorage %s is pending", name)
+		return nil, grpcutil.Errorf(codes.FailedPrecondition, "BlockStorage %s is pending", name)
 	}
 
 	current := resource.State
@@ -83,9 +83,9 @@ func GetAndPendExistingBlockStorage(tx *transaction.Transaction, ds datastore.Da
 func PendNewBlockStorage(tx *transaction.Transaction, ds datastore.Datastore, name string) error {
 	resource := &pprovisioning.BlockStorage{}
 	if err := ds.Get(name, resource); err == nil {
-		return grpcutil.WrapGrpcErrorf(codes.AlreadyExists, "BlockStorage %s is already exists", name)
+		return grpcutil.Errorf(codes.AlreadyExists, "BlockStorage %s is already exists", name)
 	} else if !datastore.IsNotFound(err) {
-		return grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
+		return grpcutil.Errorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	resource.Name = name
@@ -102,7 +102,7 @@ func PendNewBlockStorage(tx *transaction.Transaction, ds datastore.Datastore, na
 
 func DeleteBlockStorage(ds datastore.Datastore, name string) error {
 	if err := ds.Delete(name); err != nil {
-		return grpcutil.WrapGrpcErrorf(codes.Internal, "failed to delete BlockStorage %s from db: err='%s'", name, err.Error())
+		return grpcutil.Errorf(codes.Internal, "failed to delete BlockStorage %s from db: err='%s'", name, err.Error())
 	}
 
 	return nil
@@ -110,7 +110,7 @@ func DeleteBlockStorage(ds datastore.Datastore, name string) error {
 
 func ApplyBlockStorage(ds datastore.Datastore, resource *pprovisioning.BlockStorage) error {
 	if err := ds.Apply(resource.Name, resource); err != nil {
-		return grpcutil.WrapGrpcErrorf(codes.Internal, "failed to apply BlockStorage %s to db: err='%s'", resource.Name, err.Error())
+		return grpcutil.Errorf(codes.Internal, "failed to apply BlockStorage %s to db: err='%s'", resource.Name, err.Error())
 	}
 
 	return nil

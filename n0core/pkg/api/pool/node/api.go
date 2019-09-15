@@ -64,10 +64,10 @@ func (a NodeAPI) GetNode(ctx context.Context, req *ppool.GetNodeRequest) (*ppool
 	res := &ppool.Node{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
 		if datastore.IsNotFound(err) {
-			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+			return nil, grpcutil.Errorf(codes.NotFound, err.Error())
 		}
 
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
+		return nil, grpcutil.Errorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	return res, nil
@@ -85,7 +85,7 @@ func (a NodeAPI) ApplyNode(ctx context.Context, req *ppool.ApplyNodeRequest) (*p
 
 	res := &ppool.Node{}
 	if err := a.dataStore.Get(req.Name, res); err != nil && !datastore.IsNotFound(err) {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
+		return nil, grpcutil.Errorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	res.Name = req.Name
@@ -95,7 +95,7 @@ func (a NodeAPI) ApplyNode(ctx context.Context, req *ppool.ApplyNodeRequest) (*p
 	if req.Address == "" {
 		p, ok := peer.FromContext(ctx)
 		if !ok {
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get gRPC peer information from request")
+			return nil, grpcutil.Errorf(codes.Internal, "Failed to get gRPC peer information from request")
 		}
 
 		switch addr := p.Addr.(type) {
@@ -151,14 +151,14 @@ func (a NodeAPI) DeleteNode(ctx context.Context, req *ppool.DeleteNodeRequest) (
 	node := &ppool.Node{}
 	if err := a.dataStore.Get(req.Name, node); err != nil {
 		if datastore.IsNotFound(err) {
-			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+			return nil, grpcutil.Errorf(codes.NotFound, err.Error())
 		}
 
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
+		return nil, grpcutil.Errorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	if IsLockedForDeletion(node) {
-		return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "Node has some computes or storages, so is locked for deletion")
+		return nil, grpcutil.Errorf(codes.FailedPrecondition, "Node has some computes or storages, so is locked for deletion")
 	}
 
 	if err := a.dataStore.Delete(req.Name); err != nil {
@@ -188,10 +188,10 @@ func (a NodeAPI) ReserveCompute(ctx context.Context, req *ppool.ReserveComputeRe
 	res := &ppool.Node{}
 	if err := a.dataStore.Get(req.NodeName, res); err != nil {
 		if datastore.IsNotFound(err) {
-			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+			return nil, grpcutil.Errorf(codes.NotFound, err.Error())
 		}
 
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get data from db: err='%s'", err.Error())
+		return nil, grpcutil.Errorf(codes.Internal, "Failed to get data from db: err='%s'", err.Error())
 	}
 
 	if res.ReservedComputes == nil {
@@ -229,10 +229,10 @@ func (a NodeAPI) ReleaseCompute(ctx context.Context, req *ppool.ReleaseComputeRe
 	n := &ppool.Node{}
 	if err := a.dataStore.Get(req.NodeName, n); err != nil {
 		if datastore.IsNotFound(err) {
-			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+			return nil, grpcutil.Errorf(codes.NotFound, err.Error())
 		}
 
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get data from db: err='%s'", err.Error())
+		return nil, grpcutil.Errorf(codes.Internal, "Failed to get data from db: err='%s'", err.Error())
 	}
 
 	if _, ok := n.ReservedComputes[req.ComputeName]; !ok {
@@ -268,10 +268,10 @@ func (a NodeAPI) ReserveStorage(ctx context.Context, req *ppool.ReserveStorageRe
 	res := &ppool.Node{}
 	if err := a.dataStore.Get(req.NodeName, res); err != nil {
 		if datastore.IsNotFound(err) {
-			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+			return nil, grpcutil.Errorf(codes.NotFound, err.Error())
 		}
 
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get data from db: err='%s'", err.Error())
+		return nil, grpcutil.Errorf(codes.Internal, "Failed to get data from db: err='%s'", err.Error())
 	}
 
 	if res.ReservedStorages == nil {
@@ -307,10 +307,10 @@ func (a NodeAPI) ReleaseStorage(ctx context.Context, req *ppool.ReleaseStorageRe
 	n := &ppool.Node{}
 	if err := a.dataStore.Get(req.NodeName, n); err != nil {
 		if datastore.IsNotFound(err) {
-			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+			return nil, grpcutil.Errorf(codes.NotFound, err.Error())
 		}
 
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get data from db: err='%s'", err.Error())
+		return nil, grpcutil.Errorf(codes.Internal, "Failed to get data from db: err='%s'", err.Error())
 	}
 
 	if _, ok := n.ReservedStorages[req.StorageName]; !ok {

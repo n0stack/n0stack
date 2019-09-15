@@ -46,14 +46,14 @@ func (a *BlockStorageAgentAPI) CreateEmptyBlockStorage(ctx context.Context, req 
 
 	i, err := img.OpenQemuImg(path)
 	if err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Cannot open '%s': err='%s'", path, err.Error())
+		return nil, grpcutil.Errorf(codes.Internal, "Cannot open '%s': err='%s'", path, err.Error())
 	}
 	if i.IsExists() {
-		return res, grpcutil.WrapGrpcErrorf(codes.AlreadyExists, "image file has already exists")
+		return res, grpcutil.Errorf(codes.AlreadyExists, "image file has already exists")
 	}
 
 	if err := i.Create(req.Bytes); err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to create image: err='%s'", err.Error())
+		return nil, grpcutil.Errorf(codes.Internal, "Failed to create image: err='%s'", err.Error())
 	}
 
 	return res, nil
@@ -68,39 +68,39 @@ func (a *BlockStorageAgentAPI) FetchBlockStorage(ctx context.Context, req *Fetch
 
 	i, err := img.OpenQemuImg(path)
 	if err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Cannot open '%s': err='%s'", path, err.Error())
+		return nil, grpcutil.Errorf(codes.Internal, "Cannot open '%s': err='%s'", path, err.Error())
 	}
 	if i.IsExists() {
-		return res, grpcutil.WrapGrpcErrorf(codes.AlreadyExists, "image file has already exists")
+		return res, grpcutil.Errorf(codes.AlreadyExists, "image file has already exists")
 	}
 
 	u, err := url.Parse(req.SourceUrl)
 	if err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Parsing source_url '%s' is invalid url: err='%s'", req.SourceUrl, err.Error())
+		return nil, grpcutil.Errorf(codes.InvalidArgument, "Parsing source_url '%s' is invalid url: err='%s'", req.SourceUrl, err.Error())
 	}
 
 	switch u.Scheme {
 	case "http", "https":
 		if err := i.Download(u); err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to download image: err='%s'", err.Error())
+			return nil, grpcutil.Errorf(codes.Internal, "Failed to download image: err='%s'", err.Error())
 		}
 
 	case "file":
 		src, err := img.OpenQemuImg(u.Path)
 		if err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to open source image: err='%s'", err.Error())
+			return nil, grpcutil.Errorf(codes.Internal, "Failed to open source image: err='%s'", err.Error())
 		}
 
 		if err := i.Copy(src); err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to download image: err='%s'", err.Error())
+			return nil, grpcutil.Errorf(codes.Internal, "Failed to download image: err='%s'", err.Error())
 		}
 	}
 
 	if err := i.Resize(req.Bytes); err != nil {
 		if derr := i.Delete(); derr != nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to Resize qemu image and delete it: resize err='%s', delete err='%s'", err.Error(), derr.Error())
+			return nil, grpcutil.Errorf(codes.Internal, "Failed to Resize qemu image and delete it: resize err='%s', delete err='%s'", err.Error(), derr.Error())
 		}
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to Resize qemu image: err='%s'", err.Error())
+		return nil, grpcutil.Errorf(codes.Internal, "Failed to Resize qemu image: err='%s'", err.Error())
 	}
 
 	return res, nil
@@ -109,14 +109,14 @@ func (a *BlockStorageAgentAPI) FetchBlockStorage(ctx context.Context, req *Fetch
 func (a *BlockStorageAgentAPI) DeleteBlockStorage(ctx context.Context, req *DeleteBlockStorageRequest) (*empty.Empty, error) {
 	i, err := img.OpenQemuImg(req.Path)
 	if err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Cannot open '%s': err='%s'", req.Path, err.Error())
+		return nil, grpcutil.Errorf(codes.Internal, "Cannot open '%s': err='%s'", req.Path, err.Error())
 	}
 	if !i.IsExists() {
-		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "image file do not exists")
+		return nil, grpcutil.Errorf(codes.NotFound, "image file do not exists")
 	}
 
 	if err := i.Delete(); err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to delete image: err='%s'", err.Error())
+		return nil, grpcutil.Errorf(codes.Internal, "Failed to delete image: err='%s'", err.Error())
 	}
 
 	return &empty.Empty{}, nil
@@ -125,14 +125,14 @@ func (a *BlockStorageAgentAPI) DeleteBlockStorage(ctx context.Context, req *Dele
 func (a *BlockStorageAgentAPI) ResizeBlockStorage(ctx context.Context, req *ResizeBlockStorageRequest) (*empty.Empty, error) {
 	i, err := img.OpenQemuImg(req.Path)
 	if err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Cannot open '%s': err='%s'", req.Path, err.Error())
+		return nil, grpcutil.Errorf(codes.Internal, "Cannot open '%s': err='%s'", req.Path, err.Error())
 	}
 	if !i.IsExists() {
-		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "image file do not exists")
+		return nil, grpcutil.Errorf(codes.NotFound, "image file do not exists")
 	}
 
 	if err := i.Resize(req.Bytes); err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to Resize qemu image: err='%s'", err.Error())
+		return nil, grpcutil.Errorf(codes.Internal, "Failed to Resize qemu image: err='%s'", err.Error())
 	}
 
 	return &empty.Empty{}, nil

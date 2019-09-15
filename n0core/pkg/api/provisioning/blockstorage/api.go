@@ -46,10 +46,10 @@ func CreateBlockStorageAPI(ds datastore.Datastore, na ppool.NodeServiceClient) *
 		conn, err := node.GetConnection(ctx, a.nodeAPI, nodeName)
 		cli := NewBlockStorageAgentServiceClient(conn)
 		if err != nil {
-			return nil, nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to dial to node: err=%s", err.Error())
+			return nil, nil, grpcutil.Errorf(codes.Internal, "Failed to dial to node: err=%s", err.Error())
 		}
 		if conn == nil {
-			return nil, nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", nodeName)
+			return nil, nil, grpcutil.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", nodeName)
 		}
 
 		return cli, conn.Close, nil
@@ -85,7 +85,7 @@ func ReserveStorage(ctx context.Context, tx *transaction.Transaction, na ppool.N
 		})
 	}
 	if err != nil {
-		return grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to ReserveStorage: desc=%s", grpc.ErrorDesc(err))
+		return grpcutil.Errorf(grpc.Code(err), "Failed to ReserveStorage: desc=%s", grpc.ErrorDesc(err))
 	}
 
 	bs.NodeName = n.Name
@@ -113,7 +113,7 @@ func ReleaseStorage(ctx context.Context, tx *transaction.Transaction, na ppool.N
 
 		// Notfound でもとりあえず問題ないため、処理を続ける
 		if grpc.Code(err) != codes.NotFound {
-			return grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to release compute '%s': please retry", bs.StorageName)
+			return grpcutil.Errorf(codes.Internal, "Failed to release compute '%s': please retry", bs.StorageName)
 		}
 	}
 	tx.PushRollback("reserve storage", func() error {
@@ -136,7 +136,7 @@ func ReleaseStorage(ctx context.Context, tx *transaction.Transaction, na ppool.N
 func (a *BlockStorageAPI) CreateBlockStorage(ctx context.Context, req *pprovisioning.CreateBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
 	{
 		if req.RequestBytes == 0 {
-			return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Set 'request_bytes'")
+			return nil, grpcutil.Errorf(codes.InvalidArgument, "Set 'request_bytes'")
 		}
 	}
 
@@ -177,7 +177,7 @@ func (a *BlockStorageAPI) CreateBlockStorage(ctx context.Context, req *pprovisio
 			Bytes: bs.LimitBytes,
 		})
 		if err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to create block_storage on node '%s': err='%s'", bs.NodeName, err.Error())
+			return nil, grpcutil.Errorf(codes.Internal, "Failed to create block_storage on node '%s': err='%s'", bs.NodeName, err.Error())
 		}
 		tx.PushRollback("DeleteBlockStorage", func() error {
 			cli, done, err := a.getAgent(ctx, bs.NodeName)
@@ -213,16 +213,16 @@ func (a *BlockStorageAPI) FetchBlockStorage(ctx context.Context, req *pprovision
 	{
 		u, err := url.Parse(req.SourceUrl)
 		if req.SourceUrl == "" || err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "invalid source url")
+			return nil, grpcutil.Errorf(codes.InvalidArgument, "invalid source url")
 		}
 		switch u.Scheme {
 		case "http", "https", "ftp", "ftps", "file":
 		default:
-			return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "invalid source url: %s is not supported", u.Scheme)
+			return nil, grpcutil.Errorf(codes.InvalidArgument, "invalid source url: %s is not supported", u.Scheme)
 		}
 
 		if req.RequestBytes == 0 {
-			return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Set 'request_bytes'")
+			return nil, grpcutil.Errorf(codes.InvalidArgument, "Set 'request_bytes'")
 		}
 	}
 
@@ -280,7 +280,7 @@ func (a *BlockStorageAPI) fetchBlockStorage(ctx context.Context, tx *transaction
 
 	v, err := cli.FetchBlockStorage(context.Background(), req)
 	if err != nil {
-		return grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to FetchBlockStorage on node '%s': err='%s'", bs.NodeName, err.Error())
+		return grpcutil.Errorf(codes.Internal, "Failed to FetchBlockStorage on node '%s': err='%s'", bs.NodeName, err.Error())
 	}
 	tx.PushRollback("DeleteBlockStorage", func() error {
 		cli, done, err := a.getAgent(ctx, bs.NodeName)
@@ -309,7 +309,7 @@ func (a *BlockStorageAPI) fetchBlockStorage(ctx context.Context, tx *transaction
 func (a *BlockStorageAPI) CopyBlockStorage(ctx context.Context, req *pprovisioning.CopyBlockStorageRequest) (*pprovisioning.BlockStorage, error) {
 	{
 		if req.RequestBytes == 0 {
-			return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Set 'request_bytes'")
+			return nil, grpcutil.Errorf(codes.InvalidArgument, "Set 'request_bytes'")
 		}
 	}
 
@@ -347,15 +347,15 @@ func (a *BlockStorageAPI) CopyBlockStorage(ctx context.Context, req *pprovisioni
 		src := &pprovisioning.BlockStorage{}
 		if err := a.dataStore.Get(req.SourceBlockStorage, src); err != nil {
 			if datastore.IsNotFound(err) {
-				return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+				return nil, grpcutil.Errorf(codes.NotFound, err.Error())
 			}
 
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
+			return nil, grpcutil.Errorf(codes.Internal, datastore.DefaultErrorMessage(err))
 		}
 
 		srcNode, err := a.nodeAPI.GetNode(ctx, &ppool.GetNodeRequest{Name: src.NodeName})
 		if err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to get node '%s' which is hosting source block storage", src.NodeName).Error())
+			return nil, grpcutil.Errorf(codes.Internal, errors.Wrapf(err, "Failed to get node '%s' which is hosting source block storage", src.NodeName).Error())
 		}
 
 		srcUrl, err = url.Parse(src.Annotations[AnnotationBlockStorageURL])
@@ -408,7 +408,7 @@ func (a *BlockStorageAPI) UpdateBlockStorage(ctx context.Context, req *pprovisio
 	}
 
 	if bs.State != pprovisioning.BlockStorage_AVAILABLE {
-		return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "BlockStorage '%s' is not available: now=%d", req.Name, bs.State)
+		return nil, grpcutil.Errorf(codes.FailedPrecondition, "BlockStorage '%s' is not available: now=%d", req.Name, bs.State)
 	}
 
 	newBs := &pprovisioning.BlockStorage{
@@ -451,7 +451,7 @@ func (a *BlockStorageAPI) UpdateBlockStorage(ctx context.Context, req *pprovisio
 
 		srcNode, err := a.nodeAPI.GetNode(ctx, &ppool.GetNodeRequest{Name: bs.NodeName})
 		if err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to get node '%s' which is hosting source block storage", bs.NodeName).Error())
+			return nil, grpcutil.Errorf(codes.Internal, errors.Wrapf(err, "Failed to get node '%s' which is hosting source block storage", bs.NodeName).Error())
 		}
 
 		srcUrl := &url.URL{
@@ -531,7 +531,7 @@ func (a *BlockStorageAPI) DeleteBlockStorage(ctx context.Context, req *pprovisio
 	}
 
 	if bs.State != pprovisioning.BlockStorage_AVAILABLE {
-		return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "Cannot change state to DELETED when not AVAILABLE")
+		return nil, grpcutil.Errorf(codes.FailedPrecondition, "Cannot change state to DELETED when not AVAILABLE")
 	}
 	bs.State = pprovisioning.BlockStorage_DELETED
 
@@ -558,7 +558,7 @@ func (a *BlockStorageAPI) UndeleteBlockStorage(ctx context.Context, req *pprovis
 	}
 
 	if bs.State != pprovisioning.BlockStorage_DELETED {
-		return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "Cannot change state to AVAILABLE when not DELETED")
+		return nil, grpcutil.Errorf(codes.FailedPrecondition, "Cannot change state to AVAILABLE when not DELETED")
 	}
 	bs.State = pprovisioning.BlockStorage_AVAILABLE
 
@@ -585,7 +585,7 @@ func (a *BlockStorageAPI) PurgeBlockStorage(ctx context.Context, req *pprovision
 	}
 
 	if bs.State != pprovisioning.BlockStorage_DELETED {
-		return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "BlockStorage '%s' is not deleted: now=%d", req.Name, bs.State)
+		return nil, grpcutil.Errorf(codes.FailedPrecondition, "BlockStorage '%s' is not deleted: now=%d", req.Name, bs.State)
 	}
 
 	if err := a.deleteBlockStorage(ctx, tx, bs); err != nil {
@@ -611,7 +611,7 @@ func (a *BlockStorageAPI) deleteBlockStorage(ctx context.Context, tx *transactio
 	_, err = cli.DeleteBlockStorage(context.Background(), &DeleteBlockStorageRequest{Path: u.Path})
 	if err != nil { // 多分ロールバックが必要
 		log.Printf("Fail to delete block_storage on node: err=%s, req=%s", err.Error(), &DeleteBlockStorageRequest{Path: u.Path})
-		return grpcutil.WrapGrpcErrorf(codes.Internal, "Fail to delete block_storage on node") // TODO #89
+		return grpcutil.Errorf(codes.Internal, "Fail to delete block_storage on node") // TODO #89
 	}
 
 	if err := ReleaseStorage(ctx, tx, a.nodeAPI, bs); err != nil {
@@ -636,7 +636,7 @@ func (a *BlockStorageAPI) SetAvailableBlockStorage(ctx context.Context, req *ppr
 	}
 
 	if bs.State == pprovisioning.BlockStorage_PENDING {
-		return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "Cannot change state to AVAILABLE when not UNKNOWN")
+		return nil, grpcutil.Errorf(codes.FailedPrecondition, "Cannot change state to AVAILABLE when not UNKNOWN")
 	}
 	bs.State = pprovisioning.BlockStorage_AVAILABLE
 
@@ -663,7 +663,7 @@ func (a *BlockStorageAPI) SetInuseBlockStorage(ctx context.Context, req *pprovis
 	}
 
 	if bs.State != pprovisioning.BlockStorage_AVAILABLE {
-		return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "Cannot change state to IN_USE when not AVAILABLE")
+		return nil, grpcutil.Errorf(codes.FailedPrecondition, "Cannot change state to IN_USE when not AVAILABLE")
 	}
 	bs.State = pprovisioning.BlockStorage_IN_USE
 
@@ -690,7 +690,7 @@ func (a *BlockStorageAPI) SetProtectedBlockStorage(ctx context.Context, req *ppr
 	}
 
 	if bs.State != pprovisioning.BlockStorage_AVAILABLE {
-		return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "Cannot change state to PROTECTED when not AVAILABLE")
+		return nil, grpcutil.Errorf(codes.FailedPrecondition, "Cannot change state to PROTECTED when not AVAILABLE")
 	}
 	bs.State = pprovisioning.BlockStorage_PROTECTED
 
@@ -706,10 +706,10 @@ func (a *BlockStorageAPI) DownloadBlockStorage(ctx context.Context, req *pprovis
 	bs := &pprovisioning.BlockStorage{}
 	if err := a.dataStore.Get(req.Name, bs); err != nil {
 		if datastore.IsNotFound(err) {
-			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+			return nil, grpcutil.Errorf(codes.NotFound, err.Error())
 		}
 
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
+		return nil, grpcutil.Errorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	u := &url.URL{

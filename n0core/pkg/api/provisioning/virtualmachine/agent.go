@@ -86,7 +86,7 @@ func (a VirtualMachineAgent) BootVirtualMachine(ctx context.Context, req *BootVi
 	name := req.Name
 	id, err := uuid.FromString(req.Uuid)
 	if err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Set valid uuid: %s", err.Error())
+		return nil, grpcutil.Errorf(codes.InvalidArgument, "Set valid uuid: %s", err.Error())
 	}
 	vcpus := req.Vcpus
 	mem := req.MemoryBytes
@@ -96,18 +96,18 @@ func (a VirtualMachineAgent) BootVirtualMachine(ctx context.Context, req *BootVi
 
 	wd, err := a.GetWorkDirectory(name)
 	if err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get working directory '%s'", wd)
+		return nil, grpcutil.Errorf(codes.Internal, "Failed to get working directory '%s'", wd)
 	}
 
 	q, err := qemu.OpenQemu(SetPrefix(name))
 	if err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to open qemu process: %s", err.Error())
+		return nil, grpcutil.Errorf(codes.Internal, "Failed to open qemu process: %s", err.Error())
 	}
 	defer q.Close()
 
 	if !q.IsRunning() {
 		if err := q.Start(id, filepath.Join(wd, QmpMonitorSocketFile), vcpus, mem); err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to start qemu process: err=%s", err.Error())
+			return nil, grpcutil.Errorf(codes.Internal, "Failed to start qemu process: err=%s", err.Error())
 		}
 		tx.PushRollback("delete Qemu", func() error {
 			return q.Delete()
@@ -146,7 +146,7 @@ func (a VirtualMachineAgent) BootVirtualMachine(ctx context.Context, req *BootVi
 
 					t, err := iproute2.NewTap(netutil.StructLinuxNetdevName(nd.Name))
 					if err != nil {
-						return grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to create tap '%s': err='%s'", nd.Name, err.Error())
+						return grpcutil.Errorf(codes.Internal, "Failed to create tap '%s': err='%s'", nd.Name, err.Error())
 					}
 					tx.PushRollback("delete created tap", func() error {
 						if err := t.Delete(); err != nil {
@@ -200,7 +200,7 @@ func (a VirtualMachineAgent) BootVirtualMachine(ctx context.Context, req *BootVi
 				}()
 
 				if err != nil {
-					return nil, grpcutil.WrapGrpcErrorf(codes.Internal, err.Error())
+					return nil, grpcutil.Errorf(codes.Internal, err.Error())
 				}
 			}
 		}
@@ -210,14 +210,14 @@ func (a VirtualMachineAgent) BootVirtualMachine(ctx context.Context, req *BootVi
 			for i, k := range req.SshAuthorizedKeys {
 				parsedKeys[i], _, _, _, err = ssh.ParseAuthorizedKey([]byte(k))
 				if err != nil {
-					return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "ssh_authorized_keys is invalid: value='%s', err='%s'", k, err.Error())
+					return nil, grpcutil.Errorf(codes.InvalidArgument, "ssh_authorized_keys is invalid: value='%s', err='%s'", k, err.Error())
 				}
 			}
 
 			c := configdrive.StructConfig(req.LoginUsername, req.Name, parsedKeys, eth)
 			p, err := c.Generate(wd)
 			if err != nil {
-				return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to generate cloudinit configdrive:  err='%s'", err.Error())
+				return nil, grpcutil.Errorf(codes.Internal, "Failed to generate cloudinit configdrive:  err='%s'", err.Error())
 			}
 			req.Blockdevs = append(req.Blockdevs, &BlockDev{
 				Name: "configdrive",
@@ -233,32 +233,32 @@ func (a VirtualMachineAgent) BootVirtualMachine(ctx context.Context, req *BootVi
 			for _, bd := range req.Blockdevs {
 				u, err := url.Parse(bd.Url)
 				if err != nil {
-					return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "url '%s' is invalid url: '%s'", bd.Url, err.Error())
+					return nil, grpcutil.Errorf(codes.InvalidArgument, "url '%s' is invalid url: '%s'", bd.Url, err.Error())
 				}
 
 				i, err := img.OpenQemuImg(u.Path)
 				if err != nil {
-					return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to open qemu image: err='%s'", err.Error())
+					return nil, grpcutil.Errorf(codes.Internal, "Failed to open qemu image: err='%s'", err.Error())
 				}
 
 				if !i.IsExists() {
-					return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "blockdev is not exists: blockdev=%s", bd.Name)
+					return nil, grpcutil.Errorf(codes.NotFound, "blockdev is not exists: blockdev=%s", bd.Name)
 				}
 
 				// この条件は雑
 				if i.Info.Format == "raw" {
 					if bd.BootIndex < 3 {
 						if err := q.AttachISO(bd.Name, u, uint(bd.BootIndex)); err != nil {
-							return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to attach iso '%s': err='%s'", u.Path, err.Error())
+							return nil, grpcutil.Errorf(codes.Internal, "Failed to attach iso '%s': err='%s'", u.Path, err.Error())
 						}
 					} else {
 						if err := q.AttachRaw(bd.Name, u, uint(bd.BootIndex)); err != nil {
-							return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to attach raw '%s': err='%s'", u.Path, err.Error())
+							return nil, grpcutil.Errorf(codes.Internal, "Failed to attach raw '%s': err='%s'", u.Path, err.Error())
 						}
 					}
 				} else {
 					if err := q.AttachQcow2(bd.Name, u, uint(bd.BootIndex)); err != nil {
-						return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to attach image '%s': err='%s'", u.String(), err.Error())
+						return nil, grpcutil.Errorf(codes.Internal, "Failed to attach image '%s': err='%s'", u.String(), err.Error())
 					}
 				}
 			}
@@ -266,12 +266,12 @@ func (a VirtualMachineAgent) BootVirtualMachine(ctx context.Context, req *BootVi
 	}
 
 	if err := q.Boot(); err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to boot qemu: err=%s", err.Error())
+		return nil, grpcutil.Errorf(codes.Internal, "Failed to boot qemu: err=%s", err.Error())
 	}
 
 	s, err := q.Status()
 	if err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get status: err=%s", err.Error())
+		return nil, grpcutil.Errorf(codes.Internal, "Failed to get status: err=%s", err.Error())
 	}
 
 	tx.Commit()
@@ -282,38 +282,38 @@ func (a VirtualMachineAgent) BootVirtualMachine(ctx context.Context, req *BootVi
 }
 
 func (a VirtualMachineAgent) RebootVirtualMachine(ctx context.Context, req *RebootVirtualMachineRequest) (*RebootVirtualMachineResponse, error) {
-	return nil, grpcutil.WrapGrpcErrorf(codes.Unimplemented, "")
+	return nil, grpcutil.Errorf(codes.Unimplemented, "")
 }
 
 func (a VirtualMachineAgent) ShutdownVirtualMachine(ctx context.Context, req *ShutdownVirtualMachineRequest) (*ShutdownVirtualMachineResponse, error) {
-	return nil, grpcutil.WrapGrpcErrorf(codes.Unimplemented, "")
+	return nil, grpcutil.Errorf(codes.Unimplemented, "")
 }
 
 func (a VirtualMachineAgent) DeleteVirtualMachine(ctx context.Context, req *DeleteVirtualMachineRequest) (*empty.Empty, error) {
 	q, err := qemu.OpenQemu(SetPrefix(req.Name))
 	if err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to open qemu process: %s", err.Error())
+		return nil, grpcutil.Errorf(codes.Internal, "Failed to open qemu process: %s", err.Error())
 	}
 	defer q.Close()
 
 	if q.IsRunning() {
 		if err := q.Delete(); err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to delete qemu: %s", err.Error())
+			return nil, grpcutil.Errorf(codes.Internal, "Failed to delete qemu: %s", err.Error())
 		}
 	}
 	if err := a.DeleteWorkDirectory(req.Name); err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to delete work directory: %s", err.Error())
+		return nil, grpcutil.Errorf(codes.Internal, "Failed to delete work directory: %s", err.Error())
 	}
 
 	for _, nd := range req.Netdevs {
 		t, err := iproute2.NewTap(netutil.StructLinuxNetdevName(nd.Name))
 		if err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to create tap '%s'", nd.Name).Error())
+			return nil, grpcutil.Errorf(codes.Internal, errors.Wrapf(err, "Failed to create tap '%s'", nd.Name).Error())
 		}
 
 		if err := t.Delete(); err != nil {
 			log.Printf("Failed to delete tap '%s': err='%s'", nd.Name, err.Error())
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "") // TODO #89
+			return nil, grpcutil.Errorf(codes.Internal, "") // TODO #89
 		}
 
 		err = func() error {
@@ -340,7 +340,7 @@ func (a VirtualMachineAgent) DeleteVirtualMachine(ctx context.Context, req *Dele
 		}()
 
 		if err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, err.Error())
+			return nil, grpcutil.Errorf(codes.Internal, err.Error())
 		}
 	}
 
