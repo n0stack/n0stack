@@ -2,6 +2,7 @@ package grpccmd
 
 import (
 	"context"
+	"crypto/x509"
 	"fmt"
 	"log"
 	"net/url"
@@ -12,6 +13,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 var API_URL_FLAG = cli.StringFlag{
@@ -27,7 +29,25 @@ func Connect2gRPC(c *cli.Context) (*grpc.ClientConn, error) {
 		return nil, err
 	}
 
-	conn, err := grpc.Dial(u.Host, grpc.WithInsecure())
+	var opts []grpc.DialOption
+	host := u.Host
+	if u.Port() == "" {
+		host += ":443"
+	}
+	if strings.HasSuffix(host, ":443") {
+		pool, err := x509.SystemCertPool()
+		if err != nil {
+			log.Fatal("failed to get system certifications")
+		}
+
+		creds := credentials.NewClientTLSFromCert(pool, "")
+		opts = append(opts, grpc.WithTransportCredentials(creds))
+
+	} else {
+		opts = append(opts, grpc.WithInsecure())
+	}
+
+	conn, err := grpc.Dial(host, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +65,7 @@ func GenerateGRPCGetter(f interface{}, argsKeys []string, newGrpcClient interfac
 
 	return func(c *cli.Context, ctx context.Context, conn *grpc.ClientConn) (proto.Message, error) {
 		if c.NArg() != len(argsKeys) {
-			return nil, fmt.Errorf("set valid arguments")
+			return nil, fmt.Errorf("set valid arguments, got wrong number of arguments: got=%d, have=%d", c.NArg(), len(argsKeys))
 		}
 
 		for i, a := range argsKeys {
