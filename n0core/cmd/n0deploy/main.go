@@ -91,7 +91,7 @@ func WrapAction(t SubcommandType) func(cctx *cli.Context) error {
 		}
 
 		for i, ins := range inss {
-			fmt.Fprintf(out, ">>> Step %d/%d: %s\n", i+1, len(inss), ins.String())
+			fmt.Fprintf(out, "  [ Step %d/%d ] %s\n", i+1, len(inss), ins.String())
 
 			if err := ins.Do(ctx, out); err != nil {
 				return errors.Wrapf(err, "Failed to do instruction")

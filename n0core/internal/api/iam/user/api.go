@@ -3,39 +3,57 @@ package iuser
 import (
 	"context"
 
+	"google.golang.org/grpc"
+
 	"google.golang.org/grpc/codes"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	auser "github.com/n0stack/n0stack/n0core/pkg/api/iam/user"
-	stdapi "github.com/n0stack/n0stack/n0core/pkg/api/standard_api"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore"
 	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
-	piam "github.com/n0stack/n0stack/n0proto.go/iam/v0"
-	"github.com/n0stack/n0stack/n0proto.go/pkg/transaction"
+	piam "github.com/n0stack/n0stack/n0proto.go/iam/v1alpha"
 )
 
 type UserAPI struct {
 	dataStore datastore.Datastore
 }
 
-func (a *UserAPI) ListUsers(ctx context.Context, req *piam.ListUsersRequest) (*piam.ListUsersResponse, error) {
-	return auser.ListUsers(ctx, req, a.dataStore)
+func CreateUserAPI(datastore datastore.Datastore) *UserAPI {
+	return &UserAPI{
+		dataStore: datastore.AddPrefix("iam/user"),
+	}
 }
 
 func (a *UserAPI) GetUser(ctx context.Context, req *piam.GetUserRequest) (*piam.User, error) {
-	return auser.GetUser(ctx, req, a.dataStore)
+	u, _, err := auser.GetUser(ctx, a.dataStore, req.Name)
+	return u, err
 }
 
 func (a *UserAPI) CreateUser(ctx context.Context, req *piam.CreateUserRequest) (*piam.User, error) {
-	if !a.dataStore.Lock(req.Name) {
-		return nil, stdapi.LockError()
+	if _, _, err := auser.GetUser(ctx, a.dataStore, req.Name); err != nil {
+		if grpc.Code(err) != codes.NotFound {
+			return nil, err
+		}
 	}
-	defer a.dataStore.Unlock(req.Name)
 
-	tx := transaction.Begin()
-	defer tx.RollbackWithLog()
+	user := &piam.User{
+		Name:        req.Name,
+		Annotations: req.Annotations,
+		Labels:      req.Labels,
 
-	if err := auser.PendNewUser(tx, a.dataStore, req.Name); err != nil {
+		DisplayName: req.DisplayName,
+	}
+
+	if _, err := auser.ApplyUser(ctx, a.dataStore, user, 0); err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (a *UserAPI) UpdateUser(ctx context.Context, req *piam.UpdateUserRequest) (*piam.User, error) {
+	_, version, err := auser.GetUser(ctx, a.dataStore, req.Name)
+	if err != nil {
 		return nil, err
 	}
 
@@ -44,93 +62,68 @@ func (a *UserAPI) CreateUser(ctx context.Context, req *piam.CreateUserRequest) (
 		Annotations: req.Annotations,
 		Labels:      req.Labels,
 
-		State: piam.User_AVAILABLE,
+		DisplayName: req.DisplayName,
 	}
 
-	if err := auser.ApplyUser(a.dataStore, user); err != nil {
+	if _, err := auser.ApplyUser(ctx, a.dataStore, user, version); err != nil {
 		return nil, err
 	}
 
-	tx.Commit()
 	return user, nil
 }
 
 func (a *UserAPI) DeleteUser(ctx context.Context, req *piam.DeleteUserRequest) (*empty.Empty, error) {
-	if !a.dataStore.Lock(req.Name) {
-		return nil, stdapi.LockError()
-	}
-	defer a.dataStore.Unlock(req.Name)
-
-	tx := transaction.Begin()
-	defer tx.RollbackWithLog()
-
-	user, err := auser.GetAndPendExistingUser(tx, a.dataStore, req.Name)
+	user, version, err := auser.GetUser(ctx, a.dataStore, req.Name)
 	if err != nil {
+		if grpc.Code(err) != codes.NotFound {
+			return &empty.Empty{}, nil
+		}
+
 		return nil, err
 	}
 
-	if err := auser.DeleteUser(a.dataStore, user.Name); err != nil {
+	if err := auser.DeleteUser(ctx, a.dataStore, user.Name, version); err != nil {
 		return nil, err
 	}
 
-	tx.Commit()
 	return &empty.Empty{}, nil
 }
 
-func (a *UserAPI) AddSshPublicKey(ctx context.Context, req *piam.AddSshPublicKeyRequest) (*piam.User, error) {
-	if !a.dataStore.Lock(req.UserName) {
-		return nil, stdapi.LockError()
-	}
-	defer a.dataStore.Unlock(req.UserName)
-
-	tx := transaction.Begin()
-	defer tx.RollbackWithLog()
-
-	user, err := auser.GetAndPendExistingUser(tx, a.dataStore, req.UserName)
+func (a *UserAPI) AddPublicKey(ctx context.Context, req *piam.AddPublicKeyRequest) (*piam.User, error) {
+	user, version, err := auser.GetUser(ctx, a.dataStore, req.UserName)
 	if err != nil {
 		return nil, err
 	}
 
-	if user.SshPublicKeys == nil {
-		user.SshPublicKeys = make(map[string]string)
+	if user.PublicKeys == nil {
+		user.PublicKeys = make(map[string]string)
 	}
-	user.SshPublicKeys[req.SshPublicKeyName] = req.SshPublicKey
+	user.PublicKeys[req.PublicKeyName] = req.PublicKey
 
-	if err := auser.ApplyUser(a.dataStore, user); err != nil {
+	if _, err := auser.ApplyUser(ctx, a.dataStore, user, version); err != nil {
 		return nil, err
 	}
 
-	tx.Commit()
 	return user, nil
 }
-
-func (a *UserAPI) DeleteSshPublicKey(ctx context.Context, req *piam.DeleteSshPublicKeyRequest) (*piam.User, error) {
-	if !a.dataStore.Lock(req.UserName) {
-		return nil, stdapi.LockError()
-	}
-	defer a.dataStore.Unlock(req.UserName)
-
-	tx := transaction.Begin()
-	defer tx.RollbackWithLog()
-
-	user, err := auser.GetAndPendExistingUser(tx, a.dataStore, req.UserName)
+func (a *UserAPI) DeletePublicKey(ctx context.Context, req *piam.DeletePublicKeyRequest) (*piam.User, error) {
+	user, version, err := auser.GetUser(ctx, a.dataStore, req.UserName)
 	if err != nil {
 		return nil, err
 	}
 
-	if user.SshPublicKeys == nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "publicKey '%s' does not exist", req.SshPublicKeyName)
+	if user.PublicKeys == nil {
+		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "publicKey '%s' does not exist", req.PublicKeyName)
 	}
-	if _, ok := user.SshPublicKeys[req.SshPublicKeyName]; !ok {
-		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "publicKey '%s' does not exist", req.SshPublicKeyName)
+	if _, ok := user.PublicKeys[req.PublicKeyName]; !ok {
+		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "publicKey '%s' does not exist", req.PublicKeyName)
 	}
 
-	delete(user.SshPublicKeys, req.SshPublicKeyName)
+	delete(user.PublicKeys, req.PublicKeyName)
 
-	if err := auser.ApplyUser(a.dataStore, user); err != nil {
+	if _, err := auser.ApplyUser(ctx, a.dataStore, user, version); err != nil {
 		return nil, err
 	}
 
-	tx.Commit()
 	return user, nil
 }

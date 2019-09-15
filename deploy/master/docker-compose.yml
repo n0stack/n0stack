@@ -1,22 +1,21 @@
 version: '3'
 services:
-  # api:
-  #   image: debian:buster
-  #   volumes:
-  #     - ./bin/:/n0stack
-  #     - ./sandbox/n0core:/var/lib/n0core
-  #   command:
-  #     - /n0stack/n0core
-  #     - serve
-  #     - api
-  #   ports:
-  #     - "8080:8080"
-  #     - "20180:20180"
+  api:
+    image: n0stack/n0stack
+    command:
+      - /usr/local/bin/n0core
+      - serve
+      - api
+      - --etcd-endpoints=etcd:2379
+    links:
+      - etcd
+    ports:
+      - "20180:20180"
 
   etcd:
     image: quay.io/coreos/etcd:v3.3
     volumes:
-      - ./sandbox/etcd:/etcd_data
+      - ./var/etcd:/etcd_data
     command:
       - /usr/local/bin/etcd
       - -name
@@ -37,5 +36,3 @@ services:
       - etcd0=http://127.0.0.1:2380
       # - -initial-cluster-state
       # - new
-    ports:
-      - "2379:2379"
