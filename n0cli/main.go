@@ -12,6 +12,7 @@ import (
 	"google.golang.org/grpc"
 
 	pdeployment "github.com/n0stack/n0stack/n0proto.go/deployment/v0"
+	piam "github.com/n0stack/n0stack/n0proto.go/iam/v1alpha"
 	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
 	pprovisioning "github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
 
@@ -43,13 +44,58 @@ func main() {
 
 	app.Flags = []cli.Flag{
 		grpccmd.API_URL_FLAG,
-		cli.StringFlag{
-			Name:   "api-endpoint",
-			Value:  "localhost:20180",
-			EnvVar: "N0CLI_API_ENDPOINT",
-		},
 	}
 	app.Commands = []cli.Command{
+		{
+			Name:        "user",
+			Usage:       "User APIs",
+			Description: "",
+			Subcommands: []cli.Command{
+				{
+					Name:      "get",
+					Usage:     "Get User(s)",
+					ArgsUsage: "[User name (optional)]",
+					Action: func(c *cli.Context) error {
+						out := outputter.GenerateOutputMethod([]string{"name", "labels", "display_name"})
+						if c.NArg() == 1 {
+							f := grpccmd.GenerateAction(ctx, out, piam.NewUserServiceClient, piam.UserServiceClient.GetUser, []string{"name"})
+							return f(c)
+						}
+
+						return fmt.Errorf("set valid arguments")
+					},
+					Flags: append(grpccmd.GenerateFlags(piam.UserServiceClient.GetUser, []string{"name"}), grpccmd.OUTPUT_TYPE_FLAG),
+				},
+				{
+					Name:      "create",
+					Usage:     "Create User",
+					ArgsUsage: "[User name]",
+					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, piam.NewUserServiceClient, piam.UserServiceClient.CreateUser, []string{"name"}),
+					Flags:     grpccmd.GenerateFlags(piam.UserServiceClient.CreateUser, []string{"name"}),
+				},
+				{
+					Name:      "delete",
+					Usage:     "Delete User",
+					ArgsUsage: "[User name]",
+					Action:    grpccmd.GenerateAction(ctx, outputter.OutputNone, piam.NewUserServiceClient, piam.UserServiceClient.DeleteUser, []string{"name"}),
+					Flags:     grpccmd.GenerateFlags(piam.UserServiceClient.DeleteUser, []string{"name"}),
+				},
+				{
+					Name:      "add_public_key",
+					Usage:     "Add Public Key",
+					ArgsUsage: "[User name] [Public Key name] [Public Key]",
+					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, piam.NewUserServiceClient, piam.UserServiceClient.AddPublicKey, []string{"user_name", "public_key_name", "public_key"}),
+					Flags:     grpccmd.GenerateFlags(piam.UserServiceClient.AddPublicKey, []string{"user_name", "public_key_name", "public_key"}),
+				},
+				{
+					Name:      "delete_public_key",
+					Usage:     "Delete User",
+					ArgsUsage: "[User name] [Public Key name]",
+					Action:    grpccmd.GenerateAction(ctx, outputter.OutputNone, piam.NewUserServiceClient, piam.UserServiceClient.DeletePublicKey, []string{"user_name", "public_key_name"}),
+					Flags:     grpccmd.GenerateFlags(piam.UserServiceClient.DeletePublicKey, []string{"user_name", "public_key_name"}),
+				},
+			},
+		},
 		{
 			Name:  "do",
 			Usage: "Do DAG tasks (Detail n0stack/pkg/dag)",
@@ -418,7 +464,7 @@ func main() {
 
 	if err := app.Run(os.Args); err != nil {
 		color.Set(color.FgRed)
-		fmt.Fprintf(os.Stderr, "Failed to command: %s\n", err.Error())
+		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 		color.Unset()
 		os.Exit(1)
 	}
