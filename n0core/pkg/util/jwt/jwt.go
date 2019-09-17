@@ -149,7 +149,9 @@ func ParsePublicKeyFromFile(filename string) (*PublicKey, error) {
 
 func (p PublicKey) VerifyChallengeToken(token string, username string, cookie [16]byte) (*jwt.Token, error) {
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		// TODO: method check
+		if token.Method.Alg() != p.method.Alg() {
+			return nil, errors.Errorf("unexpected JWT algorithm: got=%s, want=%s", token.Method.Alg(), p.method.Alg())
+		}
 
 		claims := token.Claims.(jwt.MapClaims)
 		if _, ok := claims["jti"]; !ok {
@@ -181,7 +183,9 @@ func (p PublicKey) VerifyChallengeToken(token string, username string, cookie [1
 
 func (p PublicKey) VerifyAuthenticationToken(token string, issuer string) (*jwt.Token, error) {
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		// TODO: method check
+		if token.Method.Alg() != p.method.Alg() {
+			return nil, errors.Errorf("unexpected JWT algorithm: got=%s, want=%s", token.Method.Alg(), p.method.Alg())
+		}
 
 		claims := token.Claims.(jwt.MapClaims)
 		if iss := claims["iss"].(string); iss != issuer {
