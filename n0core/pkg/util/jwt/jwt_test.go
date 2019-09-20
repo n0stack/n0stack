@@ -74,3 +74,42 @@ func testAuthentication(t *testing.T, key *PrivateKey, pubkey *PublicKey) {
 		t.Errorf("VerifyAuthenticationToken(%s) returns wrong sub: got=%s, want=%s", token, username, "test")
 	}
 }
+
+func Benchmark(b *testing.B) {
+	keyFile := "id_ecdsa"
+	pubkeyFile := "id_ecdsa.pub"
+	key, err := ParsePrivateKeyFromFile(keyFile)
+	if err != nil {
+		b.Fatalf("ParsePrivateKeyFromFile() returns err=%+v", err)
+	}
+	pubkey, err := ParsePublicKeyFromFile(pubkeyFile)
+	if err != nil {
+		b.Fatalf("ParsePublicKeyFromFile() returns err=%+v", err)
+	}
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		cookie := make([]byte, 256)
+		io.ReadFull(rand.Reader, cookie[:])
+
+		chaltoken, err := key.GenerateChallengeToken("test", cookie)
+		if err != nil {
+			b.Fatalf("GenerateAuthenticationToken(%s) returns err=%+v", "test", err)
+		}
+
+		if err := pubkey.VerifyChallengeToken(chaltoken, "test", cookie); err != nil {
+			b.Fatalf("VerifyAuthenticationToken(%s) returns err=%+v", chaltoken, err)
+		}
+
+		token, err := key.GenerateAuthenticationToken("test", "tester")
+		if err != nil {
+			b.Fatalf("GenerateAuthenticationToken(%s) returns err=%+v", "test", err)
+		}
+
+		_, err = pubkey.VerifyAuthenticationToken(token, "tester")
+		if err != nil {
+			b.Fatalf("VerifyAuthenticationToken(%s) returns err=%+v", token, err)
+		}
+	}
+}
