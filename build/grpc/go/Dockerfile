@@ -1,4 +1,4 @@
-FROM golang:1.11 AS BUILD
+FROM golang:1.13 AS BUILD
 LABEL maintainer="h-otter@outlook.jp"
 
 RUN go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway \
@@ -12,7 +12,7 @@ RUN apt update \
  && unzip protoc-3.7.0-linux-x86_64.zip \
  && mv bin/protoc /usr/bin/
 
- RUN cd /tmp \
+RUN cd /tmp \
   && wget https://github.com/go-swagger/go-swagger/releases/download/v0.19.0/swagger_linux_amd64 \
   && chmod 755 swagger_linux_amd64 \
   && mv /tmp/swagger_linux_amd64 /usr/bin/swagger

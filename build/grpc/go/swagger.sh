@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 
-dirs=`find /src -type d | grep -v .git | grep -v test`
+dirs=`find /src -type d | egrep -v "/\." | grep -v test | grep -v vendor`
 echo "{}" > $*/n0stack.swagger.json
 
 for d in $dirs
