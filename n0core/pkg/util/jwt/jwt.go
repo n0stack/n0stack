@@ -3,14 +3,16 @@ package jwt
 import (
 	"crypto"
 	"crypto/ecdsa"
-	"crypto/rand"
+	"crypto/elliptic"
 	"crypto/rsa"
+	"crypto/sha256"
 	"crypto/x509"
 	"encoding/hex"
 	"encoding/pem"
-	"io"
 	"io/ioutil"
 	"time"
+
+	"golang.org/x/crypto/hkdf"
 
 	"golang.org/x/crypto/ssh"
 
@@ -28,12 +30,7 @@ type PrivateKey struct {
 	method     jwt.SigningMethod
 }
 
-func ParsePrivateKey(in []byte) (*PrivateKey, error) {
-	key, err := ssh.ParseRawPrivateKey(in)
-	if err != nil {
-		return nil, errors.Errorf("ParseRawPrivateKey() returns err=%s", err.Error())
-	}
-
+func NewPrivateKey(key crypto.PrivateKey) (*PrivateKey, error) {
 	privateKey := &PrivateKey{
 		privateKey: key,
 	}
@@ -50,6 +47,15 @@ func ParsePrivateKey(in []byte) (*PrivateKey, error) {
 	return privateKey, nil
 }
 
+func ParsePrivateKey(in []byte) (*PrivateKey, error) {
+	key, err := ssh.ParseRawPrivateKey(in)
+	if err != nil {
+		return nil, errors.Errorf("ParseRawPrivateKey() returns err=%s", err.Error())
+	}
+
+	return NewPrivateKey(key)
+}
+
 func ParsePrivateKeyFromFile(filename string) (*PrivateKey, error) {
 	in, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -59,10 +65,21 @@ func ParsePrivateKeyFromFile(filename string) (*PrivateKey, error) {
 	return ParsePrivateKey(in)
 }
 
-func (p PrivateKey) GenerateChallengeToken(username string) (string, [16]byte, error) {
-	cookie := [16]byte{}
-	io.ReadFull(rand.Reader, cookie[:])
+func (p PrivateKey) PublicKey() (*PublicKey, error) {
+	type genpubkey interface {
+		Public() crypto.PublicKey
+	}
 
+	genpub, ok := p.privateKey.(genpubkey)
+	if !ok {
+		return nil, errors.Errorf("unexpected private key")
+	}
+
+	pubkey := genpub.Public()
+	return NewPublicKey(pubkey)
+}
+
+func (p PrivateKey) GenerateChallengeToken(username string, cookie []byte) (string, error) {
 	claims := jwt.StandardClaims{
 		Subject:   username,
 		IssuedAt:  time.Now().Unix(),
@@ -73,7 +90,7 @@ func (p PrivateKey) GenerateChallengeToken(username string) (string, [16]byte, e
 	token := jwt.NewWithClaims(p.method, claims)
 	t, err := token.SignedString(p.privateKey)
 
-	return t, cookie, err
+	return t, err
 }
 
 func (p PrivateKey) GenerateAuthenticationToken(username string, issuer string) (string, error) {
@@ -92,6 +109,23 @@ func (p PrivateKey) GenerateAuthenticationToken(username string, issuer string) 
 type PublicKey struct {
 	publicKey interface{}
 	method    jwt.SigningMethod
+}
+
+func NewPublicKey(key crypto.PublicKey) (*PublicKey, error) {
+	pubkey := &PublicKey{
+		publicKey: key,
+	}
+
+	switch pubkey.publicKey.(type) {
+	case *rsa.PublicKey:
+		pubkey.method = jwt.SigningMethodRS256
+	case *ecdsa.PublicKey:
+		pubkey.method = jwt.SigningMethodES256
+	default:
+		return nil, errors.Errorf("unexpected key type")
+	}
+
+	return pubkey, nil
 }
 
 func ParsePublicKey(in []byte) (*PublicKey, error) {
@@ -122,20 +156,7 @@ func ParsePublicKey(in []byte) (*PublicKey, error) {
 		key = k.CryptoPublicKey()
 	}
 
-	pubkey := &PublicKey{
-		publicKey: key,
-	}
-
-	switch pubkey.publicKey.(type) {
-	case *rsa.PublicKey:
-		pubkey.method = jwt.SigningMethodRS256
-	case *ecdsa.PublicKey:
-		pubkey.method = jwt.SigningMethodES256
-	default:
-		return nil, errors.Errorf("unexpected key type")
-	}
-
-	return pubkey, nil
+	return NewPublicKey(key)
 }
 
 func ParsePublicKeyFromFile(filename string) (*PublicKey, error) {
@@ -147,7 +168,7 @@ func ParsePublicKeyFromFile(filename string) (*PublicKey, error) {
 	return ParsePublicKey(in)
 }
 
-func (p PublicKey) VerifyChallengeToken(token string, username string, cookie [16]byte) (*jwt.Token, error) {
+func (p PublicKey) VerifyChallengeToken(token string, username string, cookie []byte) error {
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if token.Method.Alg() != p.method.Alg() {
 			return nil, errors.Errorf("unexpected JWT algorithm: got=%s, want=%s", token.Method.Alg(), p.method.Alg())
@@ -172,16 +193,16 @@ func (p PublicKey) VerifyChallengeToken(token string, username string, cookie [1
 	})
 
 	if err != nil {
-		return nil, errors.Wrap(err, "token is invalid")
+		return errors.Wrap(err, "token is invalid")
 	}
 	if !parsedToken.Valid {
-		return nil, errors.New("token is invalid")
+		return errors.New("token is invalid")
 	}
 
-	return parsedToken, nil
+	return nil
 }
 
-func (p PublicKey) VerifyAuthenticationToken(token string, issuer string) (*jwt.Token, error) {
+func (p PublicKey) VerifyAuthenticationToken(token string, issuer string) (string, error) {
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if token.Method.Alg() != p.method.Alg() {
 			return nil, errors.Errorf("unexpected JWT algorithm: got=%s, want=%s", token.Method.Alg(), p.method.Alg())
@@ -196,11 +217,60 @@ func (p PublicKey) VerifyAuthenticationToken(token string, issuer string) (*jwt.
 	})
 
 	if err != nil {
-		return nil, errors.Wrap(err, "token is invalid")
+		return "", errors.Wrap(err, "token is invalid")
 	}
 	if !parsedToken.Valid {
-		return nil, errors.New("token is invalid")
+		return "", errors.New("token is invalid")
 	}
 
-	return parsedToken, nil
+	claims := parsedToken.Claims.(jwt.MapClaims)
+	return claims["sub"].(string), nil
+}
+
+type KeyGenerator struct {
+	secret []byte
+}
+
+func NewKeyGenerator(secret []byte) *KeyGenerator {
+	return &KeyGenerator{
+		secret: secret,
+	}
+}
+
+func (k KeyGenerator) Generate(issuer string) (*PrivateKey, *PublicKey, error) {
+	// Underlying hash function for HMAC.
+	hash := sha256.New
+
+	// Cryptographically secure master secret.
+	// secret := []byte{0x00, 0x01, 0x02, 0x03} // i.e. NOT this.
+
+	// Non-secret salt, optional (can be nil).
+	// Recommended: hash-length random value.
+	// salt := make([]byte, hash().Size())
+	// if _, err := rand.Read(salt); err != nil {
+	// 	panic(err)
+	// }
+
+	// Non-secret context info, optional (can be nil).
+	info := []byte(issuer)
+
+	// Generate three 128-bit derived keys.
+	// nonceを保存するのは面倒
+	kdf := hkdf.New(hash, k.secret, nil, info)
+
+	key, err := ecdsa.GenerateKey(elliptic.P256(), kdf)
+	if err != nil {
+		return nil, nil, errors.Wrapf(err, "ecdsa.GenerateKey() returns")
+	}
+
+	privkey, err := NewPrivateKey(key)
+	if err != nil {
+		return nil, nil, errors.Wrapf(err, "NewPrivateKey() returns")
+	}
+	pubkey, err := privkey.PublicKey()
+	if err != nil {
+		return nil, nil, errors.Wrapf(err, "PublicKey() returns")
+	}
+
+	return privkey, pubkey, nil
 }
