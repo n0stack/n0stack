@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option go_package = "n0st.ac/n0stack/n0core/pkg/datastore;datastore";
 
-package n0stack.internal.n0core.datastore;
+package n0stack.n0core.pkg.datastore;
 
 message Test {
   string name = 1;

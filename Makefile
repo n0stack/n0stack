@@ -96,7 +96,6 @@ build-n0proto-on-docker:
 			/entry_point.sh \
 				--go_out=plugins=grpc:/dst \
 				--grpc-gateway_out=logtostderr=true:/dst
-	sudo chown -R $(USER) n0proto.go
 	docker run -it --rm \
 		-v $(PWD):/src:ro \
 		-v $(PWD):/dst \

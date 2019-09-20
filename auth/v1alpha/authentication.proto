@@ -36,14 +36,14 @@ service AuthenticationService {
 }
 
 message GetAuthenticationTokenPublicKeyRequest {
-  string project = 1;
+  string project_name = 1;
 }
 message GetAuthenticationTokenPublicKeyResponse {
   string public_key = 2;
 }
 
 message PublicKeyAuthenricationStart {
-  string project = 1;
+  string project_name = 1;
   string user_name = 2;
 }
 message PublicKeyAuthenricationChallengeToken {
@@ -57,7 +57,7 @@ message PublicKeyAuthenricateRequest {
 }
 
 message PublicKeyAuthenricationChallenge {
-  string challenge = 1;
+  bytes challenge = 1;
 }
 message PublicKeyAuthenricationResult {
   string authentication_token = 1;
