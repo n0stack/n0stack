@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/n0stack/n0stack/n0proto.go/iam/v1alpha;piam";
+option go_package = "n0st.ac/n0stack/iam/v1alpha;piam";
 
 package n0stack.iam.v1alpha;
 
@@ -24,10 +24,6 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
 };
 
 
-message PublickKey {
-
-}
-
 message User {
   // Name is a unique field.
   string name = 1;
@@ -41,7 +37,8 @@ message User {
   // The n0stack system must not rewrite this value.
   map<string, string> labels = 4;
 
-  string display_name = 32;
+  string display_name = 9;
+
   map<string, string> public_keys = 33;
 }
 

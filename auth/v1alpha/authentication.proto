@@ -1,0 +1,130 @@
+syntax = "proto3";
+
+option go_package = "n0st.ac/n0stack/auth/v1alpha;pauth";
+
+package n0stack.auth.v1alpha;
+
+import "google/api/annotations.proto";
+// import "google/protobuf/empty.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+
+
+service AuthenticationService {
+  rpc GetAuthenticationTokenPublicKey(GetAuthenticationTokenPublicKeyRequest) returns (GetAuthenticationTokenPublicKeyResponse) {
+    // option (google.api.http) = {
+    //   get: "/api/v1alpha/authn/{project=/*/}/public_key"
+    // };
+  }
+
+  // authentication method for grpc
+  rpc PublicKeyAuthenricate(stream PublicKeyAuthenricateRequest) returns (stream PublicKeyAuthenricateResponse) {}
+
+
+
+  // rpc StartAuthentication(StartAuthenticationRequest) return (StartAuthenticationResponse) {
+  //   option (google.api.http) = {
+  //     post: "/api/v1alpha/authn/{project}/webauthn:start"
+  //   };
+  // }
+
+  // rpc FinishAuthentication(FinishAuthenticationRequest) return (FinishAuthenticationResponse) {
+  //   option (google.api.http) = {
+  //     post: "/api/v1alpha/authn/{project}/webauthn:finish"
+  //   };
+  // }
+}
+
+message GetAuthenticationTokenPublicKeyRequest {
+  string project = 1;
+}
+message GetAuthenticationTokenPublicKeyResponse {
+  string public_key = 2;
+}
+
+message PublicKeyAuthenricationStart {
+  string project = 1;
+  string user_name = 2;
+}
+message PublicKeyAuthenricationChallengeToken {
+  string challenge_token = 1;
+}
+message PublicKeyAuthenricateRequest {
+  oneof message {
+    PublicKeyAuthenricationStart start = 1;
+    PublicKeyAuthenricationChallengeToken challenge_token  = 2;
+  }
+}
+
+message PublicKeyAuthenricationChallenge {
+  string challenge = 1;
+}
+message PublicKeyAuthenricationResult {
+  string authentication_token = 1;
+}
+message PublicKeyAuthenricateResponse {
+  oneof message {
+    PublicKeyAuthenricationChallenge challenge = 1;
+    PublicKeyAuthenricationResult authentication_token = 2;
+  }
+}
+
+// message StartAuthenticationRequest {
+//   string user_name = 1;
+// }
+
+// message WebAuthnRelyingParty {
+//   string name = 1;
+// }
+// message WebAuthnPubKeyCredPrams {
+//   string type = 1; // enumにしても良さそう
+//   int32 alg = 2;
+// }
+// message WebAuthnUser {
+//   string id = 1;
+//   string name = 2;
+//   string displayName = 3;
+// }
+
+
+
+// message WebAuthnAllowCredential {
+//   string id = 1;
+//   string type = 2; // enumにしても良さそう
+
+//   repeated string transports = 3; // enumにしてもいいかも
+// }
+// message StartAuthenticationResponse {
+//   bytes challenge = 1;
+//   repeated AllowCredential allowCredentials = 2;
+// }
+
+
+// // {
+// //   "rawId":"HGDwB61CiOLcI8JnS0AifQdPW2MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+// //   "response":{
+// //   　　　"authenticatorData":"SZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2MBAAAAEQ",
+// //   　　　"signature":"MEYCIQDiZwG_qNIBKUsYLft9xWR9Fsg0hqQK2Lj8tUZcI6q1GwIhALJ5lys-lpxg58_IbGVfnyJccpK3YMXaUeRN_aQN0owy",
+// //   　　　"clientDataJSON":"eyJjaGFsbGVuZ2UiOiJHa0R5ZDJZbEJEcXRlUFVab3NOSlZTUXJCX1dqTE5Nd05iTUxTQVdCSDBzIiwib3JpZ2luIjoiaHR0cDovL2xvY2FsaG9zdDo5MDAxIiwidHlwZSI6IndlYmF1dGhuLmdldCJ9"
+// //   },
+// //   "id":"HGDwB61CiOLcI8JnS0AifQdPW2MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+// //   "type":"public-key"
+// // }
+// message FinishAuthenticationRequest {
+//   string id = 1;
+//   string type = 2; // enumにしても良さそう
+
+//   bytes rawId = 3;
+  
+//   message WebAuthnAssertionResponse {
+//     string authenticatorData = 1;
+//     string signature = 2;
+//     string clientDataJSON = 3;
+//     string userHandle = 4;
+//   }
+//   WebAuthnAssertionResponse response = 4;
+// }
+
+// message FinishAuthenticationResponse {
+//   string token = 1;
+// }
