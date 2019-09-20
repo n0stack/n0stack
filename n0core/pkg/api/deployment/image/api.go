@@ -8,12 +8,12 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/empty"
-	stdapi "github.com/n0stack/n0stack/n0core/pkg/api/standard_api"
-	"github.com/n0stack/n0stack/n0core/pkg/datastore"
-	"github.com/n0stack/n0stack/n0core/pkg/datastore/lock"
-	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
-	pdeployment "github.com/n0stack/n0stack/n0proto.go/deployment/v0"
-	pprovisioning "github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
+	stdapi "n0st.ac/n0stack/n0core/pkg/api/standard_api"
+	"n0st.ac/n0stack/n0core/pkg/datastore"
+	"n0st.ac/n0stack/n0core/pkg/datastore/lock"
+	grpcutil "n0st.ac/n0stack/n0core/pkg/util/grpc"
+	pdeployment "n0st.ac/n0stack/n0proto.go/deployment/v0"
+	pprovisioning "n0st.ac/n0stack/n0proto.go/provisioning/v0"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 )
@@ -63,10 +63,10 @@ func (a ImageAPI) GetImage(ctx context.Context, req *pdeployment.GetImageRequest
 	res := &pdeployment.Image{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
 		if datastore.IsNotFound(err) {
-			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+			return nil, grpcutil.Errorf(codes.NotFound, err.Error())
 		}
 
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
+		return nil, grpcutil.Errorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	return res, nil
@@ -80,7 +80,7 @@ func (a ImageAPI) ApplyImage(ctx context.Context, req *pdeployment.ApplyImageReq
 
 	image := &pdeployment.Image{}
 	if err := a.dataStore.Get(req.Name, image); err != nil && !datastore.IsNotFound(err) {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
+		return nil, grpcutil.Errorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	image.Name = req.Name
@@ -104,16 +104,16 @@ func (a ImageAPI) DeleteImage(ctx context.Context, req *pdeployment.DeleteImageR
 	prev := &pdeployment.Image{}
 	if err := a.dataStore.Get(req.Name, prev); err != nil {
 		if datastore.IsNotFound(err) {
-			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+			return nil, grpcutil.Errorf(codes.NotFound, err.Error())
 		}
 
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
+		return nil, grpcutil.Errorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	for _, bs := range prev.RegisteredBlockStorages {
 		_, err := a.blockstorageAPI.SetAvailableBlockStorage(context.Background(), &pprovisioning.SetAvailableBlockStorageRequest{Name: bs.BlockStorageName})
 		if err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to SetAvailableBlockStorage: desc=%s", grpc.ErrorDesc(err))
+			return nil, grpcutil.Errorf(grpc.Code(err), "Failed to SetAvailableBlockStorage: desc=%s", grpc.ErrorDesc(err))
 		}
 	}
 
@@ -134,10 +134,10 @@ func (a ImageAPI) RegisterBlockStorage(ctx context.Context, req *pdeployment.Reg
 	res := &pdeployment.Image{}
 	if err := a.dataStore.Get(req.ImageName, res); err != nil {
 		if datastore.IsNotFound(err) {
-			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+			return nil, grpcutil.Errorf(codes.NotFound, err.Error())
 		}
 
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
+		return nil, grpcutil.Errorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 	if res.Tags == nil {
 		res.Tags = make(map[string]string)
@@ -145,7 +145,7 @@ func (a ImageAPI) RegisterBlockStorage(ctx context.Context, req *pdeployment.Reg
 
 	bs, err := a.blockstorageAPI.SetProtectedBlockStorage(context.Background(), &pprovisioning.SetProtectedBlockStorageRequest{Name: req.BlockStorageName})
 	if err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to SetProtectedBlockStorage: desc=%s", grpc.ErrorDesc(err))
+		return nil, grpcutil.Errorf(grpc.Code(err), "Failed to SetProtectedBlockStorage: desc=%s", grpc.ErrorDesc(err))
 	}
 
 	res.RegisteredBlockStorages = append(res.RegisteredBlockStorages, &pdeployment.Image_RegisteredBlockStorage{
@@ -173,10 +173,10 @@ func (a ImageAPI) UnregisterBlockStorage(ctx context.Context, req *pdeployment.U
 	res := &pdeployment.Image{}
 	if err := a.dataStore.Get(req.ImageName, res); err != nil {
 		if datastore.IsNotFound(err) {
-			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+			return nil, grpcutil.Errorf(codes.NotFound, err.Error())
 		}
 
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
+		return nil, grpcutil.Errorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 	if res.Tags == nil {
 		res.Tags = make(map[string]string)
@@ -184,7 +184,7 @@ func (a ImageAPI) UnregisterBlockStorage(ctx context.Context, req *pdeployment.U
 
 	_, err := a.blockstorageAPI.SetAvailableBlockStorage(context.Background(), &pprovisioning.SetAvailableBlockStorageRequest{Name: req.BlockStorageName})
 	if err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to SetAvailableBlockStorage: desc=%s", grpc.ErrorDesc(err))
+		return nil, grpcutil.Errorf(grpc.Code(err), "Failed to SetAvailableBlockStorage: desc=%s", grpc.ErrorDesc(err))
 	}
 
 	for i, bs := range res.RegisteredBlockStorages {
@@ -213,10 +213,10 @@ func (a ImageAPI) GenerateBlockStorage(ctx context.Context, req *pdeployment.Gen
 	prev := &pdeployment.Image{}
 	if err := a.dataStore.Get(req.ImageName, prev); err != nil {
 		if datastore.IsNotFound(err) {
-			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+			return nil, grpcutil.Errorf(codes.NotFound, err.Error())
 		}
 
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
+		return nil, grpcutil.Errorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 	if prev.Tags == nil {
 		return nil, grpc.Errorf(codes.NotFound, "Tag '%s' is not found", req.Tag)
@@ -233,7 +233,7 @@ func (a ImageAPI) GenerateBlockStorage(ctx context.Context, req *pdeployment.Gen
 		LimitBytes:         req.LimitBytes,
 	})
 	if err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to CopyBlockStorage: desc=%s", grpc.ErrorDesc(err))
+		return nil, grpcutil.Errorf(grpc.Code(err), "Failed to CopyBlockStorage: desc=%s", grpc.ErrorDesc(err))
 	}
 
 	return bs, nil
@@ -248,10 +248,10 @@ func (a ImageAPI) TagImage(ctx context.Context, req *pdeployment.TagImageRequest
 	res := &pdeployment.Image{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
 		if datastore.IsNotFound(err) {
-			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+			return nil, grpcutil.Errorf(codes.NotFound, err.Error())
 		}
 
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
+		return nil, grpcutil.Errorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 	if res.Tags == nil {
 		res.Tags = make(map[string]string)
@@ -287,10 +287,10 @@ func (a ImageAPI) UntagImage(ctx context.Context, req *pdeployment.UntagImageReq
 	res := &pdeployment.Image{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
 		if datastore.IsNotFound(err) {
-			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+			return nil, grpcutil.Errorf(codes.NotFound, err.Error())
 		}
 
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
+		return nil, grpcutil.Errorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 	if res.Tags == nil {
 		return nil, grpc.Errorf(codes.NotFound, "Tag '%s' is not found", req.Tag)

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/n0stack/n0stack/n0core/pkg/api/provisioning/blockstorage;blockstorage";
+option go_package = "n0st.ac/n0stack/n0core/pkg/api/provisioning/blockstorage;blockstorage";
 
 package n0stack.internal.n0core.provisioning.blockstorage;
 

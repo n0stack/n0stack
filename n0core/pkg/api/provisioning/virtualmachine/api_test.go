@@ -6,10 +6,10 @@ import (
 
 	"code.cloudfoundry.org/bytefmt"
 	"github.com/google/go-cmp/cmp"
-	"github.com/n0stack/n0stack/n0core/pkg/datastore/memory"
-	netutil "github.com/n0stack/n0stack/n0core/pkg/util/net"
-	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
-	pprovisioning "github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
+	"n0st.ac/n0stack/n0core/pkg/datastore/memory"
+	netutil "n0st.ac/n0stack/n0core/pkg/util/net"
+	ppool "n0st.ac/n0stack/n0proto.go/pool/v0"
+	pprovisioning "n0st.ac/n0stack/n0proto.go/provisioning/v0"
 )
 
 func TestCreateVirtualMachine(t *testing.T) {

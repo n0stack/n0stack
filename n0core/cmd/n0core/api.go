@@ -10,9 +10,9 @@ import (
 	"strings"
 	"syscall"
 
-	user "github.com/n0stack/n0stack/n0core/pkg/api/iam/user"
-	"github.com/n0stack/n0stack/n0core/pkg/datastore/etcd"
-	piam "github.com/n0stack/n0stack/n0proto.go/iam/v1alpha"
+	user "n0st.ac/n0stack/n0core/pkg/api/iam/user"
+	"n0st.ac/n0stack/n0core/pkg/datastore/etcd"
+	piam "n0st.ac/n0stack/n0proto.go/iam/v1alpha"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"

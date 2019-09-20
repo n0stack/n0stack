@@ -2,13 +2,14 @@ package authn
 
 import (
 	"context"
-	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
 	"io/ioutil"
 	"log"
 	"os"
 	"time"
+
+	"golang.org/x/crypto/ssh"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
@@ -19,68 +20,72 @@ import (
 
 const TokenExpireMinutes = 30
 
-var privateKey *rsa.PrivateKey
+var privateKey interface{}
 
 var publicKey interface{}
 
 func init() {
 	pubkey, ok := os.LookupEnv("N0CORE_AUTHN_JWT_PUBLIC_KEY_PATH")
 	if ok {
-		if err := LoadPublicKey(pubkey); err != nil {
+		key, err := LoadPublicKey(pubkey)
+		if err != nil {
 			log.Printf("[CRITICAL] set valid the N0CORE_AUTHN_JWT_PUBLIC_KEY_PATH environment variable: %s", err.Error())
 		}
+		publicKey = key
 	} else {
 		log.Printf("[CRITICAL] set valid the N0CORE_AUTHN_JWT_PUBLIC_KEY_PATH environment variable")
 	}
 
 	key, ok := os.LookupEnv("N0CORE_AUTHN_JWT_PRIVATE_KEY_PATH")
 	if ok {
-		if err := LoadKey(key); err != nil {
+		key, err := LoadKey(key)
+		if err != nil {
 			log.Printf("[CRITICAL] set valid the N0CORE_AUTHN_JWT_PRIVATE_KEY_PATH environment variable (Default: ./id_rsa): %s", err.Error())
 		}
+		privateKey = key
 	} else {
 		log.Printf("[CRITICAL] set valid the N0CORE_AUTHN_JWT_PRIVATE_KEY_PATH environment variable")
 	}
 }
 
-func LoadKey(keyPath string) error {
-	rawPubkey, err := ioutil.ReadFile(keyPath)
+func LoadKey(keyPath string) (interface{}, error) {
+	rawKey, err := ioutil.ReadFile(keyPath)
 	if err != nil {
-		return errors.Errorf("failed to read the JWT public key from %s", keyPath)
-	}
-	privateKeyBlock, _ := pem.Decode(rawPubkey)
-	if privateKeyBlock == nil {
-		return errors.Errorf("failed to decode public key")
-	}
-	if privateKeyBlock.Type != "RSA PRIVATE KEY" {
-		return errors.Errorf("got wrong key type %s, want %s", privateKeyBlock.Type, "RSA PRIVATE KEY")
-	}
-	privateKey, err = x509.ParsePKCS1PrivateKey(privateKeyBlock.Bytes)
-	if err != nil {
-		return errors.Errorf("parse returns err=%s", err.Error())
+		return nil, errors.Errorf("failed to read the JWT public key from %s", keyPath)
 	}
 
-	return nil
+	key, err := ssh.ParseRawPrivateKey(rawKey)
+	if err != nil {
+		return nil, errors.Errorf("parse returns err=%s", err.Error())
+	}
+
+	return key, nil
 }
 
-func LoadPublicKey(pubkeyPath string) error {
-	rawKey, err := ioutil.ReadFile(pubkeyPath)
+func LoadPublicKey(pubkeyPath string) (interface{}, error) {
+	rawPubkey, err := ioutil.ReadFile(pubkeyPath)
 	if err != nil {
-		return errors.Errorf("failed to read the JWT public key from %s", pubkeyPath)
+		return nil, errors.Errorf("failed to read the JWT public key from %s", pubkeyPath)
 	}
-	publicKeyBlock, _ := pem.Decode(rawKey)
+	publicKeyBlock, _ := pem.Decode(rawPubkey)
 	if publicKeyBlock == nil {
-		return errors.Errorf("failed to decode public key")
+		key, _, _, _, err := ssh.ParseAuthorizedKey(rawPubkey)
+		if err != nil {
+			return nil, errors.Errorf("ParsePublicKey() returns err=%s", err.Error())
+		}
+
+		return key, nil
 	}
 	if publicKeyBlock.Type != "PUBLIC KEY" {
-		return errors.Errorf("got wrong key type %s, want %s", publicKeyBlock.Type, "RSA PRIVATE KEY")
-	}
-	publicKey, err = x509.ParsePKIXPublicKey(publicKeyBlock.Bytes)
-	if err != nil {
-		return errors.Errorf("parse returns err=%s", err.Error())
+		return nil, errors.Errorf("got wrong key type %s, want %s", publicKeyBlock.Type, "RSA PRIVATE KEY")
 	}
 
-	return nil
+	key, err := x509.ParsePKIXPublicKey(publicKeyBlock.Bytes)
+	if err != nil {
+		return nil, errors.Errorf("ParsePKIXPublicKey() returns err=%s", err.Error())
+	}
+
+	return key, nil
 }
 
 func GetConnectingAccountName(ctx context.Context) (string, error) {
@@ -96,11 +101,11 @@ func GetConnectingAccountName(ctx context.Context) (string, error) {
 	}
 
 	claims := token.Claims.(jwt.MapClaims)
-	if _, ok := claims["subject"]; !ok {
+	if _, ok := claims["sub"]; !ok {
 		return "", grpc.Errorf(codes.Unauthenticated, "")
 	}
 
-	return claims["subject"].(string), nil
+	return claims["sub"].(string), nil
 }
 
 func GenerateToken(username string) (string, error) {

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	raceutil "github.com/n0stack/n0stack/n0core/pkg/util/race"
+	raceutil "n0st.ac/n0stack/n0core/pkg/util/race"
 )
 
 const ResultChanLength = 10

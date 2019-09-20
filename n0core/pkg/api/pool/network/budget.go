@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/n0stack/n0stack/n0core/pkg/util/net"
-	"github.com/n0stack/n0stack/n0proto.go/budget/v0"
+	"n0st.ac/n0stack/n0core/pkg/util/net"
+	"n0st.ac/n0stack/n0proto.go/budget/v0"
 )
 
 func CheckIPv4OnCIDR(request net.IP, cidr *net.IPNet) error {

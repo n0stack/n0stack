@@ -16,15 +16,15 @@ import (
 	"golang.org/x/crypto/ssh"
 	"google.golang.org/grpc/codes"
 
-	stdapi "github.com/n0stack/n0stack/n0core/pkg/api/standard_api"
-	"github.com/n0stack/n0stack/n0core/pkg/datastore/lock"
-	"github.com/n0stack/n0stack/n0core/pkg/driver/cloudinit/configdrive"
-	"github.com/n0stack/n0stack/n0core/pkg/driver/iproute2"
-	"github.com/n0stack/n0stack/n0core/pkg/driver/qemu"
-	img "github.com/n0stack/n0stack/n0core/pkg/driver/qemu_img"
-	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
-	netutil "github.com/n0stack/n0stack/n0core/pkg/util/net"
-	"github.com/n0stack/n0stack/n0proto.go/pkg/transaction"
+	stdapi "n0st.ac/n0stack/n0core/pkg/api/standard_api"
+	"n0st.ac/n0stack/n0core/pkg/datastore/lock"
+	"n0st.ac/n0stack/n0core/pkg/driver/cloudinit/configdrive"
+	"n0st.ac/n0stack/n0core/pkg/driver/iproute2"
+	"n0st.ac/n0stack/n0core/pkg/driver/qemu"
+	img "n0st.ac/n0stack/n0core/pkg/driver/qemu_img"
+	grpcutil "n0st.ac/n0stack/n0core/pkg/util/grpc"
+	netutil "n0st.ac/n0stack/n0core/pkg/util/net"
+	"n0st.ac/n0stack/n0proto.go/pkg/transaction"
 )
 
 const (

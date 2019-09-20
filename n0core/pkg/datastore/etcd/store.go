@@ -6,7 +6,7 @@ import (
 
 	"github.com/coreos/etcd/clientv3"
 	"github.com/coreos/etcd/clientv3/namespace"
-	"github.com/n0stack/n0stack/n0core/pkg/datastore"
+	"n0st.ac/n0stack/n0core/pkg/datastore"
 
 	"github.com/golang/protobuf/proto"
 )

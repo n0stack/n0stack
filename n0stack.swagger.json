@@ -227,564 +227,6 @@
         }
       }
     },
-    "/api/v0/image": {
-      "get": {
-        "tags": [
-          "ImageService"
-        ],
-        "operationId": "ListImages",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v0ListImagesResponse"
-            }
-          }
-        }
-      }
-    },
-    "/api/v0/image/{image_name}/registered_block_storage/{block_storage_name}": {
-      "post": {
-        "tags": [
-          "ImageService"
-        ],
-        "operationId": "RegisterBlockStorage",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "image_name",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "name": "block_storage_name",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v0RegisterBlockStorageRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v0Image"
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "ImageService"
-        ],
-        "operationId": "UnregisterBlockStorage",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "image_name",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "name": "block_storage_name",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v0Image"
-            }
-          }
-        }
-      }
-    },
-    "/api/v0/image/{name}": {
-      "get": {
-        "tags": [
-          "ImageService"
-        ],
-        "operationId": "GetImage",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "name",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v0Image"
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "ImageService"
-        ],
-        "operationId": "ApplyImage",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "name",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v0ApplyImageRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v0Image"
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "ImageService"
-        ],
-        "operationId": "DeleteImage",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "name",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {}
-          }
-        }
-      }
-    },
-    "/api/v0/image/{name}/tag/{tag}": {
-      "post": {
-        "tags": [
-          "ImageService"
-        ],
-        "operationId": "TagImage",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "name",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "name": "tag",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v0TagImageRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v0Image"
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "ImageService"
-        ],
-        "operationId": "UntagImage",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "name",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "name": "tag",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v0Image"
-            }
-          }
-        }
-      }
-    },
-    "/api/v0/network": {
-      "get": {
-        "tags": [
-          "NetworkService"
-        ],
-        "operationId": "ListNetworks",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v0ListNetworksResponse"
-            }
-          }
-        }
-      }
-    },
-    "/api/v0/network/{name}": {
-      "get": {
-        "tags": [
-          "NetworkService"
-        ],
-        "operationId": "GetNetwork",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "name",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v0Network"
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "NetworkService"
-        ],
-        "operationId": "ApplyNetwork",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "name",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v0ApplyNetworkRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v0Network"
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "NetworkService"
-        ],
-        "operationId": "DeleteNetwork",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "name",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {}
-          }
-        }
-      }
-    },
-    "/api/v0/node": {
-      "get": {
-        "tags": [
-          "NodeService"
-        ],
-        "operationId": "ListNodes",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v0ListNodesResponse"
-            }
-          }
-        }
-      }
-    },
-    "/api/v0/node/{name}": {
-      "get": {
-        "tags": [
-          "NodeService"
-        ],
-        "operationId": "GetNode",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "name",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v0Node"
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "NodeService"
-        ],
-        "operationId": "ApplyNode",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "name",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v0ApplyNodeRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v0Node"
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "NodeService"
-        ],
-        "operationId": "DeleteNode",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "name",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {}
-          }
-        }
-      }
-    },
-    "/api/v0/user": {
-      "get": {
-        "tags": [
-          "UserService"
-        ],
-        "operationId": "ListUsers",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v0ListUsersResponse"
-            }
-          }
-        }
-      }
-    },
-    "/api/v0/user/{name}": {
-      "get": {
-        "tags": [
-          "UserService"
-        ],
-        "operationId": "GetUser",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "name",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v0User"
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "UserService"
-        ],
-        "operationId": "CreateUser",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "name",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v0CreateUserRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v0User"
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "UserService"
-        ],
-        "operationId": "DeleteUser",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "name",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {}
-          }
-        }
-      }
-    },
-    "/api/v0/user/{user_name}/ssh_public_key/{ssh_public_key_name}": {
-      "post": {
-        "tags": [
-          "UserService"
-        ],
-        "operationId": "AddSshPublicKey",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "user_name",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "name": "ssh_public_key_name",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v0AddSshPublicKeyRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v0User"
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "UserService"
-        ],
-        "operationId": "DeleteSshPublicKey",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "user_name",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "name": "ssh_public_key_name",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v0User"
-            }
-          }
-        }
-      }
-    },
     "/api/v0/virtual_machine": {
       "get": {
         "tags": [
@@ -850,6 +292,7 @@
         "tags": [
           "VirtualMachineService"
         ],
+        "summary": "VM actions\n-\u003e RUNNING",
         "operationId": "BootVirtualMachine",
         "parameters": [
           {
@@ -898,6 +341,7 @@
         "tags": [
           "VirtualMachineService"
         ],
+        "summary": "RUNNING -\u003e RUNNING",
         "operationId": "RebootVirtualMachine",
         "parameters": [
           {
@@ -922,6 +366,7 @@
         "tags": [
           "VirtualMachineService"
         ],
+        "summary": "RUNNING -\u003e SHUTDOWN",
         "operationId": "ShutdownVirtualMachine",
         "parameters": [
           {
@@ -1008,6 +453,7 @@
         "tags": [
           "VirtualRouterService"
         ],
+        "summary": "rpc UpdateVirtualRouter(UpdateVirtualRouterRequest) returns (VirtualRouter) {}",
         "operationId": "DeleteVirtualRouter",
         "parameters": [
           {
@@ -1148,6 +594,363 @@
           }
         }
       }
+    },
+    "/api/v1alpha/project": {
+      "get": {
+        "tags": [
+          "ProjectService"
+        ],
+        "operationId": "ListProjects",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1alphaListProjectsResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1alpha/project/{name}": {
+      "get": {
+        "tags": [
+          "ProjectService"
+        ],
+        "summary": "memberじゃない場合 notfound",
+        "operationId": "GetProject",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1alphaProject"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "ProjectService"
+        ],
+        "operationId": "UpdateProject",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1alphaUpdateProjectRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1alphaProject"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "ProjectService"
+        ],
+        "operationId": "CreateProject",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1alphaCreateProjectRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1alphaProject"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "ProjectService"
+        ],
+        "operationId": "DeleteProject",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/api/v1alpha/project/{project_name}/membership/{user_name}": {
+      "post": {
+        "tags": [
+          "ProjectService"
+        ],
+        "operationId": "AddProjectMembership",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "project_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "user_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1alphaAddProjectMembershipRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1alphaProject"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "ProjectService"
+        ],
+        "operationId": "DeleteProjectMembership",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "project_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "user_name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1alphaProject"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1alpha/user/{name}": {
+      "get": {
+        "tags": [
+          "UserService"
+        ],
+        "operationId": "GetUser",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1alphaUser"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "UserService"
+        ],
+        "operationId": "UpdateUser",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1alphaUpdateUserRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1alphaUser"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "UserService"
+        ],
+        "operationId": "CreateUser",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1alphaCreateUserRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1alphaUser"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "UserService"
+        ],
+        "operationId": "DeleteUser",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/api/v1alpha/user/{user_name}/public_key/{public_key_name}": {
+      "post": {
+        "tags": [
+          "UserService"
+        ],
+        "operationId": "AddPublicKey",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "user_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "public_key_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1alphaAddPublicKeyRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1alphaUser"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "UserService"
+        ],
+        "operationId": "DeletePublicKey",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "user_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "public_key_name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1alphaUser"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -1164,37 +967,6 @@
         "DELETED"
       ]
     },
-    "ImageRegisteredBlockStorage": {
-      "type": "object",
-      "properties": {
-        "block_storage_name": {
-          "type": "string"
-        },
-        "registered_at": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
-    },
-    "NetworkNetworkState": {
-      "description": " - NETWORK_UNSPECIFIED: falied state because failed some process on API.\n - UNKNOWN: unknown state because failed to connect for scheduled node after RUNNING.",
-      "type": "string",
-      "default": "NETWORK_UNSPECIFIED",
-      "enum": [
-        "NETWORK_UNSPECIFIED",
-        "UNKNOWN",
-        "AVAILABLE"
-      ]
-    },
-    "NodeNodeState": {
-      "type": "string",
-      "default": "NODE_UNSPECIFIED",
-      "enum": [
-        "NODE_UNSPECIFIED",
-        "READY",
-        "NOT_READY"
-      ]
-    },
     "RunSSHExecutionRequestSSHExecutionVirtualMachineFilter": {
       "type": "object",
       "properties": {
@@ -1208,16 +980,6 @@
           "type": "string"
         }
       }
-    },
-    "UserUserState": {
-      "type": "string",
-      "title": "- PENDING: working API",
-      "default": "USER_UNSPECIFIED",
-      "enum": [
-        "USER_UNSPECIFIED",
-        "PENDING",
-        "AVAILABLE"
-      ]
     },
     "VirtualMachineVirtualMachineState": {
       "type": "string",
@@ -1269,6 +1031,22 @@
         "PENDING",
         "AVAILABLE"
       ]
+    },
+    "blockstorageCreateEmptyBlockStorageResponse": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        }
+      }
+    },
+    "blockstorageFetchBlockStorageResponse": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        }
+      }
     },
     "configurationGenerateSecretResponse": {
       "type": "object",
@@ -1363,123 +1141,124 @@
         }
       }
     },
-    "v0AddSshPublicKeyRequest": {
-      "type": "object",
-      "properties": {
-        "ssh_public_key": {
-          "type": "string"
-        },
-        "ssh_public_key_name": {
-          "type": "string"
-        },
-        "user_name": {
-          "type": "string"
-        }
-      }
-    },
-    "v0ApplyImageRequest": {
-      "type": "object",
-      "properties": {
-        "annotations": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "labels": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "name": {
-          "type": "string"
-        }
-      }
-    },
-    "v0ApplyNetworkRequest": {
-      "type": "object",
-      "properties": {
-        "annotations": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "domain": {
-          "type": "string"
-        },
-        "ipv4_cidr": {
-          "type": "string"
-        },
-        "ipv6_cidr": {
-          "type": "string"
-        },
-        "labels": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "name": {
-          "type": "string"
-        }
-      }
-    },
-    "v0ApplyNodeRequest": {
+    "mailAlias": {
       "type": "object",
       "properties": {
         "address": {
           "type": "string"
         },
-        "annotations": {
-          "type": "object",
-          "additionalProperties": {
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "mailListAliasesResponse": {
+      "type": "object",
+      "properties": {
+        "aliases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/mailAlias"
+          }
+        }
+      }
+    },
+    "mailListMailsResponse": {
+      "type": "object",
+      "properties": {
+        "threads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/mailThread"
+          }
+        }
+      }
+    },
+    "mailMail": {
+      "type": "object",
+      "properties": {
+        "blob": {
+          "type": "string",
+          "title": "messageを分けてしまってもいいかもしれない、その場合GetMailではblobを返す"
+        },
+        "cc": {
+          "type": "array",
+          "items": {
             "type": "string"
           }
         },
-        "availability_zone": {
+        "from": {
           "type": "string"
         },
-        "cell": {
+        "message_id": {
           "type": "string"
         },
-        "cpu_milli_cores": {
-          "type": "integer",
-          "format": "int64"
+        "received_time": {
+          "type": "string",
+          "format": "date-time"
         },
-        "datacenter": {
+        "subject": {
           "type": "string"
         },
-        "ipmi_address": {
-          "type": "string"
-        },
-        "labels": {
-          "type": "object",
-          "additionalProperties": {
+        "to": {
+          "type": "array",
+          "items": {
             "type": "string"
           }
+        }
+      }
+    },
+    "mailThread": {
+      "type": "object",
+      "properties": {
+        "mails": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/mailMail"
+          }
+        }
+      }
+    },
+    "protobufAny": {
+      "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := ptypes.MarshalAny(foo)\n     ...\n     foo := \u0026pb.Foo{}\n     if err := ptypes.UnmarshalAny(any, foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics.",
+          "type": "string"
         },
-        "memory_bytes": {
+        "value": {
+          "description": "Must be a valid serialized protocol buffer of the above specified type.",
           "type": "string",
-          "format": "uint64"
+          "format": "byte"
+        }
+      }
+    },
+    "runtimeStreamError": {
+      "type": "object",
+      "properties": {
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
         },
-        "name": {
-          "type": "string"
-        },
-        "rack": {
-          "type": "string"
-        },
-        "serial": {
-          "type": "string"
-        },
-        "storage_bytes": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "unit": {
+        "grpc_code": {
           "type": "integer",
-          "format": "int64"
+          "format": "int32"
+        },
+        "http_code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "http_status": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
         }
       }
     },
@@ -1552,33 +1331,6 @@
         },
         "storage_name": {
           "type": "string"
-        }
-      }
-    },
-    "v0Compute": {
-      "type": "object",
-      "properties": {
-        "annotations": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "limit_cpu_milli_core": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "limit_memory_bytes": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "request_cpu_milli_core": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "request_memory_bytes": {
-          "type": "string",
-          "format": "uint64"
         }
       }
     },
@@ -1661,26 +1413,6 @@
         "request_bytes": {
           "type": "string",
           "format": "uint64"
-        }
-      }
-    },
-    "v0CreateUserRequest": {
-      "type": "object",
-      "properties": {
-        "annotations": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "labels": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "name": {
-          "type": "string"
         }
       }
     },
@@ -1803,41 +1535,6 @@
         }
       }
     },
-    "v0Image": {
-      "type": "object",
-      "properties": {
-        "annotations": {
-          "description": "Annotations can store metadata used by the system for control.\nIn particular, implementation-dependent fields that can not be set as protobuf fields are targeted.\nThe control specified by n0stack may delete metadata specified by the user.",
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "labels": {
-          "description": "Labels stores user-defined metadata.\nThe n0stack system must not rewrite this value.",
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "name": {
-          "description": "Name is a unique field.",
-          "type": "string"
-        },
-        "registered_block_storages": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/ImageRegisteredBlockStorage"
-          }
-        },
-        "tags": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        }
-      }
-    },
     "v0ListBlockStoragesResponse": {
       "type": "object",
       "properties": {
@@ -1845,50 +1542,6 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/v0BlockStorage"
-          }
-        }
-      }
-    },
-    "v0ListImagesResponse": {
-      "type": "object",
-      "properties": {
-        "images": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v0Image"
-          }
-        }
-      }
-    },
-    "v0ListNetworksResponse": {
-      "type": "object",
-      "properties": {
-        "networks": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v0Network"
-          }
-        }
-      }
-    },
-    "v0ListNodesResponse": {
-      "type": "object",
-      "properties": {
-        "nodes": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v0Node"
-          }
-        }
-      }
-    },
-    "v0ListUsersResponse": {
-      "type": "object",
-      "properties": {
-        "users": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v0User"
           }
         }
       }
@@ -1915,231 +1568,11 @@
         }
       }
     },
-    "v0Network": {
-      "type": "object",
-      "properties": {
-        "annotations": {
-          "description": "Annotations can store metadata used by the system for control.\nIn particular, implementation-dependent fields that can not be set as protobuf fields are targeted.\nThe control specified by n0stack may delete metadata specified by the user.",
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "domain": {
-          "type": "string"
-        },
-        "ipv4_cidr": {
-          "type": "string"
-        },
-        "ipv6_cidr": {
-          "type": "string"
-        },
-        "labels": {
-          "description": "Labels stores user-defined metadata.\nThe n0stack system must not rewrite this value.",
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "name": {
-          "description": "Name is a unique field.",
-          "type": "string"
-        },
-        "reserved_network_interfaces": {
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/v0NetworkInterface"
-          }
-        },
-        "state": {
-          "$ref": "#/definitions/NetworkNetworkState"
-        }
-      }
-    },
-    "v0NetworkInterface": {
-      "type": "object",
-      "properties": {
-        "annotations": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "hardware_address": {
-          "type": "string"
-        },
-        "ipv4_address": {
-          "type": "string"
-        },
-        "ipv6_address": {
-          "type": "string"
-        }
-      }
-    },
-    "v0Node": {
-      "type": "object",
-      "properties": {
-        "address": {
-          "type": "string"
-        },
-        "annotations": {
-          "description": "Annotations can store metadata used by the system for control.\nIn particular, implementation-dependent fields that can not be set as protobuf fields are targeted.\nThe control specified by n0stack may delete metadata specified by the user.",
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "availability_zone": {
-          "type": "string"
-        },
-        "cell": {
-          "type": "string"
-        },
-        "cpu_milli_cores": {
-          "type": "integer",
-          "format": "int64",
-          "title": "budget pool"
-        },
-        "datacenter": {
-          "type": "string",
-          "title": "physical placement"
-        },
-        "ipmi_address": {
-          "type": "string"
-        },
-        "labels": {
-          "description": "Labels stores user-defined metadata.\nThe n0stack system must not rewrite this value.",
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "memory_bytes": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "name": {
-          "description": "Name is a unique field.",
-          "type": "string"
-        },
-        "rack": {
-          "type": "string"
-        },
-        "reserved_computes": {
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/v0Compute"
-          }
-        },
-        "reserved_storages": {
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/v0Storage"
-          }
-        },
-        "serial": {
-          "type": "string"
-        },
-        "state": {
-          "$ref": "#/definitions/NodeNodeState"
-        },
-        "storage_bytes": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "unit": {
-          "type": "integer",
-          "format": "int64"
-        }
-      }
-    },
     "v0OpenConsoleResponse": {
       "type": "object",
       "properties": {
         "console_url": {
           "type": "string"
-        }
-      }
-    },
-    "v0RegisterBlockStorageRequest": {
-      "type": "object",
-      "properties": {
-        "block_storage_name": {
-          "type": "string"
-        },
-        "image_name": {
-          "type": "string"
-        },
-        "tags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "v0Storage": {
-      "type": "object",
-      "properties": {
-        "annotations": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "limit_bytes": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "request_bytes": {
-          "type": "string",
-          "format": "uint64"
-        }
-      }
-    },
-    "v0TagImageRequest": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "registered_block_storage_name": {
-          "type": "string"
-        },
-        "tag": {
-          "type": "string"
-        }
-      }
-    },
-    "v0User": {
-      "type": "object",
-      "properties": {
-        "annotations": {
-          "description": "Annotations can store metadata used by the system for control.\nIn particular, implementation-dependent fields that can not be set as protobuf fields are targeted.\nThe control specified by n0stack may delete metadata specified by the user.",
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "labels": {
-          "description": "Labels stores user-defined metadata.\nThe n0stack system must not rewrite this value.",
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "name": {
-          "description": "Name is a unique field.",
-          "type": "string"
-        },
-        "ssh_public_keys": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "state": {
-          "$ref": "#/definitions/UserUserState"
         }
       }
     },
@@ -2290,6 +1723,339 @@
           }
         }
       }
+    },
+    "v1alphaAddProjectMembershipRequest": {
+      "type": "object",
+      "properties": {
+        "membership": {
+          "$ref": "#/definitions/v1alphaProjectMembership"
+        },
+        "project_name": {
+          "type": "string"
+        },
+        "user_name": {
+          "type": "string"
+        }
+      }
+    },
+    "v1alphaAddPublicKeyRequest": {
+      "type": "object",
+      "properties": {
+        "public_key": {
+          "type": "string"
+        },
+        "public_key_name": {
+          "type": "string"
+        },
+        "user_name": {
+          "type": "string"
+        }
+      }
+    },
+    "v1alphaCreateProjectRequest": {
+      "type": "object",
+      "properties": {
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "v1alphaCreateUserRequest": {
+      "type": "object",
+      "properties": {
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "v1alphaGetAuthenticationTokenPublicKeyResponse": {
+      "type": "object",
+      "properties": {
+        "public_key": {
+          "type": "string"
+        }
+      }
+    },
+    "v1alphaListProjectsResponse": {
+      "type": "object",
+      "properties": {
+        "projects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1alphaProject"
+          }
+        }
+      }
+    },
+    "v1alphaProject": {
+      "type": "object",
+      "properties": {
+        "annotations": {
+          "description": "Annotations can store metadata used by the system for control.\nIn particular, implementation-dependent fields that can not be set as protobuf fields are targeted.\nThe control specified by n0stack may delete metadata specified by the user.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "labels": {
+          "description": "Labels stores user-defined metadata.\nThe n0stack system must not rewrite this value.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "membership": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/v1alphaProjectMembership"
+          }
+        },
+        "name": {
+          "description": "Name is a unique field.",
+          "type": "string"
+        }
+      }
+    },
+    "v1alphaProjectMembership": {
+      "description": " - OWNER: Owners have all of permissions.\n - MEMBER: Members have only assined permissions by Roles.",
+      "type": "string",
+      "default": "PROJECT_MEMBERSHIP_UNSPECIFIED",
+      "enum": [
+        "PROJECT_MEMBERSHIP_UNSPECIFIED",
+        "OWNER",
+        "MEMBER"
+      ]
+    },
+    "v1alphaPublicKeyAuthenricateResponse": {
+      "type": "object",
+      "properties": {
+        "authentication_token": {
+          "$ref": "#/definitions/v1alphaPublicKeyAuthenricationResult"
+        },
+        "challenge": {
+          "$ref": "#/definitions/v1alphaPublicKeyAuthenricationChallenge"
+        }
+      }
+    },
+    "v1alphaPublicKeyAuthenricationChallenge": {
+      "type": "object",
+      "properties": {
+        "challenge": {
+          "type": "string"
+        }
+      }
+    },
+    "v1alphaPublicKeyAuthenricationChallengeToken": {
+      "type": "object",
+      "properties": {
+        "challenge_token": {
+          "type": "string"
+        }
+      }
+    },
+    "v1alphaPublicKeyAuthenricationResult": {
+      "type": "object",
+      "properties": {
+        "authentication_token": {
+          "type": "string"
+        }
+      }
+    },
+    "v1alphaPublicKeyAuthenricationStart": {
+      "type": "object",
+      "properties": {
+        "project": {
+          "type": "string"
+        },
+        "user_name": {
+          "type": "string"
+        }
+      }
+    },
+    "v1alphaUpdateProjectRequest": {
+      "type": "object",
+      "properties": {
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "v1alphaUpdateUserRequest": {
+      "type": "object",
+      "properties": {
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "v1alphaUser": {
+      "type": "object",
+      "properties": {
+        "annotations": {
+          "description": "Annotations can store metadata used by the system for control.\nIn particular, implementation-dependent fields that can not be set as protobuf fields are targeted.\nThe control specified by n0stack may delete metadata specified by the user.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "labels": {
+          "description": "Labels stores user-defined metadata.\nThe n0stack system must not rewrite this value.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "name": {
+          "description": "Name is a unique field.",
+          "type": "string"
+        },
+        "public_keys": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "virtual_machineBlockDev": {
+      "type": "object",
+      "properties": {
+        "boot_index": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    },
+    "virtual_machineBootVirtualMachineResponse": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "$ref": "#/definitions/virtual_machineVirtualMachineState"
+        },
+        "websocket_port": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "virtual_machineNetDev": {
+      "type": "object",
+      "properties": {
+        "hardware_address": {
+          "type": "string"
+        },
+        "ipv4_address_cidr": {
+          "type": "string"
+        },
+        "ipv4_gateway": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "nameservers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "network_name": {
+          "type": "string"
+        }
+      }
+    },
+    "virtual_machineRebootVirtualMachineResponse": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "$ref": "#/definitions/virtual_machineVirtualMachineState"
+        }
+      }
+    },
+    "virtual_machineShutdownVirtualMachineResponse": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "$ref": "#/definitions/virtual_machineVirtualMachineState"
+        }
+      }
+    },
+    "virtual_machineVirtualMachineState": {
+      "type": "string",
+      "default": "FAILED",
+      "enum": [
+        "FAILED",
+        "UNKNOWN",
+        "SHUTDOWN",
+        "RUNNING",
+        "PAUSED"
+      ]
     }
   }
 }

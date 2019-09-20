@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/n0stack/n0stack/n0core/pkg/datastore"
+	"n0st.ac/n0stack/n0core/pkg/datastore"
 )
 
 func TestMemoryDatastore(t *testing.T) {

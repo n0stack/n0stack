@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/n0stack/n0stack/n0core/pkg/api/provisioning/virtualmachine;virtualmachine";
+option go_package = "n0st.ac/n0stack/n0core/pkg/api/provisioning/virtualmachine;virtualmachine";
 
 package n0stack.internal.n0core.provisioning.virtual_machine;
 

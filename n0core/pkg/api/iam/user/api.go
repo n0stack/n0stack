@@ -8,10 +8,10 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	stdapi "github.com/n0stack/n0stack/n0core/pkg/api/standard_api"
-	"github.com/n0stack/n0stack/n0core/pkg/datastore"
-	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
-	piam "github.com/n0stack/n0stack/n0proto.go/iam/v1alpha"
+	stdapi "n0st.ac/n0stack/n0core/pkg/api/standard_api"
+	"n0st.ac/n0stack/n0core/pkg/datastore"
+	grpcutil "n0st.ac/n0stack/n0core/pkg/util/grpc"
+	piam "n0st.ac/n0stack/n0proto.go/iam/v1alpha"
 )
 
 type UserAPI struct {

@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/n0stack/n0stack/n0core/pkg/driver/n0deploy"
+	"n0st.ac/n0stack/n0core/pkg/driver/n0deploy"
 
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"

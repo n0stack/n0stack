@@ -5,9 +5,9 @@ package user
 import (
 	"context"
 
-	"github.com/n0stack/n0stack/n0core/pkg/datastore"
-	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
-	piam "github.com/n0stack/n0stack/n0proto.go/iam/v1alpha"
+	"n0st.ac/n0stack/n0core/pkg/datastore"
+	grpcutil "n0st.ac/n0stack/n0core/pkg/util/grpc"
+	piam "n0st.ac/n0stack/n0proto.go/iam/v1alpha"
 	"google.golang.org/grpc/codes"
 )
 

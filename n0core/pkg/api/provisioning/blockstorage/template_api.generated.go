@@ -6,10 +6,10 @@ import (
 	"context"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/n0stack/n0stack/n0core/pkg/datastore"
-	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
-	"github.com/n0stack/n0stack/n0proto.go/pkg/transaction"
-	pprovisioning "github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
+	"n0st.ac/n0stack/n0core/pkg/datastore"
+	grpcutil "n0st.ac/n0stack/n0core/pkg/util/grpc"
+	"n0st.ac/n0stack/n0proto.go/pkg/transaction"
+	pprovisioning "n0st.ac/n0stack/n0proto.go/provisioning/v0"
 	"google.golang.org/grpc/codes"
 )
 

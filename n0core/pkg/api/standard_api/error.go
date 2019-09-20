@@ -1,7 +1,7 @@
 package stdapi
 
 import (
-	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
+	grpcutil "n0st.ac/n0stack/n0core/pkg/util/grpc"
 	"google.golang.org/grpc/codes"
 )
 

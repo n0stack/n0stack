@@ -18,17 +18,17 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 
-	"github.com/n0stack/n0stack/n0core/pkg/api/pool/network"
-	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
-	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/blockstorage"
-	stdapi "github.com/n0stack/n0stack/n0core/pkg/api/standard_api"
-	"github.com/n0stack/n0stack/n0core/pkg/datastore"
-	"github.com/n0stack/n0stack/n0core/pkg/datastore/lock"
-	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
-	netutil "github.com/n0stack/n0stack/n0core/pkg/util/net"
-	"github.com/n0stack/n0stack/n0proto.go/pkg/transaction"
-	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
-	pprovisioning "github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
+	"n0st.ac/n0stack/n0core/pkg/api/pool/network"
+	"n0st.ac/n0stack/n0core/pkg/api/pool/node"
+	"n0st.ac/n0stack/n0core/pkg/api/provisioning/blockstorage"
+	stdapi "n0st.ac/n0stack/n0core/pkg/api/standard_api"
+	"n0st.ac/n0stack/n0core/pkg/datastore"
+	"n0st.ac/n0stack/n0core/pkg/datastore/lock"
+	grpcutil "n0st.ac/n0stack/n0core/pkg/util/grpc"
+	netutil "n0st.ac/n0stack/n0core/pkg/util/net"
+	"n0st.ac/n0stack/n0proto.go/pkg/transaction"
+	ppool "n0st.ac/n0stack/n0proto.go/pool/v0"
+	pprovisioning "n0st.ac/n0stack/n0proto.go/provisioning/v0"
 )
 
 var N0coreVirtualMachineNamespace uuid.UUID

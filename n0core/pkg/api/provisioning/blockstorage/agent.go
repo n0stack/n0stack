@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 
 	empty "github.com/golang/protobuf/ptypes/empty"
-	img "github.com/n0stack/n0stack/n0core/pkg/driver/qemu_img"
-	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
+	img "n0st.ac/n0stack/n0core/pkg/driver/qemu_img"
+	grpcutil "n0st.ac/n0stack/n0core/pkg/util/grpc"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 )

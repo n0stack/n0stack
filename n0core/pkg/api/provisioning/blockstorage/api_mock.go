@@ -6,9 +6,9 @@ import (
 
 	"code.cloudfoundry.org/bytefmt"
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
-	"github.com/n0stack/n0stack/n0core/pkg/datastore/memory"
-	pprovisioning "github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
+	"n0st.ac/n0stack/n0core/pkg/api/pool/node"
+	"n0st.ac/n0stack/n0core/pkg/datastore/memory"
+	pprovisioning "n0st.ac/n0stack/n0proto.go/provisioning/v0"
 	"google.golang.org/grpc"
 )
 

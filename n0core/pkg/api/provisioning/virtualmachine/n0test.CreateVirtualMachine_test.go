@@ -10,8 +10,8 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/jsonpb"
-	"github.com/n0stack/n0stack/n0core/pkg/datastore/memory"
-	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
+	"n0st.ac/n0stack/n0core/pkg/datastore/memory"
+	"n0st.ac/n0stack/n0proto.go/provisioning/v0"
 )
 
 func TestCreateVirtualMachineOnN0test(t *testing.T) {

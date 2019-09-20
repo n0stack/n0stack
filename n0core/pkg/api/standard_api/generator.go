@@ -1,6 +1,6 @@
 package stdapi
 
-import "github.com/n0stack/n0stack/n0core/pkg/util/generator"
+import "n0st.ac/n0stack/n0core/pkg/util/generator"
 
 // Arguments to format are:
 //	[1]: package
@@ -9,9 +9,9 @@ const ImportedTemplate = `import (
 	"context"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/n0stack/n0stack/n0core/pkg/datastore"
-	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
-	p%[1]s "github.com/n0stack/n0stack/n0proto.go/%[1]s/%[2]s"
+	"n0st.ac/n0stack/n0core/pkg/datastore"
+	grpcutil "n0st.ac/n0stack/n0core/pkg/util/grpc"
+	p%[1]s "n0st.ac/n0stack/n0proto.go/%[1]s/%[2]s"
 	"google.golang.org/grpc/codes"
 )`
 

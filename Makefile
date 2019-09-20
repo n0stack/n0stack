@@ -33,8 +33,8 @@ build-n0core-on-docker:
 	sudo chown -R $(USER) n0core
 	docker run -it --rm \
 		-v $(PWD)/.go-build:/root/.cache/go-build/ \
-		-v $(PWD):/go/src/github.com/n0stack/n0stack \
-		-w /go/src/github.com/n0stack/n0stack \
+		-v $(PWD):/go/src/n0st.ac/n0stack \
+		-w /go/src/n0st.ac/n0stack \
 		-e GO111MODULE=off \
 		n0stack/build-go \
 			make build-n0core
@@ -47,8 +47,8 @@ build-n0cli:
 build-n0cli-on-docker:
 	docker run -it --rm \
 		-v $(PWD)/.go-build:/root/.cache/go-build/ \
-		-v $(PWD):/go/src/github.com/n0stack/n0stack \
-		-w /go/src/github.com/n0stack/n0stack \
+		-v $(PWD):/go/src/n0st.ac/n0stack \
+		-w /go/src/n0st.ac/n0stack \
 		-e GO111MODULE=off \
 		n0stack/build-go \
 			make build-n0cli
@@ -61,8 +61,8 @@ build-n0bff:
 build-n0bff-on-docker:
 	docker run -it --rm \
 		-v $(PWD)/.go-build:/root/.cache/go-build/ \
-		-v $(PWD):/go/src/github.com/n0stack/n0stack \
-		-w /go/src/github.com/n0stack/n0stack \
+		-v $(PWD):/go/src/n0st.ac/n0stack \
+		-w /go/src/n0st.ac/n0stack \
 		-e GO111MODULE=off \
 		n0stack/build-go \
 			make build-n0bff
@@ -75,8 +75,8 @@ build-n0deploy:
 build-n0deploy-on-docker:
 	docker run -it --rm \
 		-v $(PWD)/.go-build:/root/.cache/go-build/ \
-		-v $(PWD):/go/src/github.com/n0stack/n0stack \
-		-w /go/src/github.com/n0stack/n0stack \
+		-v $(PWD):/go/src/n0st.ac/n0stack \
+		-w /go/src/n0st.ac/n0stack \
 		-e GO111MODULE=off \
 		n0stack/build-go \
 			make build-n0deploy
@@ -90,7 +90,7 @@ build-builder:
 .PHONY: build-n0proto-on-docker
 build-n0proto-on-docker:
 	docker run -it --rm \
-		-v $(PWD)/n0proto:/src:ro \
+		-v $(PWD):/src:ro \
 		-v `go env GOPATH`/src:/dst \
 		n0stack/build-grpc-go \
 			/entry_point.sh \
@@ -98,18 +98,18 @@ build-n0proto-on-docker:
 				--grpc-gateway_out=logtostderr=true:/dst
 	sudo chown -R $(USER) n0proto.go
 	docker run -it --rm \
-		-v $(PWD)/n0proto:/src:ro \
-		-v $(PWD)/n0proto.swagger.json:/dst \
+		-v $(PWD):/src:ro \
+		-v $(PWD):/dst \
 		n0stack/build-grpc-go \
 			/swagger.sh \
 			  /dst
-	sudo chown -R $(USER) n0proto.swagger.json
-	docker run -it --rm \
-		-v $(PWD)/n0proto:/src:ro \
-		-v $(PWD)/n0proto.py:/dst \
-		n0stack/build-grpc-py \
-			/entry_point.sh
-	sudo chown -R $(USER) n0proto.py
+	sudo chown $(USER) n0stack.swagger.json
+	# docker run -it --rm \
+	# 	-v $(PWD)/n0proto:/src:ro \
+	# 	-v $(PWD)/n0proto.py:/dst \
+	# 	n0stack/build-grpc-py \
+	# 		/entry_point.sh
+	# sudo chown -R $(USER) n0proto.py
 
 .PHONY: build-n0version
 build-n0version:
@@ -128,8 +128,8 @@ vendor:
 vendor-on-docker:
 	docker run -it --rm \
 		-v $(PWD)/.go-build:/root/.cache/go-build/ \
-		-v $(PWD):/go/src/github.com/n0stack/n0stack \
-		-w /go/src/github.com/n0stack/n0stack \
+		-v $(PWD):/go/src/n0st.ac/n0stack \
+		-w /go/src/n0st.ac/n0stack \
 		-e GO111MODULE=on \
 		n0stack/build-go \
 			make vendor
@@ -143,8 +143,8 @@ update-go:
 update-go-on-docker:
 	docker run -it --rm \
 		-v $(PWD)/.go-build:/root/.cache/go-build/ \
-		-v $(PWD):/go/src/github.com/n0stack/n0stack \
-		-w /go/src/github.com/n0stack/n0stack \
+		-v $(PWD):/go/src/n0st.ac/n0stack \
+		-w /go/src/n0st.ac/n0stack \
 		-e GO111MODULE=on \
 		n0stack/build-go \
 			make update-go
@@ -244,8 +244,8 @@ test-small: test-small-go
 test-small-on-docker:
 	docker run -it --rm \
 		-v $(PWD)/.go-build:/root/.cache/go-build/ \
-		-v $(PWD):/go/src/github.com/n0stack/n0stack \
-		-w /go/src/github.com/n0stack/n0stack \
+		-v $(PWD):/go/src/n0st.ac/n0stack \
+		-w /go/src/n0st.ac/n0stack \
 		-e GO111MODULE=off \
 		n0stack/build-go \
 			make test-small-go
@@ -256,7 +256,7 @@ test-small-n0proto: build-n0proto-on-docker
 	git diff --name-status --exit-code n0proto.swagger.json
 
 test-small-go:
-	go test -race -cover ./n0core/internal/...
+	# go test -race -cover ./n0core/internal/...
 	go test -race -cover ./...
 
 test-medium: up # with root, having dependency for external
