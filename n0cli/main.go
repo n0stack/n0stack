@@ -11,12 +11,12 @@ import (
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
 
-	pdeployment "github.com/n0stack/n0stack/n0proto.go/deployment/v0"
-	piam "github.com/n0stack/n0stack/n0proto.go/iam/v1alpha"
-	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
-	pprovisioning "github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
+	pdeployment "n0st.ac/n0stack/n0proto.go/deployment/v0"
+	piam "n0st.ac/n0stack/n0proto.go/iam/v1alpha"
+	ppool "n0st.ac/n0stack/n0proto.go/pool/v0"
+	pprovisioning "n0st.ac/n0stack/n0proto.go/provisioning/v0"
 
-	grpccmd "github.com/n0stack/n0stack/n0cli/grpc_cmd"
+	grpccmd "n0st.ac/n0stack/n0cli/grpc_cmd"
 )
 
 var version = "undefined"

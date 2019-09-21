@@ -6,7 +6,7 @@ import (
 
 	"github.com/urfave/cli"
 
-	pprovisioning "github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
+	pprovisioning "n0st.ac/n0stack/n0proto.go/provisioning/v0"
 )
 
 func OpenConsoleOfVirtualMachine(c *cli.Context) error {

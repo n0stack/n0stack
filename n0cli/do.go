@@ -8,7 +8,7 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/n0stack/n0stack/n0proto.go/pkg/dag"
+	"n0st.ac/n0stack/n0proto.go/pkg/dag"
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
 	yaml "gopkg.in/yaml.v2"
