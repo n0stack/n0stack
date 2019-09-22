@@ -1,4 +1,6 @@
-# n0bff
+# n0core
+
+## n0bff
 
 BFF(Backends for Frontend) of n0stack API. This provide features: API gateway, authentication, authorization and so on.
 

@@ -10,9 +10,11 @@ import (
 	"strings"
 	"syscall"
 
+	pauth "n0st.ac/n0stack/auth/v1alpha"
+	piam "n0st.ac/n0stack/iam/v1alpha"
+	authn "n0st.ac/n0stack/n0core/pkg/api/auth/authentication"
 	user "n0st.ac/n0stack/n0core/pkg/api/iam/user"
 	"n0st.ac/n0stack/n0core/pkg/datastore/etcd"
-	piam "n0st.ac/n0stack/n0proto.go/iam/v1alpha"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
@@ -51,12 +53,16 @@ func ServeAPI(cctx *cli.Context) error {
 	defer ds.Close()
 
 	userapi := user.CreateUserAPI(ds)
+	userClient := piam.NewUserServiceClient(conn)
+
+	secret := cctx.String("token-secret")
+	authapi := authn.CreateAuthenticationAPI(userClient, []byte(secret))
 
 	grpcServer := grpc.NewServer(
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			grpc_recovery.StreamServerInterceptor(grpc_recovery.WithRecoveryHandler(OutputRecoveryLog)),
-			// grpc_auth.StreamServerInterceptor(auth),
-			// grpc_prometheus.StreamServerInterceptor,
+		// grpc_auth.StreamServerInterceptor(auth),
+		// grpc_prometheus.StreamServerInterceptor,
 		)),
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			grpc_recovery.UnaryServerInterceptor(grpc_recovery.WithRecoveryHandler(OutputRecoveryLog)),
@@ -65,6 +71,7 @@ func ServeAPI(cctx *cli.Context) error {
 		)),
 	)
 	piam.RegisterUserServiceServer(grpcServer, userapi)
+	pauth.RegisterAuthenticationServiceServer(grpcServer, authapi)
 	reflection.Register(grpcServer)
 
 	go func() {

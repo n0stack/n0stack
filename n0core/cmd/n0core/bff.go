@@ -2,10 +2,8 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/url"
-	"os"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -17,46 +15,6 @@ import (
 	pauth "n0st.ac/n0stack/auth/v1alpha"
 	piam "n0st.ac/n0stack/iam/v1alpha"
 )
-
-var version = "undefined"
-
-func main() {
-	app := cli.NewApp()
-	app.Name = "n0core"
-	app.Version = version
-	app.Usage = "The n0stack cluster manager"
-	app.EnableBashCompletion = true
-
-	app.Commands = []cli.Command{
-		{
-			Name:  "serve",
-			Usage: "Serve daemons",
-			Subcommands: []cli.Command{
-				{
-					Name:   "bff",
-					Usage:  "Daemon which provide bff for n0stack API",
-					Action: ServeBFF,
-					Flags: []cli.Flag{
-						cli.StringFlag{
-							Name: "api-url",
-						},
-						cli.StringFlag{
-							Name:  "listen-address",
-							Value: "0.0.0.0:8080",
-						},
-					},
-				},
-			},
-		},
-	}
-
-	log.SetFlags(log.Llongfile | log.Ltime | log.Lmicroseconds)
-
-	if err := app.Run(os.Args); err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to start process, err:%s\n", err.Error())
-		os.Exit(1)
-	}
-}
 
 func ServeBFF(c *cli.Context) error {
 	ctx := context.Background()

@@ -41,7 +41,7 @@ services:
   bff:
     image: n0stack/n0stack
     command:
-      - /n0stack/n0bff
+      - /n0stack/n0core
       - serve
       - bff
       - --api-url=http://api:20180

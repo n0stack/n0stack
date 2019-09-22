@@ -39,6 +39,23 @@ func main() {
 						cli.StringFlag{
 							Name: "etcd-endpoints",
 						},
+						cli.StringFlag{
+							Name: "token-secret",
+						},
+					},
+				},
+				{
+					Name:   "bff",
+					Usage:  "Daemon which provide bff for n0stack API",
+					Action: ServeBFF,
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name: "api-url",
+						},
+						cli.StringFlag{
+							Name:  "listen-address",
+							Value: "0.0.0.0:8080",
+						},
 					},
 				},
 				// {

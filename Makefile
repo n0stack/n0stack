@@ -6,7 +6,7 @@ VERSION=$(shell cat VERSION)
 
 # --- Deployment ---
 .PHONY: up
-up: build-n0core-on-docker build-n0bff-on-docker
+up: build-proto-on-docker build-n0core-on-docker
 	mkdir -p sandbox
 	docker-compose up -d
 	docker-compose restart api # reload binary
@@ -14,7 +14,7 @@ up: build-n0core-on-docker build-n0bff-on-docker
 
 # --- Build ---
 .PHONY: all
-all: build-builder vendor-on-docker build-n0core-on-docker build-n0bff-on-docker build-n0cli-on-docker
+all: build-builder vendor-on-docker build-n0core-on-docker build-n0cli-on-docker
 
 .PHONY: build-go
 build-go: build-n0core build-n0cli
@@ -25,12 +25,6 @@ build-n0core:
 
 .PHONY: build-n0core-on-docker
 build-n0core-on-docker:
-	docker run -it --rm \
-		-v $(PWD)/n0core:/src:ro \
-		-v `go env GOPATH`/src:/dst \
-		n0stack/build-grpc-go \
-			/entry_point.sh --go_out=plugins=grpc:/dst
-	sudo chown -R $(USER) n0core
 	docker run -it --rm \
 		-v $(PWD)/.go-build:/root/.cache/go-build/ \
 		-v $(PWD):/go/src/n0st.ac/n0stack \
@@ -53,20 +47,6 @@ build-n0cli-on-docker:
 		n0stack/build-go \
 			make build-n0cli
 
-.PHONY: build-n0bff
-build-n0bff:
-	GOOS=${GOOS} GOARCH=${GOARCH} go build -o bin/n0bff -ldflags "-X main.version=$(VERSION)" -v ./n0core/cmd/n0bff
-
-.PHONY: build-n0bff-on-docker
-build-n0bff-on-docker:
-	docker run -it --rm \
-		-v $(PWD)/.go-build:/root/.cache/go-build/ \
-		-v $(PWD):/go/src/n0st.ac/n0stack \
-		-w /go/src/n0st.ac/n0stack \
-		-e GO111MODULE=off \
-		n0stack/build-go \
-			make build-n0bff
-
 .PHONY: build-n0deploy
 build-n0deploy:
 	GOOS=${GOOS} GOARCH=${GOARCH} go build -o bin/n0deploy -ldflags "-X main.version=$(VERSION)" -v ./n0core/cmd/n0deploy
@@ -87,8 +67,8 @@ build-builder:
 	docker build -t n0stack/build-grpc-py build/grpc/python
 	docker build -t n0stack/build-go build/go
 
-.PHONY: build-n0proto-on-docker
-build-n0proto-on-docker:
+.PHONY: build-proto-on-docker
+build-proto-on-docker:
 	docker run -it --rm \
 		-v $(PWD):/src:ro \
 		-v `go env GOPATH`/src:/dst \
