@@ -136,7 +136,7 @@ func RegisterAuthenticationServiceHandlerClient(ctx context.Context, mux *runtim
 }
 
 var (
-	pattern_AuthenticationService_GetAuthenticationTokenPublicKey_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1alpha", "authn", "public_key"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_AuthenticationService_GetAuthenticationTokenPublicKey_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"api", "auth", "v1alpha", "authn", "public_key"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (

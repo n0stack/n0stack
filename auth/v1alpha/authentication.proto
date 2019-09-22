@@ -12,7 +12,7 @@ import "protoc-gen-swagger/options/annotations.proto";
 service AuthenticationService {
   rpc GetAuthenticationTokenPublicKey(GetAuthenticationTokenPublicKeyRequest) returns (GetAuthenticationTokenPublicKeyResponse) {
     option (google.api.http) = {
-      get: "/api/v1alpha/authn/public_key"
+      get: "/api/auth/v1alpha/authn/public_key"
     };
   }
 

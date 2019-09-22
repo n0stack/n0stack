@@ -120,6 +120,8 @@ make up
         2. [Deploy agent](n0core/README.md) to booted VM
 3. Develop features and restart containers or a agent
 
+Swagger is enable on https://localhost/api/
+
 ## License
 
 [![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)](https://opensource.org/licenses/BSD-2-Clause)

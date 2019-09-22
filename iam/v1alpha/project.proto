@@ -55,47 +55,47 @@ message Project {
 service ProjectService {
   rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse) {
     option (google.api.http) = {
-      get: "/api/v1alpha/project"
+      get: "/api/iam/v1alpha/projects"
     };
   }
 
   // memberじゃない場合 notfound
   rpc GetProject(GetProjectRequest) returns (Project) {
     option (google.api.http) = {
-      get: "/api/v1alpha/project/{name}"
+      get: "/api/iam/v1alpha/projects/{name}"
     };
   }
 
   rpc CreateProject(CreateProjectRequest) returns (Project) {
     option (google.api.http) = {
-      post: "/api/v1alpha/project/{name}"
+      post: "/api/iam/v1alpha/projects/{name}"
       body: "*"
     };
   }
 
   rpc UpdateProject(UpdateProjectRequest) returns (Project) {
     option (google.api.http) = {
-      put: "/api/v1alpha/project/{name}"
+      put: "/api/iam/v1alpha/projects/{name}"
       body: "*"
     };
   }
 
   rpc DeleteProject(DeleteProjectRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      delete: "/api/v1alpha/project/{name}"
+      delete: "/api/iam/v1alpha/projects/{name}"
     };
   }
 
   rpc AddProjectMembership(AddProjectMembershipRequest) returns (Project) {
     option (google.api.http) = {
-      post: "/api/v1alpha/project/{project_name}/membership/{user_name}"
+      post: "/api/iam/v1alpha/projects/{project_name}/membership/{user_name}"
       body: "*"
     };
   }
 
   rpc DeleteProjectMembership(DeleteProjectMembershipRequest) returns (Project) {
     option (google.api.http) = {
-      delete: "/api/v1alpha/project/{project_name}/membership/{user_name}"
+      delete: "/api/iam/v1alpha/projects/{project_name}/membership/{user_name}"
     };
   }
 }

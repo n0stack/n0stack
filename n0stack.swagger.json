@@ -19,7 +19,7 @@
     "version": "version not set"
   },
   "paths": {
-    "/api/v1alpha/authn/public_key": {
+    "/api/auth/v1alpha/authn/public_key": {
       "get": {
         "tags": [
           "AuthenticationService"
@@ -35,7 +35,7 @@
         }
       }
     },
-    "/api/v1alpha/project": {
+    "/api/iam/v1alpha/projects": {
       "get": {
         "tags": [
           "ProjectService"
@@ -51,7 +51,7 @@
         }
       }
     },
-    "/api/v1alpha/project/{name}": {
+    "/api/iam/v1alpha/projects/{name}": {
       "get": {
         "tags": [
           "ProjectService"
@@ -156,7 +156,7 @@
         }
       }
     },
-    "/api/v1alpha/project/{project_name}/membership/{user_name}": {
+    "/api/iam/v1alpha/projects/{project_name}/membership/{user_name}": {
       "post": {
         "tags": [
           "ProjectService"
@@ -222,7 +222,7 @@
         }
       }
     },
-    "/api/v1alpha/user/{name}": {
+    "/api/iam/v1alpha/users/{name}": {
       "get": {
         "tags": [
           "UserService"
@@ -266,7 +266,7 @@
         }
       }
     },
-    "/api/v1alpha/user/{user.name}": {
+    "/api/iam/v1alpha/users/{user.name}": {
       "post": {
         "tags": [
           "UserService"
@@ -356,22 +356,6 @@
       "type": "object",
       "properties": {
         "authentication_token": {
-          "type": "string"
-        }
-      }
-    },
-    "blockstorageCreateEmptyBlockStorageResponse": {
-      "type": "object",
-      "properties": {
-        "path": {
-          "type": "string"
-        }
-      }
-    },
-    "blockstorageFetchBlockStorageResponse": {
-      "type": "object",
-      "properties": {
-        "path": {
           "type": "string"
         }
       }
@@ -595,86 +579,6 @@
           }
         }
       }
-    },
-    "virtual_machineBlockDev": {
-      "type": "object",
-      "properties": {
-        "boot_index": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "name": {
-          "type": "string"
-        },
-        "url": {
-          "type": "string"
-        }
-      }
-    },
-    "virtual_machineBootVirtualMachineResponse": {
-      "type": "object",
-      "properties": {
-        "state": {
-          "$ref": "#/definitions/virtual_machineVirtualMachineState"
-        },
-        "websocket_port": {
-          "type": "integer",
-          "format": "int64"
-        }
-      }
-    },
-    "virtual_machineNetDev": {
-      "type": "object",
-      "properties": {
-        "hardware_address": {
-          "type": "string"
-        },
-        "ipv4_address_cidr": {
-          "type": "string"
-        },
-        "ipv4_gateway": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "nameservers": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "network_name": {
-          "type": "string"
-        }
-      }
-    },
-    "virtual_machineRebootVirtualMachineResponse": {
-      "type": "object",
-      "properties": {
-        "state": {
-          "$ref": "#/definitions/virtual_machineVirtualMachineState"
-        }
-      }
-    },
-    "virtual_machineShutdownVirtualMachineResponse": {
-      "type": "object",
-      "properties": {
-        "state": {
-          "$ref": "#/definitions/virtual_machineVirtualMachineState"
-        }
-      }
-    },
-    "virtual_machineVirtualMachineState": {
-      "type": "string",
-      "default": "FAILED",
-      "enum": [
-        "FAILED",
-        "UNKNOWN",
-        "SHUTDOWN",
-        "RUNNING",
-        "PAUSED"
-      ]
     }
   }
 }

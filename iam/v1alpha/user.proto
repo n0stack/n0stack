@@ -46,27 +46,27 @@ message User {
 service UserService {
   rpc GetUser(GetUserRequest) returns (User) {
     option (google.api.http) = {
-      get: "/api/v1alpha/user/{name}"
+      get: "/api/iam/v1alpha/users/{name}"
     };
   }
 
   rpc CreateUser(CreateUserRequest) returns (User) {
     option (google.api.http) = {
-      post: "/api/v1alpha/user/{user.name}"
+      post: "/api/iam/v1alpha/users/{user.name}"
       body: "user"
     };
   }
 
   rpc UpdateUser(UpdateUserRequest) returns (User) {
     option (google.api.http) = {
-      patch: "/api/v1alpha/user/{user.name}"
+      patch: "/api/iam/v1alpha/users/{user.name}"
       body: "user"
     };
   }
 
   rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      delete: "/api/v1alpha/user/{name}"
+      delete: "/api/iam/v1alpha/users/{name}"
     };
   }
 }
