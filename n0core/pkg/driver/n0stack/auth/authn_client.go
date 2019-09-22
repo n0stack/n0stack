@@ -2,6 +2,8 @@ package auth
 
 import (
 	"context"
+	"log"
+	"time"
 
 	"google.golang.org/grpc"
 
@@ -13,47 +15,80 @@ import (
 
 type AuthenticationClient struct {
 	privateKey *jwtutil.PrivateKey
-	audience   string
+	user       string
 
+	audience string
 	authnAPI pauth.AuthenticationServiceClient
+
+	token string
 }
 
-func NewAuthenticationClient(conn *grpc.ClientConn, privateKey *jwtutil.PrivateKey) *AuthenticationClient {
+func NewAuthenticationClient(ctx context.Context, conn *grpc.ClientConn, user string, privateKey *jwtutil.PrivateKey) (*AuthenticationClient, error) {
 	authnAPI := pauth.NewAuthenticationServiceClient(conn)
-	return &AuthenticationClient{
+	c := &AuthenticationClient{
 		privateKey: privateKey,
-		authnAPI:   authnAPI,
-		audience:   conn.Target(),
+		user:       user,
+
+		authnAPI: authnAPI,
+		audience: conn.Target(),
+	}
+
+	err := c.renewAuthenticationToken(ctx)
+	if err != nil {
+		log.Printf("[CRITICAL] failed to renew an authentication token, err=%+v", err)
+		return nil, errors.Wrap(err, "renewAuthenticationToken() is failed")
+	}
+
+	go c.loop(ctx)
+
+	return c, nil
+}
+
+func (c *AuthenticationClient) loop(ctx context.Context) {
+	reqToken := context.Background()
+	reqToken, cancel := context.WithCancel(reqToken)
+
+	for {
+		select {
+		case <-time.After(20 * time.Minute):
+			err := c.renewAuthenticationToken(reqToken)
+			if err != nil {
+				log.Printf("[CRITICAL] failed to renew an authentication token, err=%+v", err)
+			}
+
+		case <-ctx.Done():
+			cancel()
+		}
 	}
 }
 
-func (c AuthenticationClient) GetAuthenticationToken(ctx context.Context, user string) (string, error) {
+func (c *AuthenticationClient) renewAuthenticationToken(ctx context.Context) error {
 	stream, err := c.authnAPI.PublicKeyAuthenricate(ctx)
 	if err != nil {
-		return "", errors.Wrapf(err, "")
+		return errors.Wrapf(err, "")
 	}
 
 	err = stream.Send(&pauth.PublicKeyAuthenricateRequest{
 		Message: &pauth.PublicKeyAuthenricateRequest_Start_{
 			Start: &pauth.PublicKeyAuthenricateRequest_Start{
-				UserName:  user,
+				UserName:  c.user,
 				PublicKey: string(c.privateKey.PublicKey().MarshalAuthorizedKey()),
 			},
 		},
 	})
 	if err != nil {
-		return "", errors.Wrapf(err, "")
+		return errors.Wrapf(err, "")
 	}
 
 	res, err := stream.Recv()
 	if err != nil {
-		return "", errors.Wrapf(err, "")
+		return errors.Wrapf(err, "")
 	}
 	challenge := res.GetChallenge()
 
-	challengeToken, err := c.privateKey.GenerateChallengeToken(user, c.audience, challenge.Challenge)
+	challengeToken, err := c.privateKey.GenerateChallengeToken(c.user, c.audience, challenge.Challenge)
 	if err != nil {
-		return "", errors.Wrap(err, "")
+		return errors.Wrap(err, "")
 	}
 
 	err = stream.Send(&pauth.PublicKeyAuthenricateRequest{
@@ -64,14 +99,25 @@ func (c AuthenticationClient) GetAuthenticationToken(ctx context.Context, user s
 		},
 	})
 	if err != nil {
-		return "", errors.Wrapf(err, "")
+		return errors.Wrapf(err, "")
 	}
 
 	res, err = stream.Recv()
 	if err != nil {
-		return "", errors.Wrapf(err, "")
+		return errors.Wrapf(err, "")
 	}
 	result := res.GetResult()
+	c.token = result.AuthenticationToken
 
-	return result.AuthenticationToken, nil
+	return nil
+}
+
+func (c AuthenticationClient) GetRequestMetadata(context.Context, ...string) (map[string]string, error) {
+	return map[string]string{
+		"authentication": c.token,
+	}, nil
+}
+
+func (c AuthenticationClient) RequireTransportSecurity() bool {
+	return true
 }

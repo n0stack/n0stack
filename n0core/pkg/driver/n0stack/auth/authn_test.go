@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 	pauth "n0st.ac/n0stack/auth/v1alpha"
 	piam "n0st.ac/n0stack/iam/v1alpha"
 	authn "n0st.ac/n0stack/n0core/pkg/api/auth/authentication"
@@ -35,7 +36,7 @@ func TestGetAuthnToken(t *testing.T) {
 		},
 	})
 	if err != nil {
-		t.Errorf("CreateUser returns err=%+v", err)
+		t.Errorf("CreateUser() returns err=%+v", err)
 	}
 
 	conn, close := grpcutil.PrepareMockedGRPC(t, func(grpcServer *grpc.Server) {
@@ -46,9 +47,28 @@ func TestGetAuthnToken(t *testing.T) {
 	})
 	defer close()
 
-	a := NewAuthenticationClient(conn, privateKey)
-	_, err = a.GetAuthenticationToken(context.Background(), "test-user")
+	a, err := NewAuthenticationClient(context.Background(), conn, "test-user", privateKey)
 	if err != nil {
-		t.Errorf("GetAuthenticationToken() returns err=%+v", err)
+		t.Errorf("NewAuthenticationClient() returns err=%+v", err)
+	}
+	if a.token == "" {
+		t.Errorf("got token is blank")
+	}
+
+	sp, err := NewAuthenticationServiceProvider(context.Background(), conn, conn.Target())
+	if err != nil {
+		t.Errorf("NewAuthenticationServiceProvider() returns err=%+v", err)
+	}
+
+	ctx := context.Background()
+	ctx = metadata.NewIncomingContext(ctx, metadata.New(map[string]string{
+		"authentication": a.token,
+	}))
+	user, err := sp.GetConnectingAccountName(ctx)
+	if err != nil {
+		t.Errorf("GetConnectingAccountName(%+v) returns err=%+v", ctx, err)
+	}
+	if user != "test-user" {
+		t.Errorf("GetConnectingAccountName(%+v) returns wrong user: got=%s, want=%s", ctx, user, "test-user")
 	}
 }
