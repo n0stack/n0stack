@@ -18,8 +18,8 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
     }
   }
   
-  schemes: HTTP;
   schemes: HTTPS;
+  schemes: HTTP;
   consumes: "application/json";
   produces: "application/json";
 };
