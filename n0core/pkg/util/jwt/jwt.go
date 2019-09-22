@@ -1,4 +1,4 @@
-package jwt
+package jwtutil
 
 import (
 	"crypto"
@@ -24,6 +24,7 @@ import (
 const AuthenticationTokenExpireMinutes = 30
 const ChallengeTokenExpireMinutes = 3
 const ChallengeTokenIssuer = "n0stack Challenge Response Authentication"
+const AuthenticationTokenIssuer = "n0stack Authentication Service"
 
 type PrivateKey struct {
 	privateKey interface{}
@@ -65,26 +66,24 @@ func ParsePrivateKeyFromFile(filename string) (*PrivateKey, error) {
 	return ParsePrivateKey(in)
 }
 
-func (p PrivateKey) PublicKey() (*PublicKey, error) {
+func (p PrivateKey) PublicKey() *PublicKey {
 	type genpubkey interface {
 		Public() crypto.PublicKey
 	}
 
-	genpub, ok := p.privateKey.(genpubkey)
-	if !ok {
-		return nil, errors.Errorf("unexpected private key")
-	}
+	genpub := p.privateKey.(genpubkey)
+	pubkey, _ := NewPublicKey(genpub.Public())
 
-	pubkey := genpub.Public()
-	return NewPublicKey(pubkey)
+	return pubkey
 }
 
-func (p PrivateKey) GenerateChallengeToken(username string, cookie []byte) (string, error) {
+func (p PrivateKey) GenerateChallengeToken(username string, audience string, cookie []byte) (string, error) {
 	claims := jwt.StandardClaims{
+		Issuer:    ChallengeTokenIssuer,
 		Subject:   username,
+		Audience:  audience,
 		IssuedAt:  time.Now().Unix(),
 		ExpiresAt: time.Now().Add(AuthenticationTokenExpireMinutes * time.Minute).Unix(),
-		Issuer:    ChallengeTokenIssuer,
 		Id:        hex.EncodeToString(cookie[:]),
 	}
 	token := jwt.NewWithClaims(p.method, claims)
@@ -93,12 +92,13 @@ func (p PrivateKey) GenerateChallengeToken(username string, cookie []byte) (stri
 	return t, err
 }
 
-func (p PrivateKey) GenerateAuthenticationToken(username string, issuer string) (string, error) {
+func (p PrivateKey) GenerateAuthenticationToken(username string, audience string) (string, error) {
 	claims := jwt.StandardClaims{
+		Issuer:    AuthenticationTokenIssuer,
 		Subject:   username,
+		Audience:  audience,
 		IssuedAt:  time.Now().Unix(),
 		ExpiresAt: time.Now().Add(AuthenticationTokenExpireMinutes * time.Minute).Unix(),
-		Issuer:    issuer,
 	}
 	token := jwt.NewWithClaims(p.method, claims)
 	t, err := token.SignedString(p.privateKey)
@@ -168,7 +168,7 @@ func ParsePublicKeyFromFile(filename string) (*PublicKey, error) {
 	return ParsePublicKey(in)
 }
 
-func (p PublicKey) VerifyChallengeToken(token string, username string, cookie []byte) error {
+func (p PublicKey) VerifyChallengeToken(token string, username string, audience string, cookie []byte) error {
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if token.Method.Alg() != p.method.Alg() {
 			return nil, errors.Errorf("unexpected JWT algorithm: got=%s, want=%s", token.Method.Alg(), p.method.Alg())
@@ -188,6 +188,9 @@ func (p PublicKey) VerifyChallengeToken(token string, username string, cookie []
 		if sub := claims["sub"].(string); sub != username {
 			return nil, errors.Errorf("failed issuer verification: got=%s, want=%s", sub, username)
 		}
+		if aud := claims["aud"].(string); aud != audience {
+			return nil, errors.Errorf("failed audience verification: got=%s, want=%s", aud, audience)
+		}
 
 		return p.publicKey, nil
 	})
@@ -202,15 +205,19 @@ func (p PublicKey) VerifyChallengeToken(token string, username string, cookie []
 	return nil
 }
 
-func (p PublicKey) VerifyAuthenticationToken(token string, issuer string) (string, error) {
+func (p PublicKey) VerifyAuthenticationToken(token string, audience string) (string, error) {
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if token.Method.Alg() != p.method.Alg() {
 			return nil, errors.Errorf("unexpected JWT algorithm: got=%s, want=%s", token.Method.Alg(), p.method.Alg())
 		}
 
 		claims := token.Claims.(jwt.MapClaims)
-		if iss := claims["iss"].(string); iss != issuer {
-			return nil, errors.Errorf("failed issuer verification: got=%s, want=%s", iss, issuer)
+		if iss := claims["iss"].(string); iss != AuthenticationTokenIssuer {
+			return nil, errors.Errorf("failed issuer verification: got=%s, want=%s", iss, AuthenticationTokenIssuer)
+		}
+
+		if aud := claims["aud"].(string); aud != audience {
+			return nil, errors.Errorf("failed audience verification: got=%s, want=%s", aud, audience)
 		}
 
 		return p.publicKey, nil
@@ -227,6 +234,19 @@ func (p PublicKey) VerifyAuthenticationToken(token string, issuer string) (strin
 	return claims["sub"].(string), nil
 }
 
+func (p PublicKey) CryptoPublicKey() crypto.PublicKey {
+	return p.publicKey
+}
+
+func (p PublicKey) SSHPublicKey() ssh.PublicKey {
+	k, _ := ssh.NewPublicKey(p.publicKey)
+	return k
+}
+
+func (p PublicKey) MarshalAuthorizedKey() []byte {
+	return ssh.MarshalAuthorizedKey(p.SSHPublicKey())
+}
+
 type KeyGenerator struct {
 	secret []byte
 }
@@ -237,7 +257,7 @@ func NewKeyGenerator(secret []byte) *KeyGenerator {
 	}
 }
 
-func (k KeyGenerator) Generate(issuer string) (*PrivateKey, *PublicKey, error) {
+func (k KeyGenerator) Generate(issuer string) (*PrivateKey, error) {
 	// Underlying hash function for HMAC.
 	hash := sha256.New
 
@@ -260,17 +280,13 @@ func (k KeyGenerator) Generate(issuer string) (*PrivateKey, *PublicKey, error) {
 
 	key, err := ecdsa.GenerateKey(elliptic.P256(), kdf)
 	if err != nil {
-		return nil, nil, errors.Wrapf(err, "ecdsa.GenerateKey() returns")
+		return nil, errors.Wrapf(err, "ecdsa.GenerateKey() returns")
 	}
 
 	privkey, err := NewPrivateKey(key)
 	if err != nil {
-		return nil, nil, errors.Wrapf(err, "NewPrivateKey() returns")
-	}
-	pubkey, err := privkey.PublicKey()
-	if err != nil {
-		return nil, nil, errors.Wrapf(err, "PublicKey() returns")
+		return nil, errors.Wrapf(err, "NewPrivateKey() returns")
 	}
 
-	return privkey, pubkey, nil
+	return privkey, nil
 }

@@ -1,4 +1,4 @@
-package jwt
+package jwtutil
 
 import (
 	"crypto/rand"
@@ -25,9 +25,13 @@ func TestJWTWithSSHRSA(t *testing.T) {
 
 func TestGenerator(t *testing.T) {
 	kg := NewKeyGenerator([]byte("foo"))
-	key, pubkey, err := kg.Generate("bar")
+	key, err := kg.Generate("bar")
 	if err != nil {
 		t.Fatalf("Generate(%s) returns err=%+v", "bar", err)
+	}
+	pubkey, err := key.PublicKey()
+	if err != nil {
+		t.Fatalf("PublicKey() returns err=%+v", err)
 	}
 
 	testAuthentication(t, key, pubkey)
@@ -49,13 +53,13 @@ func parseFile(t *testing.T, keyFile, pubkeyFile string) {
 func testAuthentication(t *testing.T, key *PrivateKey, pubkey *PublicKey) {
 	cookie := make([]byte, 256)
 	io.ReadFull(rand.Reader, cookie[:])
-	chaltoken, err := key.GenerateChallengeToken("test", cookie)
+	chaltoken, err := key.GenerateChallengeToken("test", "test.example.com", cookie)
 	if err != nil {
 		t.Fatalf("GenerateAuthenticationToken(%s) returns err=%+v", "test", err)
 	}
 	t.Logf("GenerateAuthenticationToken(%s) returns token=%s", "test", chaltoken)
 
-	if err := pubkey.VerifyChallengeToken(chaltoken, "test", cookie); err != nil {
+	if err := pubkey.VerifyChallengeToken(chaltoken, "test", "test.example.com", cookie); err != nil {
 		t.Fatalf("VerifyAuthenticationToken(%s) returns err=%+v", chaltoken, err)
 	}
 
@@ -93,21 +97,21 @@ func Benchmark(b *testing.B) {
 		cookie := make([]byte, 256)
 		io.ReadFull(rand.Reader, cookie[:])
 
-		chaltoken, err := key.GenerateChallengeToken("test", cookie)
+		chaltoken, err := key.GenerateChallengeToken("test", "test.example.com", cookie)
 		if err != nil {
 			b.Fatalf("GenerateAuthenticationToken(%s) returns err=%+v", "test", err)
 		}
 
-		if err := pubkey.VerifyChallengeToken(chaltoken, "test", cookie); err != nil {
+		if err := pubkey.VerifyChallengeToken(chaltoken, "test", "test.example.com", cookie); err != nil {
 			b.Fatalf("VerifyAuthenticationToken(%s) returns err=%+v", chaltoken, err)
 		}
 
-		token, err := key.GenerateAuthenticationToken("test", "tester")
+		token, err := key.GenerateAuthenticationToken("test", "test.example.com")
 		if err != nil {
 			b.Fatalf("GenerateAuthenticationToken(%s) returns err=%+v", "test", err)
 		}
 
-		_, err = pubkey.VerifyAuthenticationToken(token, "tester")
+		_, err = pubkey.VerifyAuthenticationToken(token, "test.example.com")
 		if err != nil {
 			b.Fatalf("VerifyAuthenticationToken(%s) returns err=%+v", token, err)
 		}

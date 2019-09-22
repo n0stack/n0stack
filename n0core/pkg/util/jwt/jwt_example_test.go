@@ -1,4 +1,4 @@
-package jwt
+package jwtutil
 
 import (
 	"crypto/ecdsa"
@@ -20,27 +20,28 @@ func Example() {
 	challengePrivateKey, _ := NewPrivateKey(challengeKey)
 	challengePublicKey, _ := challengePrivateKey.PublicKey()
 	username := "test_user"
+	service := "test_project.example.com"
 	var challengeToken string
 	{
-		challengeToken, _ = challengePrivateKey.GenerateChallengeToken(username, challenge)
+		challengeToken, _ = challengePrivateKey.GenerateChallengeToken(username, service, challenge)
 	}
 
 	// idp
 	kg := NewKeyGenerator([]byte("secret"))
-	project := "test_project"
-	authnPrivateKey, authnPublicKey, _ := kg.Generate(project)
+	authnPrivateKey, _ := kg.Generate(service)
+	authnPublicKey, _ := authnPrivateKey.PublicKey()
 	var authnToken string
 	{
-		if err := challengePublicKey.VerifyChallengeToken(challengeToken, username, challenge); err != nil {
+		if err := challengePublicKey.VerifyChallengeToken(challengeToken, username, service, challenge); err != nil {
 			panic("failed verification")
 		}
 
-		authnToken, _ = authnPrivateKey.GenerateAuthenticationToken(username, project)
+		authnToken, _ = authnPrivateKey.GenerateAuthenticationToken(username, service)
 	}
 
 	// service provider
 	{
-		serviceClient, err := authnPublicKey.VerifyAuthenticationToken(authnToken, project)
+		serviceClient, err := authnPublicKey.VerifyAuthenticationToken(authnToken, service)
 		if err != nil {
 			panic("failed verification")
 		}
