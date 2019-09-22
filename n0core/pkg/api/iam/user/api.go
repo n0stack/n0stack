@@ -3,15 +3,15 @@ package user
 import (
 	"context"
 
+	"github.com/golang/protobuf/ptypes/empty"
+	"golang.org/x/crypto/ssh"
 	"google.golang.org/grpc"
-
 	"google.golang.org/grpc/codes"
 
-	"github.com/golang/protobuf/ptypes/empty"
+	piam "n0st.ac/n0stack/iam/v1alpha"
 	stdapi "n0st.ac/n0stack/n0core/pkg/api/standard_api"
 	"n0st.ac/n0stack/n0core/pkg/datastore"
 	grpcutil "n0st.ac/n0stack/n0core/pkg/util/grpc"
-	piam "n0st.ac/n0stack/n0proto.go/iam/v1alpha"
 )
 
 type UserAPI struct {
@@ -30,22 +30,31 @@ func (a *UserAPI) GetUser(ctx context.Context, req *piam.GetUserRequest) (*piam.
 }
 
 func (a *UserAPI) CreateUser(ctx context.Context, req *piam.CreateUserRequest) (*piam.User, error) {
-	if err := stdapi.ValidateName(req.Name); err != nil {
+	if err := stdapi.ValidateName(req.User.Name); err != nil {
 		return nil, err
 	}
 
-	if _, _, err := GetUser(ctx, a.datastore, req.Name); err != nil {
+	if _, _, err := GetUser(ctx, a.datastore, req.User.Name); err != nil {
 		if grpc.Code(err) != codes.NotFound {
 			return nil, err
 		}
 	}
 
 	user := &piam.User{
-		Name:        req.Name,
-		Annotations: req.Annotations,
-		Labels:      req.Labels,
+		Name:        req.User.Name,
+		Annotations: req.User.Annotations,
+		Labels:      req.User.Labels,
+		DisplayName: req.User.DisplayName,
+		PublicKeys:  make(map[string]string),
+	}
 
-		DisplayName: req.DisplayName,
+	for k, v := range req.User.PublicKeys {
+		_, _, _, _, err := ssh.ParseAuthorizedKey([]byte(v))
+		if err != nil {
+			return nil, grpcutil.Errorf(codes.InvalidArgument, "public key %s is invalid", k)
+		}
+
+		user.PublicKeys[k] = v
 	}
 
 	if _, err := ApplyUser(ctx, a.datastore, user, 0); err != nil {
@@ -56,24 +65,25 @@ func (a *UserAPI) CreateUser(ctx context.Context, req *piam.CreateUserRequest) (
 }
 
 func (a *UserAPI) UpdateUser(ctx context.Context, req *piam.UpdateUserRequest) (*piam.User, error) {
-	_, version, err := GetUser(ctx, a.datastore, req.Name)
-	if err != nil {
-		return nil, err
-	}
+	return nil, grpcutil.Errorf(codes.Unimplemented, "")
 
-	user := &piam.User{
-		Name:        req.Name,
-		Annotations: req.Annotations,
-		Labels:      req.Labels,
+	// _, version, err := GetUser(ctx, a.datastore, req.User.Name)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-		DisplayName: req.DisplayName,
-	}
+	// user := &piam.User{
+	// 	Name:        req.User.Name,
+	// 	Annotations: req.User.Annotations,
+	// 	Labels:      req.User.Labels,
+	// 	DisplayName: req.User.DisplayName,
+	// }
 
-	if _, err := ApplyUser(ctx, a.datastore, user, version); err != nil {
-		return nil, err
-	}
+	// if _, err := ApplyUser(ctx, a.datastore, user, version); err != nil {
+	// 	return nil, err
+	// }
 
-	return user, nil
+	// return user, nil
 }
 
 func (a *UserAPI) DeleteUser(ctx context.Context, req *piam.DeleteUserRequest) (*empty.Empty, error) {
@@ -91,43 +101,4 @@ func (a *UserAPI) DeleteUser(ctx context.Context, req *piam.DeleteUserRequest) (
 	}
 
 	return &empty.Empty{}, nil
-}
-
-func (a *UserAPI) AddPublicKey(ctx context.Context, req *piam.AddPublicKeyRequest) (*piam.User, error) {
-	user, version, err := GetUser(ctx, a.datastore, req.UserName)
-	if err != nil {
-		return nil, err
-	}
-
-	if user.PublicKeys == nil {
-		user.PublicKeys = make(map[string]string)
-	}
-	user.PublicKeys[req.PublicKeyName] = req.PublicKey
-
-	if _, err := ApplyUser(ctx, a.datastore, user, version); err != nil {
-		return nil, err
-	}
-
-	return user, nil
-}
-func (a *UserAPI) DeletePublicKey(ctx context.Context, req *piam.DeletePublicKeyRequest) (*piam.User, error) {
-	user, version, err := GetUser(ctx, a.datastore, req.UserName)
-	if err != nil {
-		return nil, err
-	}
-
-	if user.PublicKeys == nil {
-		return nil, grpcutil.Errorf(codes.NotFound, "publicKey '%s' does not exist", req.PublicKeyName)
-	}
-	if _, ok := user.PublicKeys[req.PublicKeyName]; !ok {
-		return nil, grpcutil.Errorf(codes.NotFound, "publicKey '%s' does not exist", req.PublicKeyName)
-	}
-
-	delete(user.PublicKeys, req.PublicKeyName)
-
-	if _, err := ApplyUser(ctx, a.datastore, user, version); err != nil {
-		return nil, err
-	}
-
-	return user, nil
 }

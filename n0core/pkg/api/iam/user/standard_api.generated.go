@@ -5,10 +5,10 @@ package user
 import (
 	"context"
 
+	"google.golang.org/grpc/codes"
+	piam "n0st.ac/n0stack/iam/v1alpha"
 	"n0st.ac/n0stack/n0core/pkg/datastore"
 	grpcutil "n0st.ac/n0stack/n0core/pkg/util/grpc"
-	piam "n0st.ac/n0stack/n0proto.go/iam/v1alpha"
-	"google.golang.org/grpc/codes"
 )
 
 func GetUser(ctx context.Context, ds datastore.Datastore, name string) (*piam.User, int64, error) {

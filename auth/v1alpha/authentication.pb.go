@@ -27,7 +27,6 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type GetAuthenticationTokenPublicKeyRequest struct {
-	ProjectName          string   `protobuf:"bytes,1,opt,name=project_name,json=projectName,proto3" json:"project_name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -59,13 +58,6 @@ func (m *GetAuthenticationTokenPublicKeyRequest) XXX_DiscardUnknown() {
 }
 
 var xxx_messageInfo_GetAuthenticationTokenPublicKeyRequest proto.InternalMessageInfo
-
-func (m *GetAuthenticationTokenPublicKeyRequest) GetProjectName() string {
-	if m != nil {
-		return m.ProjectName
-	}
-	return ""
-}
 
 type GetAuthenticationTokenPublicKeyResponse struct {
 	PublicKey            string   `protobuf:"bytes,2,opt,name=public_key,json=publicKey,proto3" json:"public_key,omitempty"`
@@ -108,96 +100,10 @@ func (m *GetAuthenticationTokenPublicKeyResponse) GetPublicKey() string {
 	return ""
 }
 
-type PublicKeyAuthenricationStart struct {
-	ProjectName          string   `protobuf:"bytes,1,opt,name=project_name,json=projectName,proto3" json:"project_name,omitempty"`
-	UserName             string   `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *PublicKeyAuthenricationStart) Reset()         { *m = PublicKeyAuthenricationStart{} }
-func (m *PublicKeyAuthenricationStart) String() string { return proto.CompactTextString(m) }
-func (*PublicKeyAuthenricationStart) ProtoMessage()    {}
-func (*PublicKeyAuthenricationStart) Descriptor() ([]byte, []int) {
-	return fileDescriptor_703f26818a3c0f21, []int{2}
-}
-
-func (m *PublicKeyAuthenricationStart) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_PublicKeyAuthenricationStart.Unmarshal(m, b)
-}
-func (m *PublicKeyAuthenricationStart) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_PublicKeyAuthenricationStart.Marshal(b, m, deterministic)
-}
-func (m *PublicKeyAuthenricationStart) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_PublicKeyAuthenricationStart.Merge(m, src)
-}
-func (m *PublicKeyAuthenricationStart) XXX_Size() int {
-	return xxx_messageInfo_PublicKeyAuthenricationStart.Size(m)
-}
-func (m *PublicKeyAuthenricationStart) XXX_DiscardUnknown() {
-	xxx_messageInfo_PublicKeyAuthenricationStart.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_PublicKeyAuthenricationStart proto.InternalMessageInfo
-
-func (m *PublicKeyAuthenricationStart) GetProjectName() string {
-	if m != nil {
-		return m.ProjectName
-	}
-	return ""
-}
-
-func (m *PublicKeyAuthenricationStart) GetUserName() string {
-	if m != nil {
-		return m.UserName
-	}
-	return ""
-}
-
-type PublicKeyAuthenricationChallengeToken struct {
-	ChallengeToken       string   `protobuf:"bytes,1,opt,name=challenge_token,json=challengeToken,proto3" json:"challenge_token,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *PublicKeyAuthenricationChallengeToken) Reset()         { *m = PublicKeyAuthenricationChallengeToken{} }
-func (m *PublicKeyAuthenricationChallengeToken) String() string { return proto.CompactTextString(m) }
-func (*PublicKeyAuthenricationChallengeToken) ProtoMessage()    {}
-func (*PublicKeyAuthenricationChallengeToken) Descriptor() ([]byte, []int) {
-	return fileDescriptor_703f26818a3c0f21, []int{3}
-}
-
-func (m *PublicKeyAuthenricationChallengeToken) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_PublicKeyAuthenricationChallengeToken.Unmarshal(m, b)
-}
-func (m *PublicKeyAuthenricationChallengeToken) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_PublicKeyAuthenricationChallengeToken.Marshal(b, m, deterministic)
-}
-func (m *PublicKeyAuthenricationChallengeToken) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_PublicKeyAuthenricationChallengeToken.Merge(m, src)
-}
-func (m *PublicKeyAuthenricationChallengeToken) XXX_Size() int {
-	return xxx_messageInfo_PublicKeyAuthenricationChallengeToken.Size(m)
-}
-func (m *PublicKeyAuthenricationChallengeToken) XXX_DiscardUnknown() {
-	xxx_messageInfo_PublicKeyAuthenricationChallengeToken.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_PublicKeyAuthenricationChallengeToken proto.InternalMessageInfo
-
-func (m *PublicKeyAuthenricationChallengeToken) GetChallengeToken() string {
-	if m != nil {
-		return m.ChallengeToken
-	}
-	return ""
-}
-
 type PublicKeyAuthenricateRequest struct {
 	// Types that are valid to be assigned to Message:
-	//	*PublicKeyAuthenricateRequest_Start
-	//	*PublicKeyAuthenricateRequest_ChallengeToken
+	//	*PublicKeyAuthenricateRequest_Start_
+	//	*PublicKeyAuthenricateRequest_Response_
 	Message              isPublicKeyAuthenricateRequest_Message `protobuf_oneof:"message"`
 	XXX_NoUnkeyedLiteral struct{}                               `json:"-"`
 	XXX_unrecognized     []byte                                 `json:"-"`
@@ -208,7 +114,7 @@ func (m *PublicKeyAuthenricateRequest) Reset()         { *m = PublicKeyAuthenric
 func (m *PublicKeyAuthenricateRequest) String() string { return proto.CompactTextString(m) }
 func (*PublicKeyAuthenricateRequest) ProtoMessage()    {}
 func (*PublicKeyAuthenricateRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_703f26818a3c0f21, []int{4}
+	return fileDescriptor_703f26818a3c0f21, []int{2}
 }
 
 func (m *PublicKeyAuthenricateRequest) XXX_Unmarshal(b []byte) error {
@@ -233,17 +139,17 @@ type isPublicKeyAuthenricateRequest_Message interface {
 	isPublicKeyAuthenricateRequest_Message()
 }
 
-type PublicKeyAuthenricateRequest_Start struct {
-	Start *PublicKeyAuthenricationStart `protobuf:"bytes,1,opt,name=start,proto3,oneof"`
+type PublicKeyAuthenricateRequest_Start_ struct {
+	Start *PublicKeyAuthenricateRequest_Start `protobuf:"bytes,1,opt,name=start,proto3,oneof"`
 }
 
-type PublicKeyAuthenricateRequest_ChallengeToken struct {
-	ChallengeToken *PublicKeyAuthenricationChallengeToken `protobuf:"bytes,2,opt,name=challenge_token,json=challengeToken,proto3,oneof"`
+type PublicKeyAuthenricateRequest_Response_ struct {
+	Response *PublicKeyAuthenricateRequest_Response `protobuf:"bytes,2,opt,name=response,proto3,oneof"`
 }
 
-func (*PublicKeyAuthenricateRequest_Start) isPublicKeyAuthenricateRequest_Message() {}
+func (*PublicKeyAuthenricateRequest_Start_) isPublicKeyAuthenricateRequest_Message() {}
 
-func (*PublicKeyAuthenricateRequest_ChallengeToken) isPublicKeyAuthenricateRequest_Message() {}
+func (*PublicKeyAuthenricateRequest_Response_) isPublicKeyAuthenricateRequest_Message() {}
 
 func (m *PublicKeyAuthenricateRequest) GetMessage() isPublicKeyAuthenricateRequest_Message {
 	if m != nil {
@@ -252,16 +158,16 @@ func (m *PublicKeyAuthenricateRequest) GetMessage() isPublicKeyAuthenricateReque
 	return nil
 }
 
-func (m *PublicKeyAuthenricateRequest) GetStart() *PublicKeyAuthenricationStart {
-	if x, ok := m.GetMessage().(*PublicKeyAuthenricateRequest_Start); ok {
+func (m *PublicKeyAuthenricateRequest) GetStart() *PublicKeyAuthenricateRequest_Start {
+	if x, ok := m.GetMessage().(*PublicKeyAuthenricateRequest_Start_); ok {
 		return x.Start
 	}
 	return nil
 }
 
-func (m *PublicKeyAuthenricateRequest) GetChallengeToken() *PublicKeyAuthenricationChallengeToken {
-	if x, ok := m.GetMessage().(*PublicKeyAuthenricateRequest_ChallengeToken); ok {
-		return x.ChallengeToken
+func (m *PublicKeyAuthenricateRequest) GetResponse() *PublicKeyAuthenricateRequest_Response {
+	if x, ok := m.GetMessage().(*PublicKeyAuthenricateRequest_Response_); ok {
+		return x.Response
 	}
 	return nil
 }
@@ -269,93 +175,101 @@ func (m *PublicKeyAuthenricateRequest) GetChallengeToken() *PublicKeyAuthenricat
 // XXX_OneofWrappers is for the internal use of the proto package.
 func (*PublicKeyAuthenricateRequest) XXX_OneofWrappers() []interface{} {
 	return []interface{}{
-		(*PublicKeyAuthenricateRequest_Start)(nil),
-		(*PublicKeyAuthenricateRequest_ChallengeToken)(nil),
+		(*PublicKeyAuthenricateRequest_Start_)(nil),
+		(*PublicKeyAuthenricateRequest_Response_)(nil),
 	}
 }
 
-type PublicKeyAuthenricationChallenge struct {
-	Challenge            []byte   `protobuf:"bytes,1,opt,name=challenge,proto3" json:"challenge,omitempty"`
+type PublicKeyAuthenricateRequest_Start struct {
+	UserName             string   `protobuf:"bytes,1,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`
+	PublicKey            string   `protobuf:"bytes,2,opt,name=public_key,json=publicKey,proto3" json:"public_key,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *PublicKeyAuthenricationChallenge) Reset()         { *m = PublicKeyAuthenricationChallenge{} }
-func (m *PublicKeyAuthenricationChallenge) String() string { return proto.CompactTextString(m) }
-func (*PublicKeyAuthenricationChallenge) ProtoMessage()    {}
-func (*PublicKeyAuthenricationChallenge) Descriptor() ([]byte, []int) {
-	return fileDescriptor_703f26818a3c0f21, []int{5}
+func (m *PublicKeyAuthenricateRequest_Start) Reset()         { *m = PublicKeyAuthenricateRequest_Start{} }
+func (m *PublicKeyAuthenricateRequest_Start) String() string { return proto.CompactTextString(m) }
+func (*PublicKeyAuthenricateRequest_Start) ProtoMessage()    {}
+func (*PublicKeyAuthenricateRequest_Start) Descriptor() ([]byte, []int) {
+	return fileDescriptor_703f26818a3c0f21, []int{2, 0}
 }
 
-func (m *PublicKeyAuthenricationChallenge) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_PublicKeyAuthenricationChallenge.Unmarshal(m, b)
+func (m *PublicKeyAuthenricateRequest_Start) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PublicKeyAuthenricateRequest_Start.Unmarshal(m, b)
 }
-func (m *PublicKeyAuthenricationChallenge) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_PublicKeyAuthenricationChallenge.Marshal(b, m, deterministic)
+func (m *PublicKeyAuthenricateRequest_Start) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PublicKeyAuthenricateRequest_Start.Marshal(b, m, deterministic)
 }
-func (m *PublicKeyAuthenricationChallenge) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_PublicKeyAuthenricationChallenge.Merge(m, src)
+func (m *PublicKeyAuthenricateRequest_Start) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PublicKeyAuthenricateRequest_Start.Merge(m, src)
 }
-func (m *PublicKeyAuthenricationChallenge) XXX_Size() int {
-	return xxx_messageInfo_PublicKeyAuthenricationChallenge.Size(m)
+func (m *PublicKeyAuthenricateRequest_Start) XXX_Size() int {
+	return xxx_messageInfo_PublicKeyAuthenricateRequest_Start.Size(m)
 }
-func (m *PublicKeyAuthenricationChallenge) XXX_DiscardUnknown() {
-	xxx_messageInfo_PublicKeyAuthenricationChallenge.DiscardUnknown(m)
+func (m *PublicKeyAuthenricateRequest_Start) XXX_DiscardUnknown() {
+	xxx_messageInfo_PublicKeyAuthenricateRequest_Start.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_PublicKeyAuthenricationChallenge proto.InternalMessageInfo
+var xxx_messageInfo_PublicKeyAuthenricateRequest_Start proto.InternalMessageInfo
 
-func (m *PublicKeyAuthenricationChallenge) GetChallenge() []byte {
+func (m *PublicKeyAuthenricateRequest_Start) GetUserName() string {
 	if m != nil {
-		return m.Challenge
+		return m.UserName
 	}
-	return nil
+	return ""
 }
 
-type PublicKeyAuthenricationResult struct {
-	AuthenticationToken  string   `protobuf:"bytes,1,opt,name=authentication_token,json=authenticationToken,proto3" json:"authentication_token,omitempty"`
+func (m *PublicKeyAuthenricateRequest_Start) GetPublicKey() string {
+	if m != nil {
+		return m.PublicKey
+	}
+	return ""
+}
+
+type PublicKeyAuthenricateRequest_Response struct {
+	ChallengeToken       string   `protobuf:"bytes,1,opt,name=challenge_token,json=challengeToken,proto3" json:"challenge_token,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *PublicKeyAuthenricationResult) Reset()         { *m = PublicKeyAuthenricationResult{} }
-func (m *PublicKeyAuthenricationResult) String() string { return proto.CompactTextString(m) }
-func (*PublicKeyAuthenricationResult) ProtoMessage()    {}
-func (*PublicKeyAuthenricationResult) Descriptor() ([]byte, []int) {
-	return fileDescriptor_703f26818a3c0f21, []int{6}
+func (m *PublicKeyAuthenricateRequest_Response) Reset()         { *m = PublicKeyAuthenricateRequest_Response{} }
+func (m *PublicKeyAuthenricateRequest_Response) String() string { return proto.CompactTextString(m) }
+func (*PublicKeyAuthenricateRequest_Response) ProtoMessage()    {}
+func (*PublicKeyAuthenricateRequest_Response) Descriptor() ([]byte, []int) {
+	return fileDescriptor_703f26818a3c0f21, []int{2, 1}
 }
 
-func (m *PublicKeyAuthenricationResult) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_PublicKeyAuthenricationResult.Unmarshal(m, b)
+func (m *PublicKeyAuthenricateRequest_Response) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PublicKeyAuthenricateRequest_Response.Unmarshal(m, b)
 }
-func (m *PublicKeyAuthenricationResult) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_PublicKeyAuthenricationResult.Marshal(b, m, deterministic)
+func (m *PublicKeyAuthenricateRequest_Response) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PublicKeyAuthenricateRequest_Response.Marshal(b, m, deterministic)
 }
-func (m *PublicKeyAuthenricationResult) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_PublicKeyAuthenricationResult.Merge(m, src)
+func (m *PublicKeyAuthenricateRequest_Response) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PublicKeyAuthenricateRequest_Response.Merge(m, src)
 }
-func (m *PublicKeyAuthenricationResult) XXX_Size() int {
-	return xxx_messageInfo_PublicKeyAuthenricationResult.Size(m)
+func (m *PublicKeyAuthenricateRequest_Response) XXX_Size() int {
+	return xxx_messageInfo_PublicKeyAuthenricateRequest_Response.Size(m)
 }
-func (m *PublicKeyAuthenricationResult) XXX_DiscardUnknown() {
-	xxx_messageInfo_PublicKeyAuthenricationResult.DiscardUnknown(m)
+func (m *PublicKeyAuthenricateRequest_Response) XXX_DiscardUnknown() {
+	xxx_messageInfo_PublicKeyAuthenricateRequest_Response.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_PublicKeyAuthenricationResult proto.InternalMessageInfo
+var xxx_messageInfo_PublicKeyAuthenricateRequest_Response proto.InternalMessageInfo
 
-func (m *PublicKeyAuthenricationResult) GetAuthenticationToken() string {
+func (m *PublicKeyAuthenricateRequest_Response) GetChallengeToken() string {
 	if m != nil {
-		return m.AuthenticationToken
+		return m.ChallengeToken
 	}
 	return ""
 }
 
 type PublicKeyAuthenricateResponse struct {
 	// Types that are valid to be assigned to Message:
-	//	*PublicKeyAuthenricateResponse_Challenge
-	//	*PublicKeyAuthenricateResponse_AuthenticationToken
+	//	*PublicKeyAuthenricateResponse_Challenge_
+	//	*PublicKeyAuthenricateResponse_Result_
 	Message              isPublicKeyAuthenricateResponse_Message `protobuf_oneof:"message"`
 	XXX_NoUnkeyedLiteral struct{}                                `json:"-"`
 	XXX_unrecognized     []byte                                  `json:"-"`
@@ -366,7 +280,7 @@ func (m *PublicKeyAuthenricateResponse) Reset()         { *m = PublicKeyAuthenri
 func (m *PublicKeyAuthenricateResponse) String() string { return proto.CompactTextString(m) }
 func (*PublicKeyAuthenricateResponse) ProtoMessage()    {}
 func (*PublicKeyAuthenricateResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_703f26818a3c0f21, []int{7}
+	return fileDescriptor_703f26818a3c0f21, []int{3}
 }
 
 func (m *PublicKeyAuthenricateResponse) XXX_Unmarshal(b []byte) error {
@@ -391,17 +305,17 @@ type isPublicKeyAuthenricateResponse_Message interface {
 	isPublicKeyAuthenricateResponse_Message()
 }
 
-type PublicKeyAuthenricateResponse_Challenge struct {
-	Challenge *PublicKeyAuthenricationChallenge `protobuf:"bytes,1,opt,name=challenge,proto3,oneof"`
+type PublicKeyAuthenricateResponse_Challenge_ struct {
+	Challenge *PublicKeyAuthenricateResponse_Challenge `protobuf:"bytes,1,opt,name=challenge,proto3,oneof"`
 }
 
-type PublicKeyAuthenricateResponse_AuthenticationToken struct {
-	AuthenticationToken *PublicKeyAuthenricationResult `protobuf:"bytes,2,opt,name=authentication_token,json=authenticationToken,proto3,oneof"`
+type PublicKeyAuthenricateResponse_Result_ struct {
+	Result *PublicKeyAuthenricateResponse_Result `protobuf:"bytes,2,opt,name=result,proto3,oneof"`
 }
 
-func (*PublicKeyAuthenricateResponse_Challenge) isPublicKeyAuthenricateResponse_Message() {}
+func (*PublicKeyAuthenricateResponse_Challenge_) isPublicKeyAuthenricateResponse_Message() {}
 
-func (*PublicKeyAuthenricateResponse_AuthenticationToken) isPublicKeyAuthenricateResponse_Message() {}
+func (*PublicKeyAuthenricateResponse_Result_) isPublicKeyAuthenricateResponse_Message() {}
 
 func (m *PublicKeyAuthenricateResponse) GetMessage() isPublicKeyAuthenricateResponse_Message {
 	if m != nil {
@@ -410,16 +324,16 @@ func (m *PublicKeyAuthenricateResponse) GetMessage() isPublicKeyAuthenricateResp
 	return nil
 }
 
-func (m *PublicKeyAuthenricateResponse) GetChallenge() *PublicKeyAuthenricationChallenge {
-	if x, ok := m.GetMessage().(*PublicKeyAuthenricateResponse_Challenge); ok {
+func (m *PublicKeyAuthenricateResponse) GetChallenge() *PublicKeyAuthenricateResponse_Challenge {
+	if x, ok := m.GetMessage().(*PublicKeyAuthenricateResponse_Challenge_); ok {
 		return x.Challenge
 	}
 	return nil
 }
 
-func (m *PublicKeyAuthenricateResponse) GetAuthenticationToken() *PublicKeyAuthenricationResult {
-	if x, ok := m.GetMessage().(*PublicKeyAuthenricateResponse_AuthenticationToken); ok {
-		return x.AuthenticationToken
+func (m *PublicKeyAuthenricateResponse) GetResult() *PublicKeyAuthenricateResponse_Result {
+	if x, ok := m.GetMessage().(*PublicKeyAuthenricateResponse_Result_); ok {
+		return x.Result
 	}
 	return nil
 }
@@ -427,58 +341,138 @@ func (m *PublicKeyAuthenricateResponse) GetAuthenticationToken() *PublicKeyAuthe
 // XXX_OneofWrappers is for the internal use of the proto package.
 func (*PublicKeyAuthenricateResponse) XXX_OneofWrappers() []interface{} {
 	return []interface{}{
-		(*PublicKeyAuthenricateResponse_Challenge)(nil),
-		(*PublicKeyAuthenricateResponse_AuthenticationToken)(nil),
+		(*PublicKeyAuthenricateResponse_Challenge_)(nil),
+		(*PublicKeyAuthenricateResponse_Result_)(nil),
 	}
+}
+
+type PublicKeyAuthenricateResponse_Challenge struct {
+	Challenge            []byte   `protobuf:"bytes,1,opt,name=challenge,proto3" json:"challenge,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *PublicKeyAuthenricateResponse_Challenge) Reset() {
+	*m = PublicKeyAuthenricateResponse_Challenge{}
+}
+func (m *PublicKeyAuthenricateResponse_Challenge) String() string { return proto.CompactTextString(m) }
+func (*PublicKeyAuthenricateResponse_Challenge) ProtoMessage()    {}
+func (*PublicKeyAuthenricateResponse_Challenge) Descriptor() ([]byte, []int) {
+	return fileDescriptor_703f26818a3c0f21, []int{3, 0}
+}
+
+func (m *PublicKeyAuthenricateResponse_Challenge) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PublicKeyAuthenricateResponse_Challenge.Unmarshal(m, b)
+}
+func (m *PublicKeyAuthenricateResponse_Challenge) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PublicKeyAuthenricateResponse_Challenge.Marshal(b, m, deterministic)
+}
+func (m *PublicKeyAuthenricateResponse_Challenge) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PublicKeyAuthenricateResponse_Challenge.Merge(m, src)
+}
+func (m *PublicKeyAuthenricateResponse_Challenge) XXX_Size() int {
+	return xxx_messageInfo_PublicKeyAuthenricateResponse_Challenge.Size(m)
+}
+func (m *PublicKeyAuthenricateResponse_Challenge) XXX_DiscardUnknown() {
+	xxx_messageInfo_PublicKeyAuthenricateResponse_Challenge.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PublicKeyAuthenricateResponse_Challenge proto.InternalMessageInfo
+
+func (m *PublicKeyAuthenricateResponse_Challenge) GetChallenge() []byte {
+	if m != nil {
+		return m.Challenge
+	}
+	return nil
+}
+
+type PublicKeyAuthenricateResponse_Result struct {
+	AuthenticationToken  string   `protobuf:"bytes,1,opt,name=authentication_token,json=authenticationToken,proto3" json:"authentication_token,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *PublicKeyAuthenricateResponse_Result) Reset()         { *m = PublicKeyAuthenricateResponse_Result{} }
+func (m *PublicKeyAuthenricateResponse_Result) String() string { return proto.CompactTextString(m) }
+func (*PublicKeyAuthenricateResponse_Result) ProtoMessage()    {}
+func (*PublicKeyAuthenricateResponse_Result) Descriptor() ([]byte, []int) {
+	return fileDescriptor_703f26818a3c0f21, []int{3, 1}
+}
+
+func (m *PublicKeyAuthenricateResponse_Result) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PublicKeyAuthenricateResponse_Result.Unmarshal(m, b)
+}
+func (m *PublicKeyAuthenricateResponse_Result) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PublicKeyAuthenricateResponse_Result.Marshal(b, m, deterministic)
+}
+func (m *PublicKeyAuthenricateResponse_Result) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PublicKeyAuthenricateResponse_Result.Merge(m, src)
+}
+func (m *PublicKeyAuthenricateResponse_Result) XXX_Size() int {
+	return xxx_messageInfo_PublicKeyAuthenricateResponse_Result.Size(m)
+}
+func (m *PublicKeyAuthenricateResponse_Result) XXX_DiscardUnknown() {
+	xxx_messageInfo_PublicKeyAuthenricateResponse_Result.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PublicKeyAuthenricateResponse_Result proto.InternalMessageInfo
+
+func (m *PublicKeyAuthenricateResponse_Result) GetAuthenticationToken() string {
+	if m != nil {
+		return m.AuthenticationToken
+	}
+	return ""
 }
 
 func init() {
 	proto.RegisterType((*GetAuthenticationTokenPublicKeyRequest)(nil), "n0stack.auth.v1alpha.GetAuthenticationTokenPublicKeyRequest")
 	proto.RegisterType((*GetAuthenticationTokenPublicKeyResponse)(nil), "n0stack.auth.v1alpha.GetAuthenticationTokenPublicKeyResponse")
-	proto.RegisterType((*PublicKeyAuthenricationStart)(nil), "n0stack.auth.v1alpha.PublicKeyAuthenricationStart")
-	proto.RegisterType((*PublicKeyAuthenricationChallengeToken)(nil), "n0stack.auth.v1alpha.PublicKeyAuthenricationChallengeToken")
 	proto.RegisterType((*PublicKeyAuthenricateRequest)(nil), "n0stack.auth.v1alpha.PublicKeyAuthenricateRequest")
-	proto.RegisterType((*PublicKeyAuthenricationChallenge)(nil), "n0stack.auth.v1alpha.PublicKeyAuthenricationChallenge")
-	proto.RegisterType((*PublicKeyAuthenricationResult)(nil), "n0stack.auth.v1alpha.PublicKeyAuthenricationResult")
+	proto.RegisterType((*PublicKeyAuthenricateRequest_Start)(nil), "n0stack.auth.v1alpha.PublicKeyAuthenricateRequest.Start")
+	proto.RegisterType((*PublicKeyAuthenricateRequest_Response)(nil), "n0stack.auth.v1alpha.PublicKeyAuthenricateRequest.Response")
 	proto.RegisterType((*PublicKeyAuthenricateResponse)(nil), "n0stack.auth.v1alpha.PublicKeyAuthenricateResponse")
+	proto.RegisterType((*PublicKeyAuthenricateResponse_Challenge)(nil), "n0stack.auth.v1alpha.PublicKeyAuthenricateResponse.Challenge")
+	proto.RegisterType((*PublicKeyAuthenricateResponse_Result)(nil), "n0stack.auth.v1alpha.PublicKeyAuthenricateResponse.Result")
 }
 
 func init() { proto.RegisterFile("auth/v1alpha/authentication.proto", fileDescriptor_703f26818a3c0f21) }
 
 var fileDescriptor_703f26818a3c0f21 = []byte{
-	// 498 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x54, 0x5d, 0x6e, 0xd3, 0x40,
-	0x10, 0x8e, 0x23, 0xf1, 0xe3, 0x49, 0x05, 0xd2, 0xd2, 0x4a, 0x55, 0x48, 0x45, 0xbb, 0x02, 0xda,
-	0x07, 0x6a, 0xb7, 0x89, 0xc4, 0x4b, 0x41, 0x82, 0xf2, 0x80, 0x45, 0x25, 0x54, 0xb9, 0x88, 0x07,
-	0x1e, 0x88, 0xb6, 0xab, 0xc1, 0x31, 0x71, 0x76, 0x17, 0xef, 0xba, 0xa8, 0x17, 0xe0, 0x1c, 0xdc,
-	0x85, 0x73, 0x70, 0x03, 0x0e, 0x81, 0xbc, 0xb6, 0x43, 0xdc, 0x38, 0xa4, 0xe9, 0x93, 0xe5, 0xd9,
-	0xf9, 0xbe, 0xf9, 0xbe, 0x99, 0x9d, 0x85, 0x1d, 0x96, 0x99, 0x91, 0x7f, 0x71, 0xc8, 0x12, 0x35,
-	0x62, 0x7e, 0xfe, 0x83, 0xc2, 0xc4, 0x9c, 0x99, 0x58, 0x0a, 0x4f, 0xa5, 0xd2, 0x48, 0xb2, 0x2e,
-	0x0e, 0xb4, 0x61, 0x7c, 0xec, 0xe5, 0xa7, 0x5e, 0x99, 0xda, 0xed, 0x45, 0x52, 0x46, 0x09, 0xfa,
-	0x4c, 0xc5, 0x3e, 0x13, 0x42, 0x1a, 0x0b, 0xd1, 0x05, 0xa6, 0xfb, 0xcc, 0x7e, 0xf8, 0x7e, 0x84,
-	0x62, 0x5f, 0x7f, 0x67, 0x51, 0x84, 0xa9, 0x2f, 0x95, 0xcd, 0x98, 0xcf, 0xa6, 0x27, 0xf0, 0xf4,
-	0x2d, 0x9a, 0xd7, 0xb5, 0xe2, 0x1f, 0xe4, 0x18, 0xc5, 0x69, 0x76, 0x9e, 0xc4, 0xfc, 0x04, 0x2f,
-	0x43, 0xfc, 0x96, 0xa1, 0x36, 0x64, 0x07, 0xd6, 0x54, 0x2a, 0xbf, 0x22, 0x37, 0x43, 0xc1, 0x26,
-	0xb8, 0xe9, 0x6c, 0x3b, 0x7b, 0x6e, 0xd8, 0x29, 0x63, 0xef, 0xd9, 0x04, 0x69, 0x00, 0xbb, 0x4b,
-	0xc9, 0xb4, 0x92, 0x42, 0x23, 0xd9, 0x02, 0x50, 0x36, 0x38, 0x1c, 0xe3, 0xe5, 0x66, 0xdb, 0x72,
-	0xb9, 0xaa, 0x4a, 0xa3, 0x9f, 0xa1, 0x37, 0xc5, 0x14, 0x7c, 0x69, 0xc9, 0x77, 0x66, 0x58, 0x7a,
-	0x1d, 0x31, 0xe4, 0x21, 0xb8, 0x99, 0xc6, 0xb4, 0x38, 0x2f, 0x0a, 0xdc, 0xcd, 0x03, 0x56, 0xe9,
-	0x29, 0x3c, 0x59, 0xc0, 0xff, 0x66, 0xc4, 0x92, 0x04, 0x45, 0x84, 0x56, 0x38, 0xd9, 0x85, 0xfb,
-	0xbc, 0x8a, 0x0c, 0x4d, 0x1e, 0x2a, 0x6b, 0xdd, 0xe3, 0xb5, 0x44, 0xfa, 0xdb, 0x69, 0x96, 0x8c,
-	0x55, 0xff, 0xde, 0xc1, 0x2d, 0x9d, 0x6b, 0xb7, 0xf8, 0x4e, 0xbf, 0xef, 0x35, 0xcd, 0xd6, 0xfb,
-	0x9f, 0xeb, 0xa0, 0x15, 0x16, 0x14, 0xe4, 0xcb, 0xbc, 0xaa, 0xb6, 0x65, 0x3d, 0x5a, 0x89, 0xb5,
-	0xee, 0x35, 0x68, 0x5d, 0x35, 0x75, 0xec, 0xc2, 0x9d, 0x09, 0x6a, 0xcd, 0x22, 0xa4, 0xaf, 0x60,
-	0x7b, 0x19, 0x0b, 0xe9, 0x81, 0x3b, 0x25, 0xb0, 0x36, 0xd7, 0xc2, 0x7f, 0x01, 0x1a, 0xc2, 0xd6,
-	0x02, 0x86, 0x10, 0x75, 0x96, 0x18, 0x72, 0x08, 0xeb, 0xf5, 0x2d, 0xa8, 0x35, 0xfc, 0x01, 0x9b,
-	0xbf, 0x57, 0xf4, 0x8f, 0xd3, 0x4c, 0x8a, 0xd3, 0x8b, 0xf6, 0xf1, 0xaa, 0xa6, 0x4e, 0xff, 0xf9,
-	0xcd, 0x9a, 0x14, 0xb4, 0x66, 0xdc, 0x90, 0xd1, 0x02, 0xb1, 0xc5, 0x1c, 0x06, 0x2b, 0x95, 0x28,
-	0xfc, 0x07, 0xad, 0x46, 0x8f, 0x33, 0x43, 0xe8, 0xff, 0x6a, 0xc3, 0x46, 0x7d, 0xbd, 0xce, 0x30,
-	0xbd, 0x88, 0x39, 0x92, 0x9f, 0x0e, 0x3c, 0x5a, 0xb2, 0x7b, 0xe4, 0x45, 0xb3, 0xa8, 0xeb, 0xed,
-	0x7f, 0xf7, 0xe5, 0x0d, 0xd1, 0xc5, 0x1c, 0x68, 0x8b, 0xfc, 0x70, 0x60, 0xa3, 0x71, 0x56, 0x64,
-	0x85, 0x5d, 0xa8, 0xd6, 0xa9, 0x3b, 0x58, 0x09, 0x53, 0x89, 0xd8, 0x73, 0x0e, 0x9c, 0xe3, 0xc7,
-	0x9f, 0x68, 0x8e, 0xf5, 0x18, 0xf7, 0x4b, 0x0e, 0x7f, 0xf6, 0x29, 0x3e, 0x52, 0xf9, 0xdf, 0xf9,
-	0x6d, 0xfb, 0x40, 0x0e, 0xfe, 0x06, 0x00, 0x00, 0xff, 0xff, 0x35, 0xfd, 0x44, 0x68, 0xa7, 0x05,
-	0x00, 0x00,
+	// 508 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x94, 0x41, 0x6b, 0xd4, 0x40,
+	0x14, 0xc7, 0x93, 0x40, 0xd7, 0xcd, 0xab, 0x28, 0x8c, 0x2d, 0x94, 0xb8, 0x4b, 0x6b, 0x50, 0xbb,
+	0x82, 0x4d, 0xda, 0xdd, 0x8b, 0xb8, 0xf6, 0x60, 0x7b, 0x30, 0x20, 0x48, 0x49, 0x7b, 0x51, 0x90,
+	0x65, 0x1a, 0x1e, 0xd9, 0xb0, 0xd9, 0x99, 0x98, 0x99, 0x54, 0x7a, 0xf5, 0xe0, 0x17, 0xf0, 0x33,
+	0x89, 0x57, 0xc1, 0xaf, 0xe0, 0xc1, 0x8f, 0x21, 0x99, 0xcc, 0xa6, 0xbb, 0x76, 0x75, 0x6d, 0x4e,
+	0x61, 0x26, 0xef, 0xff, 0x7b, 0x6f, 0xfe, 0x33, 0xef, 0xc1, 0x03, 0x5a, 0xc8, 0xb1, 0x7f, 0x71,
+	0x40, 0xd3, 0x6c, 0x4c, 0xfd, 0x72, 0x81, 0x4c, 0x26, 0x11, 0x95, 0x09, 0x67, 0x5e, 0x96, 0x73,
+	0xc9, 0xc9, 0x06, 0xdb, 0x17, 0x92, 0x46, 0x13, 0xaf, 0xfc, 0xeb, 0xe9, 0x50, 0xa7, 0x13, 0x73,
+	0x1e, 0xa7, 0xe8, 0xd3, 0x2c, 0xf1, 0x29, 0x63, 0x5c, 0x2a, 0x89, 0xa8, 0x34, 0xce, 0x53, 0xf5,
+	0x89, 0xf6, 0x62, 0x64, 0x7b, 0xe2, 0x23, 0x8d, 0x63, 0xcc, 0x7d, 0x9e, 0xa9, 0x88, 0xeb, 0xd1,
+	0x6e, 0x0f, 0x1e, 0xbf, 0x42, 0xf9, 0x72, 0x21, 0xf9, 0x19, 0x9f, 0x20, 0x3b, 0x29, 0xce, 0xd3,
+	0x24, 0x7a, 0x8d, 0x97, 0x21, 0x7e, 0x28, 0x50, 0x48, 0x37, 0x80, 0xdd, 0x95, 0x91, 0x22, 0xe3,
+	0x4c, 0x20, 0xe9, 0x02, 0x64, 0x6a, 0x73, 0x34, 0xc1, 0xcb, 0x2d, 0x6b, 0xc7, 0xec, 0xd9, 0xa1,
+	0x9d, 0xcd, 0xc2, 0xdc, 0xef, 0x16, 0x74, 0x6a, 0x51, 0x05, 0xcc, 0x4b, 0x20, 0xea, 0x54, 0xe4,
+	0x04, 0xd6, 0x84, 0xa4, 0xb9, 0xdc, 0x32, 0x77, 0xcc, 0xde, 0x7a, 0xff, 0x99, 0xb7, 0xcc, 0x06,
+	0xef, 0x5f, 0x08, 0xef, 0xb4, 0xd4, 0x07, 0x46, 0x58, 0x81, 0xc8, 0x5b, 0x68, 0xe7, 0xba, 0x3a,
+	0x55, 0xcf, 0x7a, 0x7f, 0xd8, 0x00, 0x3a, 0x3b, 0x60, 0x60, 0x84, 0x35, 0xce, 0x39, 0x86, 0x35,
+	0x95, 0x8c, 0xdc, 0x07, 0xbb, 0x10, 0x98, 0x8f, 0x18, 0x9d, 0xa2, 0xaa, 0xdc, 0x0e, 0xdb, 0xe5,
+	0xc6, 0x1b, 0x3a, 0x5d, 0x65, 0x89, 0x33, 0x80, 0x76, 0xed, 0xde, 0x2e, 0xdc, 0x8d, 0xc6, 0x34,
+	0x4d, 0x91, 0xc5, 0x38, 0x92, 0xa5, 0xc3, 0x9a, 0x76, 0xa7, 0xde, 0x56, 0xbe, 0x1f, 0xd9, 0x70,
+	0x6b, 0x8a, 0x42, 0xd0, 0x18, 0xdd, 0x6f, 0x16, 0x74, 0xff, 0x52, 0xba, 0xa6, 0xbe, 0x07, 0xbb,
+	0x96, 0x6b, 0x5f, 0x0f, 0x6f, 0x64, 0x41, 0xc5, 0xf1, 0x8e, 0x67, 0x90, 0xc0, 0x08, 0xaf, 0x88,
+	0xe4, 0x0c, 0x5a, 0x39, 0x8a, 0x22, 0x95, 0xda, 0xde, 0xe7, 0x4d, 0xd8, 0xa1, 0x22, 0x04, 0x46,
+	0xa8, 0x59, 0xce, 0x13, 0xb0, 0xeb, 0x7c, 0xa4, 0xf3, 0xe7, 0x09, 0x6e, 0xcf, 0x15, 0xe0, 0x0c,
+	0xa1, 0x55, 0xc9, 0xc9, 0x01, 0x6c, 0x2c, 0x36, 0xd3, 0x82, 0x89, 0xf7, 0xe8, 0xf5, 0x17, 0x3c,
+	0xe7, 0x64, 0xff, 0x97, 0x05, 0x9b, 0x8b, 0x8f, 0xfc, 0x14, 0xf3, 0x8b, 0x24, 0x42, 0xf2, 0xd5,
+	0x84, 0xed, 0x15, 0x1d, 0x40, 0x5e, 0x2c, 0x3f, 0xf6, 0xff, 0xb5, 0x98, 0x73, 0xd8, 0x50, 0x5d,
+	0xd9, 0xe7, 0x3e, 0xfa, 0xf4, 0xe3, 0xe7, 0x17, 0x6b, 0x9b, 0x74, 0xd5, 0x64, 0x98, 0x1f, 0x2c,
+	0xcc, 0xbf, 0x7a, 0x7c, 0xe4, 0xb3, 0x09, 0x9b, 0x4b, 0xef, 0x81, 0xf4, 0x6f, 0xde, 0x13, 0xce,
+	0xa0, 0xc1, 0x45, 0xbb, 0x46, 0xcf, 0xdc, 0x37, 0x8f, 0x1e, 0xbe, 0x73, 0x4b, 0xad, 0x47, 0x23,
+	0x5f, 0x33, 0xfc, 0xf9, 0x91, 0x38, 0xcc, 0xca, 0xd5, 0x79, 0x4b, 0x0d, 0xaa, 0xc1, 0xef, 0x00,
+	0x00, 0x00, 0xff, 0xff, 0xf6, 0xe7, 0x29, 0xd3, 0x2f, 0x05, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.

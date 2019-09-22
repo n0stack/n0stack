@@ -6,6 +6,7 @@ package n0stack.iam.v1alpha;
 
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
 option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
@@ -51,15 +52,15 @@ service UserService {
 
   rpc CreateUser(CreateUserRequest) returns (User) {
     option (google.api.http) = {
-      post: "/api/v1alpha/user/{name}"
-      body: "*"
+      post: "/api/v1alpha/user/{user.name}"
+      body: "user"
     };
   }
 
   rpc UpdateUser(UpdateUserRequest) returns (User) {
     option (google.api.http) = {
-      put: "/api/v1alpha/user/{name}"
-      body: "*"
+      patch: "/api/v1alpha/user/{user.name}"
+      body: "user"
     };
   }
 
@@ -67,19 +68,6 @@ service UserService {
     option (google.api.http) = {
       delete: "/api/v1alpha/user/{name}"
     };
-  }
-
-  rpc AddPublicKey(AddPublicKeyRequest) returns (User) {
-    option (google.api.http) = {
-      post: "/api/v1alpha/user/{user_name}/public_key/{public_key_name}"
-      body: "*"
-    };
-  }
-  
-  rpc DeletePublicKey(DeletePublicKeyRequest) returns (User) {
-    option (google.api.http) = {
-      delete: "/api/v1alpha/user/{user_name}/public_key/{public_key_name}"
-    };    
   }
 }
 
@@ -89,31 +77,14 @@ message GetUserRequest {
 }
 
 message CreateUserRequest {
-  string name = 1;
-  map<string, string> annotations = 3;
-  map<string, string> labels = 4;
-
-  string display_name = 32;
+  User user = 1;
 }
 
 message UpdateUserRequest {
-  string name = 1;
-  map<string, string> annotations = 3;
-  map<string, string> labels = 4;
-
-  string display_name = 32;
+  User user = 1;
+  google.protobuf.FieldMask update_mask = 2;
 }
 
 message DeleteUserRequest {
   string name = 1;
-}
-
-message AddPublicKeyRequest {
-  string user_name = 1;
-  string public_key_name = 2;
-  string public_key = 3;
-}
-message DeletePublicKeyRequest {
-  string user_name = 1;
-  string public_key_name = 2;
 }
