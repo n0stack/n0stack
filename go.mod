@@ -1,4 +1,4 @@
-module github.com/n0stack/n0stack
+module n0st.ac/n0stack
 
 go 1.13
 
