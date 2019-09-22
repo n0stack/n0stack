@@ -4,13 +4,13 @@ import (
 	"context"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	"n0st.ac/n0stack/n0core/pkg/api/iam/authn"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	piam "n0st.ac/n0stack/iam/v1alpha"
+	authn "n0st.ac/n0stack/n0core/pkg/api/auth/authentication"
 	stdapi "n0st.ac/n0stack/n0core/pkg/api/standard_api"
 	"n0st.ac/n0stack/n0core/pkg/datastore"
 	grpcutil "n0st.ac/n0stack/n0core/pkg/util/grpc"
-	piam "n0st.ac/n0stack/n0proto.go/iam/v1alpha"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 )
 
 type ProjectAPI struct {
@@ -67,7 +67,7 @@ func (a *ProjectAPI) CreateProject(ctx context.Context, req *piam.CreateProjectR
 	return project, nil
 }
 
-func (a *ProjectAPI) UpdateProject(ctx context.Context, req *piam.CreateProjectRequest) (*piam.Project, error) {
+func (a *ProjectAPI) UpdateProject(ctx context.Context, req *piam.UpdateProjectRequest) (*piam.Project, error) {
 	project, version, err := GetProject(ctx, a.datastore, req.Name)
 	if err != nil {
 		return nil, err
