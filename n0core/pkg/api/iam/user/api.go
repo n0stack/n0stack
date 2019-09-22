@@ -30,8 +30,22 @@ func (a *UserAPI) GetUser(ctx context.Context, req *piam.GetUserRequest) (*piam.
 }
 
 func (a *UserAPI) CreateUser(ctx context.Context, req *piam.CreateUserRequest) (*piam.User, error) {
+	if req.User == nil {
+		return nil, grpcutil.Errorf(codes.InvalidArgument, "set user")
+	}
+
 	if err := stdapi.ValidateName(req.User.Name); err != nil {
 		return nil, err
+	}
+
+	if len(req.User.PublicKeys) < 1 {
+		return nil, grpcutil.Errorf(codes.InvalidArgument, "set public key")
+	}
+	for k, v := range req.User.PublicKeys {
+		_, _, _, _, err := ssh.ParseAuthorizedKey([]byte(v))
+		if err != nil {
+			return nil, grpcutil.Errorf(codes.InvalidArgument, "public key %s is invalid", k)
+		}
 	}
 
 	if _, _, err := GetUser(ctx, a.datastore, req.User.Name); err != nil {
@@ -45,16 +59,7 @@ func (a *UserAPI) CreateUser(ctx context.Context, req *piam.CreateUserRequest) (
 		Annotations: req.User.Annotations,
 		Labels:      req.User.Labels,
 		DisplayName: req.User.DisplayName,
-		PublicKeys:  make(map[string]string),
-	}
-
-	for k, v := range req.User.PublicKeys {
-		_, _, _, _, err := ssh.ParseAuthorizedKey([]byte(v))
-		if err != nil {
-			return nil, grpcutil.Errorf(codes.InvalidArgument, "public key %s is invalid", k)
-		}
-
-		user.PublicKeys[k] = v
+		PublicKeys:  req.User.PublicKeys,
 	}
 
 	if _, err := ApplyUser(ctx, a.datastore, user, 0); err != nil {
@@ -66,17 +71,31 @@ func (a *UserAPI) CreateUser(ctx context.Context, req *piam.CreateUserRequest) (
 
 func (a *UserAPI) UpdateUser(ctx context.Context, req *piam.UpdateUserRequest) (*piam.User, error) {
 	return nil, grpcutil.Errorf(codes.Unimplemented, "")
-
-	// _, version, err := GetUser(ctx, a.datastore, req.User.Name)
+	// user, version, err := GetUser(ctx, a.datastore, req.User.Name)
 	// if err != nil {
 	// 	return nil, err
 	// }
 
-	// user := &piam.User{
-	// 	Name:        req.User.Name,
-	// 	Annotations: req.User.Annotations,
-	// 	Labels:      req.User.Labels,
-	// 	DisplayName: req.User.DisplayName,
+	// for _, mask := range req.UpdateMask.Paths {
+	// 	path := strings.Split(mask, ".")
+
+	// 	for
+
+	// 	switch path[0] {
+	// 	case strings.HasPrefix(mask, "name"):
+	// 		user.Name = req.User.Name
+
+	// 	case strings.HasPrefix(mask, "annotations"):
+	// 		switch {
+	// 			case mask
+	// 		}
+	// 	// case strings.HasPrefix(mask, "labels"):
+
+	// 	case strings.HasPrefix(mask, "display_name"):
+	// 		user.DisplayName = req.User.DisplayName
+
+	// 		// case strings.HasPrefix(mask, "public_keys"):
+	// 	}
 	// }
 
 	// if _, err := ApplyUser(ctx, a.datastore, user, version); err != nil {
