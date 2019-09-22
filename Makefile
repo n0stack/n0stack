@@ -55,7 +55,7 @@ build-n0cli-on-docker:
 
 .PHONY: build-n0bff
 build-n0bff:
-	GOOS=${GOOS} GOARCH=${GOARCH} go build -o bin/n0bff -ldflags "-X main.version=$(VERSION)" -v ./n0bff
+	GOOS=${GOOS} GOARCH=${GOARCH} go build -o bin/n0bff -ldflags "-X main.version=$(VERSION)" -v ./n0core/cmd/n0bff
 
 .PHONY: build-n0bff-on-docker
 build-n0bff-on-docker:
