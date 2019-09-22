@@ -37,6 +37,9 @@ func ServeBFF(c *cli.Context) error {
 	if err := piam.RegisterUserServiceHandlerFromEndpoint(ctx, mux, api.Host, opts); err != nil {
 		return err
 	}
+	if err := piam.RegisterProjectServiceHandlerFromEndpoint(ctx, mux, api.Host, opts); err != nil {
+		return err
+	}
 	if err := pauth.RegisterAuthenticationServiceHandlerFromEndpoint(ctx, mux, api.Host, opts); err != nil {
 		return err
 	}
@@ -46,6 +49,9 @@ func ServeBFF(c *cli.Context) error {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.GET("/api/*", echo.WrapHandler(mux))
+	e.POST("/api/*", echo.WrapHandler(mux))
+	e.DELETE("/api/*", echo.WrapHandler(mux))
+	e.PATCH("/api/*", echo.WrapHandler(mux))
 	// websocket proxy ができてない
 
 	log.Printf("[INFO] Started BFF: version=%s", version)
