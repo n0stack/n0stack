@@ -6,8 +6,8 @@
     "application/json"
   ],
   "schemes": [
-    "http",
-    "https"
+    "https",
+    "http"
   ],
   "swagger": "2.0",
   "info": {
@@ -19,7 +19,7 @@
     "version": "version not set"
   },
   "paths": {
-    "/api/auth/v1alpha/authn/public_key": {
+    "/api/auth/v1alpha/authn:public_key": {
       "get": {
         "tags": [
           "AuthenticationService"
