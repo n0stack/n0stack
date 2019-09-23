@@ -121,3 +121,32 @@ func TestSetByJson(t *testing.T) {
 		t.Errorf("Get(%+v, %s, %s) returns wrong value: got=%s, want=%s", target, "foo.bar", "baz", target.Foo.Bar, "baz")
 	}
 }
+
+func TestUpdateWithMaskUsingJson(t *testing.T) {
+	type test struct {
+		Hoge string `json:"hoge"`
+		Foo  struct {
+			Bar string `json:"bar"`
+		} `json:"foo"`
+	}
+
+	target := &test{
+		Hoge: "hoge",
+	}
+	target.Foo.Bar = "bar"
+
+	source := &test{
+		Hoge: "hage",
+	}
+	source.Foo.Bar = "baz"
+
+	if err := UpdateWithMaskUsingJson(target, source, []string{"hoge"}); err != nil {
+		t.Errorf("UpdateWithMaskUsingJson(%+v, %+v, %+v) returns err=%+v", target, source, []string{"hoge"}, err)
+	}
+	if target.Hoge != "hage" {
+		t.Errorf("UpdateWithMaskUsingJson(%+v, %+v, %+v) does not update target: got=%s, want=%s", target, source, []string{"hoge"}, target.Hoge, "hage")
+	}
+	if target.Foo.Bar != "bar" {
+		t.Errorf("UpdateWithMaskUsingJson(%+v, %+v, %+v) update target unexpectedly: got=%s, want=%s", target, source, []string{"hoge"}, target.Foo.Bar, "bar")
+	}
+}
