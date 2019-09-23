@@ -2,6 +2,7 @@ package grpccmd
 
 import (
 	"context"
+	"crypto/tls"
 	"crypto/x509"
 	"fmt"
 	"log"
@@ -11,15 +12,21 @@ import (
 	"strings"
 
 	"github.com/gogo/protobuf/proto"
+	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+
+	structutil "n0st.ac/n0stack/n0core/pkg/util/struct"
 )
 
 var API_URL_FLAG = cli.StringFlag{
 	Name:   "api-url",
 	Value:  "grpc://localhost:20180",
 	EnvVar: "N0CLI_API_URL",
+}
+var API_INSECURE_FLAG = cli.BoolFlag{
+	Name: "insecure,k",
 }
 
 func Connect2gRPC(c *cli.Context) (*grpc.ClientConn, error) {
@@ -35,14 +42,19 @@ func Connect2gRPC(c *cli.Context) (*grpc.ClientConn, error) {
 		host += ":443"
 	}
 	if strings.HasSuffix(host, ":443") {
-		pool, err := x509.SystemCertPool()
-		if err != nil {
-			log.Fatal("failed to get system certifications")
+		if !c.GlobalBool("insecure") {
+			pool, err := x509.SystemCertPool()
+			if err != nil {
+				log.Fatal("failed to get system certifications")
+			}
+
+			creds := credentials.NewClientTLSFromCert(pool, "")
+			opts = append(opts, grpc.WithTransportCredentials(creds))
+		} else {
+			opts = append(opts, grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{
+				InsecureSkipVerify: true,
+			})))
 		}
-
-		creds := credentials.NewClientTLSFromCert(pool, "")
-		opts = append(opts, grpc.WithTransportCredentials(creds))
-
 	} else {
 		opts = append(opts, grpc.WithInsecure())
 	}
@@ -73,36 +85,40 @@ func GenerateGRPCGetter(f interface{}, argsKeys []string, newGrpcClient interfac
 			log.Println(c.String(a))
 		}
 
-		req := reflect.New(reqType.Elem())           // New() reqturns generated argument pointer, so New(*RequestMessage.Elem()) -> *RequestMessage{}
-		for i := 0; i < req.Elem().NumField(); i++ { // Call NumFiled on RequestMessage{}
-			field := reqType.Elem().Field(i)
-			tag := ParseJsonTag(field.Tag.Get("json"))
-			if tag == "-" {
+		req := reflect.New(reqType.Elem()) // New() reqturns generated argument pointer, so New(*RequestMessage.Elem()) -> *RequestMessage{}
+
+		for _, f := range c.FlagNames() {
+			if f == strings.Split(OUTPUT_TYPE_FLAG.Name, ",")[0] {
 				continue
 			}
 
-			target := req.Elem().Field(i) // 多分大丈夫だが少し不安
-			switch field.Type.Kind() {
+			v, err := structutil.GetValueByJson(req, f)
+			if err != nil {
+				return nil, errors.Wrapf(err, "GetValueByJson(%+v, %s) returns err=%+v", req, f, err)
+			}
+
+			var value interface{}
+			switch v.Kind() {
 			case reflect.String:
-				target.Set(reflect.ValueOf(c.String(tag)))
+				value = c.String(f)
 
 			case reflect.Bool:
-				target.Set(reflect.ValueOf(c.Bool(tag)))
+				value = c.Bool(f)
 
 			case reflect.Int64:
-				target.Set(reflect.ValueOf(c.Int64(tag)))
+				value = c.Int64(f)
 			case reflect.Int32:
-				target.Set(reflect.ValueOf(c.Int(tag)))
+				value = c.Int(f)
 			case reflect.Uint64:
-				target.Set(reflect.ValueOf(c.Uint64(tag)))
+				value = c.Uint64(f)
 			case reflect.Uint32:
-				target.Set(reflect.ValueOf(c.Uint(tag)))
+				value = c.Uint(f)
 
 			case reflect.Slice:
-				target.Set(reflect.ValueOf(c.StringSlice(tag)))
+				value = c.StringSlice(f)
 
 			case reflect.Map:
-				s := c.StringSlice(tag)
+				s := c.StringSlice(f)
 				m := make(map[string]string)
 
 				for _, t := range s {
@@ -112,14 +128,23 @@ func GenerateGRPCGetter(f interface{}, argsKeys []string, newGrpcClient interfac
 					} else if len(kv) == 2 {
 						m[kv[0]] = kv[1]
 					} else {
-						return nil, fmt.Errorf("Failed to parse map argument: --%s=%s", tag, t)
+						return nil, fmt.Errorf("Failed to parse map argument: --%s=%s", f, t)
 					}
 				}
-				target.Set(reflect.ValueOf(m))
+
+				value = m
+			}
+
+			if value == nil {
+				continue
+			}
+
+			if err := structutil.SetByJson(req.Interface(), f, value); err != nil {
+				return nil, errors.Wrapf(err, "failed to set %+v as request filed to %s", value, f)
 			}
 		}
 
-		log.Printf("[DEBUG] request: %+v", req)
+		log.Printf("[DEBUG] request: %+v", req.Interface())
 		newCli := reflect.ValueOf(newGrpcClient)
 		cli := newCli.Call([]reflect.Value{reflect.ValueOf(conn)})[0]
 		out := v.Call([]reflect.Value{cli, reflect.ValueOf(ctx), req})

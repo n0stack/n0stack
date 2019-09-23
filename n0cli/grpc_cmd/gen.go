@@ -19,6 +19,12 @@ func ParseJsonTag(tag string) string {
 // "name" is standard field, so get by args
 func GenerateFlags(targetGRPC interface{}, argsKeys []string) []cli.Flag {
 	t := reflect.TypeOf(targetGRPC).In(2).Elem()
+	flags := generateFlags(t, "", argsKeys)
+
+	return flags
+}
+
+func generateFlags(t reflect.Type, prefix string, argsKeys []string) []cli.Flag {
 	flags := []cli.Flag{}
 
 	for i := 0; i < t.NumField(); i++ {
@@ -28,6 +34,9 @@ func GenerateFlags(targetGRPC interface{}, argsKeys []string) []cli.Flag {
 		if tag == "-" {
 			continue
 		}
+		if prefix != "" {
+			tag = prefix + "." + tag
+		}
 
 		hidden := false
 		for _, a := range argsKeys {
@@ -35,6 +44,8 @@ func GenerateFlags(targetGRPC interface{}, argsKeys []string) []cli.Flag {
 				hidden = true
 			}
 		}
+
+		// log.Fatalf("%+v", field.Type.Kind())
 
 		switch field.Type.Kind() {
 		case reflect.String:
@@ -67,6 +78,9 @@ func GenerateFlags(targetGRPC interface{}, argsKeys []string) []cli.Flag {
 				Usage:  "set like --option=[key]:[value]",
 				Hidden: hidden,
 			})
+
+		case reflect.Ptr:
+			flags = append(flags, generateFlags(field.Type.Elem(), tag, argsKeys)...)
 		}
 	}
 

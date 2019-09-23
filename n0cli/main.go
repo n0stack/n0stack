@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -11,10 +10,7 @@ import (
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
 
-	pdeployment "n0st.ac/n0stack/n0proto.go/deployment/v0"
-	piam "n0st.ac/n0stack/n0proto.go/iam/v1alpha"
-	ppool "n0st.ac/n0stack/n0proto.go/pool/v0"
-	pprovisioning "n0st.ac/n0stack/n0proto.go/provisioning/v0"
+	piam "n0st.ac/n0stack/iam/v1alpha"
 
 	grpccmd "n0st.ac/n0stack/n0cli/grpc_cmd"
 )
@@ -44,6 +40,7 @@ func main() {
 
 	app.Flags = []cli.Flag{
 		grpccmd.API_URL_FLAG,
+		grpccmd.API_INSECURE_FLAG,
 	}
 	app.Commands = []cli.Command{
 		{
@@ -54,7 +51,7 @@ func main() {
 				{
 					Name:      "get",
 					Usage:     "Get User(s)",
-					ArgsUsage: "[User name (optional)]",
+					ArgsUsage: "[User name]",
 					Action: func(c *cli.Context) error {
 						out := outputter.GenerateOutputMethod([]string{"name", "labels", "display_name"})
 						if c.NArg() == 1 {
@@ -70,8 +67,8 @@ func main() {
 					Name:      "create",
 					Usage:     "Create User",
 					ArgsUsage: "[User name]",
-					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, piam.NewUserServiceClient, piam.UserServiceClient.CreateUser, []string{"name"}),
-					Flags:     grpccmd.GenerateFlags(piam.UserServiceClient.CreateUser, []string{"name"}),
+					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, piam.NewUserServiceClient, piam.UserServiceClient.CreateUser, []string{"user.name"}),
+					Flags:     grpccmd.GenerateFlags(piam.UserServiceClient.CreateUser, []string{"user.name"}),
 				},
 				{
 					Name:      "delete",
@@ -80,345 +77,331 @@ func main() {
 					Action:    grpccmd.GenerateAction(ctx, outputter.OutputNone, piam.NewUserServiceClient, piam.UserServiceClient.DeleteUser, []string{"name"}),
 					Flags:     grpccmd.GenerateFlags(piam.UserServiceClient.DeleteUser, []string{"name"}),
 				},
-				{
-					Name:      "add_public_key",
-					Usage:     "Add Public Key",
-					ArgsUsage: "[User name] [Public Key name] [Public Key]",
-					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, piam.NewUserServiceClient, piam.UserServiceClient.AddPublicKey, []string{"user_name", "public_key_name", "public_key"}),
-					Flags:     grpccmd.GenerateFlags(piam.UserServiceClient.AddPublicKey, []string{"user_name", "public_key_name", "public_key"}),
-				},
-				{
-					Name:      "delete_public_key",
-					Usage:     "Delete User",
-					ArgsUsage: "[User name] [Public Key name]",
-					Action:    grpccmd.GenerateAction(ctx, outputter.OutputNone, piam.NewUserServiceClient, piam.UserServiceClient.DeletePublicKey, []string{"user_name", "public_key_name"}),
-					Flags:     grpccmd.GenerateFlags(piam.UserServiceClient.DeletePublicKey, []string{"user_name", "public_key_name"}),
-				},
 			},
 		},
-		{
-			Name:  "do",
-			Usage: "Do DAG tasks (Detail n0stack/pkg/dag)",
-			Description: `
-	## File format
+		// 	{
+		// 		Name:  "do",
+		// 		Usage: "Do DAG tasks (Detail n0stack/pkg/dag)",
+		// 		Description: `
+		// ## File format
 
-	---
-	task_name:
-		type: Network
-		action: GetNetwork
-		args:
-			name: test-network
-		depend_on:
-			- dependency_task_name
-		ignore_error: true
-	dependency_task_name:
-		type: ...
-	---
+		// ---
+		// task_name:
+		// 	type: Network
+		// 	action: GetNetwork
+		// 	args:
+		// 		name: test-network
+		// 	depend_on:
+		// 		- dependency_task_name
+		// 	ignore_error: true
+		// dependency_task_name:
+		// 	type: ...
+		// ---
 
-	- task_name
-			- 任意の名前をつけ、ひとつのリクエストに対してユニークなものにする
-	- type
-			- gRPC メッセージを指定する
-			- VirtualMachine や virtual_machine という形で指定できる
-	- action
-			- gRPC の RPC を指定する
-			- GetNetwork など定義のとおりに書く
-	- args
-			- gRPC の RPCのリクエストを書く
-	- depend_on
-			- DAG スケジューリングに用いられる
-			- task_name を指定する
-	- ignore_error
-	    - タスクでエラーが発生しても継続する
-			`,
-			ArgsUsage: "[file name]",
-			Action:    Do,
-		},
-		{
-			Name:        "node",
-			Usage:       "Node APIs",
-			Description: "",
-			Subcommands: []cli.Command{
-				{
-					Name:      "get",
-					Usage:     "Get Node(s)",
-					ArgsUsage: "[Node name (optional)]",
-					Action: func(c *cli.Context) error {
-						out := outputter.GenerateOutputMethod([]string{"name", "labels", "state", "address", "ipmi_address", "serial"})
-						if c.NArg() == 0 {
-							f := grpccmd.GenerateAction(ctx, out, ppool.NewNodeServiceClient, ppool.NodeServiceClient.ListNodes, []string{})
-							return f(c)
-						} else if c.NArg() == 1 {
-							f := grpccmd.GenerateAction(ctx, out, ppool.NewNodeServiceClient, ppool.NodeServiceClient.GetNode, []string{"name"})
-							return f(c)
-						}
+		// - task_name
+		// 		- 任意の名前をつけ、ひとつのリクエストに対してユニークなものにする
+		// - type
+		// 		- gRPC メッセージを指定する
+		// 		- VirtualMachine や virtual_machine という形で指定できる
+		// - action
+		// 		- gRPC の RPC を指定する
+		// 		- GetNetwork など定義のとおりに書く
+		// - args
+		// 		- gRPC の RPCのリクエストを書く
+		// - depend_on
+		// 		- DAG スケジューリングに用いられる
+		// 		- task_name を指定する
+		// - ignore_error
+		//     - タスクでエラーが発生しても継続する
+		// 		`,
+		// 		ArgsUsage: "[file name]",
+		// 		Action:    Do,
+		// 	},
+		// {
+		// 	Name:        "node",
+		// 	Usage:       "Node APIs",
+		// 	Description: "",
+		// 	Subcommands: []cli.Command{
+		// 		{
+		// 			Name:      "get",
+		// 			Usage:     "Get Node(s)",
+		// 			ArgsUsage: "[Node name (optional)]",
+		// 			Action: func(c *cli.Context) error {
+		// 				out := outputter.GenerateOutputMethod([]string{"name", "labels", "state", "address", "ipmi_address", "serial"})
+		// 				if c.NArg() == 0 {
+		// 					f := grpccmd.GenerateAction(ctx, out, ppool.NewNodeServiceClient, ppool.NodeServiceClient.ListNodes, []string{})
+		// 					return f(c)
+		// 				} else if c.NArg() == 1 {
+		// 					f := grpccmd.GenerateAction(ctx, out, ppool.NewNodeServiceClient, ppool.NodeServiceClient.GetNode, []string{"name"})
+		// 					return f(c)
+		// 				}
 
-						return fmt.Errorf("set valid arguments")
-					},
-					Flags: append(grpccmd.GenerateFlags(ppool.NodeServiceClient.GetNode, []string{"name"}), grpccmd.OUTPUT_TYPE_FLAG),
-				},
-			},
-		},
-		{
-			Name:        "network",
-			Aliases:     []string{"net"},
-			Usage:       "Network APIs",
-			Description: "",
-			Subcommands: []cli.Command{
-				{
-					Name:      "get",
-					Usage:     "Get Network(s)",
-					ArgsUsage: "[Network name (optional)]",
-					Action: func(c *cli.Context) error {
-						out := outputter.GenerateOutputMethod([]string{"name", "labels", "state", "ipv4_cidr", "ipv6_cidr"})
-						if c.NArg() == 0 {
-							f := grpccmd.GenerateAction(ctx, out, ppool.NewNetworkServiceClient, ppool.NetworkServiceClient.ListNetworks, []string{})
-							return f(c)
-						} else if c.NArg() == 1 {
-							f := grpccmd.GenerateAction(ctx, out, ppool.NewNetworkServiceClient, ppool.NetworkServiceClient.GetNetwork, []string{"name"})
-							return f(c)
-						}
+		// 				return fmt.Errorf("set valid arguments")
+		// 			},
+		// 			Flags: append(grpccmd.GenerateFlags(ppool.NodeServiceClient.GetNode, []string{"name"}), grpccmd.OUTPUT_TYPE_FLAG),
+		// 		},
+		// 	},
+		// },
+		// {
+		// 	Name:        "network",
+		// 	Aliases:     []string{"net"},
+		// 	Usage:       "Network APIs",
+		// 	Description: "",
+		// 	Subcommands: []cli.Command{
+		// 		{
+		// 			Name:      "get",
+		// 			Usage:     "Get Network(s)",
+		// 			ArgsUsage: "[Network name (optional)]",
+		// 			Action: func(c *cli.Context) error {
+		// 				out := outputter.GenerateOutputMethod([]string{"name", "labels", "state", "ipv4_cidr", "ipv6_cidr"})
+		// 				if c.NArg() == 0 {
+		// 					f := grpccmd.GenerateAction(ctx, out, ppool.NewNetworkServiceClient, ppool.NetworkServiceClient.ListNetworks, []string{})
+		// 					return f(c)
+		// 				} else if c.NArg() == 1 {
+		// 					f := grpccmd.GenerateAction(ctx, out, ppool.NewNetworkServiceClient, ppool.NetworkServiceClient.GetNetwork, []string{"name"})
+		// 					return f(c)
+		// 				}
 
-						return fmt.Errorf("set valid arguments")
-					},
-					Flags: append(grpccmd.GenerateFlags(ppool.NetworkServiceClient.GetNetwork, []string{"name"}), grpccmd.OUTPUT_TYPE_FLAG),
-				},
-				{
-					Name:      "delete",
-					Usage:     "Delete Network",
-					ArgsUsage: "[Network name]",
-					Action:    grpccmd.GenerateAction(ctx, outputter.OutputNone, ppool.NewNetworkServiceClient, ppool.NetworkServiceClient.DeleteNetwork, []string{"name"}),
-					Flags:     grpccmd.GenerateFlags(ppool.NetworkServiceClient.DeleteNetwork, []string{"name"}),
-				},
-				{
-					Name:      "apply",
-					Usage:     "Apply Network",
-					ArgsUsage: "[Network name]",
-					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, ppool.NewNetworkServiceClient, ppool.NetworkServiceClient.ApplyNetwork, []string{"name"}),
-					Flags:     grpccmd.GenerateFlags(ppool.NetworkServiceClient.ApplyNetwork, []string{"name"}),
-				},
-			},
-		},
+		// 				return fmt.Errorf("set valid arguments")
+		// 			},
+		// 			Flags: append(grpccmd.GenerateFlags(ppool.NetworkServiceClient.GetNetwork, []string{"name"}), grpccmd.OUTPUT_TYPE_FLAG),
+		// 		},
+		// 		{
+		// 			Name:      "delete",
+		// 			Usage:     "Delete Network",
+		// 			ArgsUsage: "[Network name]",
+		// 			Action:    grpccmd.GenerateAction(ctx, outputter.OutputNone, ppool.NewNetworkServiceClient, ppool.NetworkServiceClient.DeleteNetwork, []string{"name"}),
+		// 			Flags:     grpccmd.GenerateFlags(ppool.NetworkServiceClient.DeleteNetwork, []string{"name"}),
+		// 		},
+		// 		{
+		// 			Name:      "apply",
+		// 			Usage:     "Apply Network",
+		// 			ArgsUsage: "[Network name]",
+		// 			Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, ppool.NewNetworkServiceClient, ppool.NetworkServiceClient.ApplyNetwork, []string{"name"}),
+		// 			Flags:     grpccmd.GenerateFlags(ppool.NetworkServiceClient.ApplyNetwork, []string{"name"}),
+		// 		},
+		// 	},
+		// },
 
-		{
-			Name:        "virtual_machine",
-			Aliases:     []string{"vm"},
-			Usage:       "VirtualMachine APIs",
-			Description: "",
-			Subcommands: []cli.Command{
-				{
-					Name:      "get",
-					Usage:     "Get VirtualMachine(s)",
-					ArgsUsage: "[VirtualMachine name (optional)]",
-					Action: func(c *cli.Context) error {
-						out := outputter.GenerateOutputMethod([]string{"name", "labels", "state", "uuid", "request_cpu_milli_core", "limit_cpu_milli_core", "request_memory_bytes", "limit_memory_bytes"})
-						if c.NArg() == 0 {
-							f := grpccmd.GenerateAction(ctx, out, pprovisioning.NewVirtualMachineServiceClient, pprovisioning.VirtualMachineServiceClient.ListVirtualMachines, []string{})
-							return f(c)
-						} else if c.NArg() == 1 {
-							f := grpccmd.GenerateAction(ctx, out, pprovisioning.NewVirtualMachineServiceClient, pprovisioning.VirtualMachineServiceClient.GetVirtualMachine, []string{"name"})
-							return f(c)
-						}
+		// {
+		// 	Name:        "virtual_machine",
+		// 	Aliases:     []string{"vm"},
+		// 	Usage:       "VirtualMachine APIs",
+		// 	Description: "",
+		// 	Subcommands: []cli.Command{
+		// 		{
+		// 			Name:      "get",
+		// 			Usage:     "Get VirtualMachine(s)",
+		// 			ArgsUsage: "[VirtualMachine name (optional)]",
+		// 			Action: func(c *cli.Context) error {
+		// 				out := outputter.GenerateOutputMethod([]string{"name", "labels", "state", "uuid", "request_cpu_milli_core", "limit_cpu_milli_core", "request_memory_bytes", "limit_memory_bytes"})
+		// 				if c.NArg() == 0 {
+		// 					f := grpccmd.GenerateAction(ctx, out, pprovisioning.NewVirtualMachineServiceClient, pprovisioning.VirtualMachineServiceClient.ListVirtualMachines, []string{})
+		// 					return f(c)
+		// 				} else if c.NArg() == 1 {
+		// 					f := grpccmd.GenerateAction(ctx, out, pprovisioning.NewVirtualMachineServiceClient, pprovisioning.VirtualMachineServiceClient.GetVirtualMachine, []string{"name"})
+		// 					return f(c)
+		// 				}
 
-						return fmt.Errorf("set valid arguments")
-					},
-					Flags: append(grpccmd.GenerateFlags(pprovisioning.VirtualMachineServiceClient.GetVirtualMachine, []string{"name"}), grpccmd.OUTPUT_TYPE_FLAG),
-				},
-				{
-					Name:      "delete",
-					Usage:     "Delete VirtualMachine",
-					ArgsUsage: "[VirtualMachine name]",
-					Action:    grpccmd.GenerateAction(ctx, outputter.OutputNone, pprovisioning.NewVirtualMachineServiceClient, pprovisioning.VirtualMachineServiceClient.DeleteVirtualMachine, []string{"name"}),
-					Flags:     grpccmd.GenerateFlags(pprovisioning.VirtualMachineServiceClient.DeleteVirtualMachine, []string{"name"}),
-				},
-				{
-					Name:      "create",
-					Usage:     "Create VirtualMachine",
-					ArgsUsage: "[VirtualMachine name]",
-					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pprovisioning.NewVirtualMachineServiceClient, pprovisioning.VirtualMachineServiceClient.CreateVirtualMachine, []string{"name"}),
-					Flags:     grpccmd.GenerateFlags(pprovisioning.VirtualMachineServiceClient.CreateVirtualMachine, []string{"name"}),
-				},
-				{
-					Name:      "boot",
-					Usage:     "Boot VirtualMachine",
-					ArgsUsage: "[VirtualMachine name]",
-					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pprovisioning.NewVirtualMachineServiceClient, pprovisioning.VirtualMachineServiceClient.BootVirtualMachine, []string{"name"}),
-					Flags:     grpccmd.GenerateFlags(pprovisioning.VirtualMachineServiceClient.BootVirtualMachine, []string{"name"}),
-				},
-				{
-					Name:      "reboot",
-					Usage:     "Reboot VirtualMachine",
-					ArgsUsage: "[VirtualMachine name]",
-					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pprovisioning.NewVirtualMachineServiceClient, pprovisioning.VirtualMachineServiceClient.RebootVirtualMachine, []string{"name"}),
-					Flags:     grpccmd.GenerateFlags(pprovisioning.VirtualMachineServiceClient.RebootVirtualMachine, []string{"name"}),
-				},
-				{
-					Name:      "shutdown",
-					Usage:     "Shutdown VirtualMachine",
-					ArgsUsage: "[VirtualMachine name]",
-					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pprovisioning.NewVirtualMachineServiceClient, pprovisioning.VirtualMachineServiceClient.ShutdownVirtualMachine, []string{"name"}),
-					Flags:     grpccmd.GenerateFlags(pprovisioning.VirtualMachineServiceClient.ShutdownVirtualMachine, []string{"name"}),
-				},
-				{
-					Name:      "open_console",
-					Aliases:   []string{"console"},
-					Usage:     "Get URL to open console of VirtualMachine",
-					ArgsUsage: "[VirtualMachine name]",
-					Action:    OpenConsoleOfVirtualMachine,
-				},
-			},
-		},
-		{
-			Name:        "block_storage",
-			Aliases:     []string{"bs"},
-			Usage:       "BlockStorage APIs",
-			Description: "",
-			Subcommands: []cli.Command{
-				{
-					Name:      "get",
-					Usage:     "Get BlockStorage(s)",
-					ArgsUsage: "[BlockStorage name (optional)]",
-					Action: func(c *cli.Context) error {
-						out := outputter.GenerateOutputMethod([]string{"name", "labels", "state", "request_bytes", "limit_bytes"})
-						if c.NArg() == 0 {
-							f := grpccmd.GenerateAction(ctx, out, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.ListBlockStorages, []string{})
-							return f(c)
-						} else if c.NArg() == 1 {
-							f := grpccmd.GenerateAction(ctx, out, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.GetBlockStorage, []string{"name"})
-							return f(c)
-						}
+		// 				return fmt.Errorf("set valid arguments")
+		// 			},
+		// 			Flags: append(grpccmd.GenerateFlags(pprovisioning.VirtualMachineServiceClient.GetVirtualMachine, []string{"name"}), grpccmd.OUTPUT_TYPE_FLAG),
+		// 		},
+		// 		{
+		// 			Name:      "delete",
+		// 			Usage:     "Delete VirtualMachine",
+		// 			ArgsUsage: "[VirtualMachine name]",
+		// 			Action:    grpccmd.GenerateAction(ctx, outputter.OutputNone, pprovisioning.NewVirtualMachineServiceClient, pprovisioning.VirtualMachineServiceClient.DeleteVirtualMachine, []string{"name"}),
+		// 			Flags:     grpccmd.GenerateFlags(pprovisioning.VirtualMachineServiceClient.DeleteVirtualMachine, []string{"name"}),
+		// 		},
+		// 		{
+		// 			Name:      "create",
+		// 			Usage:     "Create VirtualMachine",
+		// 			ArgsUsage: "[VirtualMachine name]",
+		// 			Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pprovisioning.NewVirtualMachineServiceClient, pprovisioning.VirtualMachineServiceClient.CreateVirtualMachine, []string{"name"}),
+		// 			Flags:     grpccmd.GenerateFlags(pprovisioning.VirtualMachineServiceClient.CreateVirtualMachine, []string{"name"}),
+		// 		},
+		// 		{
+		// 			Name:      "boot",
+		// 			Usage:     "Boot VirtualMachine",
+		// 			ArgsUsage: "[VirtualMachine name]",
+		// 			Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pprovisioning.NewVirtualMachineServiceClient, pprovisioning.VirtualMachineServiceClient.BootVirtualMachine, []string{"name"}),
+		// 			Flags:     grpccmd.GenerateFlags(pprovisioning.VirtualMachineServiceClient.BootVirtualMachine, []string{"name"}),
+		// 		},
+		// 		{
+		// 			Name:      "reboot",
+		// 			Usage:     "Reboot VirtualMachine",
+		// 			ArgsUsage: "[VirtualMachine name]",
+		// 			Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pprovisioning.NewVirtualMachineServiceClient, pprovisioning.VirtualMachineServiceClient.RebootVirtualMachine, []string{"name"}),
+		// 			Flags:     grpccmd.GenerateFlags(pprovisioning.VirtualMachineServiceClient.RebootVirtualMachine, []string{"name"}),
+		// 		},
+		// 		{
+		// 			Name:      "shutdown",
+		// 			Usage:     "Shutdown VirtualMachine",
+		// 			ArgsUsage: "[VirtualMachine name]",
+		// 			Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pprovisioning.NewVirtualMachineServiceClient, pprovisioning.VirtualMachineServiceClient.ShutdownVirtualMachine, []string{"name"}),
+		// 			Flags:     grpccmd.GenerateFlags(pprovisioning.VirtualMachineServiceClient.ShutdownVirtualMachine, []string{"name"}),
+		// 		},
+		// 		{
+		// 			Name:      "open_console",
+		// 			Aliases:   []string{"console"},
+		// 			Usage:     "Get URL to open console of VirtualMachine",
+		// 			ArgsUsage: "[VirtualMachine name]",
+		// 			Action:    OpenConsoleOfVirtualMachine,
+		// 		},
+		// 	},
+		// },
+		// {
+		// 	Name:        "block_storage",
+		// 	Aliases:     []string{"bs"},
+		// 	Usage:       "BlockStorage APIs",
+		// 	Description: "",
+		// 	Subcommands: []cli.Command{
+		// 		{
+		// 			Name:      "get",
+		// 			Usage:     "Get BlockStorage(s)",
+		// 			ArgsUsage: "[BlockStorage name (optional)]",
+		// 			Action: func(c *cli.Context) error {
+		// 				out := outputter.GenerateOutputMethod([]string{"name", "labels", "state", "request_bytes", "limit_bytes"})
+		// 				if c.NArg() == 0 {
+		// 					f := grpccmd.GenerateAction(ctx, out, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.ListBlockStorages, []string{})
+		// 					return f(c)
+		// 				} else if c.NArg() == 1 {
+		// 					f := grpccmd.GenerateAction(ctx, out, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.GetBlockStorage, []string{"name"})
+		// 					return f(c)
+		// 				}
 
-						return fmt.Errorf("set valid arguments")
-					},
-					Flags: append(grpccmd.GenerateFlags(pprovisioning.BlockStorageServiceClient.GetBlockStorage, []string{"name"}), grpccmd.OUTPUT_TYPE_FLAG),
-				},
-				{
-					Name:      "delete",
-					Usage:     "Delete BlockStorage",
-					ArgsUsage: "[BlockStorage name]",
-					Action:    grpccmd.GenerateAction(ctx, outputter.OutputNone, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.DeleteBlockStorage, []string{"name"}),
-					Flags:     grpccmd.GenerateFlags(pprovisioning.BlockStorageServiceClient.DeleteBlockStorage, []string{"name"}),
-				},
-				{
-					Name:      "undelete",
-					Usage:     "Undelete BlockStorage",
-					ArgsUsage: "[BlockStorage name]",
-					Action:    grpccmd.GenerateAction(ctx, outputter.OutputNone, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.UndeleteBlockStorage, []string{"name"}),
-					Flags:     grpccmd.GenerateFlags(pprovisioning.BlockStorageServiceClient.UndeleteBlockStorage, []string{"name"}),
-				},
-				{
-					Name:      "purge",
-					Usage:     "Purge BlockStorage",
-					ArgsUsage: "[BlockStorage name]",
-					Action:    grpccmd.GenerateAction(ctx, outputter.OutputNone, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.PurgeBlockStorage, []string{"name"}),
-					Flags:     grpccmd.GenerateFlags(pprovisioning.BlockStorageServiceClient.PurgeBlockStorage, []string{"name"}),
-				},
-				{
-					Name:      "create",
-					Usage:     "Create BlockStorage",
-					ArgsUsage: "[BlockStorage name]",
-					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.CreateBlockStorage, []string{"name"}),
-					Flags:     grpccmd.GenerateFlags(pprovisioning.BlockStorageServiceClient.CreateBlockStorage, []string{"name"}),
-				},
-				{
-					Name:      "copy",
-					Usage:     "Create BlockStorage",
-					ArgsUsage: "[BlockStorage name]",
-					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.CopyBlockStorage, []string{"name"}),
-					Flags:     grpccmd.GenerateFlags(pprovisioning.BlockStorageServiceClient.CopyBlockStorage, []string{"name"}),
-				},
-				{
-					Name:      "fetch",
-					Usage:     "Fetch BlockStorage",
-					ArgsUsage: "[BlockStorage name]",
-					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.FetchBlockStorage, []string{"name"}),
-					Flags:     grpccmd.GenerateFlags(pprovisioning.BlockStorageServiceClient.FetchBlockStorage, []string{"name"}),
-				},
-				{
-					Name:      "update",
-					Usage:     "Update BlockStorage",
-					ArgsUsage: "[BlockStorage name]",
-					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.UpdateBlockStorage, []string{"name"}),
-					Flags:     grpccmd.GenerateFlags(pprovisioning.BlockStorageServiceClient.UpdateBlockStorage, []string{"name"}),
-				},
-				{
-					Name:      "download",
-					Usage:     "Get URL to download BlockStorage",
-					ArgsUsage: "[BlockStorage name]",
-					Action:    DownloadBlockStorage,
-				},
-			},
-		},
-		{
-			Name:        "image",
-			Usage:       "Image APIs",
-			Description: "",
-			Subcommands: []cli.Command{
-				{
-					Name:      "get",
-					Usage:     "Get Image(s)",
-					ArgsUsage: "[Image name (optional)]",
-					Action: func(c *cli.Context) error {
-						out := outputter.GenerateOutputMethod([]string{"name", "labels", "tags"})
-						if c.NArg() == 0 {
-							f := grpccmd.GenerateAction(ctx, out, pdeployment.NewImageServiceClient, pdeployment.ImageServiceClient.ListImages, []string{})
-							return f(c)
-						} else if c.NArg() == 1 {
-							f := grpccmd.GenerateAction(ctx, out, pdeployment.NewImageServiceClient, pdeployment.ImageServiceClient.GetImage, []string{"name"})
-							return f(c)
-						}
+		// 				return fmt.Errorf("set valid arguments")
+		// 			},
+		// 			Flags: append(grpccmd.GenerateFlags(pprovisioning.BlockStorageServiceClient.GetBlockStorage, []string{"name"}), grpccmd.OUTPUT_TYPE_FLAG),
+		// 		},
+		// 		{
+		// 			Name:      "delete",
+		// 			Usage:     "Delete BlockStorage",
+		// 			ArgsUsage: "[BlockStorage name]",
+		// 			Action:    grpccmd.GenerateAction(ctx, outputter.OutputNone, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.DeleteBlockStorage, []string{"name"}),
+		// 			Flags:     grpccmd.GenerateFlags(pprovisioning.BlockStorageServiceClient.DeleteBlockStorage, []string{"name"}),
+		// 		},
+		// 		{
+		// 			Name:      "undelete",
+		// 			Usage:     "Undelete BlockStorage",
+		// 			ArgsUsage: "[BlockStorage name]",
+		// 			Action:    grpccmd.GenerateAction(ctx, outputter.OutputNone, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.UndeleteBlockStorage, []string{"name"}),
+		// 			Flags:     grpccmd.GenerateFlags(pprovisioning.BlockStorageServiceClient.UndeleteBlockStorage, []string{"name"}),
+		// 		},
+		// 		{
+		// 			Name:      "purge",
+		// 			Usage:     "Purge BlockStorage",
+		// 			ArgsUsage: "[BlockStorage name]",
+		// 			Action:    grpccmd.GenerateAction(ctx, outputter.OutputNone, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.PurgeBlockStorage, []string{"name"}),
+		// 			Flags:     grpccmd.GenerateFlags(pprovisioning.BlockStorageServiceClient.PurgeBlockStorage, []string{"name"}),
+		// 		},
+		// 		{
+		// 			Name:      "create",
+		// 			Usage:     "Create BlockStorage",
+		// 			ArgsUsage: "[BlockStorage name]",
+		// 			Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.CreateBlockStorage, []string{"name"}),
+		// 			Flags:     grpccmd.GenerateFlags(pprovisioning.BlockStorageServiceClient.CreateBlockStorage, []string{"name"}),
+		// 		},
+		// 		{
+		// 			Name:      "copy",
+		// 			Usage:     "Create BlockStorage",
+		// 			ArgsUsage: "[BlockStorage name]",
+		// 			Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.CopyBlockStorage, []string{"name"}),
+		// 			Flags:     grpccmd.GenerateFlags(pprovisioning.BlockStorageServiceClient.CopyBlockStorage, []string{"name"}),
+		// 		},
+		// 		{
+		// 			Name:      "fetch",
+		// 			Usage:     "Fetch BlockStorage",
+		// 			ArgsUsage: "[BlockStorage name]",
+		// 			Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.FetchBlockStorage, []string{"name"}),
+		// 			Flags:     grpccmd.GenerateFlags(pprovisioning.BlockStorageServiceClient.FetchBlockStorage, []string{"name"}),
+		// 		},
+		// 		{
+		// 			Name:      "update",
+		// 			Usage:     "Update BlockStorage",
+		// 			ArgsUsage: "[BlockStorage name]",
+		// 			Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pprovisioning.NewBlockStorageServiceClient, pprovisioning.BlockStorageServiceClient.UpdateBlockStorage, []string{"name"}),
+		// 			Flags:     grpccmd.GenerateFlags(pprovisioning.BlockStorageServiceClient.UpdateBlockStorage, []string{"name"}),
+		// 		},
+		// 		{
+		// 			Name:      "download",
+		// 			Usage:     "Get URL to download BlockStorage",
+		// 			ArgsUsage: "[BlockStorage name]",
+		// 			Action:    DownloadBlockStorage,
+		// 		},
+		// 	},
+		// },
+		// {
+		// 	Name:        "image",
+		// 	Usage:       "Image APIs",
+		// 	Description: "",
+		// 	Subcommands: []cli.Command{
+		// 		{
+		// 			Name:      "get",
+		// 			Usage:     "Get Image(s)",
+		// 			ArgsUsage: "[Image name (optional)]",
+		// 			Action: func(c *cli.Context) error {
+		// 				out := outputter.GenerateOutputMethod([]string{"name", "labels", "tags"})
+		// 				if c.NArg() == 0 {
+		// 					f := grpccmd.GenerateAction(ctx, out, pdeployment.NewImageServiceClient, pdeployment.ImageServiceClient.ListImages, []string{})
+		// 					return f(c)
+		// 				} else if c.NArg() == 1 {
+		// 					f := grpccmd.GenerateAction(ctx, out, pdeployment.NewImageServiceClient, pdeployment.ImageServiceClient.GetImage, []string{"name"})
+		// 					return f(c)
+		// 				}
 
-						return fmt.Errorf("set valid arguments")
-					},
-					Flags: append(grpccmd.GenerateFlags(pdeployment.ImageServiceClient.GetImage, []string{"name"}), grpccmd.OUTPUT_TYPE_FLAG),
-				},
-				{
-					Name:      "delete",
-					Usage:     "Delete Image",
-					ArgsUsage: "[Image name]",
-					Action:    grpccmd.GenerateAction(ctx, outputter.OutputNone, pdeployment.NewImageServiceClient, pdeployment.ImageServiceClient.DeleteImage, []string{"name"}),
-					Flags:     grpccmd.GenerateFlags(pdeployment.ImageServiceClient.DeleteImage, []string{"name"}),
-				},
-				{
-					Name:      "apply",
-					Usage:     "Apply Image",
-					ArgsUsage: "[Image name]",
-					Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pdeployment.NewImageServiceClient, pdeployment.ImageServiceClient.ApplyImage, []string{"name"}),
-					Flags:     grpccmd.GenerateFlags(pdeployment.ImageServiceClient.ApplyImage, []string{"name"}),
-				},
-				{
-					Name:        "register",
-					Usage:       "Add [BlockStorage] to [Image name] WITH ApplyImageRequest [Image name]",
-					Description: "register blockstorage to image.",
-					ArgsUsage:   "[Image name] [BlockStorage name]",
-					Flags: []cli.Flag{
-						cli.BoolFlag{
-							Name:  "apply-image, a",
-							Usage: "If [Image name] doesn't exist, it send ApplyImageRequest.",
-						},
-					},
-					Action: RegisterBlockStorage,
-				},
-				{
-					Name:      "unregister",
-					Usage:     "Remove [BlockStorage name] from [Image name]",
-					ArgsUsage: "[Image name] [BlockStorage name]",
-					Action:    UnregisterBlockStorage,
-				},
-				{
-					Name:      "tag",
-					Usage:     "Add [Tag name] to [BlockStorage name] of [Image name]",
-					ArgsUsage: "[Image name]:[Tag name] [BlockStorage name]",
-					Action:    Tag,
-				},
-				{
-					Name:      "untag",
-					Usage:     "Remove [Tag name] from [Image name]",
-					ArgsUsage: "[Image name]:[Tag name]",
-					Action:    Untag,
-				},
-			},
-		},
+		// 				return fmt.Errorf("set valid arguments")
+		// 			},
+		// 			Flags: append(grpccmd.GenerateFlags(pdeployment.ImageServiceClient.GetImage, []string{"name"}), grpccmd.OUTPUT_TYPE_FLAG),
+		// 		},
+		// 		{
+		// 			Name:      "delete",
+		// 			Usage:     "Delete Image",
+		// 			ArgsUsage: "[Image name]",
+		// 			Action:    grpccmd.GenerateAction(ctx, outputter.OutputNone, pdeployment.NewImageServiceClient, pdeployment.ImageServiceClient.DeleteImage, []string{"name"}),
+		// 			Flags:     grpccmd.GenerateFlags(pdeployment.ImageServiceClient.DeleteImage, []string{"name"}),
+		// 		},
+		// 		{
+		// 			Name:      "apply",
+		// 			Usage:     "Apply Image",
+		// 			ArgsUsage: "[Image name]",
+		// 			Action:    grpccmd.GenerateAction(ctx, outputter.OutputJsonAsOutputMessage, pdeployment.NewImageServiceClient, pdeployment.ImageServiceClient.ApplyImage, []string{"name"}),
+		// 			Flags:     grpccmd.GenerateFlags(pdeployment.ImageServiceClient.ApplyImage, []string{"name"}),
+		// 		},
+		// 		{
+		// 			Name:        "register",
+		// 			Usage:       "Add [BlockStorage] to [Image name] WITH ApplyImageRequest [Image name]",
+		// 			Description: "register blockstorage to image.",
+		// 			ArgsUsage:   "[Image name] [BlockStorage name]",
+		// 			Flags: []cli.Flag{
+		// 				cli.BoolFlag{
+		// 					Name:  "apply-image, a",
+		// 					Usage: "If [Image name] doesn't exist, it send ApplyImageRequest.",
+		// 				},
+		// 			},
+		// 			Action: RegisterBlockStorage,
+		// 		},
+		// 		{
+		// 			Name:      "unregister",
+		// 			Usage:     "Remove [BlockStorage name] from [Image name]",
+		// 			ArgsUsage: "[Image name] [BlockStorage name]",
+		// 			Action:    UnregisterBlockStorage,
+		// 		},
+		// 		{
+		// 			Name:      "tag",
+		// 			Usage:     "Add [Tag name] to [BlockStorage name] of [Image name]",
+		// 			ArgsUsage: "[Image name]:[Tag name] [BlockStorage name]",
+		// 			Action:    Tag,
+		// 		},
+		// 		{
+		// 			Name:      "untag",
+		// 			Usage:     "Remove [Tag name] from [Image name]",
+		// 			ArgsUsage: "[Image name]:[Tag name]",
+		// 			Action:    Untag,
+		// 		},
+		// 	},
+		// },
 	}
 
 	getCommand := cli.Command{
@@ -460,7 +443,7 @@ func main() {
 	app.Commands = append(app.Commands, deleteCommand)
 
 	log.SetFlags(log.Lshortfile)
-	log.SetOutput(ioutil.Discard)
+	// log.SetOutput(ioutil.Discard)
 
 	if err := app.Run(os.Args); err != nil {
 		color.Set(color.FgRed)

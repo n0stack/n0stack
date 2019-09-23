@@ -1,3 +1,5 @@
+// +build ignore
+
 package main
 
 import (
@@ -8,10 +10,10 @@ import (
 	"os"
 	"os/signal"
 
-	"n0st.ac/n0stack/n0proto.go/pkg/dag"
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
 	yaml "gopkg.in/yaml.v2"
+	"n0st.ac/n0stack/n0proto.go/pkg/dag"
 )
 
 // TODO: 複数ファイルを連結して処理できるようにしたい `n0cli do foo.yaml bar.yaml` みたいな
