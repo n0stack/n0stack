@@ -16,8 +16,18 @@ func GetValue(target reflect.Value, path string) (v reflect.Value, err error) {
 
 	keys := strings.Split(path, ".")
 	for _, k := range keys {
-		if target.Kind() == reflect.Ptr {
-			target = target.Elem()
+		for {
+			if target.Kind() == reflect.Ptr {
+				if target.IsNil() {
+					newTarget := reflect.New(target.Type().Elem())
+					target.Set(newTarget)
+					target = newTarget
+				}
+
+				target = target.Elem()
+			} else {
+				break
+			}
 		}
 
 		target = target.FieldByName(k)
@@ -35,8 +45,18 @@ func GetValueByJson(target reflect.Value, path string) (v reflect.Value, err err
 
 	keys := strings.Split(path, ".")
 	for _, k := range keys {
-		if target.Kind() == reflect.Ptr {
-			target = target.Elem()
+		for {
+			if target.Kind() == reflect.Ptr {
+				if target.IsNil() {
+					newTarget := reflect.New(target.Type().Elem())
+					target.Set(newTarget)
+					target = newTarget
+				}
+
+				target = target.Elem()
+			} else {
+				break
+			}
 		}
 
 		for i := 0; i < target.NumField(); i++ {
@@ -109,8 +129,7 @@ func Get(target interface{}, path string) (interface{}, error) {
 	return v.Interface(), err
 }
 
-func GetByJsonTag(target interface{}, path string) (interface{}, error) {
-
+func GetByJson(target interface{}, path string) (interface{}, error) {
 	targetValue := reflect.ValueOf(target)
 	v, err := GetValueByJson(targetValue, path)
 	return v.Interface(), err
@@ -137,7 +156,7 @@ func UpdateWithMaskUsingJson(target interface{}, source interface{}, paths []str
 	}
 
 	for _, p := range paths {
-		v, err := GetByJsonTag(source, p)
+		v, err := GetByJson(source, p)
 		if err != nil {
 			return err
 		}

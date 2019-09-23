@@ -1,6 +1,9 @@
 package structutil
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 func TestGet(t *testing.T) {
 	type test struct {
@@ -45,7 +48,7 @@ func TestGetByJsonTag(t *testing.T) {
 	}
 	target.Foo.Bar = "bar"
 
-	res, err := GetByJsonTag(target, "hoge")
+	res, err := GetByJson(target, "hoge")
 	if err != nil {
 		t.Errorf("Get(%+v, %s) returns err=%+v", target, "hoge", err)
 	}
@@ -53,7 +56,7 @@ func TestGetByJsonTag(t *testing.T) {
 		t.Errorf("Get(%+v, %s) returns wrong value=%+v", target, "hoge", res)
 	}
 
-	res, err = GetByJsonTag(target, "foo.bar")
+	res, err = GetByJson(target, "foo.bar")
 	if err != nil {
 		t.Errorf("Get(%+v, %s) returns err=%+v", target, "foo.bar", err)
 	}
@@ -148,5 +151,28 @@ func TestUpdateWithMaskUsingJson(t *testing.T) {
 	}
 	if target.Foo.Bar != "bar" {
 		t.Errorf("UpdateWithMaskUsingJson(%+v, %+v, %+v) update target unexpectedly: got=%s, want=%s", target, source, []string{"hoge"}, target.Foo.Bar, "bar")
+	}
+}
+
+func TestGetValueByJson(t *testing.T) {
+	type test struct {
+		Hoge string `json:"hoge"`
+		Foo  *test  `json:"foo"`
+	}
+	target := &test{}
+
+	v, err := GetValueByJson(reflect.ValueOf(target), "foo.hoge")
+	if err != nil {
+		t.Errorf("GetValueByJson(%+v, %s) returns err=%+v", target, "foo.bar", err)
+	}
+	if v.Type().Kind() != reflect.String {
+		t.Errorf("GetValueByJson(%+v, %s) returns wrong value: got=%v, want=%v", target, "foo.bar", v.Type().Kind(), reflect.String)
+	}
+
+	if err := SetByJson(target, "foo.hoge", "hage"); err != nil {
+		t.Errorf("SetByJson(%+v, %s) returns err=%+v", target, "Hoge", err)
+	}
+	if target.Foo.Hoge != "hage" {
+		t.Errorf("SetByJson(%+v, %s) set wrong value: got=%s, want=%s", target, "Hoge", target.Foo.Hoge, "hage")
 	}
 }
