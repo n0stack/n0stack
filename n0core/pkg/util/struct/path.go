@@ -7,9 +7,14 @@ import (
 	"github.com/pkg/errors"
 )
 
-func GetValue(target reflect.Value, path string) reflect.Value {
-	keys := strings.Split(path, ".")
+func GetValue(target reflect.Value, path string) (v reflect.Value, err error) {
+	defer func() {
+		if e := recover(); e != nil {
+			err = errors.Errorf("%v", e)
+		}
+	}()
 
+	keys := strings.Split(path, ".")
 	for _, k := range keys {
 		if target.Kind() == reflect.Ptr {
 			target = target.Elem()
@@ -18,12 +23,17 @@ func GetValue(target reflect.Value, path string) reflect.Value {
 		target = target.FieldByName(k)
 	}
 
-	return target
+	return target, nil
 }
 
-func GetValueByJson(target reflect.Value, path string) reflect.Value {
-	keys := strings.Split(path, ".")
+func GetValueByJson(target reflect.Value, path string) (v reflect.Value, err error) {
+	defer func() {
+		if e := recover(); e != nil {
+			err = errors.Errorf("%v", e)
+		}
+	}()
 
+	keys := strings.Split(path, ".")
 	for _, k := range keys {
 		if target.Kind() == reflect.Ptr {
 			target = target.Elem()
@@ -40,7 +50,7 @@ func GetValueByJson(target reflect.Value, path string) reflect.Value {
 		}
 	}
 
-	return target
+	return target, nil
 }
 
 func Set(target interface{}, path string, value interface{}) (err error) {
@@ -55,7 +65,10 @@ func Set(target interface{}, path string, value interface{}) (err error) {
 		return errors.Errorf("target must be ptr")
 	}
 
-	v := GetValue(targetValue, path)
+	v, err := GetValue(targetValue, path)
+	if err != nil {
+		return err
+	}
 	v.Set(reflect.ValueOf(value))
 
 	return nil
@@ -73,7 +86,10 @@ func SetByJson(target interface{}, path string, value interface{}) (err error) {
 		return errors.Errorf("target must be ptr")
 	}
 
-	v := GetValueByJson(targetValue, path)
+	v, err := GetValueByJson(targetValue, path)
+	if err != nil {
+		return err
+	}
 	v.Set(reflect.ValueOf(value))
 
 	return nil
@@ -87,35 +103,20 @@ func ParseJsonTag(tag string) string {
 	return tag
 }
 
-func Get(target interface{}, path string) (res interface{}, err error) {
-	defer func() {
-		if e := recover(); e != nil {
-			err = errors.Errorf("%v", e)
-		}
-	}()
-
+func Get(target interface{}, path string) (interface{}, error) {
 	targetValue := reflect.ValueOf(target)
-	return GetValue(targetValue, path).Interface(), nil
+	v, err := GetValue(targetValue, path)
+	return v.Interface(), err
 }
 
-func GetByJsonTag(target interface{}, path string) (res interface{}, err error) {
-	defer func() {
-		if e := recover(); e != nil {
-			err = errors.Errorf("%v", e)
-		}
-	}()
+func GetByJsonTag(target interface{}, path string) (interface{}, error) {
 
 	targetValue := reflect.ValueOf(target)
-	return GetValueByJson(targetValue, path).Interface(), nil
+	v, err := GetValueByJson(targetValue, path)
+	return v.Interface(), err
 }
 
-func UpdateWithMaskUsingJson(target interface{}, source interface{}, paths []string) (err error) {
-	defer func() {
-		if e := recover(); e != nil {
-			err = errors.Errorf("%v", e)
-		}
-	}()
-
+func UpdateWithMaskUsingJson(target interface{}, source interface{}, paths []string) error {
 	targetValue := reflect.ValueOf(target)
 	sourceValue := reflect.ValueOf(source)
 
