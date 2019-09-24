@@ -176,3 +176,99 @@ func TestGetValueByJson(t *testing.T) {
 		t.Errorf("SetByJson(%+v, %s) set wrong value: got=%s, want=%s", target, "Hoge", target.Foo.Hoge, "hage")
 	}
 }
+
+// Running tool: /usr/lib/go-1.13/bin/go test -benchmem -run=^$ n0st.ac/n0stack/n0core/pkg/util/struct -bench ^(BenchmarkGetByJson)$
+//
+// goos: linux
+// goarch: amd64
+// pkg: n0st.ac/n0stack/n0core/pkg/util/struct
+// BenchmarkGetByJson-8   	 2012806	       543 ns/op	      72 B/op	       5 allocs/op
+// PASS
+// ok  	n0st.ac/n0stack/n0core/pkg/util/struct	2.800s
+// Success: Benchmarks passed.
+func BenchmarkGetByJson(b *testing.B) {
+	type test struct {
+		Hoge string `json:"hoge"`
+		Foo  *test  `json:"foo"`
+	}
+	target := &test{Foo: &test{Hoge: "hoge"}}
+	var tmp string
+
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		t, _ := GetByJson(target, "foo.hoge")
+		tmp = t.(string)
+	}
+	b.StopTimer()
+
+	b.Log(tmp)
+}
+
+// Running tool: /usr/lib/go-1.13/bin/go test -benchmem -run=^$ n0st.ac/n0stack/n0core/pkg/util/struct -bench ^(BenchmarkGetByOrigin)$
+//
+// goos: linux
+// goarch: amd64
+// pkg: n0st.ac/n0stack/n0core/pkg/util/struct
+// BenchmarkGetByOrigin-8   	1000000000	         0.910 ns/op	       0 B/op	       0 allocs/op
+// PASS
+// ok  	n0st.ac/n0stack/n0core/pkg/util/struct	0.986s
+// Success: Benchmarks passed.
+func BenchmarkGetByOrigin(b *testing.B) {
+	type test struct {
+		Hoge string `json:"hoge"`
+		Foo  *test  `json:"foo"`
+	}
+	target := &test{Foo: &test{Hoge: "hoge"}}
+	var tmp string
+
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		tmp = target.Foo.Hoge
+	}
+	b.StopTimer()
+
+	b.Log(tmp)
+}
+
+// Running tool: /usr/lib/go-1.13/bin/go test -benchmem -run=^$ n0st.ac/n0stack/n0core/pkg/util/struct -bench ^(BenchmarkSetByJson)$
+//
+// goos: linux
+// goarch: amd64
+// pkg: n0st.ac/n0stack/n0core/pkg/util/struct
+// BenchmarkSetByJson-8   	 2040865	       570 ns/op	      56 B/op	       4 allocs/op
+// PASS
+// ok  	n0st.ac/n0stack/n0core/pkg/util/struct	2.881s
+// Success: Benchmarks passed.
+func BenchmarkSetByJson(b *testing.B) {
+	type test struct {
+		Hoge string `json:"hoge"`
+		Foo  *test  `json:"foo"`
+	}
+	target := &test{Foo: &test{Hoge: "hoge"}}
+
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		SetByJson(target, "foo.hoge", "hage")
+	}
+}
+
+// Running tool: /usr/lib/go-1.13/bin/go test -benchmem -run=^$ n0st.ac/n0stack/n0core/pkg/util/struct -bench ^(BenchmarkSetByOrigin)$
+//
+// goos: linux
+// goarch: amd64
+// pkg: n0st.ac/n0stack/n0core/pkg/util/struct
+// BenchmarkSetByOrigin-8   	1000000000	         0.783 ns/op	       0 B/op	       0 allocs/op
+// PASS
+// ok  	n0st.ac/n0stack/n0core/pkg/util/struct	0.884s
+// Success: Benchmarks passed.
+func BenchmarkSetByOrigin(b *testing.B) {
+	type test struct {
+		Hoge string `json:"hoge"`
+		Foo  *test  `json:"foo"`
+	}
+	target := &test{Foo: &test{Hoge: "hoge"}}
+
+	for i := 0; i < b.N; i++ {
+		target.Foo.Hoge = "hage"
+	}
+}
