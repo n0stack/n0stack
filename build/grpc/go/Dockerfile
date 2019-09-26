@@ -1,5 +1,9 @@
+FROM pseudomuto/protoc-gen-doc AS GEN_DOC
+
 FROM golang:1.13 AS BUILD
 LABEL maintainer="h-otter@outlook.jp"
+
+COPY --from=GEN_DOC /usr/local/bin/protoc-gen-doc /usr/bin/protoc-gen-doc
 
 RUN go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway \
  && go get -u github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger \
@@ -20,3 +24,4 @@ RUN cd /tmp \
 WORKDIR /src
 COPY entry_point.sh /
 COPY swagger.sh /
+COPY gen_doc.sh /

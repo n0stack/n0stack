@@ -5,7 +5,6 @@ mkdir -p /tmp/build/n0proto
 mkdir -p /tmp/dst
 cp -r /src/* /tmp/build/n0proto
 dirs=`find /tmp/build/n0proto -type d | grep -v .git | grep -v test`
-rm -r /dst/*
 
 for d in $dirs
 do

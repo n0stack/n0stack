@@ -83,6 +83,12 @@ build-proto-on-docker:
 			/swagger.sh \
 			  /dst
 	sudo chown $(USER) n0stack.swagger.json
+	docker run -it --rm \
+		-v $(PWD):/src:ro \
+		-v $(PWD)/docs/developer/api:/dst \
+		n0stack/build-grpc-go \
+			/gen_doc.sh
+	sudo chown -R $(USER) $(PWD)/docs/developer/api
 	# docker run -it --rm \
 	# 	-v $(PWD)/n0proto:/src:ro \
 	# 	-v $(PWD)/n0proto.py:/dst \
