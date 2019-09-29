@@ -36,11 +36,18 @@ func NewPrivateKey(key crypto.PrivateKey) (*PrivateKey, error) {
 		privateKey: key,
 	}
 
-	switch key.(type) {
+	switch k := key.(type) {
 	case *rsa.PrivateKey:
 		privateKey.method = jwt.SigningMethodRS256
 	case *ecdsa.PrivateKey:
-		privateKey.method = jwt.SigningMethodES256
+		switch k.Curve.Params().BitSize {
+		case 256:
+			privateKey.method = jwt.SigningMethodES256
+		case 384:
+			privateKey.method = jwt.SigningMethodES384
+		case 521:
+			privateKey.method = jwt.SigningMethodES512
+		}
 	default:
 		return nil, errors.Errorf("unexpected key type")
 	}
@@ -116,11 +123,18 @@ func NewPublicKey(key crypto.PublicKey) (*PublicKey, error) {
 		publicKey: key,
 	}
 
-	switch pubkey.publicKey.(type) {
+	switch k := pubkey.publicKey.(type) {
 	case *rsa.PublicKey:
 		pubkey.method = jwt.SigningMethodRS256
 	case *ecdsa.PublicKey:
-		pubkey.method = jwt.SigningMethodES256
+		switch k.Curve.Params().BitSize {
+		case 256:
+			pubkey.method = jwt.SigningMethodES256
+		case 384:
+			pubkey.method = jwt.SigningMethodES384
+		case 521:
+			pubkey.method = jwt.SigningMethodES512
+		}
 	default:
 		return nil, errors.Errorf("unexpected key type")
 	}

@@ -18,6 +18,11 @@ func TestJWTWithSSHECDSA(t *testing.T) {
 	parseFile(t, "id_ecdsa", "id_ecdsa.pub")
 }
 
+// ssh-keygen -t ecdsa -b 521
+func TestJWTWithSSHECDSA521(t *testing.T) {
+	parseFile(t, "id_ecdsa521", "id_ecdsa521.pub")
+}
+
 // ssh-keygen -t rsa
 func TestJWTWithSSHRSA(t *testing.T) {
 	parseFile(t, "id_rsa", "id_rsa.pub")
@@ -29,10 +34,7 @@ func TestGenerator(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Generate(%s) returns err=%+v", "bar", err)
 	}
-	pubkey, err := key.PublicKey()
-	if err != nil {
-		t.Fatalf("PublicKey() returns err=%+v", err)
-	}
+	pubkey := key.PublicKey()
 
 	testAuthentication(t, key, pubkey)
 }

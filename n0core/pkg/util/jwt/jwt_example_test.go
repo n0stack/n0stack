@@ -18,7 +18,7 @@ func Example() {
 	// user
 	challengeKey, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	challengePrivateKey, _ := NewPrivateKey(challengeKey)
-	challengePublicKey, _ := challengePrivateKey.PublicKey()
+	challengePublicKey := challengePrivateKey.PublicKey()
 	username := "test_user"
 	service := "test_project.example.com"
 	var challengeToken string
@@ -29,7 +29,7 @@ func Example() {
 	// idp
 	kg := NewKeyGenerator([]byte("secret"))
 	authnPrivateKey, _ := kg.Generate(service)
-	authnPublicKey, _ := authnPrivateKey.PublicKey()
+	authnPublicKey := authnPrivateKey.PublicKey()
 	var authnToken string
 	{
 		if err := challengePublicKey.VerifyChallengeToken(challengeToken, username, service, challenge); err != nil {
