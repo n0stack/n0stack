@@ -50,18 +50,24 @@ services:
     links:
       - etcd
 
-  nginx:
+  swagger:
     build:
       context: ./deploy/master/nginx
     image: n0stack/front
+    volumes:
+      - ./n0stack.swagger.json:/usr/share/nginx/html/api/n0stack.swagger.json:ro
+      - ./deploy/master/nginx/etc/nginx/conf.d:/etc/nginx/conf.d:ro
+
+  envoy:
+    image: envoyproxy/envoy
     ports:
       - "80:80"
       - "443:443"
+      - "8001:8001"
     links:
       - api
       - bff
+      - swagger
     volumes:
-      - ./n0stack.swagger.json:/usr/share/nginx/html/api/n0stack.swagger.json:ro
-      - ./deploy/master/nginx/etc/nginx/ssl/localhost.crt:/etc/nginx/ssl/server.crt:ro
-      - ./deploy/master/nginx/etc/nginx/ssl/localhost.key:/etc/nginx/ssl/server.key:ro
-      - ./deploy/master/nginx/etc/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./deploy/master/etc/envoy:/etc/envoy:ro
+      - ./deploy/master/nginx/etc/nginx/ssl:/etc/ssl/envoy:ro
