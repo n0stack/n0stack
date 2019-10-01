@@ -52,7 +52,13 @@ func ServeAPI(cctx *cli.Context) error {
 	}
 	defer ds.Close()
 
-	userapi := user.CreateUserAPI(ds)
+	// listen := cctx.String("listen-url")
+	// auth, err := auth.NewAuthenticationServiceProvider(context.Background(), conn, listen)
+	// if err != nil {
+	// 	return err
+	// }
+
+	userapi := user.CreateUserAPI(ds, auth)
 	userClient := piam.NewUserServiceClient(conn)
 
 	secret := cctx.String("token-secret")

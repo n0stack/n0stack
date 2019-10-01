@@ -42,6 +42,9 @@ func main() {
 						cli.StringFlag{
 							Name: "token-secret",
 						},
+						cli.StringFlag{
+							Name: "listen-url",
+						},
 					},
 				},
 				{
