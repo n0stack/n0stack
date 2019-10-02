@@ -70,7 +70,7 @@ build-builder:
 .PHONY: build-proto-on-docker
 build-proto-on-docker:
 	docker run -it --rm \
-		-v $(PWD):/src:ro \
+		-v $(PWD):/src/n0stack:ro \
 		-v `go env GOPATH`/src:/dst \
 		n0stack/build-grpc-go \
 			/entry_point.sh \
@@ -89,12 +89,10 @@ build-proto-on-docker:
 		n0stack/build-grpc-go \
 			/gen_doc.sh
 	sudo chown -R $(USER) $(PWD)/docs/developer/api
-	# docker run -it --rm \
-	# 	-v $(PWD)/n0proto:/src:ro \
-	# 	-v $(PWD)/n0proto.py:/dst \
-	# 	n0stack/build-grpc-py \
-	# 		/entry_point.sh
-	# sudo chown -R $(USER) n0proto.py
+	docker run -it --rm \
+		-v $(PWD):/src/n0stack \
+		n0stack/build-grpc-py \
+			/entry_point.sh
 
 .PHONY: build-n0version
 build-n0version:

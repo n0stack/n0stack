@@ -21,6 +21,9 @@ RUN cd /tmp \
   && chmod 755 swagger_linux_amd64 \
   && mv /tmp/swagger_linux_amd64 /usr/bin/swagger
 
+RUN cp -r /go/src/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger /tmp/include \
+ && cp -r /go/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis/google /tmp/include
+
 WORKDIR /src
 COPY entry_point.sh /
 COPY swagger.sh /

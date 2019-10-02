@@ -12,11 +12,17 @@ do
     protoc \
       -I/src \
       -I/tmp/include \
-      -I${GOPATH}/src \
-      -I${GOPATH}/src/github.com/grpc-ecosystem/grpc-gateway \
-      -I${GOPATH}/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
       --swagger_out=logtostderr=true,allow_merge=true:/tmp \
       $d/*.proto
+
+    # if [ "$?" != "0" ]; then
+    #   exit 1
+    # fi
+
     swagger mixin -o $*/n0stack.swagger.json /tmp/*.swagger.json $*/n0stack.swagger.json
+
+    # if [ "$?" != "0" ]; then
+    #   exit 1
+    # fi
   fi
 done
