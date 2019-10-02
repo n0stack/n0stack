@@ -332,7 +332,7 @@
     }
   },
   "definitions": {
-    "PublicKeyAuthenricateRequestStart": {
+    "PublicKeyAuthenticateRequestStart": {
       "type": "object",
       "properties": {
         "public_key": {
@@ -343,7 +343,7 @@
         }
       }
     },
-    "PublicKeyAuthenricateResponseChallenge": {
+    "PublicKeyAuthenticateResponseChallenge": {
       "type": "object",
       "properties": {
         "challenge": {
@@ -352,7 +352,7 @@
         }
       }
     },
-    "PublicKeyAuthenricateResponseResult": {
+    "PublicKeyAuthenticateResponseResult": {
       "type": "object",
       "properties": {
         "authentication_token": {
@@ -509,7 +509,7 @@
         "MEMBER"
       ]
     },
-    "v1alphaPublicKeyAuthenricateRequestResponse": {
+    "v1alphaPublicKeyAuthenticateRequestResponse": {
       "type": "object",
       "properties": {
         "challenge_token": {
@@ -517,14 +517,14 @@
         }
       }
     },
-    "v1alphaPublicKeyAuthenricateResponse": {
+    "v1alphaPublicKeyAuthenticateResponse": {
       "type": "object",
       "properties": {
         "challenge": {
-          "$ref": "#/definitions/PublicKeyAuthenricateResponseChallenge"
+          "$ref": "#/definitions/PublicKeyAuthenticateResponseChallenge"
         },
         "result": {
-          "$ref": "#/definitions/PublicKeyAuthenricateResponseResult"
+          "$ref": "#/definitions/PublicKeyAuthenticateResponseResult"
         }
       }
     },

@@ -63,14 +63,14 @@ func (c *AuthenticationClient) loop(ctx context.Context) {
 }
 
 func (c *AuthenticationClient) renewAuthenticationToken(ctx context.Context) error {
-	stream, err := c.authnAPI.PublicKeyAuthenricate(ctx)
+	stream, err := c.authnAPI.PublicKeyAuthenticate(ctx)
 	if err != nil {
 		return errors.Wrapf(err, "")
 	}
 
-	err = stream.Send(&pauth.PublicKeyAuthenricateRequest{
-		Message: &pauth.PublicKeyAuthenricateRequest_Start_{
-			Start: &pauth.PublicKeyAuthenricateRequest_Start{
+	err = stream.Send(&pauth.PublicKeyAuthenticateRequest{
+		Message: &pauth.PublicKeyAuthenticateRequest_Start_{
+			Start: &pauth.PublicKeyAuthenticateRequest_Start{
 				UserName:  c.user,
 				PublicKey: string(c.privateKey.PublicKey().MarshalAuthorizedKey()),
 			},
@@ -91,9 +91,9 @@ func (c *AuthenticationClient) renewAuthenticationToken(ctx context.Context) err
 		return errors.Wrap(err, "")
 	}
 
-	err = stream.Send(&pauth.PublicKeyAuthenricateRequest{
-		Message: &pauth.PublicKeyAuthenricateRequest_Response_{
-			Response: &pauth.PublicKeyAuthenricateRequest_Response{
+	err = stream.Send(&pauth.PublicKeyAuthenticateRequest{
+		Message: &pauth.PublicKeyAuthenticateRequest_Response_{
+			Response: &pauth.PublicKeyAuthenticateRequest_Response{
 				ChallengeToken: challengeToken,
 			},
 		},
@@ -114,7 +114,7 @@ func (c *AuthenticationClient) renewAuthenticationToken(ctx context.Context) err
 
 func (c AuthenticationClient) GetRequestMetadata(context.Context, ...string) (map[string]string, error) {
 	return map[string]string{
-		"authentication": c.token,
+		"n0stack-authentication": c.token,
 	}, nil
 }
 

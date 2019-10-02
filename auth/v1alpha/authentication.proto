@@ -17,7 +17,7 @@ service AuthenticationService {
   }
 
   // authentication method for grpc
-  rpc PublicKeyAuthenricate(stream PublicKeyAuthenricateRequest) returns (stream PublicKeyAuthenricateResponse) {}
+  rpc PublicKeyAuthenticate(stream PublicKeyAuthenticateRequest) returns (stream PublicKeyAuthenticateResponse) {}
 }
 
 
@@ -26,7 +26,7 @@ message GetAuthenticationTokenPublicKeyResponse {
   string public_key = 2;
 }
 
-message PublicKeyAuthenricateRequest {
+message PublicKeyAuthenticateRequest {
   message Start {
     string user_name = 1;
     string public_key = 2;
@@ -41,7 +41,7 @@ message PublicKeyAuthenricateRequest {
   }
 }
 
-message PublicKeyAuthenricateResponse {
+message PublicKeyAuthenticateResponse {
   message Challenge {
     bytes challenge = 1;
   }
