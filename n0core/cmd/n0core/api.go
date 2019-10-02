@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net"
+	"net/url"
 	"os"
 	"os/signal"
 	"runtime/debug"
@@ -15,11 +17,13 @@ import (
 	authn "n0st.ac/n0stack/n0core/pkg/api/auth/authentication"
 	user "n0st.ac/n0stack/n0core/pkg/api/iam/user"
 	"n0st.ac/n0stack/n0core/pkg/datastore/etcd"
+	"n0st.ac/n0stack/n0core/pkg/driver/n0stack/auth"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/reflection"
 
 	"github.com/urfave/cli"
@@ -52,16 +56,32 @@ func ServeAPI(cctx *cli.Context) error {
 	}
 	defer ds.Close()
 
-	// listen := cctx.String("listen-url")
-	// auth, err := auth.NewAuthenticationServiceProvider(context.Background(), conn, listen)
-	// if err != nil {
-	// 	return err
-	// }
+	secret := cctx.String("token-secret")
+	listen, err := url.Parse(cctx.String("listen-url"))
+	if err != nil {
+		return err
+	}
+	if listen.Port() == "" {
+		if listen.Scheme == "http" {
+			listen.Host += ":80"
+		} else if listen.Scheme == "https" {
+			listen.Host += ":443"
+		}
+	}
 
-	userapi := user.CreateUserAPI(ds, auth)
+	authCtx := metadata.NewIncomingContext(context.Background(), metadata.New(map[string]string{
+		":authority": listen.Host,
+	}))
+	aprovider, err := auth.NewAuthenticationServiceProvider(authCtx, &pauth.AuthenticationClientByServer{
+		API: authn.CreatePartialAuthenticationAPI([]byte(secret)),
+	}, listen.Host)
+	if err != nil {
+		return err
+	}
+
+	userapi := user.CreateUserAPI(ds, aprovider)
 	userClient := piam.NewUserServiceClient(conn)
 
-	secret := cctx.String("token-secret")
 	authapi := authn.CreateAuthenticationAPI(userClient, []byte(secret))
 
 	grpcServer := grpc.NewServer(

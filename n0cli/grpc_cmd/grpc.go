@@ -17,6 +17,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 
+	"n0st.ac/n0stack/n0core/pkg/driver/n0stack/auth"
+	jwtutil "n0st.ac/n0stack/n0core/pkg/util/jwt"
 	structutil "n0st.ac/n0stack/n0core/pkg/util/struct"
 )
 
@@ -27,6 +29,12 @@ var API_URL_FLAG = cli.StringFlag{
 }
 var API_INSECURE_FLAG = cli.BoolFlag{
 	Name: "insecure,k",
+}
+var IDENTITY_FILE_FLAG = cli.StringFlag{
+	Name: "identity-file,i",
+}
+var LOGIN_NAME_FLAG = cli.StringFlag{
+	Name: "login-name,l",
 }
 
 func Connect2gRPC(c *cli.Context) (*grpc.ClientConn, error) {
@@ -57,6 +65,28 @@ func Connect2gRPC(c *cli.Context) (*grpc.ClientConn, error) {
 		}
 	} else {
 		opts = append(opts, grpc.WithInsecure())
+	}
+
+	identityFile := c.GlobalString("identity-file")
+	if identityFile != "" {
+		conn, err := grpc.Dial(host, opts...)
+		if err != nil {
+			return nil, errors.Wrapf(err, "grpc.Dial(%s, %+v) returns err=%+v to get a token", host, opts, err)
+		}
+		defer conn.Close()
+
+		user := c.GlobalString("login-name")
+		key, err := jwtutil.ParsePrivateKeyFromFile(identityFile)
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to parse the private key %s", identityFile)
+		}
+
+		authc, err := auth.NewAuthenticationClient(context.Background(), conn, user, key)
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to prepare a authentication token")
+		}
+
+		opts = append(opts, grpc.WithPerRPCCredentials(authc))
 	}
 
 	conn, err := grpc.Dial(host, opts...)

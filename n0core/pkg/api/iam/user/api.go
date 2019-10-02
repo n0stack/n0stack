@@ -11,16 +11,21 @@ import (
 	piam "n0st.ac/n0stack/iam/v1alpha"
 	stdapi "n0st.ac/n0stack/n0core/pkg/api/standard_api"
 	"n0st.ac/n0stack/n0core/pkg/datastore"
+	"n0st.ac/n0stack/n0core/pkg/driver/n0stack/auth"
 	grpcutil "n0st.ac/n0stack/n0core/pkg/util/grpc"
+	structutil "n0st.ac/n0stack/n0core/pkg/util/struct"
 )
 
 type UserAPI struct {
 	datastore datastore.Datastore
+
+	auth *auth.AuthenticationServiceProvier
 }
 
-func CreateUserAPI(datastore datastore.Datastore) *UserAPI {
+func CreateUserAPI(datastore datastore.Datastore, auth *auth.AuthenticationServiceProvier) *UserAPI {
 	return &UserAPI{
 		datastore: datastore.AddPrefix("iam/user"),
+		auth:      auth,
 	}
 }
 
@@ -70,42 +75,31 @@ func (a *UserAPI) CreateUser(ctx context.Context, req *piam.CreateUserRequest) (
 }
 
 func (a *UserAPI) UpdateUser(ctx context.Context, req *piam.UpdateUserRequest) (*piam.User, error) {
-	return nil, grpcutil.Errorf(codes.Unimplemented, "")
-	// user, version, err := GetUser(ctx, a.datastore, req.User.Name)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	if err := stdapi.CheckAuthenticatedUserName(a.auth, ctx, req.User.Name); err != nil {
+		return nil, err
+	}
 
-	// for _, mask := range req.UpdateMask.Paths {
-	// 	path := strings.Split(mask, ".")
+	user, version, err := GetUser(ctx, a.datastore, req.User.Name)
+	if err != nil {
+		return nil, err
+	}
 
-	// 	for
+	if err := structutil.UpdateWithMaskUsingJson(user, req.User, req.UpdateMask.Paths); err != nil {
+		return nil, stdapi.UpdateMaskError(err)
+	}
 
-	// 	switch path[0] {
-	// 	case strings.HasPrefix(mask, "name"):
-	// 		user.Name = req.User.Name
+	if _, err := ApplyUser(ctx, a.datastore, user, version); err != nil {
+		return nil, err
+	}
 
-	// 	case strings.HasPrefix(mask, "annotations"):
-	// 		switch {
-	// 			case mask
-	// 		}
-	// 	// case strings.HasPrefix(mask, "labels"):
-
-	// 	case strings.HasPrefix(mask, "display_name"):
-	// 		user.DisplayName = req.User.DisplayName
-
-	// 		// case strings.HasPrefix(mask, "public_keys"):
-	// 	}
-	// }
-
-	// if _, err := ApplyUser(ctx, a.datastore, user, version); err != nil {
-	// 	return nil, err
-	// }
-
-	// return user, nil
+	return user, nil
 }
 
 func (a *UserAPI) DeleteUser(ctx context.Context, req *piam.DeleteUserRequest) (*empty.Empty, error) {
+	if err := stdapi.CheckAuthenticatedUserName(a.auth, ctx, req.Name); err != nil {
+		return nil, err
+	}
+
 	user, version, err := GetUser(ctx, a.datastore, req.Name)
 	if err != nil {
 		if grpc.Code(err) != codes.NotFound {

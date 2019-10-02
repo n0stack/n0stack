@@ -2,12 +2,11 @@ package auth
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
 	"github.com/pkg/errors"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	pauth "n0st.ac/n0stack/auth/v1alpha"
 	jwtutil "n0st.ac/n0stack/n0core/pkg/util/jwt"
@@ -21,8 +20,7 @@ type AuthenticationServiceProvier struct {
 }
 
 // host: URL is "http://example.com:8080/hoge", then host is "example.com:8080"
-func NewAuthenticationServiceProvider(ctx context.Context, conn *grpc.ClientConn, host string) (*AuthenticationServiceProvier, error) {
-	authnAPI := pauth.NewAuthenticationServiceClient(conn)
+func NewAuthenticationServiceProvider(ctx context.Context, authnAPI pauth.AuthenticationServiceClient, host string) (*AuthenticationServiceProvier, error) {
 	sp := &AuthenticationServiceProvier{
 		authnAPI: authnAPI,
 		host:     host,
@@ -33,6 +31,7 @@ func NewAuthenticationServiceProvider(ctx context.Context, conn *grpc.ClientConn
 		log.Printf("[CRITICAL] failed to renew a public key, err=%+v", err)
 		return nil, errors.Wrap(err, "renewPublicKey() is failed")
 	}
+	log.Printf("[INFO] got a public key to verify authentication tokens")
 
 	go sp.loop(ctx)
 
@@ -55,37 +54,37 @@ func (sp *AuthenticationServiceProvier) renewPublicKey(ctx context.Context) erro
 }
 
 func (sp *AuthenticationServiceProvier) loop(ctx context.Context) {
-	reqCtx := context.Background()
-	reqCtx, cancel := context.WithCancel(reqCtx)
-
 	for {
 		select {
 		case <-time.After(20 * time.Minute):
-			err := sp.renewPublicKey(reqCtx)
+			log.Printf("[INFO] renewing a public key to verify authentication tokens")
+			err := sp.renewPublicKey(ctx)
 			if err != nil {
 				log.Printf("[CRITICAL] failed to renew a public key, err=%+v", err)
 			}
+			log.Printf("[INFO] renewed a public key to verify authentication tokens")
 
 		case <-ctx.Done():
-			cancel()
+			return
 		}
 	}
 }
 
+// TODO: grpc.Error を返してもいいのか…？
 func (sp *AuthenticationServiceProvier) GetConnectingAccountName(ctx context.Context) (string, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return "", grpc.Errorf(codes.Unauthenticated, "authentication metadata is required")
+		return "", fmt.Errorf("n0stack-authentication metadata is required")
 	}
 
-	token := md.Get("authentication")
+	token := md.Get("n0stack-authentication")
 	if len(token) < 1 {
-		return "", grpc.Errorf(codes.Unauthenticated, "authentication metadata is required")
+		return "", fmt.Errorf("n0stack-authentication metadata is required")
 	}
 
 	serviceClient, err := sp.publicKey.VerifyAuthenticationToken(token[0], sp.host)
 	if err != nil {
-		return "", grpc.Errorf(codes.Unauthenticated, "authentication token is invalid: %s", err.Error())
+		return "", fmt.Errorf("authentication token is invalid: %s", err.Error())
 	}
 
 	return serviceClient, nil

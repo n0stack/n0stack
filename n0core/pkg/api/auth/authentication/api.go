@@ -33,6 +33,12 @@ func CreateAuthenticationAPI(userAPI piam.UserServiceClient, secret []byte) *Aut
 	}
 }
 
+func CreatePartialAuthenticationAPI(secret []byte) *AuthenticationAPI {
+	return &AuthenticationAPI{
+		secret: secret,
+	}
+}
+
 func (a *AuthenticationAPI) GetAuthenticationTokenPublicKey(ctx context.Context, req *pauth.GetAuthenticationTokenPublicKeyRequest) (*pauth.GetAuthenticationTokenPublicKeyResponse, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {

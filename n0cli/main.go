@@ -41,6 +41,8 @@ func main() {
 	app.Flags = []cli.Flag{
 		grpccmd.API_URL_FLAG,
 		grpccmd.API_INSECURE_FLAG,
+		grpccmd.IDENTITY_FILE_FLAG,
+		grpccmd.LOGIN_NAME_FLAG,
 	}
 	app.Commands = []cli.Command{
 		{
