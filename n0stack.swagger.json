@@ -40,6 +40,7 @@
         "tags": [
           "ProjectService"
         ],
+        "summary": "あるユーザーがメンバーであるプロジェクトすべてを返す\nErrors:\n  NotFound: どのプロジェクトにも属していない場合",
         "operationId": "ListProjects",
         "responses": {
           "200": {
@@ -56,7 +57,7 @@
         "tags": [
           "ProjectService"
         ],
-        "summary": "memberじゃない場合 notfound",
+        "summary": "Summary: プロジェクトの詳細を取得する\nErrors:\n  NotFound: memberじゃない場合\n  Unauthorized: ログインしていない場合",
         "operationId": "GetProject",
         "parameters": [
           {
@@ -64,66 +65,6 @@
             "name": "name",
             "in": "path",
             "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1alphaProject"
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "ProjectService"
-        ],
-        "operationId": "UpdateProject",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "name",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1alphaUpdateProjectRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1alphaProject"
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "ProjectService"
-        ],
-        "operationId": "CreateProject",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "name",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1alphaCreateProjectRequest"
-            }
           }
         ],
         "responses": {
@@ -152,6 +93,71 @@
           "200": {
             "description": "A successful response.",
             "schema": {}
+          }
+        }
+      }
+    },
+    "/api/iam/v1alpha/projects/{project.name}": {
+      "put": {
+        "tags": [
+          "ProjectService"
+        ],
+        "operationId": "UpdateProject",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name is a unique field.",
+            "name": "project.name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1alphaProject"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1alphaProject"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "ProjectService"
+        ],
+        "summary": "ログインしているユーザーがオーナーとなるプロジェクトを作成する\nErrors:\n  Unauthorized: ログインしていない場合",
+        "operationId": "CreateProject",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name is a unique field.",
+            "name": "project.name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1alphaProject"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1alphaProject"
+            }
           }
         }
       }
@@ -217,6 +223,114 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v1alphaProject"
+            }
+          }
+        }
+      }
+    },
+    "/api/iam/v1alpha/service_accounts/{name}": {
+      "get": {
+        "tags": [
+          "ServiceAccountService"
+        ],
+        "operationId": "GetServiceAccount",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1alphaServiceAccount"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "ServiceAccountService"
+        ],
+        "operationId": "DeleteServiceAccount",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/api/iam/v1alpha/service_accounts/{service_account.name}": {
+      "post": {
+        "tags": [
+          "ServiceAccountService"
+        ],
+        "operationId": "CreateServiceAccount",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name is a unique field.",
+            "name": "service_account.name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1alphaServiceAccount"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1alphaServiceAccount"
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "ServiceAccountService"
+        ],
+        "operationId": "UpdateServiceAccount",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name is a unique field.",
+            "name": "service_account.name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1alphaServiceAccount"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1alphaServiceAccount"
             }
           }
         }
@@ -428,26 +542,6 @@
         }
       }
     },
-    "v1alphaCreateProjectRequest": {
-      "type": "object",
-      "properties": {
-        "annotations": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "labels": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "name": {
-          "type": "string"
-        }
-      }
-    },
     "v1alphaGetAuthenticationTokenPublicKeyResponse": {
       "type": "object",
       "properties": {
@@ -528,23 +622,35 @@
         }
       }
     },
-    "v1alphaUpdateProjectRequest": {
+    "v1alphaServiceAccount": {
       "type": "object",
       "properties": {
         "annotations": {
+          "description": "Annotations can store metadata used by the system for control.\nIn particular, implementation-dependent fields that can not be set as protobuf fields are targeted.\nThe control specified by n0stack may delete metadata specified by the user.",
           "type": "object",
           "additionalProperties": {
             "type": "string"
           }
         },
         "labels": {
+          "description": "Labels stores user-defined metadata.\nThe n0stack system must not rewrite this value.",
           "type": "object",
           "additionalProperties": {
             "type": "string"
           }
         },
         "name": {
+          "description": "Name is a unique field.",
           "type": "string"
+        },
+        "project": {
+          "type": "string"
+        },
+        "public_keys": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
         }
       }
     },

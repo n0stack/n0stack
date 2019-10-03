@@ -6,6 +6,7 @@ package n0stack.iam.v1alpha;
 
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
 option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
@@ -53,30 +54,39 @@ message Project {
 
 
 service ProjectService {
+  // あるユーザーがメンバーであるプロジェクトすべてを返す
+  // Errors:
+  //   NotFound: どのプロジェクトにも属していない場合
   rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse) {
     option (google.api.http) = {
       get: "/api/iam/v1alpha/projects"
     };
   }
 
-  // memberじゃない場合 notfound
+  // Summary: プロジェクトの詳細を取得する
+  // Errors:
+  //   NotFound: memberじゃない場合
+  //   Unauthorized: ログインしていない場合
   rpc GetProject(GetProjectRequest) returns (Project) {
     option (google.api.http) = {
       get: "/api/iam/v1alpha/projects/{name}"
     };
   }
 
+  // ログインしているユーザーがオーナーとなるプロジェクトを作成する
+  // Errors:
+  //   Unauthorized: ログインしていない場合
   rpc CreateProject(CreateProjectRequest) returns (Project) {
     option (google.api.http) = {
-      post: "/api/iam/v1alpha/projects/{name}"
-      body: "*"
+      post: "/api/iam/v1alpha/projects/{project.name}"
+      body: "project"
     };
   }
 
   rpc UpdateProject(UpdateProjectRequest) returns (Project) {
     option (google.api.http) = {
-      put: "/api/iam/v1alpha/projects/{name}"
-      body: "*"
+      put: "/api/iam/v1alpha/projects/{project.name}"
+      body: "project"
     };
   }
 
@@ -111,14 +121,12 @@ message GetProjectRequest {
 }
 
 message CreateProjectRequest {
-  string name = 1;
-  map<string, string> annotations = 3;
-  map<string, string> labels = 4;
+  Project project = 1;
 }
+
 message UpdateProjectRequest {
-  string name = 1;
-  map<string, string> annotations = 3;
-  map<string, string> labels = 4;
+  Project project = 1;
+  google.protobuf.FieldMask update_mask = 2;
 }
 
 message DeleteProjectRequest {
@@ -131,6 +139,7 @@ message AddProjectMembershipRequest {
 
   ProjectMembership membership = 3;
 }
+
 message DeleteProjectMembershipRequest {
   string project_name = 1;
   string user_name = 2;

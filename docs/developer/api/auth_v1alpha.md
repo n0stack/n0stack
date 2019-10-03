@@ -6,12 +6,12 @@
 - [auth/v1alpha/authentication.proto](#auth/v1alpha/authentication.proto)
     - [GetAuthenticationTokenPublicKeyRequest](#n0stack.auth.v1alpha.GetAuthenticationTokenPublicKeyRequest)
     - [GetAuthenticationTokenPublicKeyResponse](#n0stack.auth.v1alpha.GetAuthenticationTokenPublicKeyResponse)
-    - [PublicKeyAuthenricateRequest](#n0stack.auth.v1alpha.PublicKeyAuthenricateRequest)
-    - [PublicKeyAuthenricateRequest.Response](#n0stack.auth.v1alpha.PublicKeyAuthenricateRequest.Response)
-    - [PublicKeyAuthenricateRequest.Start](#n0stack.auth.v1alpha.PublicKeyAuthenricateRequest.Start)
-    - [PublicKeyAuthenricateResponse](#n0stack.auth.v1alpha.PublicKeyAuthenricateResponse)
-    - [PublicKeyAuthenricateResponse.Challenge](#n0stack.auth.v1alpha.PublicKeyAuthenricateResponse.Challenge)
-    - [PublicKeyAuthenricateResponse.Result](#n0stack.auth.v1alpha.PublicKeyAuthenricateResponse.Result)
+    - [PublicKeyAuthenticateRequest](#n0stack.auth.v1alpha.PublicKeyAuthenticateRequest)
+    - [PublicKeyAuthenticateRequest.Response](#n0stack.auth.v1alpha.PublicKeyAuthenticateRequest.Response)
+    - [PublicKeyAuthenticateRequest.Start](#n0stack.auth.v1alpha.PublicKeyAuthenticateRequest.Start)
+    - [PublicKeyAuthenticateResponse](#n0stack.auth.v1alpha.PublicKeyAuthenticateResponse)
+    - [PublicKeyAuthenticateResponse.Challenge](#n0stack.auth.v1alpha.PublicKeyAuthenticateResponse.Challenge)
+    - [PublicKeyAuthenticateResponse.Result](#n0stack.auth.v1alpha.PublicKeyAuthenticateResponse.Result)
   
   
   
@@ -54,25 +54,25 @@
 
 
 
-<a name="n0stack.auth.v1alpha.PublicKeyAuthenricateRequest"></a>
+<a name="n0stack.auth.v1alpha.PublicKeyAuthenticateRequest"></a>
 
-### PublicKeyAuthenricateRequest
+### PublicKeyAuthenticateRequest
 
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| start | [PublicKeyAuthenricateRequest.Start](#n0stack.auth.v1alpha.PublicKeyAuthenricateRequest.Start) |  |  |
-| response | [PublicKeyAuthenricateRequest.Response](#n0stack.auth.v1alpha.PublicKeyAuthenricateRequest.Response) |  |  |
+| start | [PublicKeyAuthenticateRequest.Start](#n0stack.auth.v1alpha.PublicKeyAuthenticateRequest.Start) |  |  |
+| response | [PublicKeyAuthenticateRequest.Response](#n0stack.auth.v1alpha.PublicKeyAuthenticateRequest.Response) |  |  |
 
 
 
 
 
 
-<a name="n0stack.auth.v1alpha.PublicKeyAuthenricateRequest.Response"></a>
+<a name="n0stack.auth.v1alpha.PublicKeyAuthenticateRequest.Response"></a>
 
-### PublicKeyAuthenricateRequest.Response
+### PublicKeyAuthenticateRequest.Response
 
 
 
@@ -85,9 +85,9 @@
 
 
 
-<a name="n0stack.auth.v1alpha.PublicKeyAuthenricateRequest.Start"></a>
+<a name="n0stack.auth.v1alpha.PublicKeyAuthenticateRequest.Start"></a>
 
-### PublicKeyAuthenricateRequest.Start
+### PublicKeyAuthenticateRequest.Start
 
 
 
@@ -101,25 +101,25 @@
 
 
 
-<a name="n0stack.auth.v1alpha.PublicKeyAuthenricateResponse"></a>
+<a name="n0stack.auth.v1alpha.PublicKeyAuthenticateResponse"></a>
 
-### PublicKeyAuthenricateResponse
+### PublicKeyAuthenticateResponse
 
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| challenge | [PublicKeyAuthenricateResponse.Challenge](#n0stack.auth.v1alpha.PublicKeyAuthenricateResponse.Challenge) |  |  |
-| result | [PublicKeyAuthenricateResponse.Result](#n0stack.auth.v1alpha.PublicKeyAuthenricateResponse.Result) |  |  |
+| challenge | [PublicKeyAuthenticateResponse.Challenge](#n0stack.auth.v1alpha.PublicKeyAuthenticateResponse.Challenge) |  |  |
+| result | [PublicKeyAuthenticateResponse.Result](#n0stack.auth.v1alpha.PublicKeyAuthenticateResponse.Result) |  |  |
 
 
 
 
 
 
-<a name="n0stack.auth.v1alpha.PublicKeyAuthenricateResponse.Challenge"></a>
+<a name="n0stack.auth.v1alpha.PublicKeyAuthenticateResponse.Challenge"></a>
 
-### PublicKeyAuthenricateResponse.Challenge
+### PublicKeyAuthenticateResponse.Challenge
 
 
 
@@ -132,9 +132,9 @@
 
 
 
-<a name="n0stack.auth.v1alpha.PublicKeyAuthenricateResponse.Result"></a>
+<a name="n0stack.auth.v1alpha.PublicKeyAuthenticateResponse.Result"></a>
 
-### PublicKeyAuthenricateResponse.Result
+### PublicKeyAuthenticateResponse.Result
 
 
 
@@ -161,7 +161,7 @@
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
 | GetAuthenticationTokenPublicKey | [GetAuthenticationTokenPublicKeyRequest](#n0stack.auth.v1alpha.GetAuthenticationTokenPublicKeyRequest) | [GetAuthenticationTokenPublicKeyResponse](#n0stack.auth.v1alpha.GetAuthenticationTokenPublicKeyResponse) |  |
-| PublicKeyAuthenricate | [PublicKeyAuthenricateRequest](#n0stack.auth.v1alpha.PublicKeyAuthenricateRequest) stream | [PublicKeyAuthenricateResponse](#n0stack.auth.v1alpha.PublicKeyAuthenricateResponse) stream | authentication method for grpc |
+| PublicKeyAuthenticate | [PublicKeyAuthenticateRequest](#n0stack.auth.v1alpha.PublicKeyAuthenticateRequest) stream | [PublicKeyAuthenticateResponse](#n0stack.auth.v1alpha.PublicKeyAuthenticateResponse) stream | authentication method for grpc |
 
  
 

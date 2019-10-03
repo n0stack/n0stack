@@ -6,8 +6,6 @@
 - [iam/v1alpha/project.proto](#iam/v1alpha/project.proto)
     - [AddProjectMembershipRequest](#n0stack.iam.v1alpha.AddProjectMembershipRequest)
     - [CreateProjectRequest](#n0stack.iam.v1alpha.CreateProjectRequest)
-    - [CreateProjectRequest.AnnotationsEntry](#n0stack.iam.v1alpha.CreateProjectRequest.AnnotationsEntry)
-    - [CreateProjectRequest.LabelsEntry](#n0stack.iam.v1alpha.CreateProjectRequest.LabelsEntry)
     - [DeleteProjectMembershipRequest](#n0stack.iam.v1alpha.DeleteProjectMembershipRequest)
     - [DeleteProjectRequest](#n0stack.iam.v1alpha.DeleteProjectRequest)
     - [GetProjectRequest](#n0stack.iam.v1alpha.GetProjectRequest)
@@ -18,13 +16,26 @@
     - [Project.LabelsEntry](#n0stack.iam.v1alpha.Project.LabelsEntry)
     - [Project.MembershipEntry](#n0stack.iam.v1alpha.Project.MembershipEntry)
     - [UpdateProjectRequest](#n0stack.iam.v1alpha.UpdateProjectRequest)
-    - [UpdateProjectRequest.AnnotationsEntry](#n0stack.iam.v1alpha.UpdateProjectRequest.AnnotationsEntry)
-    - [UpdateProjectRequest.LabelsEntry](#n0stack.iam.v1alpha.UpdateProjectRequest.LabelsEntry)
   
     - [ProjectMembership](#n0stack.iam.v1alpha.ProjectMembership)
   
   
     - [ProjectService](#n0stack.iam.v1alpha.ProjectService)
+  
+
+- [iam/v1alpha/service_account.proto](#iam/v1alpha/service_account.proto)
+    - [CreateServiceAccountRequest](#n0stack.iam.v1alpha.CreateServiceAccountRequest)
+    - [DeleteServiceAccountRequest](#n0stack.iam.v1alpha.DeleteServiceAccountRequest)
+    - [GetServiceAccountRequest](#n0stack.iam.v1alpha.GetServiceAccountRequest)
+    - [ServiceAccount](#n0stack.iam.v1alpha.ServiceAccount)
+    - [ServiceAccount.AnnotationsEntry](#n0stack.iam.v1alpha.ServiceAccount.AnnotationsEntry)
+    - [ServiceAccount.LabelsEntry](#n0stack.iam.v1alpha.ServiceAccount.LabelsEntry)
+    - [ServiceAccount.PublicKeysEntry](#n0stack.iam.v1alpha.ServiceAccount.PublicKeysEntry)
+    - [UpdateServiceAccountRequest](#n0stack.iam.v1alpha.UpdateServiceAccountRequest)
+  
+  
+  
+    - [ServiceAccountService](#n0stack.iam.v1alpha.ServiceAccountService)
   
 
 - [iam/v1alpha/user.proto](#iam/v1alpha/user.proto)
@@ -78,41 +89,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| name | [string](#string) |  |  |
-| annotations | [CreateProjectRequest.AnnotationsEntry](#n0stack.iam.v1alpha.CreateProjectRequest.AnnotationsEntry) | repeated |  |
-| labels | [CreateProjectRequest.LabelsEntry](#n0stack.iam.v1alpha.CreateProjectRequest.LabelsEntry) | repeated |  |
-
-
-
-
-
-
-<a name="n0stack.iam.v1alpha.CreateProjectRequest.AnnotationsEntry"></a>
-
-### CreateProjectRequest.AnnotationsEntry
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| key | [string](#string) |  |  |
-| value | [string](#string) |  |  |
-
-
-
-
-
-
-<a name="n0stack.iam.v1alpha.CreateProjectRequest.LabelsEntry"></a>
-
-### CreateProjectRequest.LabelsEntry
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| key | [string](#string) |  |  |
-| value | [string](#string) |  |  |
+| project | [Project](#n0stack.iam.v1alpha.Project) |  |  |
 
 
 
@@ -265,41 +242,8 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| name | [string](#string) |  |  |
-| annotations | [UpdateProjectRequest.AnnotationsEntry](#n0stack.iam.v1alpha.UpdateProjectRequest.AnnotationsEntry) | repeated |  |
-| labels | [UpdateProjectRequest.LabelsEntry](#n0stack.iam.v1alpha.UpdateProjectRequest.LabelsEntry) | repeated |  |
-
-
-
-
-
-
-<a name="n0stack.iam.v1alpha.UpdateProjectRequest.AnnotationsEntry"></a>
-
-### UpdateProjectRequest.AnnotationsEntry
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| key | [string](#string) |  |  |
-| value | [string](#string) |  |  |
-
-
-
-
-
-
-<a name="n0stack.iam.v1alpha.UpdateProjectRequest.LabelsEntry"></a>
-
-### UpdateProjectRequest.LabelsEntry
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| key | [string](#string) |  |  |
-| value | [string](#string) |  |  |
+| project | [Project](#n0stack.iam.v1alpha.Project) |  |  |
+| update_mask | [google.protobuf.FieldMask](#google.protobuf.FieldMask) |  |  |
 
 
 
@@ -332,13 +276,170 @@
 
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
-| ListProjects | [ListProjectsRequest](#n0stack.iam.v1alpha.ListProjectsRequest) | [ListProjectsResponse](#n0stack.iam.v1alpha.ListProjectsResponse) |  |
-| GetProject | [GetProjectRequest](#n0stack.iam.v1alpha.GetProjectRequest) | [Project](#n0stack.iam.v1alpha.Project) | memberじゃない場合 notfound |
-| CreateProject | [CreateProjectRequest](#n0stack.iam.v1alpha.CreateProjectRequest) | [Project](#n0stack.iam.v1alpha.Project) |  |
+| ListProjects | [ListProjectsRequest](#n0stack.iam.v1alpha.ListProjectsRequest) | [ListProjectsResponse](#n0stack.iam.v1alpha.ListProjectsResponse) | あるユーザーがメンバーであるプロジェクトすべてを返す Errors: NotFound: どのプロジェクトにも属していない場合 |
+| GetProject | [GetProjectRequest](#n0stack.iam.v1alpha.GetProjectRequest) | [Project](#n0stack.iam.v1alpha.Project) | Summary: プロジェクトの詳細を取得する Errors: NotFound: memberじゃない場合 Unauthorized: ログインしていない場合 |
+| CreateProject | [CreateProjectRequest](#n0stack.iam.v1alpha.CreateProjectRequest) | [Project](#n0stack.iam.v1alpha.Project) | ログインしているユーザーがオーナーとなるプロジェクトを作成する Errors: Unauthorized: ログインしていない場合 |
 | UpdateProject | [UpdateProjectRequest](#n0stack.iam.v1alpha.UpdateProjectRequest) | [Project](#n0stack.iam.v1alpha.Project) |  |
 | DeleteProject | [DeleteProjectRequest](#n0stack.iam.v1alpha.DeleteProjectRequest) | [.google.protobuf.Empty](#google.protobuf.Empty) |  |
 | AddProjectMembership | [AddProjectMembershipRequest](#n0stack.iam.v1alpha.AddProjectMembershipRequest) | [Project](#n0stack.iam.v1alpha.Project) |  |
 | DeleteProjectMembership | [DeleteProjectMembershipRequest](#n0stack.iam.v1alpha.DeleteProjectMembershipRequest) | [Project](#n0stack.iam.v1alpha.Project) |  |
+
+ 
+
+
+
+<a name="iam/v1alpha/service_account.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## iam/v1alpha/service_account.proto
+
+
+
+<a name="n0stack.iam.v1alpha.CreateServiceAccountRequest"></a>
+
+### CreateServiceAccountRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| service_account | [ServiceAccount](#n0stack.iam.v1alpha.ServiceAccount) |  |  |
+
+
+
+
+
+
+<a name="n0stack.iam.v1alpha.DeleteServiceAccountRequest"></a>
+
+### DeleteServiceAccountRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| name | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="n0stack.iam.v1alpha.GetServiceAccountRequest"></a>
+
+### GetServiceAccountRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| name | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="n0stack.iam.v1alpha.ServiceAccount"></a>
+
+### ServiceAccount
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| name | [string](#string) |  | Name is a unique field. |
+| project | [string](#string) |  |  |
+| annotations | [ServiceAccount.AnnotationsEntry](#n0stack.iam.v1alpha.ServiceAccount.AnnotationsEntry) | repeated | Annotations can store metadata used by the system for control. In particular, implementation-dependent fields that can not be set as protobuf fields are targeted. The control specified by n0stack may delete metadata specified by the user. |
+| labels | [ServiceAccount.LabelsEntry](#n0stack.iam.v1alpha.ServiceAccount.LabelsEntry) | repeated | Labels stores user-defined metadata. The n0stack system must not rewrite this value. |
+| public_keys | [ServiceAccount.PublicKeysEntry](#n0stack.iam.v1alpha.ServiceAccount.PublicKeysEntry) | repeated |  |
+
+
+
+
+
+
+<a name="n0stack.iam.v1alpha.ServiceAccount.AnnotationsEntry"></a>
+
+### ServiceAccount.AnnotationsEntry
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| key | [string](#string) |  |  |
+| value | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="n0stack.iam.v1alpha.ServiceAccount.LabelsEntry"></a>
+
+### ServiceAccount.LabelsEntry
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| key | [string](#string) |  |  |
+| value | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="n0stack.iam.v1alpha.ServiceAccount.PublicKeysEntry"></a>
+
+### ServiceAccount.PublicKeysEntry
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| key | [string](#string) |  |  |
+| value | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="n0stack.iam.v1alpha.UpdateServiceAccountRequest"></a>
+
+### UpdateServiceAccountRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| service_account | [ServiceAccount](#n0stack.iam.v1alpha.ServiceAccount) |  |  |
+| update_mask | [google.protobuf.FieldMask](#google.protobuf.FieldMask) |  |  |
+
+
+
+
+
+ 
+
+ 
+
+ 
+
+
+<a name="n0stack.iam.v1alpha.ServiceAccountService"></a>
+
+### ServiceAccountService
+
+
+| Method Name | Request Type | Response Type | Description |
+| ----------- | ------------ | ------------- | ------------|
+| GetServiceAccount | [GetServiceAccountRequest](#n0stack.iam.v1alpha.GetServiceAccountRequest) | [ServiceAccount](#n0stack.iam.v1alpha.ServiceAccount) |  |
+| CreateServiceAccount | [CreateServiceAccountRequest](#n0stack.iam.v1alpha.CreateServiceAccountRequest) | [ServiceAccount](#n0stack.iam.v1alpha.ServiceAccount) |  |
+| UpdateServiceAccount | [UpdateServiceAccountRequest](#n0stack.iam.v1alpha.UpdateServiceAccountRequest) | [ServiceAccount](#n0stack.iam.v1alpha.ServiceAccount) |  |
+| DeleteServiceAccount | [DeleteServiceAccountRequest](#n0stack.iam.v1alpha.DeleteServiceAccountRequest) | [.google.protobuf.Empty](#google.protobuf.Empty) |  |
 
  
 

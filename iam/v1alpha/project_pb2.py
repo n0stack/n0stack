@@ -16,6 +16,7 @@ _sym_db = _symbol_database.Default()
 
 from google.api import annotations_pb2 as google_dot_api_dot_annotations__pb2
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
+from google.protobuf import field_mask_pb2 as google_dot_protobuf_dot_field__mask__pb2
 from protoc_gen_swagger.options import annotations_pb2 as protoc__gen__swagger_dot_options_dot_annotations__pb2
 
 
@@ -24,9 +25,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='n0stack.iam.v1alpha',
   syntax='proto3',
   serialized_options=_b('Z n0st.ac/n0stack/iam/v1alpha;piam\222Ab\0228\n\007n0stack\"-\n\007n0stack\022\"https://github.com/n0stack/n0stack*\002\002\0012\020application/json:\020application/json'),
-  serialized_pb=_b('\n!n0stack/iam/v1alpha/project.proto\x12\x13n0stack.iam.v1alpha\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a,protoc-gen-swagger/options/annotations.proto\"\xab\x03\n\x07Project\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x42\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32-.n0stack.iam.v1alpha.Project.AnnotationsEntry\x12\x38\n\x06labels\x18\x04 \x03(\x0b\x32(.n0stack.iam.v1alpha.Project.LabelsEntry\x12\x14\n\x0c\x64isplay_name\x18\t \x01(\t\x12@\n\nmembership\x18  \x03(\x0b\x32,.n0stack.iam.v1alpha.Project.MembershipEntry\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a-\n\x0bLabelsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1aY\n\x0fMembershipEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x35\n\x05value\x18\x02 \x01(\x0e\x32&.n0stack.iam.v1alpha.ProjectMembership:\x02\x38\x01\"\x15\n\x13ListProjectsRequest\"F\n\x14ListProjectsResponse\x12.\n\x08projects\x18\x01 \x03(\x0b\x32\x1c.n0stack.iam.v1alpha.Project\"!\n\x11GetProjectRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"\x9f\x02\n\x14\x43reateProjectRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12O\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32:.n0stack.iam.v1alpha.CreateProjectRequest.AnnotationsEntry\x12\x45\n\x06labels\x18\x04 \x03(\x0b\x32\x35.n0stack.iam.v1alpha.CreateProjectRequest.LabelsEntry\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a-\n\x0bLabelsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x9f\x02\n\x14UpdateProjectRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12O\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32:.n0stack.iam.v1alpha.UpdateProjectRequest.AnnotationsEntry\x12\x45\n\x06labels\x18\x04 \x03(\x0b\x32\x35.n0stack.iam.v1alpha.UpdateProjectRequest.LabelsEntry\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a-\n\x0bLabelsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"$\n\x14\x44\x65leteProjectRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"\x82\x01\n\x1b\x41\x64\x64ProjectMembershipRequest\x12\x14\n\x0cproject_name\x18\x01 \x01(\t\x12\x11\n\tuser_name\x18\x02 \x01(\t\x12:\n\nmembership\x18\x03 \x01(\x0e\x32&.n0stack.iam.v1alpha.ProjectMembership\"I\n\x1e\x44\x65leteProjectMembershipRequest\x12\x14\n\x0cproject_name\x18\x01 \x01(\t\x12\x11\n\tuser_name\x18\x02 \x01(\t*N\n\x11ProjectMembership\x12\"\n\x1ePROJECT_MEMBERSHIP_UNSPECIFIED\x10\x00\x12\t\n\x05OWNER\x10\x01\x12\n\n\x06MEMBER\x10\x02\x32\x92\x08\n\x0eProjectService\x12\x86\x01\n\x0cListProjects\x12(.n0stack.iam.v1alpha.ListProjectsRequest\x1a).n0stack.iam.v1alpha.ListProjectsResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/iam/v1alpha/projects\x12|\n\nGetProject\x12&.n0stack.iam.v1alpha.GetProjectRequest\x1a\x1c.n0stack.iam.v1alpha.Project\"(\x82\xd3\xe4\x93\x02\"\x12 /api/iam/v1alpha/projects/{name}\x12\x85\x01\n\rCreateProject\x12).n0stack.iam.v1alpha.CreateProjectRequest\x1a\x1c.n0stack.iam.v1alpha.Project\"+\x82\xd3\xe4\x93\x02%\" /api/iam/v1alpha/projects/{name}:\x01*\x12\x85\x01\n\rUpdateProject\x12).n0stack.iam.v1alpha.UpdateProjectRequest\x1a\x1c.n0stack.iam.v1alpha.Project\"+\x82\xd3\xe4\x93\x02%\x1a /api/iam/v1alpha/projects/{name}:\x01*\x12|\n\rDeleteProject\x12).n0stack.iam.v1alpha.DeleteProjectRequest\x1a\x16.google.protobuf.Empty\"(\x82\xd3\xe4\x93\x02\"* /api/iam/v1alpha/projects/{name}\x12\xb2\x01\n\x14\x41\x64\x64ProjectMembership\x12\x30.n0stack.iam.v1alpha.AddProjectMembershipRequest\x1a\x1c.n0stack.iam.v1alpha.Project\"J\x82\xd3\xe4\x93\x02\x44\"?/api/iam/v1alpha/projects/{project_name}/membership/{user_name}:\x01*\x12\xb5\x01\n\x17\x44\x65leteProjectMembership\x12\x33.n0stack.iam.v1alpha.DeleteProjectMembershipRequest\x1a\x1c.n0stack.iam.v1alpha.Project\"G\x82\xd3\xe4\x93\x02\x41*?/api/iam/v1alpha/projects/{project_name}/membership/{user_name}B\x87\x01Z n0st.ac/n0stack/iam/v1alpha;piam\x92\x41\x62\x12\x38\n\x07n0stack\"-\n\x07n0stack\x12\"https://github.com/n0stack/n0stack*\x02\x02\x01\x32\x10\x61pplication/json:\x10\x61pplication/jsonb\x06proto3')
+  serialized_pb=_b('\n!n0stack/iam/v1alpha/project.proto\x12\x13n0stack.iam.v1alpha\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a,protoc-gen-swagger/options/annotations.proto\"\xab\x03\n\x07Project\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x42\n\x0b\x61nnotations\x18\x03 \x03(\x0b\x32-.n0stack.iam.v1alpha.Project.AnnotationsEntry\x12\x38\n\x06labels\x18\x04 \x03(\x0b\x32(.n0stack.iam.v1alpha.Project.LabelsEntry\x12\x14\n\x0c\x64isplay_name\x18\t \x01(\t\x12@\n\nmembership\x18  \x03(\x0b\x32,.n0stack.iam.v1alpha.Project.MembershipEntry\x1a\x32\n\x10\x41nnotationsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a-\n\x0bLabelsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1aY\n\x0fMembershipEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x35\n\x05value\x18\x02 \x01(\x0e\x32&.n0stack.iam.v1alpha.ProjectMembership:\x02\x38\x01\"\x15\n\x13ListProjectsRequest\"F\n\x14ListProjectsResponse\x12.\n\x08projects\x18\x01 \x03(\x0b\x32\x1c.n0stack.iam.v1alpha.Project\"!\n\x11GetProjectRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"E\n\x14\x43reateProjectRequest\x12-\n\x07project\x18\x01 \x01(\x0b\x32\x1c.n0stack.iam.v1alpha.Project\"v\n\x14UpdateProjectRequest\x12-\n\x07project\x18\x01 \x01(\x0b\x32\x1c.n0stack.iam.v1alpha.Project\x12/\n\x0bupdate_mask\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.FieldMask\"$\n\x14\x44\x65leteProjectRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"\x82\x01\n\x1b\x41\x64\x64ProjectMembershipRequest\x12\x14\n\x0cproject_name\x18\x01 \x01(\t\x12\x11\n\tuser_name\x18\x02 \x01(\t\x12:\n\nmembership\x18\x03 \x01(\x0e\x32&.n0stack.iam.v1alpha.ProjectMembership\"I\n\x1e\x44\x65leteProjectMembershipRequest\x12\x14\n\x0cproject_name\x18\x01 \x01(\t\x12\x11\n\tuser_name\x18\x02 \x01(\t*N\n\x11ProjectMembership\x12\"\n\x1ePROJECT_MEMBERSHIP_UNSPECIFIED\x10\x00\x12\t\n\x05OWNER\x10\x01\x12\n\n\x06MEMBER\x10\x02\x32\xae\x08\n\x0eProjectService\x12\x86\x01\n\x0cListProjects\x12(.n0stack.iam.v1alpha.ListProjectsRequest\x1a).n0stack.iam.v1alpha.ListProjectsResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/iam/v1alpha/projects\x12|\n\nGetProject\x12&.n0stack.iam.v1alpha.GetProjectRequest\x1a\x1c.n0stack.iam.v1alpha.Project\"(\x82\xd3\xe4\x93\x02\"\x12 /api/iam/v1alpha/projects/{name}\x12\x93\x01\n\rCreateProject\x12).n0stack.iam.v1alpha.CreateProjectRequest\x1a\x1c.n0stack.iam.v1alpha.Project\"9\x82\xd3\xe4\x93\x02\x33\"(/api/iam/v1alpha/projects/{project.name}:\x07project\x12\x93\x01\n\rUpdateProject\x12).n0stack.iam.v1alpha.UpdateProjectRequest\x1a\x1c.n0stack.iam.v1alpha.Project\"9\x82\xd3\xe4\x93\x02\x33\x1a(/api/iam/v1alpha/projects/{project.name}:\x07project\x12|\n\rDeleteProject\x12).n0stack.iam.v1alpha.DeleteProjectRequest\x1a\x16.google.protobuf.Empty\"(\x82\xd3\xe4\x93\x02\"* /api/iam/v1alpha/projects/{name}\x12\xb2\x01\n\x14\x41\x64\x64ProjectMembership\x12\x30.n0stack.iam.v1alpha.AddProjectMembershipRequest\x1a\x1c.n0stack.iam.v1alpha.Project\"J\x82\xd3\xe4\x93\x02\x44\"?/api/iam/v1alpha/projects/{project_name}/membership/{user_name}:\x01*\x12\xb5\x01\n\x17\x44\x65leteProjectMembership\x12\x33.n0stack.iam.v1alpha.DeleteProjectMembershipRequest\x1a\x1c.n0stack.iam.v1alpha.Project\"G\x82\xd3\xe4\x93\x02\x41*?/api/iam/v1alpha/projects/{project_name}/membership/{user_name}B\x87\x01Z n0st.ac/n0stack/iam/v1alpha;piam\x92\x41\x62\x12\x38\n\x07n0stack\"-\n\x07n0stack\x12\"https://github.com/n0stack/n0stack*\x02\x02\x01\x32\x10\x61pplication/json:\x10\x61pplication/jsonb\x06proto3')
   ,
-  dependencies=[google_dot_api_dot_annotations__pb2.DESCRIPTOR,google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,protoc__gen__swagger_dot_options_dot_annotations__pb2.DESCRIPTOR,])
+  dependencies=[google_dot_api_dot_annotations__pb2.DESCRIPTOR,google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,google_dot_protobuf_dot_field__mask__pb2.DESCRIPTOR,protoc__gen__swagger_dot_options_dot_annotations__pb2.DESCRIPTOR,])
 
 _PROJECTMEMBERSHIP = _descriptor.EnumDescriptor(
   name='ProjectMembership',
@@ -49,8 +50,8 @@ _PROJECTMEMBERSHIP = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1549,
-  serialized_end=1627,
+  serialized_start=1194,
+  serialized_end=1272,
 )
 _sym_db.RegisterEnumDescriptor(_PROJECTMEMBERSHIP)
 
@@ -94,8 +95,8 @@ _PROJECT_ANNOTATIONSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=403,
-  serialized_end=453,
+  serialized_start=437,
+  serialized_end=487,
 )
 
 _PROJECT_LABELSENTRY = _descriptor.Descriptor(
@@ -131,8 +132,8 @@ _PROJECT_LABELSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=455,
-  serialized_end=500,
+  serialized_start=489,
+  serialized_end=534,
 )
 
 _PROJECT_MEMBERSHIPENTRY = _descriptor.Descriptor(
@@ -168,8 +169,8 @@ _PROJECT_MEMBERSHIPENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=502,
-  serialized_end=591,
+  serialized_start=536,
+  serialized_end=625,
 )
 
 _PROJECT = _descriptor.Descriptor(
@@ -226,8 +227,8 @@ _PROJECT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=164,
-  serialized_end=591,
+  serialized_start=198,
+  serialized_end=625,
 )
 
 
@@ -250,8 +251,8 @@ _LISTPROJECTSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=593,
-  serialized_end=614,
+  serialized_start=627,
+  serialized_end=648,
 )
 
 
@@ -281,8 +282,8 @@ _LISTPROJECTSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=616,
-  serialized_end=686,
+  serialized_start=650,
+  serialized_end=720,
 )
 
 
@@ -312,84 +313,10 @@ _GETPROJECTREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=688,
-  serialized_end=721,
+  serialized_start=722,
+  serialized_end=755,
 )
 
-
-_CREATEPROJECTREQUEST_ANNOTATIONSENTRY = _descriptor.Descriptor(
-  name='AnnotationsEntry',
-  full_name='n0stack.iam.v1alpha.CreateProjectRequest.AnnotationsEntry',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='key', full_name='n0stack.iam.v1alpha.CreateProjectRequest.AnnotationsEntry.key', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='value', full_name='n0stack.iam.v1alpha.CreateProjectRequest.AnnotationsEntry.value', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=_b('8\001'),
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=403,
-  serialized_end=453,
-)
-
-_CREATEPROJECTREQUEST_LABELSENTRY = _descriptor.Descriptor(
-  name='LabelsEntry',
-  full_name='n0stack.iam.v1alpha.CreateProjectRequest.LabelsEntry',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='key', full_name='n0stack.iam.v1alpha.CreateProjectRequest.LabelsEntry.key', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='value', full_name='n0stack.iam.v1alpha.CreateProjectRequest.LabelsEntry.value', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=_b('8\001'),
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=455,
-  serialized_end=500,
-)
 
 _CREATEPROJECTREQUEST = _descriptor.Descriptor(
   name='CreateProjectRequest',
@@ -399,30 +326,16 @@ _CREATEPROJECTREQUEST = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='name', full_name='n0stack.iam.v1alpha.CreateProjectRequest.name', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='annotations', full_name='n0stack.iam.v1alpha.CreateProjectRequest.annotations', index=1,
-      number=3, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='labels', full_name='n0stack.iam.v1alpha.CreateProjectRequest.labels', index=2,
-      number=4, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
+      name='project', full_name='n0stack.iam.v1alpha.CreateProjectRequest.project', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
-  nested_types=[_CREATEPROJECTREQUEST_ANNOTATIONSENTRY, _CREATEPROJECTREQUEST_LABELSENTRY, ],
+  nested_types=[],
   enum_types=[
   ],
   serialized_options=None,
@@ -431,84 +344,10 @@ _CREATEPROJECTREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=724,
-  serialized_end=1011,
+  serialized_start=757,
+  serialized_end=826,
 )
 
-
-_UPDATEPROJECTREQUEST_ANNOTATIONSENTRY = _descriptor.Descriptor(
-  name='AnnotationsEntry',
-  full_name='n0stack.iam.v1alpha.UpdateProjectRequest.AnnotationsEntry',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='key', full_name='n0stack.iam.v1alpha.UpdateProjectRequest.AnnotationsEntry.key', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='value', full_name='n0stack.iam.v1alpha.UpdateProjectRequest.AnnotationsEntry.value', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=_b('8\001'),
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=403,
-  serialized_end=453,
-)
-
-_UPDATEPROJECTREQUEST_LABELSENTRY = _descriptor.Descriptor(
-  name='LabelsEntry',
-  full_name='n0stack.iam.v1alpha.UpdateProjectRequest.LabelsEntry',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='key', full_name='n0stack.iam.v1alpha.UpdateProjectRequest.LabelsEntry.key', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='value', full_name='n0stack.iam.v1alpha.UpdateProjectRequest.LabelsEntry.value', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=_b('8\001'),
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=455,
-  serialized_end=500,
-)
 
 _UPDATEPROJECTREQUEST = _descriptor.Descriptor(
   name='UpdateProjectRequest',
@@ -518,30 +357,23 @@ _UPDATEPROJECTREQUEST = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='name', full_name='n0stack.iam.v1alpha.UpdateProjectRequest.name', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
+      name='project', full_name='n0stack.iam.v1alpha.UpdateProjectRequest.project', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='annotations', full_name='n0stack.iam.v1alpha.UpdateProjectRequest.annotations', index=1,
-      number=3, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='labels', full_name='n0stack.iam.v1alpha.UpdateProjectRequest.labels', index=2,
-      number=4, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
+      name='update_mask', full_name='n0stack.iam.v1alpha.UpdateProjectRequest.update_mask', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
-  nested_types=[_UPDATEPROJECTREQUEST_ANNOTATIONSENTRY, _UPDATEPROJECTREQUEST_LABELSENTRY, ],
+  nested_types=[],
   enum_types=[
   ],
   serialized_options=None,
@@ -550,8 +382,8 @@ _UPDATEPROJECTREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1014,
-  serialized_end=1301,
+  serialized_start=828,
+  serialized_end=946,
 )
 
 
@@ -581,8 +413,8 @@ _DELETEPROJECTREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1303,
-  serialized_end=1339,
+  serialized_start=948,
+  serialized_end=984,
 )
 
 
@@ -626,8 +458,8 @@ _ADDPROJECTMEMBERSHIPREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1342,
-  serialized_end=1472,
+  serialized_start=987,
+  serialized_end=1117,
 )
 
 
@@ -664,8 +496,8 @@ _DELETEPROJECTMEMBERSHIPREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1474,
-  serialized_end=1547,
+  serialized_start=1119,
+  serialized_end=1192,
 )
 
 _PROJECT_ANNOTATIONSENTRY.containing_type = _PROJECT
@@ -676,14 +508,9 @@ _PROJECT.fields_by_name['annotations'].message_type = _PROJECT_ANNOTATIONSENTRY
 _PROJECT.fields_by_name['labels'].message_type = _PROJECT_LABELSENTRY
 _PROJECT.fields_by_name['membership'].message_type = _PROJECT_MEMBERSHIPENTRY
 _LISTPROJECTSRESPONSE.fields_by_name['projects'].message_type = _PROJECT
-_CREATEPROJECTREQUEST_ANNOTATIONSENTRY.containing_type = _CREATEPROJECTREQUEST
-_CREATEPROJECTREQUEST_LABELSENTRY.containing_type = _CREATEPROJECTREQUEST
-_CREATEPROJECTREQUEST.fields_by_name['annotations'].message_type = _CREATEPROJECTREQUEST_ANNOTATIONSENTRY
-_CREATEPROJECTREQUEST.fields_by_name['labels'].message_type = _CREATEPROJECTREQUEST_LABELSENTRY
-_UPDATEPROJECTREQUEST_ANNOTATIONSENTRY.containing_type = _UPDATEPROJECTREQUEST
-_UPDATEPROJECTREQUEST_LABELSENTRY.containing_type = _UPDATEPROJECTREQUEST
-_UPDATEPROJECTREQUEST.fields_by_name['annotations'].message_type = _UPDATEPROJECTREQUEST_ANNOTATIONSENTRY
-_UPDATEPROJECTREQUEST.fields_by_name['labels'].message_type = _UPDATEPROJECTREQUEST_LABELSENTRY
+_CREATEPROJECTREQUEST.fields_by_name['project'].message_type = _PROJECT
+_UPDATEPROJECTREQUEST.fields_by_name['project'].message_type = _PROJECT
+_UPDATEPROJECTREQUEST.fields_by_name['update_mask'].message_type = google_dot_protobuf_dot_field__mask__pb2._FIELDMASK
 _ADDPROJECTMEMBERSHIPREQUEST.fields_by_name['membership'].enum_type = _PROJECTMEMBERSHIP
 DESCRIPTOR.message_types_by_name['Project'] = _PROJECT
 DESCRIPTOR.message_types_by_name['ListProjectsRequest'] = _LISTPROJECTSREQUEST
@@ -750,50 +577,18 @@ GetProjectRequest = _reflection.GeneratedProtocolMessageType('GetProjectRequest'
 _sym_db.RegisterMessage(GetProjectRequest)
 
 CreateProjectRequest = _reflection.GeneratedProtocolMessageType('CreateProjectRequest', (_message.Message,), {
-
-  'AnnotationsEntry' : _reflection.GeneratedProtocolMessageType('AnnotationsEntry', (_message.Message,), {
-    'DESCRIPTOR' : _CREATEPROJECTREQUEST_ANNOTATIONSENTRY,
-    '__module__' : 'n0stack.iam.v1alpha.project_pb2'
-    # @@protoc_insertion_point(class_scope:n0stack.iam.v1alpha.CreateProjectRequest.AnnotationsEntry)
-    })
-  ,
-
-  'LabelsEntry' : _reflection.GeneratedProtocolMessageType('LabelsEntry', (_message.Message,), {
-    'DESCRIPTOR' : _CREATEPROJECTREQUEST_LABELSENTRY,
-    '__module__' : 'n0stack.iam.v1alpha.project_pb2'
-    # @@protoc_insertion_point(class_scope:n0stack.iam.v1alpha.CreateProjectRequest.LabelsEntry)
-    })
-  ,
   'DESCRIPTOR' : _CREATEPROJECTREQUEST,
   '__module__' : 'n0stack.iam.v1alpha.project_pb2'
   # @@protoc_insertion_point(class_scope:n0stack.iam.v1alpha.CreateProjectRequest)
   })
 _sym_db.RegisterMessage(CreateProjectRequest)
-_sym_db.RegisterMessage(CreateProjectRequest.AnnotationsEntry)
-_sym_db.RegisterMessage(CreateProjectRequest.LabelsEntry)
 
 UpdateProjectRequest = _reflection.GeneratedProtocolMessageType('UpdateProjectRequest', (_message.Message,), {
-
-  'AnnotationsEntry' : _reflection.GeneratedProtocolMessageType('AnnotationsEntry', (_message.Message,), {
-    'DESCRIPTOR' : _UPDATEPROJECTREQUEST_ANNOTATIONSENTRY,
-    '__module__' : 'n0stack.iam.v1alpha.project_pb2'
-    # @@protoc_insertion_point(class_scope:n0stack.iam.v1alpha.UpdateProjectRequest.AnnotationsEntry)
-    })
-  ,
-
-  'LabelsEntry' : _reflection.GeneratedProtocolMessageType('LabelsEntry', (_message.Message,), {
-    'DESCRIPTOR' : _UPDATEPROJECTREQUEST_LABELSENTRY,
-    '__module__' : 'n0stack.iam.v1alpha.project_pb2'
-    # @@protoc_insertion_point(class_scope:n0stack.iam.v1alpha.UpdateProjectRequest.LabelsEntry)
-    })
-  ,
   'DESCRIPTOR' : _UPDATEPROJECTREQUEST,
   '__module__' : 'n0stack.iam.v1alpha.project_pb2'
   # @@protoc_insertion_point(class_scope:n0stack.iam.v1alpha.UpdateProjectRequest)
   })
 _sym_db.RegisterMessage(UpdateProjectRequest)
-_sym_db.RegisterMessage(UpdateProjectRequest.AnnotationsEntry)
-_sym_db.RegisterMessage(UpdateProjectRequest.LabelsEntry)
 
 DeleteProjectRequest = _reflection.GeneratedProtocolMessageType('DeleteProjectRequest', (_message.Message,), {
   'DESCRIPTOR' : _DELETEPROJECTREQUEST,
@@ -821,10 +616,6 @@ DESCRIPTOR._options = None
 _PROJECT_ANNOTATIONSENTRY._options = None
 _PROJECT_LABELSENTRY._options = None
 _PROJECT_MEMBERSHIPENTRY._options = None
-_CREATEPROJECTREQUEST_ANNOTATIONSENTRY._options = None
-_CREATEPROJECTREQUEST_LABELSENTRY._options = None
-_UPDATEPROJECTREQUEST_ANNOTATIONSENTRY._options = None
-_UPDATEPROJECTREQUEST_LABELSENTRY._options = None
 
 _PROJECTSERVICE = _descriptor.ServiceDescriptor(
   name='ProjectService',
@@ -832,8 +623,8 @@ _PROJECTSERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=1630,
-  serialized_end=2672,
+  serialized_start=1275,
+  serialized_end=2345,
   methods=[
   _descriptor.MethodDescriptor(
     name='ListProjects',
@@ -860,7 +651,7 @@ _PROJECTSERVICE = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_CREATEPROJECTREQUEST,
     output_type=_PROJECT,
-    serialized_options=_b('\202\323\344\223\002%\" /api/iam/v1alpha/projects/{name}:\001*'),
+    serialized_options=_b('\202\323\344\223\0023\"(/api/iam/v1alpha/projects/{project.name}:\007project'),
   ),
   _descriptor.MethodDescriptor(
     name='UpdateProject',
@@ -869,7 +660,7 @@ _PROJECTSERVICE = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_UPDATEPROJECTREQUEST,
     output_type=_PROJECT,
-    serialized_options=_b('\202\323\344\223\002%\032 /api/iam/v1alpha/projects/{name}:\001*'),
+    serialized_options=_b('\202\323\344\223\0023\032(/api/iam/v1alpha/projects/{project.name}:\007project'),
   ),
   _descriptor.MethodDescriptor(
     name='DeleteProject',

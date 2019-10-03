@@ -57,22 +57,29 @@ class ProjectServiceServicer(object):
   pass
 
   def ListProjects(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+    """あるユーザーがメンバーであるプロジェクトすべてを返す
+    Errors:
+    NotFound: どのプロジェクトにも属していない場合
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def GetProject(self, request, context):
-    """memberじゃない場合 notfound
+    """Summary: プロジェクトの詳細を取得する
+    Errors:
+    NotFound: memberじゃない場合
+    Unauthorized: ログインしていない場合
     """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
   def CreateProject(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+    """ログインしているユーザーがオーナーとなるプロジェクトを作成する
+    Errors:
+    Unauthorized: ログインしていない場合
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')

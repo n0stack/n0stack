@@ -108,7 +108,7 @@ func request_ProjectService_CreateProject_0(ctx context.Context, marshaler runti
 	if berr != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
 	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.Project); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -119,15 +119,15 @@ func request_ProjectService_CreateProject_0(ctx context.Context, marshaler runti
 		_   = err
 	)
 
-	val, ok = pathParams["name"]
+	val, ok = pathParams["project.name"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "project.name")
 	}
 
-	protoReq.Name, err = runtime.String(val)
+	err = runtime.PopulateFieldFromPath(&protoReq, "project.name", val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "project.name", err)
 	}
 
 	msg, err := client.CreateProject(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -143,7 +143,7 @@ func local_request_ProjectService_CreateProject_0(ctx context.Context, marshaler
 	if berr != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
 	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.Project); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -154,21 +154,25 @@ func local_request_ProjectService_CreateProject_0(ctx context.Context, marshaler
 		_   = err
 	)
 
-	val, ok = pathParams["name"]
+	val, ok = pathParams["project.name"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "project.name")
 	}
 
-	protoReq.Name, err = runtime.String(val)
+	err = runtime.PopulateFieldFromPath(&protoReq, "project.name", val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "project.name", err)
 	}
 
 	msg, err := server.CreateProject(ctx, &protoReq)
 	return msg, metadata, err
 
 }
+
+var (
+	filter_ProjectService_UpdateProject_0 = &utilities.DoubleArray{Encoding: map[string]int{"project": 0, "name": 1}, Base: []int{1, 2, 1, 0, 0}, Check: []int{0, 1, 2, 3, 2}}
+)
 
 func request_ProjectService_UpdateProject_0(ctx context.Context, marshaler runtime.Marshaler, client ProjectServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq UpdateProjectRequest
@@ -178,7 +182,7 @@ func request_ProjectService_UpdateProject_0(ctx context.Context, marshaler runti
 	if berr != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
 	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.Project); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -189,15 +193,22 @@ func request_ProjectService_UpdateProject_0(ctx context.Context, marshaler runti
 		_   = err
 	)
 
-	val, ok = pathParams["name"]
+	val, ok = pathParams["project.name"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "project.name")
 	}
 
-	protoReq.Name, err = runtime.String(val)
+	err = runtime.PopulateFieldFromPath(&protoReq, "project.name", val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "project.name", err)
+	}
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ProjectService_UpdateProject_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
 	msg, err := client.UpdateProject(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -213,7 +224,7 @@ func local_request_ProjectService_UpdateProject_0(ctx context.Context, marshaler
 	if berr != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
 	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.Project); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -224,15 +235,19 @@ func local_request_ProjectService_UpdateProject_0(ctx context.Context, marshaler
 		_   = err
 	)
 
-	val, ok = pathParams["name"]
+	val, ok = pathParams["project.name"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "project.name")
 	}
 
-	protoReq.Name, err = runtime.String(val)
+	err = runtime.PopulateFieldFromPath(&protoReq, "project.name", val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "project.name", err)
+	}
+
+	if err := runtime.PopulateQueryParameters(&protoReq, req.URL.Query(), filter_ProjectService_UpdateProject_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
 	msg, err := server.UpdateProject(ctx, &protoReq)
@@ -796,9 +811,9 @@ var (
 
 	pattern_ProjectService_GetProject_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "iam", "v1alpha", "projects", "name"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_ProjectService_CreateProject_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "iam", "v1alpha", "projects", "name"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_ProjectService_CreateProject_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "iam", "v1alpha", "projects", "project.name"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_ProjectService_UpdateProject_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "iam", "v1alpha", "projects", "name"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_ProjectService_UpdateProject_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "iam", "v1alpha", "projects", "project.name"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_ProjectService_DeleteProject_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "iam", "v1alpha", "projects", "name"}, "", runtime.AssumeColonVerbOpt(true)))
 
