@@ -33,6 +33,7 @@ services:
       - api
       - --etcd-endpoints=etcd:2379
       - --token-secret=test-secret
+      - --listen-url=https://localhost
     volumes:
       - ./bin/:/n0stack
     links:
