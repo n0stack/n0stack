@@ -3,7 +3,7 @@
 
 ## Table of Contents
 
-- [iam/v1alpha/project.proto](#iam/v1alpha/project.proto)
+- [n0stack/iam/v1alpha/project.proto](#n0stack/iam/v1alpha/project.proto)
     - [AddProjectMembershipRequest](#n0stack.iam.v1alpha.AddProjectMembershipRequest)
     - [CreateProjectRequest](#n0stack.iam.v1alpha.CreateProjectRequest)
     - [DeleteProjectMembershipRequest](#n0stack.iam.v1alpha.DeleteProjectMembershipRequest)
@@ -23,7 +23,7 @@
     - [ProjectService](#n0stack.iam.v1alpha.ProjectService)
   
 
-- [iam/v1alpha/service_account.proto](#iam/v1alpha/service_account.proto)
+- [n0stack/iam/v1alpha/service_account.proto](#n0stack/iam/v1alpha/service_account.proto)
     - [CreateServiceAccountRequest](#n0stack.iam.v1alpha.CreateServiceAccountRequest)
     - [DeleteServiceAccountRequest](#n0stack.iam.v1alpha.DeleteServiceAccountRequest)
     - [GetServiceAccountRequest](#n0stack.iam.v1alpha.GetServiceAccountRequest)
@@ -38,7 +38,7 @@
     - [ServiceAccountService](#n0stack.iam.v1alpha.ServiceAccountService)
   
 
-- [iam/v1alpha/user.proto](#iam/v1alpha/user.proto)
+- [n0stack/iam/v1alpha/user.proto](#n0stack/iam/v1alpha/user.proto)
     - [CreateUserRequest](#n0stack.iam.v1alpha.CreateUserRequest)
     - [DeleteUserRequest](#n0stack.iam.v1alpha.DeleteUserRequest)
     - [GetUserRequest](#n0stack.iam.v1alpha.GetUserRequest)
@@ -57,10 +57,10 @@
 
 
 
-<a name="iam/v1alpha/project.proto"></a>
+<a name="n0stack/iam/v1alpha/project.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## iam/v1alpha/project.proto
+## n0stack/iam/v1alpha/project.proto
 
 
 
@@ -276,9 +276,9 @@
 
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
-| ListProjects | [ListProjectsRequest](#n0stack.iam.v1alpha.ListProjectsRequest) | [ListProjectsResponse](#n0stack.iam.v1alpha.ListProjectsResponse) | あるユーザーがメンバーであるプロジェクトすべてを返す Errors: NotFound: どのプロジェクトにも属していない場合 |
-| GetProject | [GetProjectRequest](#n0stack.iam.v1alpha.GetProjectRequest) | [Project](#n0stack.iam.v1alpha.Project) | Summary: プロジェクトの詳細を取得する Errors: NotFound: memberじゃない場合 Unauthorized: ログインしていない場合 |
-| CreateProject | [CreateProjectRequest](#n0stack.iam.v1alpha.CreateProjectRequest) | [Project](#n0stack.iam.v1alpha.Project) | ログインしているユーザーがオーナーとなるプロジェクトを作成する Errors: Unauthorized: ログインしていない場合 |
+| ListProjects | [ListProjectsRequest](#n0stack.iam.v1alpha.ListProjectsRequest) | [ListProjectsResponse](#n0stack.iam.v1alpha.ListProjectsResponse) | あるユーザーがメンバーであるプロジェクトすべてを返す errors: NotFound: どのプロジェクトにも属していない場合 |
+| GetProject | [GetProjectRequest](#n0stack.iam.v1alpha.GetProjectRequest) | [Project](#n0stack.iam.v1alpha.Project) | Summary: プロジェクトの詳細を取得する errors: NotFound: memberじゃない場合 Unauthorized: ログインしていない場合 |
+| CreateProject | [CreateProjectRequest](#n0stack.iam.v1alpha.CreateProjectRequest) | [Project](#n0stack.iam.v1alpha.Project) | ログインしているユーザーがオーナーとなるプロジェクトを作成する errors: Unauthorized: ログインしていない場合 |
 | UpdateProject | [UpdateProjectRequest](#n0stack.iam.v1alpha.UpdateProjectRequest) | [Project](#n0stack.iam.v1alpha.Project) |  |
 | DeleteProject | [DeleteProjectRequest](#n0stack.iam.v1alpha.DeleteProjectRequest) | [.google.protobuf.Empty](#google.protobuf.Empty) |  |
 | AddProjectMembership | [AddProjectMembershipRequest](#n0stack.iam.v1alpha.AddProjectMembershipRequest) | [Project](#n0stack.iam.v1alpha.Project) |  |
@@ -288,10 +288,10 @@
 
 
 
-<a name="iam/v1alpha/service_account.proto"></a>
+<a name="n0stack/iam/v1alpha/service_account.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## iam/v1alpha/service_account.proto
+## n0stack/iam/v1alpha/service_account.proto
 
 
 
@@ -445,10 +445,10 @@
 
 
 
-<a name="iam/v1alpha/user.proto"></a>
+<a name="n0stack/iam/v1alpha/user.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## iam/v1alpha/user.proto
+## n0stack/iam/v1alpha/user.proto
 
 
 
@@ -593,8 +593,8 @@
 
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
-| GetUser | [GetUserRequest](#n0stack.iam.v1alpha.GetUserRequest) | [User](#n0stack.iam.v1alpha.User) |  |
 | CreateUser | [CreateUserRequest](#n0stack.iam.v1alpha.CreateUserRequest) | [User](#n0stack.iam.v1alpha.User) |  |
+| GetUser | [GetUserRequest](#n0stack.iam.v1alpha.GetUserRequest) | [User](#n0stack.iam.v1alpha.User) |  |
 | UpdateUser | [UpdateUserRequest](#n0stack.iam.v1alpha.UpdateUserRequest) | [User](#n0stack.iam.v1alpha.User) |  |
 | DeleteUser | [DeleteUserRequest](#n0stack.iam.v1alpha.DeleteUserRequest) | [.google.protobuf.Empty](#google.protobuf.Empty) |  |
 

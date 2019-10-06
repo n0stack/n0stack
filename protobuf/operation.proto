@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+option go_package = "n0st.ac/n0stack/protobuf;protobuf";
+
+package n0stack.protobuf;
+
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+
+
+message Operation {
+  // 例えばShutdownVirtualMachineが実行され、STOPPINGステータスになった場合ShutdownVirtualMachineRequestが格納される
+  google.protobuf.Any operation_request = 1;
+
+  // locked_untilにセットされた時間まで他のoperatorがリソースを操作してはいけない
+  google.protobuf.Timestamp locked_until = 2;
+
+  // is_disabled_cancel == true && !locked_until.is_expired() の間は Cancel*() ができない
+  // is_disabled_cancel == true && locked_until.is_expired() の場合、operatorが死んでいる
+  bool is_disabled_cancel = 3;
+
+  // ミスオペを防止するためのゆるくてもチェック機構が必要になるので、peerがユニークなトークンを提案し、ロックされている間はそれを検証する
+  string proposing_peer_token = 4;
+
+  message Log {
+    google.protobuf.Timestamp ts = 1;
+    string message = 2;
+  }
+  repeated Log logs = 5;
+}
+
+message ProposeOperationRequest {
+  string name = 1;
+  string project = 2;
+
+  uint32 lock_for_seconds = 3;
+  string log_message = 4;
+
+  bool is_disabled_cancel = 5;
+
+  // プロセス開始時にハッシュ値などを自動生成し、それを指定すること
+  string proposing_peer_token = 6;
+}

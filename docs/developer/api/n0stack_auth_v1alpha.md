@@ -3,7 +3,7 @@
 
 ## Table of Contents
 
-- [auth/v1alpha/authentication.proto](#auth/v1alpha/authentication.proto)
+- [n0stack/auth/v1alpha/authentication.proto](#n0stack/auth/v1alpha/authentication.proto)
     - [GetAuthenticationTokenPublicKeyRequest](#n0stack.auth.v1alpha.GetAuthenticationTokenPublicKeyRequest)
     - [GetAuthenticationTokenPublicKeyResponse](#n0stack.auth.v1alpha.GetAuthenticationTokenPublicKeyResponse)
     - [PublicKeyAuthenticateRequest](#n0stack.auth.v1alpha.PublicKeyAuthenticateRequest)
@@ -22,10 +22,10 @@
 
 
 
-<a name="auth/v1alpha/authentication.proto"></a>
+<a name="n0stack/auth/v1alpha/authentication.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## auth/v1alpha/authentication.proto
+## n0stack/auth/v1alpha/authentication.proto
 
 
 

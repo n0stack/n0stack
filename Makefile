@@ -2,6 +2,8 @@ GOOS=linux
 GOARCH=amd64
 GOCMD=go
 VERSION=$(shell cat VERSION)
+UID=$(shell id -u)
+GID=$(shell id -g)
 
 
 # --- Deployment ---
@@ -70,29 +72,21 @@ build-builder:
 .PHONY: build-proto-on-docker
 build-proto-on-docker:
 	docker run -it --rm \
-		-v $(PWD):/src/n0stack:ro \
-		-v `go env GOPATH`/src:/dst \
-		n0stack/build-grpc-go \
-			/entry_point.sh \
-				--go_out=plugins=grpc:/dst \
-				--grpc-gateway_out=logtostderr=true:/dst
-	docker run -it --rm \
-		-v $(PWD):/src:ro \
-		-v $(PWD):/dst \
-		n0stack/build-grpc-go \
-			/swagger.sh \
-			  /dst
-	sudo chown $(USER) n0stack.swagger.json
-	docker run -it --rm \
-		-v $(PWD):/src:ro \
-		-v $(PWD)/docs/developer/api:/dst \
-		n0stack/build-grpc-go \
-			/gen_doc.sh
-	sudo chown -R $(USER) $(PWD)/docs/developer/api
-	docker run -it --rm \
+		-u $(UID):$(GID) \
+		-v /etc/passwd:/etc/passwd:ro \
+		-v /etc/group:/etc/group:ro \
 		-v $(PWD):/src/n0stack \
-		n0stack/build-grpc-py \
+		-v $(PWD):/go/src/n0st.ac/n0stack \
+		-v $(PWD)/docs/developer/api:/doc_dst \
+		n0stack/build-grpc-go \
 			/entry_point.sh
+	# docker run -it --rm \
+	# 	-v $(PWD):/src/n0stack \
+	# 	n0stack/build-grpc-py \
+	# 		/entry_point.sh
+	git add ./docs/developer/api
+	git add "**/*.pb*.go"
+	# git add "**/*pb*.py"
 
 .PHONY: build-n0version
 build-n0version:
