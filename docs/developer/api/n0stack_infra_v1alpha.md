@@ -689,7 +689,7 @@
 | CancelNetworkOperation | [CancelNetworkOperationRequest](#n0stack.infra.v1alpha.CancelNetworkOperationRequest) | [Network](#n0stack.infra.v1alpha.Network) |  |
 | ProposeNetworkOperation | [.n0stack.protobuf.ProposeOperationRequest](#n0stack.protobuf.ProposeOperationRequest) | [Network](#n0stack.infra.v1alpha.Network) |  |
 | ReserveNetworkInterface | [ReserveNetworkInterfaceRequest](#n0stack.infra.v1alpha.ReserveNetworkInterfaceRequest) | [Network](#n0stack.infra.v1alpha.Network) |  |
-| ReleaseNetworkInterface | [ReleaseNetworkInterfaceRequest](#n0stack.infra.v1alpha.ReleaseNetworkInterfaceRequest) | [.google.protobuf.Empty](#google.protobuf.Empty) |  |
+| ReleaseNetworkInterface | [ReleaseNetworkInterfaceRequest](#n0stack.infra.v1alpha.ReleaseNetworkInterfaceRequest) | [Network](#n0stack.infra.v1alpha.Network) |  |
 
  
 
@@ -929,8 +929,7 @@
 | block_storage_names | [string](#string) | repeated |  |
 | nics | [VirtualMachine.VirtualMachineNIC](#n0stack.infra.v1alpha.VirtualMachine.VirtualMachineNIC) | repeated |  |
 | is_running | [bool](#bool) |  |  |
-| login_user_names | [string](#string) | repeated |  |
-| login_group_names | [string](#string) | repeated |  |
+| authorized_user_names | [string](#string) | repeated | repeated string login_group_names = 39; |
 
 
 

@@ -19,7 +19,7 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
   }
   
   schemes: HTTPS;
-  schemes: HTTP;
+  // schemes: HTTP;
   consumes: "application/json";
   produces: "application/json";
 };
@@ -44,16 +44,16 @@ message User {
 }
 
 service UserService {
-  rpc GetUser(GetUserRequest) returns (User) {
+  rpc CreateUser(CreateUserRequest) returns (User) {
     option (google.api.http) = {
-      get: "/api/iam/v1alpha/users/{name}"
+      post: "/api/iam/v1alpha/users"
+      body: "user"
     };
   }
 
-  rpc CreateUser(CreateUserRequest) returns (User) {
+  rpc GetUser(GetUserRequest) returns (User) {
     option (google.api.http) = {
-      post: "/api/iam/v1alpha/users/{user.name}"
-      body: "user"
+      get: "/api/iam/v1alpha/users/{name}"
     };
   }
 
@@ -72,12 +72,12 @@ service UserService {
 }
 
 
-message GetUserRequest {
-  string name = 1;
-}
-
 message CreateUserRequest {
   User user = 1;
+}
+
+message GetUserRequest {
+  string name = 1;
 }
 
 message UpdateUserRequest {

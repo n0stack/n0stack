@@ -19,7 +19,7 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
   }
   
   schemes: HTTPS;
-  schemes: HTTP;
+  // schemes: HTTP;
   consumes: "application/json";
   produces: "application/json";
 };
@@ -55,7 +55,7 @@ message Project {
 
 service ProjectService {
   // あるユーザーがメンバーであるプロジェクトすべてを返す
-  // Errors:
+  // errors:
   //   NotFound: どのプロジェクトにも属していない場合
   rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse) {
     option (google.api.http) = {
@@ -64,7 +64,7 @@ service ProjectService {
   }
 
   // Summary: プロジェクトの詳細を取得する
-  // Errors:
+  // errors:
   //   NotFound: memberじゃない場合
   //   Unauthorized: ログインしていない場合
   rpc GetProject(GetProjectRequest) returns (Project) {
@@ -74,7 +74,7 @@ service ProjectService {
   }
 
   // ログインしているユーザーがオーナーとなるプロジェクトを作成する
-  // Errors:
+  // errors:
   //   Unauthorized: ログインしていない場合
   rpc CreateProject(CreateProjectRequest) returns (Project) {
     option (google.api.http) = {
