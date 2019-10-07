@@ -213,7 +213,31 @@
         ]
       }
     },
-    "/api/iam/v1alpha/service_accounts/{name}": {
+    "/api/iam/v1alpha/projects/{project}/service_accounts": {
+      "get": {
+        "operationId": "ListServiceAccount",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1alphaListServiceAccountResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "project",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ServiceAccountService"
+        ]
+      }
+    },
+    "/api/iam/v1alpha/projects/{project}/service_accounts/{name}": {
       "get": {
         "operationId": "GetServiceAccount",
         "responses": {
@@ -225,6 +249,12 @@
           }
         },
         "parameters": [
+          {
+            "name": "project",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
           {
             "name": "name",
             "in": "path",
@@ -248,6 +278,12 @@
         },
         "parameters": [
           {
+            "name": "project",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "name",
             "in": "path",
             "required": true,
@@ -259,7 +295,7 @@
         ]
       }
     },
-    "/api/iam/v1alpha/service_accounts/{service_account.name}": {
+    "/api/iam/v1alpha/projects/{service_account.project}/service_accounts": {
       "post": {
         "operationId": "CreateServiceAccount",
         "responses": {
@@ -272,8 +308,7 @@
         },
         "parameters": [
           {
-            "name": "service_account.name",
-            "description": "Name is a unique field.",
+            "name": "service_account.project",
             "in": "path",
             "required": true,
             "type": "string"
@@ -290,7 +325,9 @@
         "tags": [
           "ServiceAccountService"
         ]
-      },
+      }
+    },
+    "/api/iam/v1alpha/projects/{service_account.project}/service_accounts/{service_account.name}": {
       "patch": {
         "operationId": "UpdateServiceAccount",
         "responses": {
@@ -302,6 +339,12 @@
           }
         },
         "parameters": [
+          {
+            "name": "service_account.project",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
           {
             "name": "service_account.name",
             "description": "Name is a unique field.",
@@ -465,6 +508,17 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/v1alphaProject"
+          }
+        }
+      }
+    },
+    "v1alphaListServiceAccountResponse": {
+      "type": "object",
+      "properties": {
+        "service_accounts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1alphaServiceAccount"
           }
         }
       }

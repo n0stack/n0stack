@@ -84,6 +84,7 @@ build-proto-on-docker:
 	# 	-v $(PWD):/src/n0stack \
 	# 	n0stack/build-grpc-py \
 	# 		/entry_point.sh
+	git add n0stack.swagger.json
 	git add ./docs/developer/api
 	git add "**/*.pb*.go"
 	# git add "**/*pb*.py"
