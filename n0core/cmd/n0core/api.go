@@ -15,7 +15,7 @@ import (
 	pauth "n0st.ac/n0stack/auth/v1alpha"
 	piam "n0st.ac/n0stack/iam/v1alpha"
 	authn "n0st.ac/n0stack/n0core/pkg/api/auth/authentication"
-	user "n0st.ac/n0stack/n0core/pkg/api/iam/user"
+	iam "n0st.ac/n0stack/n0core/pkg/api/iam"
 	"n0st.ac/n0stack/n0core/pkg/datastore/etcd"
 	"n0st.ac/n0stack/n0core/pkg/driver/n0stack/auth"
 
@@ -79,7 +79,7 @@ func ServeAPI(cctx *cli.Context) error {
 		return err
 	}
 
-	userapi := user.CreateUserAPI(ds, aprovider)
+	userapi := iam.CreateUserAPI(ds, aprovider)
 	userClient := piam.NewUserServiceClient(conn)
 
 	authapi := authn.CreateAuthenticationAPI(userClient, []byte(secret))
