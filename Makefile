@@ -182,7 +182,7 @@ GOFLAGS := -ldflags "-X main.version=${VERSION}" -v
 .PHONY: release-to-github
 release-to-github: build-artifacts-to-release
 	GO111MODULE=off go get -u github.com/tcnksm/ghr
-	ghr -username n0stack -repository n0stack -commitish $(shell git rev-parse HEAD) -recreate 0.2.$(VERSION) ./artifacts/
+	ghr -username n0stack -repository n0stack -commitish $(shell git rev-parse HEAD) -recreate v0.2.$(VERSION) ./artifacts/
 
 .PHONY: build-artifacts-to-release
 build-artifacts-to-release: artifacts/n0core_linux_amd64.tar.gz \
