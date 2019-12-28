@@ -286,7 +286,42 @@ func (a VirtualMachineAgent) RebootVirtualMachine(ctx context.Context, req *Rebo
 }
 
 func (a VirtualMachineAgent) ShutdownVirtualMachine(ctx context.Context, req *ShutdownVirtualMachineRequest) (*ShutdownVirtualMachineResponse, error) {
-	return nil, grpcutil.WrapGrpcErrorf(codes.Unimplemented, "")
+	q, err := qemu.OpenQemu(SetPrefix(req.Name))
+	if err != nil {
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to open qemu process: %s", err.Error())
+	}
+	defer q.Close()
+
+	if !q.IsRunning() {
+		return &ShutdownVirtualMachineResponse{
+			State: VirtualMachineState_SHUTDOWN,
+		}, nil
+	}
+
+	if req.Hard {
+		if err := q.HardShutdown(); err != nil {
+			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to hard shutdown qemu: %s", err.Error())
+		}
+
+		// after hard shutdown, qemu process exists immediately, so agent can't get status
+		return &ShutdownVirtualMachineResponse{
+			State: VirtualMachineState_SHUTDOWN,
+		}, nil
+	}
+
+	if err := q.Shutdown(); err != nil {
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to shutdown qemu: %s", err.Error())
+	}
+
+	s, err := q.Status()
+
+	if err != nil {
+		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get status: err=%s", err.Error())
+	}
+
+	return &ShutdownVirtualMachineResponse{
+		State: GetAgentStateFromQemuState(s),
+	}, nil
 }
 
 func (a VirtualMachineAgent) DeleteVirtualMachine(ctx context.Context, req *DeleteVirtualMachineRequest) (*empty.Empty, error) {
