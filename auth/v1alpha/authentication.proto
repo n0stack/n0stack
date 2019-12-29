@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+option go_package = "n0st.ac/n0stack/auth/v1alpha;pauth";
+
+package n0stack.auth.v1alpha;
+
+import "google/api/annotations.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+
+
+service AuthenticationService {
+  rpc GetAuthenticationTokenPublicKey(GetAuthenticationTokenPublicKeyRequest) returns (GetAuthenticationTokenPublicKeyResponse) {
+    option (google.api.http) = {
+      get: "/api/auth/v1alpha/authn:public_key"
+    };
+  }
+
+  // authentication method for grpc
+  rpc PublicKeyAuthenticate(stream PublicKeyAuthenticateRequest) returns (stream PublicKeyAuthenticateResponse) {}
+}
+
+
+message GetAuthenticationTokenPublicKeyRequest {}
+message GetAuthenticationTokenPublicKeyResponse {
+  string public_key = 2;
+}
+
+message PublicKeyAuthenticateRequest {
+  message Start {
+    string user_name = 1;
+    string public_key = 2;
+  }
+  message Response {
+    string challenge_token = 1;
+  }
+
+  oneof message {
+    Start start = 1;
+    Response response = 2;
+  }
+}
+
+message PublicKeyAuthenticateResponse {
+  message Challenge {
+    bytes challenge = 1;
+  }
+  message Result {
+    string authentication_token = 1;
+  }
+
+  oneof message {
+    Challenge challenge = 1;
+    Result result = 2;
+  }
+}

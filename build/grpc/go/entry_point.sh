@@ -1,19 +1,31 @@
 #!/bin/bash
 set -x
+set -e
 
-dirs=`find /src -type d | grep -v .git | grep -v test`
+rm -f /doc_dst/*
 
-for d in $dirs
+for wd in `find /src -maxdepth 1 -mindepth 1 -type d`
 do
-  # 複数のファイルを指定できない
-  ls -1 $d/*.proto > /dev/null 2>&1
-  if [ "$?" = "0" ]; then
-    protoc \
-      -I/src \
-      -I/tmp/include \
-      -I${GOPATH}/src \
-      -I${GOPATH}/src/github.com/grpc-ecosystem/grpc-gateway \
-      -I${GOPATH}/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
-      $* $d/*.proto
-  fi
+  dirs=`find $wd -type d | egrep -v "/\." | grep -v test | grep -v vendor | grep -v sandbox`
+  echo "{}" > $wd/`basename $wd`.swagger.json
+
+  for d in $dirs
+  do
+    rm -f $d/*.pb.go
+    rm -f $d/*.pb.gw.go
+
+    if ls $d/*.proto > /dev/null 2>&1
+    then
+      name=${d#\/src\/}
+      protoc \
+        -I/src \
+        -I/tmp/include \
+        --go_out=plugins=grpc:/go/src \
+        --grpc-gateway_out=logtostderr=true:/go/src \
+        --doc_out=/doc_dst \
+        --doc_opt=markdown,${name//\//_}.md \
+        --swagger_out=logtostderr=true,allow_merge=true,merge_file_name=n0stack:$wd \
+        $d/*.proto
+    fi
+  done
 done

@@ -2,10 +2,13 @@ package stdapi
 
 import (
 	"google.golang.org/grpc/codes"
-
-	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
+	grpcutil "n0st.ac/n0stack/n0core/pkg/util/grpc"
 )
 
-func LockError() error {
-	return grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "this is locked, wait a moment")
+func ValidationError(field, validationFormat string) error {
+	return grpcutil.Errorf(codes.InvalidArgument, "the %s filed validation is failed: the format is %s", field, validationFormat)
+}
+
+func UpdateMaskError(err error) error {
+	return grpcutil.Errorf(codes.InvalidArgument, "failed about update_mask, err=%s", err.Error())
 }

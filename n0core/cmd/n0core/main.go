@@ -5,19 +5,12 @@ import (
 	"log"
 	"os"
 
-	"code.cloudfoundry.org/bytefmt"
-	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
 	"github.com/urfave/cli"
 )
 
 var version = "undefined"
 
 func main() {
-	hostname, err := os.Hostname()
-	if err != nil {
-		log.Fatalf("Failed to get hostname")
-	}
-
 	app := cli.NewApp()
 	app.Name = "n0core"
 	app.Version = version
@@ -44,101 +37,77 @@ func main() {
 							Value: 20180,
 						},
 						cli.StringFlag{
-							Name:  "base-directory",
-							Value: "/var/lib/n0core",
+							Name: "etcd-endpoints",
+						},
+						cli.StringFlag{
+							Name: "token-secret",
+						},
+						cli.StringFlag{
+							Name: "listen-url",
 						},
 					},
 				},
 				{
-					Name:   "agent",
-					Usage:  "Daemon which administrate n0stack cluster node",
-					Action: ServeAgent,
+					Name:   "bff",
+					Usage:  "Daemon which provide bff for n0stack API",
+					Action: ServeBFF,
 					Flags: []cli.Flag{
 						cli.StringFlag{
-							Name:  "name",
-							Value: hostname,
+							Name: "api-url",
 						},
 						cli.StringFlag{
-							// interfaceからも取れるようにしたい
-							Name: "advertise-address",
-						},
-						cli.StringFlag{
-							Name: "node-api-endpoint",
-						},
-						cli.StringFlag{
-							// interfaceからも取れるようにしたい
-							Name:  "bind-address",
-							Value: "0.0.0.0",
-						},
-						cli.IntFlag{
-							Name:  "bind-port",
-							Value: 20181,
-						},
-						cli.StringFlag{
-							Name:  "base-directory",
-							Value: "/var/lib/n0core",
-						},
-						cli.StringFlag{
-							Name:  "location",
-							Usage: "<Datacenter>/<AvailavilityZone>/<Cell>/<Rack>/<Unit(int)>",
-						},
-						cli.UintFlag{
-							Name:  "cpu-capacity-milli-cores",
-							Value: uint(node.GetTotalCPUMilliCores()) * 1000,
-						},
-						cli.Uint64Flag{
-							Name:  "memory-capacity-bytes",
-							Value: node.GetTotalMemory(),
-						},
-						cli.Uint64Flag{
-							Name:  "storage-capacity-bytes",
-							Value: uint64(100 * bytefmt.GIGABYTE),
+							Name:  "listen-address",
+							Value: "0.0.0.0:8080",
 						},
 					},
 				},
-			},
-		},
-		{
-			Name:  "deploy",
-			Usage: "Deploy n0core to remote host with ssh",
-			Subcommands: []cli.Command{
-				{
-					Name:      "agent",
-					Action:    DeployAgent,
-					ArgsUsage: "[user]@[hostname] [agent options]",
-					Flags: []cli.Flag{
-						cli.StringFlag{
-							Name:  "base-directory",
-							Value: "/var/lib/n0core",
-						},
-						cli.StringFlag{
-							Name:  "send-to",
-							Value: "/tmp",
-						},
-						cli.StringFlag{
-							Name: "identity-file, i",
-						},
-					},
-				},
-			},
-		},
-		{
-			Name:  "install",
-			Usage: "Install n0core on localhost",
-			Subcommands: []cli.Command{
-				{
-					Name:   "agent",
-					Action: InstallAgent,
-					Flags: []cli.Flag{
-						cli.StringFlag{
-							Name:  "base-directory",
-							Value: "/var/lib/n0core",
-						},
-						cli.StringFlag{
-							Name: "arguments",
-						},
-					},
-				},
+				// {
+				// 	Name:   "agent",
+				// 	Usage:  "Daemon which administrate n0stack cluster node",
+				// 	Action: ServeAgent,
+				// 	Flags: []cli.Flag{
+				// 		cli.StringFlag{
+				// 			Name:  "name",
+				// 			Value: hostname,
+				// 		},
+				// 		cli.StringFlag{
+				// 			// interfaceからも取れるようにしたい
+				// 			Name: "advertise-address",
+				// 		},
+				// 		cli.StringFlag{
+				// 			Name: "node-api-endpoint",
+				// 		},
+				// 		cli.StringFlag{
+				// 			// interfaceからも取れるようにしたい
+				// 			Name:  "bind-address",
+				// 			Value: "0.0.0.0",
+				// 		},
+				// 		cli.IntFlag{
+				// 			Name:  "bind-port",
+				// 			Value: 20181,
+				// 		},
+				// 		cli.StringFlag{
+				// 			Name:  "base-directory",
+				// 			Value: "/var/lib/n0core",
+				// 		},
+				// 		cli.StringFlag{
+				// 			Name:  "location",
+				// 			Usage: "<Datacenter>/<AvailavilityZone>/<Cell>/<Rack>/<Unit(int)>",
+				// 		},
+				// 		cli.UintFlag{
+				// 			Name:  "cpu-capacity-milli-cores",
+				// 			Value: uint(node.GetTotalCPUMilliCores()) * 1000,
+				// 		},
+				// 		cli.Uint64Flag{
+				// 			Name:  "memory-capacity-bytes",
+				// 			Value: node.GetTotalMemory(),
+				// 		},
+				// 		cli.Uint64Flag{
+				// 			Name:  "storage-capacity-bytes",
+				// 			Value: uint64(100 * bytefmt.GIGABYTE),
+				// 		},
+				// 	},
+				// },
 			},
 		},
 	}

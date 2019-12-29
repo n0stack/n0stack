@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/n0stack/n0stack/n0core/pkg/datastore"
+	"n0st.ac/n0stack/n0core/pkg/datastore"
 )
 
 func TestOutputTable(t *testing.T) {

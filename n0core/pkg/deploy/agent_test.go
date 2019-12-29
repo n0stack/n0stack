@@ -14,7 +14,7 @@ func TestCreateAgentUnit(t *testing.T) {
 	have := string(d.CreateAgentUnit("/var/lib/n0core/n0core agent hogehoge"))
 	want := `[Unit]
 Description=n0core agent: The n0stack cluster node
-Documentation=https://github.com/n0stack/n0stack
+Documentation=https://n0st.ac/n0stack
 
 [Service]
 ExecStart=/var/lib/n0core/n0core agent hogehoge

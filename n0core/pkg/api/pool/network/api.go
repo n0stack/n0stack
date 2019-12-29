@@ -13,13 +13,13 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	stdapi "github.com/n0stack/n0stack/n0core/pkg/api/standard_api"
-	"github.com/n0stack/n0stack/n0core/pkg/datastore"
-	"github.com/n0stack/n0stack/n0core/pkg/datastore/lock"
-	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
-	netutil "github.com/n0stack/n0stack/n0core/pkg/util/net"
-	pbudget "github.com/n0stack/n0stack/n0proto.go/budget/v0"
-	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	stdapi "n0st.ac/n0stack/n0core/pkg/api/standard_api"
+	"n0st.ac/n0stack/n0core/pkg/datastore"
+	"n0st.ac/n0stack/n0core/pkg/datastore/lock"
+	grpcutil "n0st.ac/n0stack/n0core/pkg/util/grpc"
+	netutil "n0st.ac/n0stack/n0core/pkg/util/net"
+	pbudget "n0st.ac/n0stack/n0proto.go/budget/v0"
+	ppool "n0st.ac/n0stack/n0proto.go/pool/v0"
 )
 
 type NetworkAPI struct {
@@ -69,10 +69,10 @@ func (a NetworkAPI) GetNetwork(ctx context.Context, req *ppool.GetNetworkRequest
 	res := &ppool.Network{}
 	if err := a.dataStore.Get(req.Name, res); err != nil {
 		if datastore.IsNotFound(err) {
-			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+			return nil, grpcutil.Errorf(codes.NotFound, err.Error())
 		}
 
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
+		return nil, grpcutil.Errorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	return res, nil
@@ -83,11 +83,11 @@ func (a NetworkAPI) ApplyNetwork(ctx context.Context, req *ppool.ApplyNetworkReq
 	ipv6 := netutil.ParseCIDR(req.Ipv6Cidr)
 	{
 		if req.Name == "" {
-			return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Set any 'name'")
+			return nil, grpcutil.Errorf(codes.InvalidArgument, "Set any 'name'")
 		}
 
 		if ipv4 == nil && ipv6 == nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Field 'ipv4_cidr' and 'ipv6_cidr' are invalid")
+			return nil, grpcutil.Errorf(codes.InvalidArgument, "Field 'ipv4_cidr' and 'ipv6_cidr' are invalid")
 		}
 	}
 
@@ -98,18 +98,18 @@ func (a NetworkAPI) ApplyNetwork(ctx context.Context, req *ppool.ApplyNetworkReq
 
 	network := &ppool.Network{}
 	if err := a.dataStore.Get(req.Name, network); err != nil && !datastore.IsNotFound(err) {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
+		return nil, grpcutil.Errorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	{
 		if network.Name != "" && ipv4.String() != network.Ipv4Cidr {
-			return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "ipv4 cidr is different from previous ipv4 cidr")
+			return nil, grpcutil.Errorf(codes.InvalidArgument, "ipv4 cidr is different from previous ipv4 cidr")
 		}
 
 		res, err := a.ListNetworks(ctx, &ppool.ListNetworksRequest{})
 		if err != nil {
 			if grpc.Code(err) != codes.NotFound {
-				return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), errors.Wrapf(err, "Failed to list networks").Error())
+				return nil, grpcutil.Errorf(grpc.Code(err), errors.Wrapf(err, "Failed to list networks").Error())
 			}
 		} else {
 			if ipv4 != nil {
@@ -120,7 +120,7 @@ func (a NetworkAPI) ApplyNetwork(ctx context.Context, req *ppool.ApplyNetworkReq
 
 					existing := netutil.ParseCIDR(v.Ipv4Cidr)
 					if existing != nil && netutil.IsConflicting(ipv4, existing) {
-						return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Field 'ipv4_cidr' is conflicting with network=%s", v.Name)
+						return nil, grpcutil.Errorf(codes.InvalidArgument, "Field 'ipv4_cidr' is conflicting with network=%s", v.Name)
 					}
 				}
 			}
@@ -138,7 +138,7 @@ func (a NetworkAPI) ApplyNetwork(ctx context.Context, req *ppool.ApplyNetworkReq
 
 	network.State = ppool.Network_AVAILABLE
 	if err := a.dataStore.Apply(req.Name, network); err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
+		return nil, grpcutil.Errorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
 	}
 
 	return network, nil
@@ -157,18 +157,18 @@ func (a NetworkAPI) DeleteNetwork(ctx context.Context, req *ppool.DeleteNetworkR
 	network := &ppool.Network{}
 	if err := a.dataStore.Get(req.Name, network); err != nil {
 		if datastore.IsNotFound(err) {
-			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+			return nil, grpcutil.Errorf(codes.NotFound, err.Error())
 		}
 
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
+		return nil, grpcutil.Errorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	if IsLockedForDeletion(network) {
-		return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "Network has some network interfaces, so is locked for deletion")
+		return nil, grpcutil.Errorf(codes.FailedPrecondition, "Network has some network interfaces, so is locked for deletion")
 	}
 
 	if err := a.dataStore.Delete(req.Name); err != nil {
-		return &empty.Empty{}, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to delete data from db: err='%s', name='%s'", err.Error(), req.Name)
+		return &empty.Empty{}, grpcutil.Errorf(codes.Internal, "Failed to delete data from db: err='%s', name='%s'", err.Error(), req.Name)
 	}
 
 	return &empty.Empty{}, nil
@@ -188,10 +188,10 @@ func (a NetworkAPI) ReserveNetworkInterface(ctx context.Context, req *ppool.Rese
 	res := &ppool.Network{}
 	if err := a.dataStore.Get(req.NetworkName, res); err != nil {
 		if datastore.IsNotFound(err) {
-			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+			return nil, grpcutil.Errorf(codes.NotFound, err.Error())
 		}
 
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get data from db: err='%s'", err.Error())
+		return nil, grpcutil.Errorf(codes.Internal, "Failed to get data from db: err='%s'", err.Error())
 	}
 
 	if res.ReservedNetworkInterfaces == nil {
@@ -251,10 +251,10 @@ func (a NetworkAPI) ReleaseNetworkInterface(ctx context.Context, req *ppool.Rele
 	n := &ppool.Network{}
 	if err := a.dataStore.Get(req.NetworkName, n); err != nil {
 		if datastore.IsNotFound(err) {
-			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+			return nil, grpcutil.Errorf(codes.NotFound, err.Error())
 		}
 
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to get data from db: err='%s'", err.Error())
+		return nil, grpcutil.Errorf(codes.Internal, "Failed to get data from db: err='%s'", err.Error())
 	}
 
 	if !lock.WaitUntilLock(a.dataStore, req.NetworkName, 5*time.Second, 50*time.Millisecond) {

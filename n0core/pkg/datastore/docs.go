@@ -1,20 +1,7 @@
-/*
-Example
-
-	func SomeEndpoint(ctx context.COntext, req SomeRequest) error {
-		// validation
-
-		datastore.Lock(req.Key)
-		defer datastore.Unlock(req.Key)
-
-		tx := transaction.Begin()
-		defer tx.Rollback()
-
-		// API Process
-
-		tx.Done()
-
-		return nil
-	}
-*/
+// Example:
+//   var ds Datastore
+//   v, err := ds.Get(key)
+//   v, err = ds.Apply(key, value, v)
+//   // ds.Apply(key, value, v-1) will be failed
+//   err = ds.Delete(key, v)
 package datastore

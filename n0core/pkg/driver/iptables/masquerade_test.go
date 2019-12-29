@@ -6,7 +6,7 @@ import (
 	"net"
 	"testing"
 
-	"github.com/n0stack/n0stack/n0core/pkg/driver/iproute2"
+	"n0st.ac/n0stack/n0core/pkg/driver/iproute2"
 )
 
 func TestMasquerade(t *testing.T) {

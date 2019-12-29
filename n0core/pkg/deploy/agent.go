@@ -16,7 +16,7 @@ func (d LocalDeployer) CreateAgentUnit(command string) []byte {
 		{
 			Section: "Unit",
 			Name:    "Documentation",
-			Value:   "https://github.com/n0stack/n0stack",
+			Value:   "https://n0st.ac/n0stack",
 		},
 		// {
 		// 	Section: "Service",

@@ -9,8 +9,8 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/n0stack/n0stack/n0core/pkg/datastore/memory"
-	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	"n0st.ac/n0stack/n0core/pkg/datastore/memory"
+	ppool "n0st.ac/n0stack/n0proto.go/pool/v0"
 )
 
 func TestListNetworkAboutEmpty(t *testing.T) {

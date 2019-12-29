@@ -6,7 +6,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	ppool "n0st.ac/n0stack/n0proto.go/pool/v0"
 	"github.com/pkg/errors"
 )
 

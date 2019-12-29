@@ -4,7 +4,7 @@ import (
 	"net"
 	"testing"
 
-	"github.com/n0stack/n0stack/n0proto.go/budget/v0"
+	"n0st.ac/n0stack/n0proto.go/budget/v0"
 )
 
 func TestScheduleNewIPv4(t *testing.T) {

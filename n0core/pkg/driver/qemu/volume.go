@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"strconv"
 
-	stringutil "github.com/n0stack/n0stack/n0core/pkg/util/string"
+	stringutil "n0st.ac/n0stack/n0core/pkg/util/string"
 )
 
 // (QEMU) blockdev-add options={"driver":"qcow2","id":"drive-virtio-disk0","file":{"driver":"file","filename":"/home/h-otter/wk/test-qemu/ubuntu16.04.qcow2"}}

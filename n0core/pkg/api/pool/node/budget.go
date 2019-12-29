@@ -3,7 +3,7 @@ package node
 import (
 	"fmt"
 
-	"github.com/n0stack/n0stack/n0proto.go/budget/v0"
+	"n0st.ac/n0stack/n0proto.go/budget/v0"
 )
 
 // TODO: 多分パッケージを切り出す

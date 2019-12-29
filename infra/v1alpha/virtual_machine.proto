@@ -1,0 +1,321 @@
+syntax = "proto3";
+
+option go_package = "n0st.ac/n0stack/infra/v1alpha;pinfra";
+
+package n0stack.infra.v1alpha;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+import "n0stack/protobuf/operation.proto";
+
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+  info: {
+    title: "n0stack";
+    contact: {
+      name: "n0stack";
+      url: "https://github.com/n0stack/n0stack";
+    };
+  };
+  
+  schemes: HTTPS;
+  // schemes: HTTP;
+  consumes: "application/json";
+  produces: "application/json";
+};
+
+
+message VirtualMachine {
+  // Name is a unique field.
+  string name = 1;
+  string project = 2;
+
+  // The annotations parameter can store metadata used by the n0stack system.
+  // The n0stack operations may modify this defined by the user without any notice.
+  // In particular, this targets domain specific parameters, which cannot be used by many users.
+  map<string, string> annotations = 3;
+
+  // Labels stores user-defined metadata.
+  // The n0stack system must not rewrite this value.
+  map<string, string> labels = 4;
+
+  n0stack.protobuf.Operation operation = 6;
+
+  enum VirtualMachineState {
+    VIRTUAL_MACHINE_UNSPECIFIED = 0;
+
+    // steady state
+    AVAILABLE = 1;
+    DELETED = 2;
+
+    // standard unsteady state
+    CREATING = 16;
+    DELETING = 17;
+  
+    BOOTING = 32;
+    REBOOTING = 33;
+    STOPPING = 34;
+  }
+  VirtualMachineState state = 5;
+
+
+
+
+
+
+  string uuid = 32;
+  uint32 cpu_core = 33;
+  uint64 memory_bytes = 34;
+  
+  repeated string block_storage_names = 35;
+  message VirtualMachineNIC {
+    string network_name = 1;
+    string network_interface_name = 2;
+  }
+  repeated VirtualMachineNIC nics = 36;
+
+  bool is_running = 37;
+
+  repeated string authorized_user_names = 38;
+  // repeated string login_group_names = 39;
+}
+
+
+service VirtualMachineService {
+  // summary: 
+  // description:
+  // required_roles:
+  //   - project: n0stack
+  //     role: virtual_machine:write
+  //   - project: *
+  //     role: n0stack:virtual_machine:write
+  // errors:
+  //   NotFound: Return if the virtual machine resource is not found
+  rpc CreateVirtualMachine(CreateVirtualMachineRequest) returns (VirtualMachine) {
+    option (google.api.http) = {
+      post: "/api/infra/v1alpha/projects/{virtual_machine.project}/virtual_machines"
+      body: "virtual_machine"
+    };
+  }
+
+  // summary: 
+  // description:
+  // required_roles:
+  //   - project: n0stack
+  //     role: virtual_machine:read
+  //   - project: *
+  //     role: n0stack:virtual_machine:read
+  // errors:
+  //   NotFound: Return if the virtual machine resource is not found
+  rpc ListVirtualMachines(ListVirtualMachinesRequest) returns (ListVirtualMachinesResponse) {
+    option (google.api.http) = {
+      get: "/api/infra/v1alpha/projects/{project}/virtual_machines"
+    };
+  }
+
+  // summary: 
+  // description:
+  // required_roles:
+  //   - project: n0stack
+  //     role: virtual_machine:read
+  //   - project: *
+  //     role: n0stack:virtual_machine:read
+  // errors:
+  //   NotFound: Return if the virtual machine resource is not found
+  rpc GetVirtualMachine(GetVirtualMachineRequest) returns (VirtualMachine) {
+    option (google.api.http) = {
+      get: "/api/infra/v1alpha/projects/{project}/virtual_machines/{name}"
+    };
+  }
+
+  rpc UpdateVirtualMachine(UpdateVirtualMachineRequest) returns (VirtualMachine) {
+    option (google.api.http) = {
+      patch: "/api/infra/v1alpha/projects/{virtual_machine.project}/virtual_machines/{virtual_machine.name}"
+      body: "virtual_machine"
+    };
+  }
+
+  // summary: 
+  // description:
+  // required_roles:
+  //   - project: n0stack
+  //     role: virtual_machine:write
+  //   - project: *
+  //     role: n0stack:virtual_machine:write
+  // errors:
+  //   NotFound: Return if the virtual machine resource is not found
+  rpc DeleteVirtualMachine(DeleteVirtualMachineRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/infra/v1alpha/projects/{project}/virtual_machines/{name}"
+    };
+  }
+
+
+  // summary: 
+  // description:
+  // required_roles:
+  //   - project: n0stack
+  //     role: virtual_machine:write
+  //   - project: *
+  //     role: n0stack:virtual_machine:write
+  // errors:
+  //   NotFound: Return if the virtual machine resource is not found
+  rpc BootVirtualMachine(BootVirtualMachineRequest) returns (VirtualMachine) {
+    option (google.api.http) = {
+      post: "/api/infra/v1alpha/projects/{project}/virtual_machines/{name}:boot"
+      body: "*"
+    };
+  }
+
+  // summary: 
+  // description:
+  // required_roles:
+  //   - project: n0stack
+  //     role: virtual_machine:write
+  //   - project: *
+  //     role: n0stack:virtual_machine:write
+  // errors:
+  //   NotFound: Return if the virtual machine resource is not found
+  rpc RebootVirtualMachine(RebootVirtualMachineRequest) returns (VirtualMachine) {
+    option (google.api.http) = {
+      post: "/api/infra/v1alpha/projects/{project}/virtual_machines/{name}:reboot"
+      body: "*"
+    };
+  }
+
+  // summary: 
+  // description:
+  // required_roles:
+  //   - project: n0stack
+  //     role: virtual_machine:write
+  //   - project: *
+  //     role: n0stack:virtual_machine:write
+  // errors:
+  //   NotFound: Return if the virtual machine resource is not found
+  rpc ShutdownVirtualMachine(ShutdownVirtualMachineRequest) returns (VirtualMachine) {
+    option (google.api.http) = {
+      post: "/api/infra/v1alpha/projects/{project}/virtual_machines/{name}:shutdown"
+      body: "*"
+    };
+  }
+
+  // summary: 
+  // description:
+  // required_roles:
+  //   - project: n0stack
+  //     role: virtual_machine:write
+  //   - project: *
+  //     role: n0stack:virtual_machine:write
+  // errors:
+  //   NotFound: Return if the virtual machine resource is not found
+  rpc CancelVirtualMachineOperation(CancelVirtualMachineOperationRequest) returns (VirtualMachine) {
+    option (google.api.http) = {
+      post: "/api/infra/v1alpha/projects/{project}/virtual_machines/{name}:cancel"
+      body: "*"
+    };
+  }
+
+
+  // summary: OpenVirtualMachineConsole returns a URL to open the console of the virtual machine.
+  // description:
+  // required_roles:
+  //   - project: n0stack
+  //     role: virtual_machine:read
+  //   - project: *
+  //     role: n0stack:virtual_machine:read
+  // errors:
+  //   NotFound: Return if the virtual machine resource is not found
+  rpc OpenVirtualMachineConsole(OpenConsoleRequest) returns (OpenConsoleResponse) {
+    option (google.api.http) = {
+      get: "/api/infra/v1alpha/projects/{project}/virtual_machines/{name}:console"
+    };
+  }
+
+
+  // summary: Propose*Operation propose the resource operation
+  // description:|
+  //   You can propose the resource operation if the resource state is unsteady.
+  //   The API ensures that only one operator is operating using lock with operating_for_seconds.
+  //   If the operation is failed, set failed backoff to operating_for_seconds.
+  // required_roles:
+  //   - project: n0stack
+  //     role: virtual_machine:operate
+  // errors:
+  //   NotFound: Return if the virtual machine resource is not found
+  rpc ProposeVirtualMachineOperation(n0stack.protobuf.ProposeOperationRequest) returns (VirtualMachine) {}
+
+  // summary: ChangeVirtualMachineRunningState change the is_running parameter of the virtual machine
+  // description:|
+  //   Set the is_running parameter to true if the virtual machine is running.
+  // required_roles:
+  //   - project: n0stack
+  //     role: virtual_machine:operate
+  // errors:
+  //   NotFound: Return if the virtual machine resource is not found
+  rpc ChangeVirtualMachineRunningState(ChangeVirtualMachineRunningStateRequest) returns (VirtualMachine) {}
+}
+
+message CreateVirtualMachineRequest {
+  VirtualMachine virtual_machine = 1;
+}
+
+message ListVirtualMachinesRequest {
+  string project = 1;
+}
+message ListVirtualMachinesResponse {
+  repeated VirtualMachine virtual_machines = 1;
+}
+
+message GetVirtualMachineRequest {
+  string name = 1;
+  string project = 2;
+}
+
+message UpdateVirtualMachineRequest {
+  VirtualMachine virtual_machine = 1;
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message DeleteVirtualMachineRequest {
+  string name = 1;
+  string project = 2;
+}
+
+message BootVirtualMachineRequest {
+  string name = 1;
+  string project = 2;
+}
+
+message RebootVirtualMachineRequest {
+  string name = 1;
+  string project = 2;
+  bool hard = 3;
+}
+
+message ShutdownVirtualMachineRequest {
+  string name = 1;
+  string project = 2;
+  bool hard = 3;
+}
+
+message OpenConsoleRequest {
+  string name = 1;
+  string project = 2;
+}
+message OpenConsoleResponse{
+  string console_url = 1;
+}
+
+message CancelVirtualMachineOperationRequest {
+  string name = 1;
+  string project = 2;
+}
+
+message ChangeVirtualMachineRunningStateRequest {
+  string name = 1;
+  string project = 2;
+
+  bool is_running = 3;
+}

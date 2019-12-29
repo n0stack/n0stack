@@ -1,0 +1,2 @@
+- TODO: hosts, resolv.conf, hostname がDockerでマウントされる影響で微妙なことになる
+    - 特に resolv.confはネットワーク接続に影響しそう

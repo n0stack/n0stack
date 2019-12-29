@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	img "github.com/n0stack/n0stack/n0core/pkg/driver/qemu_img"
-	netutil "github.com/n0stack/n0stack/n0core/pkg/util/net"
+	img "n0st.ac/n0stack/n0core/pkg/driver/qemu_img"
+	netutil "n0st.ac/n0stack/n0core/pkg/util/net"
 
 	"golang.org/x/crypto/ssh"
 )

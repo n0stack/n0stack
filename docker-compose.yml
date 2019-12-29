@@ -1,36 +1,74 @@
 version: '3'
 services:
-  api:
-    image: debian:buster
+  etcd:
+    image: gcr.io/etcd-development/etcd:v3.4.1
     volumes:
-      - ./bin/:/n0stack
-      - ./sandbox/n0core:/var/lib/n0core
+      - ./sandbox/etcd:/etcd_data
+    command:
+      - /usr/local/bin/etcd
+      - -name
+      - etcd0
+      - --data-dir
+      - /etcd_data
+      - -advertise-client-urls
+      - http://127.0.0.1:2379,http://127.0.0.1:4001
+      - -listen-client-urls
+      - http://0.0.0.0:2379,http://0.0.0.0:4001
+      - -initial-advertise-peer-urls
+      - http://127.0.0.1:2380
+      - -listen-peer-urls
+      - http://0.0.0.0:2380
+      - -initial-cluster-token
+      - etcd-cluster-1
+      - -initial-cluster
+      - etcd0=http://127.0.0.1:2380
+    ports:
+      - "2379:2379"
+  
+  api:
+    image: n0stack/n0stack
     command:
       - /n0stack/n0core
       - serve
       - api
-    ports:
-      - "8080:8080"
-      - "20180:20180"
-
-  swagger:
-    image: swaggerapi/swagger-ui
-    volumes:
-      - ./n0proto.swagger.json/n0stack.swagger.json:/usr/share/nginx/html/n0stack.swagger.json
-    environment:
-      API_URL: n0stack.swagger.json
-      # BASE_URL: swagger
-
-  bff:
-    image: debian:buster
+      - --etcd-endpoints=etcd:2379
+      - --token-secret=test-secret
+      - --listen-url=https://localhost
     volumes:
       - ./bin/:/n0stack
+    links:
+      - etcd
+
+  bff:
+    image: n0stack/n0stack
     command:
-      - /n0stack/n0bff
+      - /n0stack/n0core
       - serve
       - bff
+      - --api-url=http://api:20180
+    volumes:
+      - ./bin/:/n0stack
+    links:
+      - etcd
+
+  swagger:
+    build:
+      context: ./deploy/master/nginx
+    image: n0stack/front
+    volumes:
+      - ./n0stack.swagger.json:/usr/share/nginx/html/api/n0stack.swagger.json:ro
+      - ./deploy/master/nginx/etc/nginx/conf.d:/etc/nginx/conf.d:ro
+
+  envoy:
+    image: envoyproxy/envoy
     ports:
-      - "8000:8080"
+      - "80:80"
+      - "443:443"
+      - "8001:8001"
     links:
       - api
+      - bff
       - swagger
+    volumes:
+      - ./deploy/master/etc/envoy:/etc/envoy:ro
+      - ./deploy/master/nginx/etc/nginx/ssl:/etc/ssl/envoy:ro

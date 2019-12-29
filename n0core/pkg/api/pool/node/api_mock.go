@@ -5,8 +5,8 @@ import (
 
 	"code.cloudfoundry.org/bytefmt"
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/n0stack/n0stack/n0core/pkg/datastore/memory"
-	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	"n0st.ac/n0stack/n0core/pkg/datastore/memory"
+	"n0st.ac/n0stack/n0proto.go/pool/v0"
 	"google.golang.org/grpc"
 )
 

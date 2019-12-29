@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	netutil "github.com/n0stack/n0stack/n0core/pkg/util/net"
+	netutil "n0st.ac/n0stack/n0core/pkg/util/net"
 	"golang.org/x/crypto/ssh"
 	"gopkg.in/yaml.v2"
 )

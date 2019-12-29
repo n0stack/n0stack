@@ -1,0 +1,48 @@
+version: '3'
+services:
+  nginx:
+    image: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    links:
+      - api
+    volumes:
+      - ./nginx/etc/nginx/ssl:/etc/nginx/ssl:ro
+      - ./nginx/etc/nginx/conf.d:/etc/nginx/conf.d:ro
+      # - ./nginx/etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+  
+  api:
+    image: n0stack/n0stack
+    command:
+      - /usr/local/bin/n0core
+      - serve
+      - api
+      - --etcd-endpoints=etcd:2379
+    links:
+      - etcd
+
+  etcd:
+    image: quay.io/coreos/etcd:v3.3
+    volumes:
+      - ./var/etcd:/etcd_data
+    command:
+      - /usr/local/bin/etcd
+      - -name
+      - etcd0
+      - --data-dir
+      - /etcd_data
+      - -advertise-client-urls
+      - http://127.0.0.1:2379,http://127.0.0.1:4001
+      - -listen-client-urls
+      - http://0.0.0.0:2379,http://0.0.0.0:4001
+      - -initial-advertise-peer-urls
+      - http://127.0.0.1:2380
+      - -listen-peer-urls
+      - http://0.0.0.0:2380
+      - -initial-cluster-token
+      - etcd-cluster-1
+      - -initial-cluster
+      - etcd0=http://127.0.0.1:2380
+      # - -initial-cluster-state
+      # - new

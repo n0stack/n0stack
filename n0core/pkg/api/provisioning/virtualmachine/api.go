@@ -18,17 +18,17 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 
-	"github.com/n0stack/n0stack/n0core/pkg/api/pool/network"
-	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
-	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/blockstorage"
-	stdapi "github.com/n0stack/n0stack/n0core/pkg/api/standard_api"
-	"github.com/n0stack/n0stack/n0core/pkg/datastore"
-	"github.com/n0stack/n0stack/n0core/pkg/datastore/lock"
-	grpcutil "github.com/n0stack/n0stack/n0core/pkg/util/grpc"
-	netutil "github.com/n0stack/n0stack/n0core/pkg/util/net"
-	"github.com/n0stack/n0stack/n0proto.go/pkg/transaction"
-	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
-	pprovisioning "github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
+	"n0st.ac/n0stack/n0core/pkg/api/pool/network"
+	"n0st.ac/n0stack/n0core/pkg/api/pool/node"
+	"n0st.ac/n0stack/n0core/pkg/api/provisioning/blockstorage"
+	stdapi "n0st.ac/n0stack/n0core/pkg/api/standard_api"
+	"n0st.ac/n0stack/n0core/pkg/datastore"
+	"n0st.ac/n0stack/n0core/pkg/datastore/lock"
+	grpcutil "n0st.ac/n0stack/n0core/pkg/util/grpc"
+	netutil "n0st.ac/n0stack/n0core/pkg/util/net"
+	"n0st.ac/n0stack/n0proto.go/pkg/transaction"
+	ppool "n0st.ac/n0stack/n0proto.go/pool/v0"
+	pprovisioning "n0st.ac/n0stack/n0proto.go/provisioning/v0"
 )
 
 var N0coreVirtualMachineNamespace uuid.UUID
@@ -60,10 +60,10 @@ func CreateVirtualMachineAPI(ds datastore.Datastore, noa ppool.NodeServiceClient
 		conn, err := node.GetConnection(ctx, a.nodeAPI, nodeName)
 		cli := NewVirtualMachineAgentServiceClient(conn)
 		if err != nil {
-			return nil, nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to dial to node: err=%s", err.Error())
+			return nil, nil, grpcutil.Errorf(codes.Internal, "Failed to dial to node: err=%s", err.Error())
 		}
 		if conn == nil {
-			return nil, nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", nodeName)
+			return nil, nil, grpcutil.Errorf(codes.FailedPrecondition, "Node '%s' is not ready, so cannot delete: please wait a moment", nodeName)
 		}
 
 		return cli, conn.Close, nil
@@ -93,12 +93,12 @@ func (a *VirtualMachineAPI) addDefaultGateway(ctx context.Context, nw *ppool.Net
 func (a *VirtualMachineAPI) lockOptimistically(vm *pprovisioning.VirtualMachine) (func() error, error) {
 	// PENDINGステートにすることで楽観的なロックを行う
 	if vm.State == pprovisioning.VirtualMachine_PENDING {
-		return nil, grpcutil.WrapGrpcErrorf(codes.ResourceExhausted, "State is PENDING, so cannnot do any actions") // これで State がいいのか自信ない
+		return nil, grpcutil.Errorf(codes.ResourceExhausted, "State is PENDING, so cannnot do any actions") // これで State がいいのか自信ない
 	}
 
 	vm.State = pprovisioning.VirtualMachine_PENDING
 	if err := a.dataStore.Apply(vm.Name, vm); err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
+		return nil, grpcutil.Errorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
 	}
 
 	f := func() error {
@@ -118,20 +118,20 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 	{
 		switch {
 		case req.Name == "":
-			return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Set name")
+			return nil, grpcutil.Errorf(codes.InvalidArgument, "Set name")
 
 		case req.LimitCpuMilliCore%1000 != 0:
-			return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Make limit_cpu_milli_core '%d' a multiple of 1000", req.LimitCpuMilliCore)
+			return nil, grpcutil.Errorf(codes.InvalidArgument, "Make limit_cpu_milli_core '%d' a multiple of 1000", req.LimitCpuMilliCore)
 
 		case req.RequestCpuMilliCore == 0 || req.RequestMemoryBytes == 0:
-			return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Set request_*")
+			return nil, grpcutil.Errorf(codes.InvalidArgument, "Set request_*")
 		}
 
 		var err error
 		if req.Uuid == "" {
 			id = uuid.NewV5(N0coreVirtualMachineNamespace, req.Name)
 		} else if id, err = uuid.FromString(req.Uuid); err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Set valid uuid")
+			return nil, grpcutil.Errorf(codes.InvalidArgument, "Set valid uuid")
 		}
 	}
 
@@ -167,14 +167,14 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 	{
 		prev := &pprovisioning.VirtualMachine{}
 		if err := a.dataStore.Get(vm.Name, prev); err == nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.AlreadyExists, "VirtualMachine '%s' is already exists", vm.Name)
+			return nil, grpcutil.Errorf(codes.AlreadyExists, "VirtualMachine '%s' is already exists", vm.Name)
 		} else if !datastore.IsNotFound(err) {
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
+			return nil, grpcutil.Errorf(codes.Internal, datastore.DefaultErrorMessage(err))
 		}
 
 		vm.State = pprovisioning.VirtualMachine_PENDING
 		if err := a.dataStore.Apply(vm.Name, vm); err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
+			return nil, grpcutil.Errorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
 		}
 		tx.PushRollback("free optimistic lock", func() error {
 			return a.dataStore.Delete(vm.Name)
@@ -200,7 +200,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 				LimitMemoryBytes:    vm.LimitMemoryBytes,
 			})
 			if err != nil {
-				return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to ScheduleCompute: desc=%s", grpc.ErrorDesc(err))
+				return nil, grpcutil.Errorf(grpc.Code(err), "Failed to ScheduleCompute: desc=%s", grpc.ErrorDesc(err))
 			}
 		} else {
 			n, err = a.nodeAPI.ReserveCompute(ctx, &ppool.ReserveComputeRequest{
@@ -215,7 +215,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 				LimitMemoryBytes:    vm.LimitMemoryBytes,
 			})
 			if err != nil {
-				return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to ReserveCompute: desc=%s", grpc.ErrorDesc(err))
+				return nil, grpcutil.Errorf(grpc.Code(err), "Failed to ReserveCompute: desc=%s", grpc.ErrorDesc(err))
 			}
 		}
 
@@ -243,7 +243,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 		})
 		for _, n := range vm.BlockStorageNames {
 			if _, err := a.blockstorageAPI.SetInuseBlockStorage(ctx, &pprovisioning.SetInuseBlockStorageRequest{Name: n}); err != nil {
-				return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to SetInuseBlockStorage: desc=%s", grpc.ErrorDesc(err))
+				return nil, grpcutil.Errorf(grpc.Code(err), "Failed to SetInuseBlockStorage: desc=%s", grpc.ErrorDesc(err))
 			}
 		}
 	}
@@ -286,7 +286,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 				Ipv6Address:          nic.Ipv6Address,
 			})
 			if err != nil {
-				return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to ReserveNetworkInterface: desc=%s", grpc.ErrorDesc(err))
+				return nil, grpcutil.Errorf(grpc.Code(err), "Failed to ReserveNetworkInterface: desc=%s", grpc.ErrorDesc(err))
 			}
 
 			vm.Nics[i].HardwareAddress = network.ReservedNetworkInterfaces[vm.NetworkInterfaceNames[i]].HardwareAddress
@@ -302,7 +302,7 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 				}
 				if !havingGateway {
 					if _, err = a.addDefaultGateway(ctx, network); err != nil {
-						return nil, grpcutil.WrapGrpcErrorf(codes.Internal, errors.Wrapf(err, "Failed to add default gateway").Error())
+						return nil, grpcutil.Errorf(codes.Internal, errors.Wrapf(err, "Failed to add default gateway").Error())
 					}
 				}
 			}
@@ -310,12 +310,12 @@ func (a *VirtualMachineAPI) CreateVirtualMachine(ctx context.Context, req *pprov
 	}
 
 	if err := a.dataStore.Apply(vm.Name, vm); err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
+		return nil, grpcutil.Errorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
 	}
 
 	res, err := a.bootVirtualMachine(ctx, &pprovisioning.BootVirtualMachineRequest{Name: vm.Name})
 	if err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), errors.Wrapf(err, "Failed to BootVirtualMachineRequest").Error())
+		return nil, grpcutil.Errorf(grpc.Code(err), errors.Wrapf(err, "Failed to BootVirtualMachineRequest").Error())
 	}
 
 	tx.Commit()
@@ -355,10 +355,10 @@ func (a *VirtualMachineAPI) ListVirtualMachines(ctx context.Context, req *pprovi
 
 	if err := a.dataStore.List(f); err != nil {
 		log.Printf("[WARNING] Failed to list data from db: err='%s'", err.Error())
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to list from db, please retry or contact for the administrator of this cluster")
+		return nil, grpcutil.Errorf(codes.Internal, "Failed to list from db, please retry or contact for the administrator of this cluster")
 	}
 	if len(res.VirtualMachines) == 0 {
-		return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, "")
+		return nil, grpcutil.Errorf(codes.NotFound, "")
 	}
 
 	return res, nil
@@ -368,17 +368,17 @@ func (a *VirtualMachineAPI) GetVirtualMachine(ctx context.Context, req *pprovisi
 	vm := &pprovisioning.VirtualMachine{}
 	if err := a.dataStore.Get(req.Name, vm); err != nil {
 		if datastore.IsNotFound(err) {
-			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+			return nil, grpcutil.Errorf(codes.NotFound, err.Error())
 		}
 
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
+		return nil, grpcutil.Errorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	return vm, nil
 }
 
 func (a *VirtualMachineAPI) UpdateVirtualMachine(ctx context.Context, req *pprovisioning.UpdateVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
-	return nil, grpcutil.WrapGrpcErrorf(codes.Unimplemented, "")
+	return nil, grpcutil.Errorf(codes.Unimplemented, "")
 }
 
 func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprovisioning.DeleteVirtualMachineRequest) (*empty.Empty, error) {
@@ -394,20 +394,20 @@ func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprov
 	{
 		if err := a.dataStore.Get(req.Name, vm); err != nil {
 			if datastore.IsNotFound(err) {
-				return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+				return nil, grpcutil.Errorf(codes.NotFound, err.Error())
 			}
 
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
+			return nil, grpcutil.Errorf(codes.Internal, datastore.DefaultErrorMessage(err))
 		}
 
 		if vm.State == pprovisioning.VirtualMachine_PENDING {
-			return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "VirtualMachine '%s' is pending", req.Name)
+			return nil, grpcutil.Errorf(codes.FailedPrecondition, "VirtualMachine '%s' is pending", req.Name)
 		}
 
 		current := vm.State
 		vm.State = pprovisioning.VirtualMachine_PENDING
 		if err := a.dataStore.Apply(vm.Name, vm); err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
+			return nil, grpcutil.Errorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
 		}
 		vm.State = current
 		tx.PushRollback("free optimistic lock", func() error {
@@ -437,7 +437,7 @@ func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprov
 			Netdevs: netdevs,
 		})
 		if err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to DeleteVirtualMachineAgent: desc=%s", grpc.ErrorDesc(err))
+			return nil, grpcutil.Errorf(grpc.Code(err), "Failed to DeleteVirtualMachineAgent: desc=%s", grpc.ErrorDesc(err))
 		}
 	}
 
@@ -446,7 +446,7 @@ func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprov
 		ComputeName: vm.ComputeName,
 	})
 	if err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to ReleaseCompute: desc=%s", grpc.ErrorDesc(err))
+		return nil, grpcutil.Errorf(grpc.Code(err), "Failed to ReleaseCompute: desc=%s", grpc.ErrorDesc(err))
 	}
 	tx.PushRollback(fmt.Sprintf("ReserveCompute '%s'", vm.Name), func() error {
 		_, err = a.nodeAPI.ReserveCompute(ctx, &ppool.ReserveComputeRequest{
@@ -492,7 +492,7 @@ func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprov
 			NetworkInterfaceName: vm.NetworkInterfaceNames[i],
 		})
 		if err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to ReleaseNetworkInterface: desc=%s", grpc.ErrorDesc(err))
+			return nil, grpcutil.Errorf(grpc.Code(err), "Failed to ReleaseNetworkInterface: desc=%s", grpc.ErrorDesc(err))
 		}
 	}
 
@@ -509,12 +509,12 @@ func (a *VirtualMachineAPI) DeleteVirtualMachine(ctx context.Context, req *pprov
 	for _, n := range vm.BlockStorageNames {
 		_, err := a.blockstorageAPI.SetAvailableBlockStorage(context.Background(), &pprovisioning.SetAvailableBlockStorageRequest{Name: n})
 		if err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to SetAvailableBlockStorage: desc=%s", grpc.ErrorDesc(err))
+			return nil, grpcutil.Errorf(grpc.Code(err), "Failed to SetAvailableBlockStorage: desc=%s", grpc.ErrorDesc(err))
 		}
 	}
 
 	if err := a.dataStore.Delete(req.Name); err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "message:Failed to delete from db.\tgot:%v", err.Error())
+		return nil, grpcutil.Errorf(codes.Internal, "message:Failed to delete from db.\tgot:%v", err.Error())
 	}
 
 	tx.Commit()
@@ -526,7 +526,7 @@ func (a *VirtualMachineAPI) BootVirtualMachine(ctx context.Context, req *pprovis
 	{
 		switch {
 		case req.Name == "":
-			return nil, grpcutil.WrapGrpcErrorf(codes.InvalidArgument, "Set name")
+			return nil, grpcutil.Errorf(codes.InvalidArgument, "Set name")
 		}
 	}
 
@@ -548,20 +548,20 @@ func (a *VirtualMachineAPI) bootVirtualMachine(ctx context.Context, req *pprovis
 	{
 		if err := a.dataStore.Get(req.Name, vm); err != nil {
 			if datastore.IsNotFound(err) {
-				return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+				return nil, grpcutil.Errorf(codes.NotFound, err.Error())
 			}
 
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
+			return nil, grpcutil.Errorf(codes.Internal, datastore.DefaultErrorMessage(err))
 		}
 
 		if vm.State == pprovisioning.VirtualMachine_PENDING {
-			return nil, grpcutil.WrapGrpcErrorf(codes.FailedPrecondition, "VirtualMachine '%s' is pending", vm.Name)
+			return nil, grpcutil.Errorf(codes.FailedPrecondition, "VirtualMachine '%s' is pending", vm.Name)
 		}
 
 		current := vm.State
 		vm.State = pprovisioning.VirtualMachine_PENDING
 		if err := a.dataStore.Apply(vm.Name, vm); err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
+			return nil, grpcutil.Errorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
 		}
 		vm.State = current
 		tx.PushRollback("free optimistic lock", func() error {
@@ -574,7 +574,7 @@ func (a *VirtualMachineAPI) bootVirtualMachine(ctx context.Context, req *pprovis
 		for i, n := range vm.BlockStorageNames {
 			bs, err := a.blockstorageAPI.GetBlockStorage(ctx, &pprovisioning.GetBlockStorageRequest{Name: n})
 			if err != nil {
-				return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to GetBlockStorage: desc=%s", grpc.ErrorDesc(err))
+				return nil, grpcutil.Errorf(grpc.Code(err), "Failed to GetBlockStorage: desc=%s", grpc.ErrorDesc(err))
 			}
 
 			blockdevs[i] = &BlockDev{
@@ -599,7 +599,7 @@ func (a *VirtualMachineAPI) bootVirtualMachine(ctx context.Context, req *pprovis
 		for i, nic := range vm.Nics {
 			network, err := a.networkAPI.GetNetwork(ctx, &ppool.GetNetworkRequest{Name: nic.NetworkName})
 			if err != nil {
-				return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to GetNetworkInterface: desc=%s", grpc.ErrorDesc(err))
+				return nil, grpcutil.Errorf(grpc.Code(err), "Failed to GetNetworkInterface: desc=%s", grpc.ErrorDesc(err))
 			}
 
 			netdevs[i] = &NetDev{
@@ -646,7 +646,7 @@ func (a *VirtualMachineAPI) bootVirtualMachine(ctx context.Context, req *pprovis
 			SshAuthorizedKeys: vm.SshAuthorizedKeys,
 		})
 		if err != nil {
-			return nil, grpcutil.WrapGrpcErrorf(grpc.Code(err), "Failed to CreateVirtualMachineAgent: desc=%s", grpc.ErrorDesc(err))
+			return nil, grpcutil.Errorf(grpc.Code(err), "Failed to CreateVirtualMachineAgent: desc=%s", grpc.ErrorDesc(err))
 		}
 		tx.PushRollback("", func() error {
 			cli, done, err := a.getAgent(ctx, vm.ComputeNodeName)
@@ -667,7 +667,7 @@ func (a *VirtualMachineAPI) bootVirtualMachine(ctx context.Context, req *pprovis
 	}
 
 	if err := a.dataStore.Apply(vm.Name, vm); err != nil {
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
+		return nil, grpcutil.Errorf(codes.Internal, "Failed to apply data for db: err='%s'", err.Error())
 	}
 
 	tx.Commit()
@@ -675,15 +675,15 @@ func (a *VirtualMachineAPI) bootVirtualMachine(ctx context.Context, req *pprovis
 }
 
 func (a *VirtualMachineAPI) RebootVirtualMachine(ctx context.Context, req *pprovisioning.RebootVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
-	return nil, grpcutil.WrapGrpcErrorf(codes.Unimplemented, "")
+	return nil, grpcutil.Errorf(codes.Unimplemented, "")
 }
 
 func (a *VirtualMachineAPI) ShutdownVirtualMachine(ctx context.Context, req *pprovisioning.ShutdownVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
-	return nil, grpcutil.WrapGrpcErrorf(codes.Unimplemented, "")
+	return nil, grpcutil.Errorf(codes.Unimplemented, "")
 }
 
 func (a *VirtualMachineAPI) SaveVirtualMachine(ctx context.Context, req *pprovisioning.SaveVirtualMachineRequest) (*pprovisioning.VirtualMachine, error) {
-	return nil, grpcutil.WrapGrpcErrorf(codes.Unimplemented, "")
+	return nil, grpcutil.Errorf(codes.Unimplemented, "")
 }
 
 // TODO: めんどくさいので n0core コマンドで定義した URL に一時的に依存している、治す必要あり
@@ -691,10 +691,10 @@ func (a *VirtualMachineAPI) OpenConsole(ctx context.Context, req *pprovisioning.
 	vm := &pprovisioning.VirtualMachine{}
 	if err := a.dataStore.Get(req.Name, vm); err != nil {
 		if datastore.IsNotFound(err) {
-			return nil, grpcutil.WrapGrpcErrorf(codes.NotFound, err.Error())
+			return nil, grpcutil.Errorf(codes.NotFound, err.Error())
 		}
 
-		return nil, grpcutil.WrapGrpcErrorf(codes.Internal, datastore.DefaultErrorMessage(err))
+		return nil, grpcutil.Errorf(codes.Internal, datastore.DefaultErrorMessage(err))
 	}
 
 	u := &url.URL{

@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/n0stack/n0stack/n0core/pkg/driver/n0deploy"
+	"n0st.ac/n0stack/n0core/pkg/driver/n0deploy"
 
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
@@ -91,7 +91,7 @@ func WrapAction(t SubcommandType) func(cctx *cli.Context) error {
 		}
 
 		for i, ins := range inss {
-			fmt.Fprintf(out, ">>> Step %d/%d: %s\n", i+1, len(inss), ins.String())
+			fmt.Fprintf(out, "  [ Step %d/%d ] %s\n", i+1, len(inss), ins.String())
 
 			if err := ins.Do(ctx, out); err != nil {
 				return errors.Wrapf(err, "Failed to do instruction")

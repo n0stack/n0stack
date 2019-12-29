@@ -3,8 +3,8 @@ package node
 import (
 	"testing"
 
-	"github.com/n0stack/n0stack/n0proto.go/budget/v0"
-	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	"n0st.ac/n0stack/n0proto.go/budget/v0"
+	"n0st.ac/n0stack/n0proto.go/pool/v0"
 )
 
 func TestIsLockedForDeletion(t *testing.T) {

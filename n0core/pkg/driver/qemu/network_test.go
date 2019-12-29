@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"code.cloudfoundry.org/bytefmt"
-	"github.com/n0stack/n0stack/n0core/pkg/driver/iproute2"
+	"n0st.ac/n0stack/n0core/pkg/driver/iproute2"
 	uuid "github.com/satori/go.uuid"
 )
 

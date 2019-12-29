@@ -1,0 +1,146 @@
+syntax = "proto3";
+
+option go_package = "n0st.ac/n0stack/iam/v1alpha;piam";
+
+package n0stack.iam.v1alpha;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+  info: {
+    title: "n0stack";
+    contact: {
+      name: "n0stack";
+      url: "https://github.com/n0stack/n0stack";
+    }
+  }
+  
+  schemes: HTTPS;
+  // schemes: HTTP;
+  consumes: "application/json";
+  produces: "application/json";
+};
+
+
+enum ProjectMembership {
+  PROJECT_MEMBERSHIP_UNSPECIFIED = 0;
+
+  // Owners have all of permissions.
+  OWNER = 1;
+
+  // Members have only assined permissions by Roles.
+  MEMBER = 2;
+}
+message Project {
+  // Name is a unique field.
+  string name = 1;
+
+  // Annotations can store metadata used by the system for control.
+  // In particular, implementation-dependent fields that can not be set as protobuf fields are targeted.
+  // The control specified by n0stack may delete metadata specified by the user.
+  map<string, string> annotations = 3;
+
+  // Labels stores user-defined metadata.
+  // The n0stack system must not rewrite this value.
+  map<string, string> labels = 4;
+
+  string display_name = 9;
+
+  map<string, ProjectMembership> membership = 32;
+}
+
+
+service ProjectService {
+  // あるユーザーがメンバーであるプロジェクトすべてを返す
+  // errors:
+  //   NotFound: どのプロジェクトにも属していない場合
+  rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse) {
+    option (google.api.http) = {
+      get: "/api/iam/v1alpha/projects"
+    };
+  }
+
+  // Summary: プロジェクトの詳細を取得する
+  // errors:
+  //   NotFound: memberじゃない場合
+  //   Unauthorized: ログインしていない場合
+  rpc GetProject(GetProjectRequest) returns (Project) {
+    option (google.api.http) = {
+      get: "/api/iam/v1alpha/projects/{name}"
+    };
+  }
+
+  // ログインしているユーザーがオーナーとなるプロジェクトを作成する
+  // errors:
+  //   Unauthorized: ログインしていない場合
+  rpc CreateProject(CreateProjectRequest) returns (Project) {
+    option (google.api.http) = {
+      post: "/api/iam/v1alpha/projects/{project.name}"
+      body: "project"
+    };
+  }
+
+  rpc UpdateProject(UpdateProjectRequest) returns (Project) {
+    option (google.api.http) = {
+      put: "/api/iam/v1alpha/projects/{project.name}"
+      body: "project"
+    };
+  }
+
+  rpc DeleteProject(DeleteProjectRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/iam/v1alpha/projects/{name}"
+    };
+  }
+
+  rpc AddProjectMembership(AddProjectMembershipRequest) returns (Project) {
+    option (google.api.http) = {
+      post: "/api/iam/v1alpha/projects/{project_name}/membership/{user_name}"
+      body: "*"
+    };
+  }
+
+  rpc DeleteProjectMembership(DeleteProjectMembershipRequest) returns (Project) {
+    option (google.api.http) = {
+      delete: "/api/iam/v1alpha/projects/{project_name}/membership/{user_name}"
+    };
+  }
+}
+
+
+message ListProjectsRequest {}
+message ListProjectsResponse {
+  repeated Project projects = 1;
+}
+
+message GetProjectRequest {
+  string name = 1;
+}
+
+message CreateProjectRequest {
+  Project project = 1;
+}
+
+message UpdateProjectRequest {
+  Project project = 1;
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message DeleteProjectRequest {
+  string name = 1;
+}
+
+message AddProjectMembershipRequest {
+  string project_name = 1;
+  string user_name = 2;
+
+  ProjectMembership membership = 3;
+}
+
+message DeleteProjectMembershipRequest {
+  string project_name = 1;
+  string user_name = 2;
+}

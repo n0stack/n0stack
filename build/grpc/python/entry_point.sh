@@ -1,11 +1,7 @@
 #!/bin/bash
 set -x
 
-mkdir -p /tmp/build/n0proto
-mkdir -p /tmp/dst
-cp -r /src/* /tmp/build/n0proto
-dirs=`find /tmp/build/n0proto -type d | grep -v .git | grep -v test`
-rm -r /dst/*
+dirs=`find /src -type d | egrep -v "/\." | grep -v test | grep -v vendor`
 
 for d in $dirs
 do
@@ -16,18 +12,10 @@ do
   if [ "$?" = "0" ]; then
     python \
       -m grpc_tools.protoc \
-      -I/usr/local/include \
-      -I/tmp/build/n0proto \
-      --python_out=/tmp/dst \
-      --grpc_python_out=/tmp/dst \
+      -I/src \
+      -I/tmp/include \
+      --python_out=/src \
+      --grpc_python_out=/src \
       $* $d/*.proto
   fi
-done
-
-mv /tmp/dst/n0proto/* /dst
-
-dirs=`find /dst -type d | grep -v .git | grep -v test`
-for d in $dirs
-do
-  touch $d/__init__.py
 done

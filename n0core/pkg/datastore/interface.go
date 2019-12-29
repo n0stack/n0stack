@@ -1,22 +1,18 @@
 package datastore
 
 import (
+	"context"
+
 	"github.com/golang/protobuf/proto"
 )
 
 type Datastore interface {
 	AddPrefix(prefix string) Datastore
 
-	List(f func(length int) []proto.Message) error
+	List(ctx context.Context, f func(length int) []proto.Message) error
 
-	// if result is empty, set pb as nil.
-	Get(key string, pb proto.Message) error
+	Get(ctx context.Context, key string, pb proto.Message) (int64, error)
 
-	// update process requires locking in advance
-	Apply(key string, pb proto.Message) error
-	Delete(key string) error
-
-	Lock(key string) bool
-	Unlock(key string) bool
-	IsLocked(key string) bool
+	Apply(ctx context.Context, key string, pb proto.Message, currentVersion int64) (int64, error)
+	Delete(ctx context.Context, key string, currentVersion int64) error
 }

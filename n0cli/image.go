@@ -1,3 +1,5 @@
+// +build ignore
+
 package main
 
 import (
@@ -10,7 +12,7 @@ import (
 	"github.com/urfave/cli"
 	"google.golang.org/grpc"
 
-	pdeployment "github.com/n0stack/n0stack/n0proto.go/deployment/v0"
+	pdeployment "n0st.ac/n0stack/n0proto.go/deployment/v0"
 )
 
 func RegisterBlockStorage(c *cli.Context) error {

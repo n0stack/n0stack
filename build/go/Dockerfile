@@ -1,4 +1,4 @@
-FROM golang:1.11
+FROM golang:1.13
 
 # for n0core
 RUN apt-get update \
