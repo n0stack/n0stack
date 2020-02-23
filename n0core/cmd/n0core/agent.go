@@ -113,6 +113,7 @@ func ServeAgent(ctx *cli.Context) error {
 	cpu := uint32(ctx.Uint("cpu-capacity-milli-cores"))
 	memory := ctx.Uint64("memory-capacity-bytes")
 	storage := ctx.Uint64("storage-capacity-bytes")
+	parallelLimit := ctx.Int64("parallel-limit")
 
 	location := strings.Split(ctx.String("location"), "/")
 	if len(location) != 5 {
@@ -129,7 +130,7 @@ func ServeAgent(ctx *cli.Context) error {
 	unit := uint32(u)
 
 	bvm := filepath.Join(baseDirectory, "virtual_machine")
-	vma, err := virtualmachine.CreateVirtualMachineAgent(bvm)
+	vma, err := virtualmachine.CreateVirtualMachineAgent(bvm, parallelLimit)
 	if err != nil {
 		return err
 	}
