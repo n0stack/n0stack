@@ -94,6 +94,10 @@ func main() {
 							Name:  "storage-capacity-bytes",
 							Value: uint64(100 * bytefmt.GIGABYTE),
 						},
+						cli.Int64Flag{
+							Name:  "parallel-limit",
+							Value: int64(1),
+						},
 					},
 				},
 			},
