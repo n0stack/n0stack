@@ -1,5 +1,7 @@
 module github.com/n0stack/n0stack
 
+go 1.16
+
 require (
 	code.cloudfoundry.org/bytefmt v0.0.0-20180906201452-2aa6f33b730c
 	github.com/StackExchange/wmi v0.0.0-20181212234831-e0a55b97c705 // indirect
@@ -13,11 +15,10 @@ require (
 	github.com/fatih/color v1.7.0
 	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/gogo/protobuf v1.2.1
-	github.com/golang/protobuf v1.3.1
+	github.com/golang/protobuf v1.3.2
 	github.com/google/go-cmp v0.2.0
-	github.com/gorilla/websocket v1.4.0 // indirect
-	github.com/grpc-ecosystem/go-grpc-middleware v1.0.0
-	github.com/grpc-ecosystem/grpc-gateway v1.8.5
+	github.com/grpc-ecosystem/go-grpc-middleware v1.0.1-0.20190118093823-f849b5445de4
+	github.com/grpc-ecosystem/grpc-gateway v1.9.5
 	github.com/hashicorp/hcl2 v0.0.0-20190618163856-0b64543c968c
 	github.com/jinzhu/gorm v1.9.4
 	github.com/koding/websocketproxy v0.0.0-20181220232114-7ed82d81a28c
@@ -40,8 +41,9 @@ require (
 	github.com/valyala/fasttemplate v1.0.1 // indirect
 	github.com/vishvananda/netlink v1.0.0
 	github.com/vishvananda/netns v0.0.0-20180720170159-13995c7128cc // indirect
-	golang.org/x/crypto v0.0.0-20190426145343-a29dc8fdc734
-	google.golang.org/genproto v0.0.0-20190425155659-357c62f0e4bb
-	google.golang.org/grpc v1.20.1
+	go.etcd.io/etcd v0.5.0-alpha.5.0.20210506082109-6bbc85827b03 // indirect
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+	google.golang.org/genproto v0.0.0-20190819201941-24fa4b261c55
+	google.golang.org/grpc v1.26.0
 	gopkg.in/yaml.v2 v2.2.2
 )
