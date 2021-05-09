@@ -81,13 +81,12 @@ func (q Qemu) Boot() error {
 		if err := q.m.SystemReset(); err != nil {
 			return err
 		}
+	} else if s == StatusSuspended {
+		// not tested
+		return q.m.SystemWakeup()
 	}
 
-	if err := q.m.Cont(); err != nil {
-		return err
-	}
-
-	return q.m.SystemWakeup()
+	return q.m.Cont()
 }
 
 type Status int
@@ -221,8 +220,8 @@ func (q *Qemu) Start(id uuid.UUID, qmpPath string, vcpus uint32, memory uint64) 
 			fmt.Sprintf("%s", bytefmt.ByteSize(memory)),
 			// "-device",
 			// "virtio-balloon-pci,id=balloon0,bus=pci.0", // dynamic configurations
-			"-realtime",
-			"mlock=off",
+			"-overcommit",
+			"mem-lock=off",
 
 			// VGA controller
 			"-device",
