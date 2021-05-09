@@ -137,7 +137,7 @@ vendor-on-docker:
 
 .PHONY: update-go
 update-go:
-	go get -u
+	go get -u all
 
 .PHONY: update-go-on-docker
 update-go-on-docker:
